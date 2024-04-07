@@ -53,6 +53,7 @@ import chess.engine
 import chess.polyglot
 import logging
 import platform as sys_plat
+from annotator import annotator
 
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
@@ -235,7 +236,7 @@ INIT_PGN_TAG = {
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-        ['&Mode', ['Play']],
+        ['&Mode', ['Play', 'Analise']],
         ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                       'Blue::board_color_k',
                                       'Green::board_color_k',
@@ -253,14 +254,15 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-        ['&Mode', ['Neutral']],
+        ['&Mode', ['Neutral', 'Analise']],
         ['&Game', ['&New::new_game_k',
                    'Save to My Games::save_game_k',
                    'Save to White Repertoire',
                    'Save to Black Repertoire',
                    'Resign::resign_game_k',
                    'User Wins::user_wins_k',
-                   'User Draws::user_draws_k']],
+                   'User Draws::user_draws_k',
+                   'Analise game']],
         ['FEN', ['Paste']],
         ['&Engine', ['Go', 'Move Now']],
         ['&Help', ['GUI']],
@@ -662,6 +664,7 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  max_depth=MAX_DEPTH):
         self.theme = theme
+        self.entry_game = True
         self.user_config_file = user_config_file
         self.engine_config_file = engine_config_file
         self.gui_book_file = gui_book_file
@@ -1750,6 +1753,10 @@ class EasyChessGui:
                         is_exit_game = True
                         break
 
+                    if button == 'Analise':
+                        self.entry_game = True
+                        break
+
                     if button == 'GUI':
                         sg.PopupScrolled(HELP_MSG, title=BOX_TITLE)
                         continue
@@ -1798,7 +1805,7 @@ class EasyChessGui:
                     break
 
             # If side to move is human
-            if is_human_stm:
+            if is_human_stm or self.entry_game:
                 move_state = 0
 
                 while True:
@@ -1812,7 +1819,7 @@ class EasyChessGui:
                     window.Element(k).Update(elapse_str)
                     human_timer.elapse += 100
 
-                    if not is_human_stm:
+                    if not (is_human_stm or self.entry_game):
                         break
 
                     # Mode: Play, Stm: User, Run adviser engine
@@ -1924,6 +1931,16 @@ class EasyChessGui:
                         self.clear_elements(window)
                         break
 
+                    if button == 'Analise game':
+                        logging.info('Saving game manually')
+                        with open('tempsave.pgn', mode='w') as f:
+                            self.game.headers['Event'] = 'My Games 2'
+                            self.game.headers['White'] = value['_White_']
+                            self.game.headers['Black'] = value['_Black_']
+                            f.write('{}\n\n'.format(self.game))
+                        annotator.start_analise()
+                        break
+
                     if button == 'Save to My Games::save_game_k':
                         logging.info('Saving game manually')
                         with open(self.my_games, mode='a+') as f:
@@ -2026,9 +2043,10 @@ class EasyChessGui:
                     # Mode: Play, stm: User, user starts moving
                     if type(button) is tuple:
                         # If fr_sq button is pressed
-                        if move_state == 0:
+                        if (move_state == 0) or self.entry_game and not is_human_stm and (move_state == 0):
                             move_from = button
                             fr_row, fr_col = move_from
+                            print("move from:", move_from)
                             piece = self.psg_board[fr_row][fr_col]  # get the move-from piece
 
                             # Change the color of the "fr" board square
@@ -2039,6 +2057,7 @@ class EasyChessGui:
 
                         # Else if to_sq button is pressed
                         elif move_state == 1:
+                            print("move_state", move_state)
                             is_promote = False
                             move_to = button
                             to_row, to_col = move_to
@@ -2060,6 +2079,8 @@ class EasyChessGui:
                             # Get the fr_sq and to_sq of the move from user, based from this info
                             # we will create a move based from python-chess format.
                             # Note chess.square() and chess.Move() are from python-chess module
+                            #tweede zet: move_from is blijven staan
+                            print("move_from", move_from)
                             fr_row, fr_col = move_from
                             fr_sq = chess.square(fr_col, 7-fr_row)
                             to_sq = chess.square(to_col, 7-to_row)
@@ -2075,7 +2096,9 @@ class EasyChessGui:
                                 user_move = chess.Move(fr_sq, to_sq)
 
                             # Check if user move is legal
+                            print("user move1", user_move)
                             if user_move in list(board.legal_moves):
+                                move_state = 0
                                 # Update rook location if this is a castle move
                                 if board.is_castling(user_move):
                                     self.update_rook(window, str(user_move))
@@ -2158,6 +2181,7 @@ class EasyChessGui:
 
             # Else if side to move is not human
             elif not is_human_stm and is_engine_ready:
+                print("computer-move")
                 is_promote = False
                 best_move = None
                 is_book_from_gui = True
@@ -2502,16 +2526,16 @@ class EasyChessGui:
         board_controls = [
             [sg.Text('Mode     Neutral', size=(36, 1), font=('Consolas', 10), key='_gamestatus_')],
             [sg.Text('White', size=(7, 1), font=('Consolas', 10)),
-             sg.Text('Human', font=('Consolas', 10), key='_White_',
-                     size=(24, 1), relief='sunken'),
+             sg.InputText('Human', font=('Consolas', 10), key='_White_',
+                     size=(24, 1)),
              sg.Text('', font=('Consolas', 10), key='w_base_time_k',
                      size=(11, 1), relief='sunken'),
              sg.Text('', font=('Consolas', 10), key='w_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
             [sg.Text('Black', size=(7, 1), font=('Consolas', 10)),
-             sg.Text('Computer', font=('Consolas', 10), key='_Black_',
-                     size=(24, 1), relief='sunken'),
+             sg.InputText('Computer', font=('Consolas', 10), key='_Black_',
+                          size=(24, 1)),
              sg.Text('', font=('Consolas', 10), key='b_base_time_k',
                      size=(11, 1), relief='sunken'),
              sg.Text('', font=('Consolas', 10), key='b_elapse_k', size=(7, 1),
@@ -3561,7 +3585,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play':
+            if button == 'Play' or button == 'Analise':
+                self.entry_game = button == 'Analise'
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
