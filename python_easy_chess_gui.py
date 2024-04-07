@@ -44,6 +44,7 @@ from pathlib import Path, PurePath  # Python 3.4 and up
 import queue
 import copy
 import time
+import argparse
 from datetime import datetime
 import json
 import pyperclip
@@ -654,6 +655,24 @@ class RunEngine(threading.Thread):
 
         return ' '.join(short_san_pv)
 
+def parse_args():
+    """
+    Define an argument parser and return the parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        prog='annotator',
+        description='takes chess games in a PGN file and prints '
+        'annotations to standard output')
+    parser.add_argument("--engine", "-e",
+                        help="analysis engine (default: %(default)s)",
+                        default="stockfish")
+    parser.add_argument("--threads", "-t",
+                        help="threads for use by the engine \
+                            (default: %(default)s)",
+                        type=int,
+                        default=1)
+
+    return parser.parse_args()
 
 class EasyChessGui:
     queue = queue.Queue()
@@ -662,8 +681,11 @@ class EasyChessGui:
     def __init__(self, theme, engine_config_file, user_config_file,
                  gui_book_file, computer_book_file, human_book_file,
                  is_use_gui_book, is_random_book, max_book_ply,
+                 engine = '/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
                  max_depth=MAX_DEPTH):
         self.theme = theme
+        self.engine = engine
+        print("engine:", engine)
         self.entry_game = True
         self.user_config_file = user_config_file
         self.engine_config_file = engine_config_file
@@ -1933,12 +1955,14 @@ class EasyChessGui:
 
                     if button == 'Analise game':
                         logging.info('Saving game manually')
-                        with open('tempsave.pgn', mode='w') as f:
+                        pgn_file = 'tempsave.pgn'
+                        with open(pgn_file, mode='w') as f:
                             self.game.headers['Event'] = 'My Games 2'
                             self.game.headers['White'] = value['_White_']
                             self.game.headers['Black'] = value['_Black_']
                             f.write('{}\n\n'.format(self.game))
-                        annotator.start_analise()
+                        annotator.start_analise(pgn_file,
+                                                self.engine)
                         break
 
                     if button == 'Save to My Games::save_game_k':
@@ -3626,7 +3650,7 @@ class EasyChessGui:
         window.Close()
 
 
-def main():
+def main(engine):
     engine_config_file = 'pecg_engines.json'
     user_config_file = 'pecg_user.json'
 
@@ -3642,10 +3666,14 @@ def main():
     pecg = EasyChessGui(theme, engine_config_file, user_config_file,
                         pecg_book, book_from_computer_games,
                         book_from_human_games, is_use_gui_book, is_random_book,
-                        max_book_ply)
+                         max_book_ply, engine)
 
     pecg.main_loop()
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    engine = args.engine.split()[0]
+    print("engine in main", engine)
+
+    main(engine)

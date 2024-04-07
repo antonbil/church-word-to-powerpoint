@@ -775,9 +775,7 @@ def checkgame(game):
         logger.critical(errormsg)
         raise RuntimeError(errormsg)
 
-def start_analise():
-        engine = '/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2'
-        pgnfile = 'tempsave.pgn'
+def start_analise(pgnfile, engine):
         with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
