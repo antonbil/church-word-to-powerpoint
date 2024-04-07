@@ -685,7 +685,6 @@ class EasyChessGui:
                  max_depth=MAX_DEPTH):
         self.theme = theme
         self.engine = engine
-        print("engine:", engine)
         self.entry_game = True
         self.user_config_file = user_config_file
         self.engine_config_file = engine_config_file
@@ -2070,7 +2069,6 @@ class EasyChessGui:
                         if (move_state == 0) or self.entry_game and not is_human_stm and (move_state == 0):
                             move_from = button
                             fr_row, fr_col = move_from
-                            print("move from:", move_from)
                             piece = self.psg_board[fr_row][fr_col]  # get the move-from piece
 
                             # Change the color of the "fr" board square
@@ -2081,7 +2079,6 @@ class EasyChessGui:
 
                         # Else if to_sq button is pressed
                         elif move_state == 1:
-                            print("move_state", move_state)
                             is_promote = False
                             move_to = button
                             to_row, to_col = move_to
@@ -2103,8 +2100,6 @@ class EasyChessGui:
                             # Get the fr_sq and to_sq of the move from user, based from this info
                             # we will create a move based from python-chess format.
                             # Note chess.square() and chess.Move() are from python-chess module
-                            #tweede zet: move_from is blijven staan
-                            print("move_from", move_from)
                             fr_row, fr_col = move_from
                             fr_sq = chess.square(fr_col, 7-fr_row)
                             to_sq = chess.square(to_col, 7-to_row)
@@ -2120,7 +2115,6 @@ class EasyChessGui:
                                 user_move = chess.Move(fr_sq, to_sq)
 
                             # Check if user move is legal
-                            print("user move1", user_move)
                             if user_move in list(board.legal_moves):
                                 move_state = 0
                                 # Update rook location if this is a castle move
@@ -2205,7 +2199,6 @@ class EasyChessGui:
 
             # Else if side to move is not human
             elif not is_human_stm and is_engine_ready:
-                print("computer-move")
                 is_promote = False
                 best_move = None
                 is_book_from_gui = True
@@ -3674,6 +3667,4 @@ def main(engine):
 if __name__ == "__main__":
     args = parse_args()
     engine = args.engine.split()[0]
-    print("engine in main", engine)
-
     main(engine)
