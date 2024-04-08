@@ -27,6 +27,7 @@ class HeaderDialog:
         PREF = {'white': white, 'black': black, 'date': self.date}
         results = ["1-0", "1/2-1/2", "0-1", "*"]
         rounds = [str(l) for l in range(1,50)]
+        sg.theme('default')
         self.layout = [
             [[sg.Text("Event:"),
               sg.Combo(events_list, font=('Arial Bold', 14), expand_x=True, enable_events=True,
@@ -37,7 +38,7 @@ class HeaderDialog:
             [[sg.Text("Date:"),
               sg.Input(key='date', size=(20, 1)), sg.CalendarButton('Calendar', target='date',
                                                                     format='%Y/%m/%d',
-                                                                    default_date_m_d_y=(2, None, 2020), locale='nl_NL',
+                                                                    locale='nl_NL',
                                                                     begin_at_sunday_plus=1)]],
             [[sg.Text("Round:"),
               sg.Combo(rounds, font=('Arial Bold', 14), expand_x=True, enable_events=True,
