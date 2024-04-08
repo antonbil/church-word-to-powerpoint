@@ -167,9 +167,10 @@ def needs_annotation(judgment):
     """
     best = winning_chances(int(judgment["besteval"]))
     played = winning_chances(int(judgment["playedeval"]))
-    delta = best - played
+    delta = abs(best - played)
+    # print("compare threshold", delta)
 
-    return delta > NEEDS_ANNOTATION_THRESHOLD
+    return delta > NEEDS_ANNOTATION_THRESHOLD or best > played
 
 
 def judge_move(board, played_move, engine, info_handler, searchtime_s):
@@ -245,11 +246,17 @@ def get_nags(judgment):
     delta = judgment["playedeval"] - judgment["besteval"]
 
     if delta < ERROR_THRESHOLD["BLUNDER"]:
+        #print("blunder:", chess.pgn.NAG_BLUNDER)
         return [chess.pgn.NAG_BLUNDER]
     elif delta < ERROR_THRESHOLD["MISTAKE"]:
+        #print("MISTAKE:", chess.pgn.NAG_MISTAKE)
         return [chess.pgn.NAG_MISTAKE]
     elif delta < ERROR_THRESHOLD["DUBIOUS"]:
         return [chess.pgn.NAG_DUBIOUS_MOVE]
+    elif judgment["playedeval"] > judgment["besteval"]+0.5:
+        return [9]
+    elif judgment["playedeval"] > judgment["besteval"]:
+        return [7]
     else:
         return []
 
@@ -782,12 +789,44 @@ def checkgame(game):
         logger.critical(errormsg)
         raise RuntimeError(errormsg)
 
+def change_nags(pgn):
+    """"
+    blunder: 4 MISTAKE: 2 DUBIOUS: 6"""
+    pgn = str(pgn)
+    pgn = pgn.replace("$6 {", "{Dubious ")
+    pgn = pgn.replace("$2 {", "{Mistake ")
+    pgn = pgn.replace("$4 {", "{Blunder ")
+    pgn = pgn.replace("$7 {", "{Good ")
+    pgn = pgn.replace("$9 {", "{Brilliant ")
+    strs = pgn.split("\n")
+    res = []
+    res.append(strs.pop(0))
+    for line in strs:
+        if len(line) < 80:
+            res.append(line)
+        else:
+            line_strs = line.split(" ")
+            hl = ""
+            for word in line_strs:
+                if len(hl) + len(word) < 80 or word == "}" or word == ")":
+                    sep = " "
+                    if len(hl) == 0:
+                        sep = ""
+                    hl = hl + sep + word
+                else:
+                    res.append(hl)
+                    hl = word
+            if len(hl) > 0:
+                res.append(hl)
+    pgn = "\n".join(res)
+    return pgn
+
 def start_analise(pgnfile, engine, fine_name_file, add_to_library):
         with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
-                    analyzed_game = analyze_game(game, 1,
-                                                 engine, 2)
+                    analyzed_game = change_nags(analyze_game(game, 1,
+                                                 engine, 2))
                 except KeyboardInterrupt:
                     logger.critical("\nReceived KeyboardInterrupt.")
                     raise
@@ -825,8 +864,8 @@ def main():
         with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
-                    analyzed_game = analyze_game(game, args.gametime,
-                                                 engine, args.threads)
+                    analyzed_game = change_nags(analyze_game(game, args.gametime,
+                                                 engine, args.threads))
                 except KeyboardInterrupt:
                     logger.critical("\nReceived KeyboardInterrupt.")
                     raise
