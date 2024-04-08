@@ -540,7 +540,11 @@ def get_pass2_budget(total_budget, pass1_budget):
 
 
 def get_time_per_move(pass_budget, ply_count):
-    return float(pass_budget) / float(ply_count)
+    try:
+        count_ = float(pass_budget) / float(ply_count)
+    except:
+        count_ = 60
+    return count_
 
 
 def analyze_game(game, arg_gametime, enginepath, threads):
@@ -704,7 +708,10 @@ def analyze_game(game, arg_gametime, enginepath, threads):
     except ZeroDivisionError:
         logger.debug("No errors found on first pass!")
         # There were no mistakes in the game, so deeply analyze all the moves
-        time_per_move = pass2_budget / ply_count
+        try:
+            time_per_move = 60
+        except:
+            time_per_move = pass2_budget
         node = game.end()
         while not node == root_node:
             prev_node = node.parent
@@ -775,7 +782,7 @@ def checkgame(game):
         logger.critical(errormsg)
         raise RuntimeError(errormsg)
 
-def start_analise(pgnfile, engine):
+def start_analise(pgnfile, engine, fine_name_file, add_to_library):
         with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
@@ -794,6 +801,13 @@ def start_analise(pgnfile, engine):
                     file1 = open(new_filename, 'w')
                     file1.writelines(str(analyzed_game))
                     file1.close()
+                    file1 = open(fine_name_file, 'w')
+                    file1.writelines(str(analyzed_game))
+                    file1.close()
+                    if add_to_library:
+                        file1 = open("library.pgn", 'a')
+                        file1.writelines(str(analyzed_game))
+                        file1.close()
 
 def main():
     """

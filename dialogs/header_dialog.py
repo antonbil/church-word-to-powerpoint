@@ -21,6 +21,7 @@ class HeaderDialog:
         self.event = ""
         self.site = ""
         self.round = ""
+        self.add_to_library = False
         today = date.today()
         formatted_date = today.strftime('%Y/%m/%d')
         self.date = formatted_date
@@ -52,6 +53,9 @@ class HeaderDialog:
             [[sg.Text("Result:"),
               sg.Combo(results, font=('Arial Bold', 14), expand_x=True, enable_events=True,
                        readonly=False, key='result')]],
+            [
+              sg.CBox('Add to library', key='add_to_library',
+                      default=False)],
                     [sg.Button("Save"), sg.Button("Close")]
                     ]
 
@@ -70,8 +74,9 @@ class HeaderDialog:
                 self.result = values['result']
                 self.event = values['event']
                 self.site = values['site']
-                self.date = values['date']
+                self.date = str(values['date'])
                 self.round = values['round']
+                self.add_to_library = values['add_to_library']
                 break
 
         window.close()

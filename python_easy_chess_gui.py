@@ -1972,8 +1972,10 @@ class EasyChessGui:
                             self.game.headers['Date'] = header_dialog.date
                             self.game.headers['Round'] = header_dialog.round
                             f.write('{}\n\n'.format(self.game))
+                        name_file = header_dialog.date.replace("/","-")+"-"+header_dialog.white.replace(" ","_")\
+                                    +"-" + header_dialog.black.replace(" ", "_")+".pgn"
                         annotator.start_analise(pgn_file,
-                                                self.engine)
+                                                self.engine, name_file, header_dialog.add_to_library)
                         break
 
                     if button == 'Save to My Games::save_game_k':
