@@ -35,7 +35,7 @@ class HeaderDialog:
               sg.Combo(sites_list, font=('Arial Bold', 14), expand_x=True, enable_events=True,
                        readonly=False, key='site')]],
             [[sg.Text("Date:"),
-              sg.Input(key='date', size=(20, 1)), sg.CalendarButton('Cal German Feb 2020', target='date',
+              sg.Input(key='date', size=(20, 1)), sg.CalendarButton('Calendar', target='date',
                                                                     format='%Y/%m/%d',
                                                                     default_date_m_d_y=(2, None, 2020), locale='nl_NL',
                                                                     begin_at_sunday_plus=1)]],
