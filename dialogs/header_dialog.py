@@ -54,7 +54,7 @@ class HeaderDialog:
                     [sg.Button("Save"), sg.Button("Close")]
                     ]
 
-        window = sg.Window("Game data", self.layout, font=("Ubuntu", 12), size=(400, 550),
+        window = sg.Window("Game data", self.layout, font=("Ubuntu", 12), size=(500, 350),
                         finalize=True, modal=True, keep_on_top=True)
 
         sg.fill_form_with_values(window=window, values_dict=PREF)
