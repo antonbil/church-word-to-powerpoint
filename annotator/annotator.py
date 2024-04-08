@@ -26,7 +26,7 @@ ERROR_THRESHOLD = {
     'MISTAKE': -100,
     'DUBIOUS': -30,
 }
-NEEDS_ANNOTATION_THRESHOLD = 3.0
+NEEDS_ANNOTATION_THRESHOLD = 1.0
 MAX_SCORE = 10000
 MAX_CPL = 2000
 SHORT_PV_LEN = 10
@@ -806,7 +806,7 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library):
                     file1.close()
                     if add_to_library:
                         file1 = open("library.pgn", 'a')
-                        file1.writelines(str(analyzed_game))
+                        file1.writelines('\n'+str(analyzed_game))
                         file1.close()
 
 def main():
