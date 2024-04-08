@@ -55,6 +55,8 @@ import chess.polyglot
 import logging
 import platform as sys_plat
 from annotator import annotator
+from dialogs.header_dialog import HeaderDialog
+from preferences.preferences import Preferences
 
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
@@ -660,9 +662,8 @@ def parse_args():
     Define an argument parser and return the parsed arguments
     """
     parser = argparse.ArgumentParser(
-        prog='annotator',
-        description='takes chess games in a PGN file and prints '
-        'annotations to standard output')
+        prog='play-annotator',
+        description='play chess, or annotate game')
     parser.add_argument("--engine", "-e",
                         help="analysis engine (default: %(default)s)",
                         default="stockfish")
@@ -737,8 +738,12 @@ class EasyChessGui:
         self.move_sq_dark_color = '#B8AF4E'
 
         self.gui_theme = 'Reddit'
+        self.preferences = Preferences()
 
-        self.is_save_time_left = False
+        self.is_save_time_left = self.preferences.preferences["is_save_time_left"]
+        self.sites_list = self.preferences.preferences["sites_list"]
+        self.events_list = self.preferences.preferences["events_list"]
+        self.players = self.preferences.preferences["players"]
         self.is_save_user_comment = True
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
@@ -1953,12 +1958,19 @@ class EasyChessGui:
                         break
 
                     if button == 'Analise game':
+                        header_dialog = HeaderDialog(value['_White_'], value['_Black_'], self.sites_list, self.events_list,
+                                                     self.players)
+                        print('new white:', header_dialog.white)
+                        print('new black:', header_dialog.black)
                         logging.info('Saving game manually')
                         pgn_file = 'tempsave.pgn'
                         with open(pgn_file, mode='w') as f:
-                            self.game.headers['Event'] = 'My Games 2'
-                            self.game.headers['White'] = value['_White_']
-                            self.game.headers['Black'] = value['_Black_']
+                            self.game.headers['Event'] = header_dialog.event
+                            self.game.headers['White'] = header_dialog.white
+                            self.game.headers['Black'] = header_dialog.black
+                            self.game.headers['Site'] = header_dialog.site
+                            self.game.headers['Date'] = header_dialog.date
+                            self.game.headers['Round'] = header_dialog.round
                             f.write('{}\n\n'.format(self.game))
                         annotator.start_analise(pgn_file,
                                                 self.engine)
@@ -3518,12 +3530,23 @@ class EasyChessGui:
             if button == 'Game::settings_game_k':
                 win_title = 'Settings/Game'
                 layout = [
+
                     [sg.CBox('Save time left in game notation',
                              key='save_time_left_k',
-                             default=self.is_save_time_left,
+                             default=self.sites_list,
                              tooltip='[%clk h:mm:ss] will appear as\n' +
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
+                    [sg.Text('Sites', size=(7, 1), font=('Consolas', 10)),
+                    sg.InputText(",".join(self.sites_list), font=('Consolas', 10), key='sites_list_k',
+                                 size=(24, 1))],
+                    [sg.Text('Events', size=(7, 1), font=('Consolas', 10)),
+                    sg.InputText(",".join(self.events_list), font=('Consolas', 10), key='events_list_k',
+                                 size=(24, 1))],
+                    [sg.Text('Players', size=(7, 1), font=('Consolas', 10)),
+                     sg.InputText(",".join(self.players), font=('Consolas', 10), key='players_k',
+                                  size=(24, 1))],
+
                     [sg.OK(), sg.Cancel()],
                 ]
 
@@ -3537,6 +3560,14 @@ class EasyChessGui:
                         break
                     if e == 'OK':
                         self.is_save_time_left = v['save_time_left_k']
+                        self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
+                        self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
+                        self.players = [s.strip() for s in v['players_k'].split(",")]
+                        self.preferences.preferences["sites_list"] = self.sites_list
+                        self.preferences.preferences["events_list"] = self.events_list
+                        self.preferences.preferences["players"] = self.players
+                        self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
+                        self.preferences.save_preferences()
                         break
 
                 window.UnHide()
