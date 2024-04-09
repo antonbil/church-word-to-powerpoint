@@ -3595,7 +3595,7 @@ class EasyChessGui:
             # Mode: Neutral, Settings menu
             if button == 'Game::settings_game_k':
                 font_sizes = ['10', '12', '20', '32']
-                field_sizes = ['60', '70', '80', '90', '100']
+                field_sizes = ['60', '70', '80', '90', '100', '105']
                 win_title = 'Settings/Game'
                 layout = [
 
