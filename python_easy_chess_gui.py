@@ -71,6 +71,7 @@ logging.basicConfig(
 APP_NAME = 'Python Easy Chess GUI'
 APP_VERSION = 'v1.19.0'
 BOX_TITLE = f'{APP_NAME} {APP_VERSION}'
+MAX_ADVISER_DEPTH = 50
 
 
 platform = sys.platform
@@ -120,7 +121,6 @@ RANK_4 = 3
 RANK_3 = 2
 RANK_2 = 1
 RANK_1 = 0
-
 
 initial_board = [[ROOKB, KNIGHTB, BISHOPB, QUEENB, KINGB, BISHOPB, KNIGHTB, ROOKB],
                  [PAWNB, ] * 8,
@@ -267,7 +267,7 @@ menu_def_play = [
                    'User Draws::user_draws_k',
                    'Analise game']],
         ['FEN', ['Paste']],
-        ['&Engine', ['Go', 'Move Now']],
+        ['&Engine', ['Go', 'Move Now', 'Set Depth']],
         ['&Help', ['GUI']],
 ]
 # (3) Mode: game-entry, info: hide
@@ -710,8 +710,8 @@ class EasyChessGui:
         self.adviser_path_and_file = None
         self.adviser_id_name = None
         self.adviser_hash = 128
-        self.adviser_threads = 1
-        self.adviser_movetime_sec = 10
+        self.adviser_threads = 2
+        self.adviser_movetime_sec = 15
         self.pecg_auto_save_game = 'pecg_auto_save_games.pgn'
         self.my_games = 'pecg_my_games.pgn'
         self.repertoire_file = {
@@ -726,12 +726,12 @@ class EasyChessGui:
         self.engine_file_list = []
         self.username = 'Human'
 
-        self.human_base_time_ms = 5 * 60 * 1000  # 5 minutes
+        self.human_base_time_ms = 30 * 60 * 1000  # 5 minutes
         self.human_inc_time_ms = 10 * 1000  # 10 seconds
         self.human_period_moves = 0
         self.human_tc_type = 'fischer'
 
-        self.engine_base_time_ms = 3 * 60 * 1000  # 5 minutes
+        self.engine_base_time_ms = 13 * 60 * 1000  # 13 minutes
         self.engine_inc_time_ms = 2 * 1000  # 10 seconds
         self.engine_period_moves = 0
         self.engine_tc_type = 'fischer'
@@ -754,6 +754,7 @@ class EasyChessGui:
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
         self.players = my_preferences["players"] if "players" in my_preferences else []
         self.menu_font_size = my_preferences["menu_font_size"] if "menu_font_size" in my_preferences else 12
+        self.FIELD_SIZE = my_preferences["field_size"] if "field_size" in my_preferences else 60
         self.is_save_user_comment = True
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
@@ -1523,7 +1524,7 @@ class EasyChessGui:
                 piece_image = images[self.psg_board[i][j]]
                 elem = window.find_element(key=(i, j))
                 elem.Update(button_color=('white', color),
-                            image_filename=piece_image, )
+                            image_filename=piece_image, image_size=(self.FIELD_SIZE, self.FIELD_SIZE))
 
     def render_square(self, image, key, location):
         """ Returns an RButton (Read Button) with image image """
@@ -1531,7 +1532,7 @@ class EasyChessGui:
             color = self.sq_dark_color  # Dark square
         else:
             color = self.sq_light_color
-        return sg.RButton('', image_filename=image, size=(1, 1),
+        return sg.RButton('', image_filename=image, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
                           border_width=0, button_color=('white', color),
                           pad=(0, 0), key=key)
 
@@ -1878,7 +1879,7 @@ class EasyChessGui:
                         search = RunEngine(
                             self.queue, self.engine_config_file,
                             self.adviser_path_and_file, self.adviser_id_name,
-                            self.max_depth, adviser_base_ms, adviser_inc_ms,
+                            MAX_ADVISER_DEPTH, adviser_base_ms, adviser_inc_ms,
                             tc_type='timepermove',
                             period_moves=0,
                             is_stream_search_info=True
@@ -2096,6 +2097,8 @@ class EasyChessGui:
 
                         self.game.headers['FEN'] = self.fen
                         break
+
+                    self.check_depth_button(button)
 
                     # Mode: Play, stm: User, user starts moving
                     if type(button) is tuple:
@@ -2332,6 +2335,7 @@ class EasyChessGui:
                         # Forced engine to move now
                         if button == 'Move Now':
                             search.stop()
+                        self.check_depth_button(button)
 
                         # Mode: Play, Computer is thinking
                         if button == 'Neutral':
@@ -2502,6 +2506,12 @@ class EasyChessGui:
         self.clear_elements(window)
 
         return False if is_exit_game else is_new_game
+
+    def check_depth_button(self, button):
+        if button == 'Set Depth':
+            self.set_depth_limit()
+            return True
+        return False
 
     def save_game(self):
         """ Save game in append mode """
@@ -3482,8 +3492,7 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Set Depth':
-                self.set_depth_limit()
+            if self.check_depth_button(button):
                 continue
 
             # Mode: Neutral, Allow user to change book settings
@@ -3548,6 +3557,7 @@ class EasyChessGui:
             # Mode: Neutral, Settings menu
             if button == 'Game::settings_game_k':
                 font_sizes = ['10', '12', '20', '32']
+                field_sizes = ['60', '70', '80', '90']
                 win_title = 'Settings/Game'
                 layout = [
 
@@ -3563,6 +3573,9 @@ class EasyChessGui:
                     [[sg.Text("Menu-font-size:"),
                       sg.Combo(font_sizes, font=('Consolas', 10), expand_x=True, enable_events=True,
                                readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
+                    [[sg.Text("Chess-field-size:"),
+                      sg.Combo(field_sizes, font=('Consolas', 10), expand_x=True, enable_events=True,
+                               readonly=False, default_value=str(self.FIELD_SIZE), key='field_size')]],
                     [sg.Text('Sites', size=(7, 1), font=('Consolas', 10)),
                     sg.InputText(",".join(self.sites_list), font=('Consolas', 10), key='sites_list_k',
                                  size=(24, 1))],
@@ -3586,6 +3599,7 @@ class EasyChessGui:
                         break
                     if e == 'OK':
                         self.menu_font_size = v['menu_font_size']
+                        self.FIELD_SIZE = int(v['field_size'])
                         self.is_save_time_left = v['save_time_left_k']
                         self.start_entry_mode = v['start_entry_mode']
                         self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
@@ -3597,6 +3611,7 @@ class EasyChessGui:
                         self.preferences.preferences["players"] = self.players
                         self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
                         self.preferences.preferences["start_entry_mode"] = self.start_entry_mode
+                        self.preferences.preferences["field_size"] = self.FIELD_SIZE
                         self.preferences.save_preferences()
                         break
 

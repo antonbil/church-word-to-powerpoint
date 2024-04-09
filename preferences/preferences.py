@@ -17,7 +17,7 @@ class Preferences:
                 #print("error in loading preferences")
                 preferences = {'is_save_time_left': False, 'sites_list': ["OostKapelle", "Middelburg"],
                                'events_list':["Interne competitie Oostkapelle", "Zeeuwse competitie"],
-                               'players':["Anton Bil"], "start_entry_mode": False, "menu_font_size": 12}
+                               'players':["Anton Bil"], "start_entry_mode": False, "menu_font_size": 12, "field_size": 60}
             return preferences
 
     def save_preferences(self):
