@@ -781,6 +781,8 @@ class EasyChessGui:
         self.move_sq_dark_color = '#B8AF4E'
 
         self.gui_theme = 'Reddit'
+        self.text_font = ('Consolas', 12)
+
         self.preferences = Preferences()
 
         my_preferences = self.preferences.preferences
@@ -2624,50 +2626,50 @@ class EasyChessGui:
         board_layout = self.create_board(is_user_white)
 
         board_controls = [
-            [sg.Text('Mode     Neutral', size=(36, 1), font=('Consolas', 10), key='_gamestatus_')],
-            [sg.Text('White', size=(7, 1), font=('Consolas', 10)),
-             sg.InputText('Human', font=('Consolas', 10), key='_White_',
-                     size=(24, 1)),
-             sg.Text('', font=('Consolas', 10), key='w_base_time_k',
+            [sg.Text('Mode     Neutral', size=(36, 1), font=self.text_font, key='_gamestatus_')],
+            [sg.Text('White', size=(7, 1), font=self.text_font),
+             sg.InputText('Human', font=self.text_font, key='_White_',
+                          size=(24, 1)),
+             sg.Text('', font=self.text_font, key='w_base_time_k',
                      size=(11, 1), relief='sunken'),
-             sg.Text('', font=('Consolas', 10), key='w_elapse_k', size=(7, 1),
+             sg.Text('', font=self.text_font, key='w_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.Text('Black', size=(7, 1), font=('Consolas', 10)),
-             sg.InputText('Computer', font=('Consolas', 10), key='_Black_',
+            [sg.Text('Black', size=(7, 1), font=self.text_font),
+             sg.InputText('Computer', font=self.text_font, key='_Black_',
                           size=(24, 1)),
-             sg.Text('', font=('Consolas', 10), key='b_base_time_k',
+             sg.Text('', font=self.text_font, key='b_base_time_k',
                      size=(11, 1), relief='sunken'),
-             sg.Text('', font=('Consolas', 10), key='b_elapse_k', size=(7, 1),
+             sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
             [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1), font=('Consolas', self.menu_font_size), key='adviser_k',),
-             sg.Text('', font=('Consolas', 10), key='advise_info_k', relief='sunken',
+             sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
 
-            [sg.Text('Move list', size=(16, 1), font=('Consolas', 10))],
+            [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 8),
-                          font=('Consolas', 10), key='_movelist_', disabled=True)],
+                          font=self.text_font, key='_movelist_', disabled=True)],
 
-            [sg.Text('Comment', size=(7, 1), font=('Consolas', 10))],
+            [sg.Text('Comment', size=(7, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
-                          font=('Consolas', 10), key='comment_k')],
+                          font=self.text_font, key='comment_k')],
 
             [sg.Text('BOOK 1, Comp games', size=(26, 1),
-                     font=('Consolas', 10),
+                     font=self.text_font,
                      right_click_menu=['Right', ['Show::right_book1_k', 'Hide::right_book1_k']]),
              sg.Text('BOOK 2, Human games',
-                     font=('Consolas', 10),
+                     font=self.text_font,
                      right_click_menu=['Right', ['Show::right_book2_k', 'Hide::right_book2_k']])],
             [sg.Multiline('', do_not_clear=True, autoscroll=False, size=(23, 4),
-                          font=('Consolas', 10), key='polyglot_book1_k', disabled=True),
+                          font=self.text_font, key='polyglot_book1_k', disabled=True),
              sg.Multiline('', do_not_clear=True, autoscroll=False, size=(25, 4),
-                          font=('Consolas', 10), key='polyglot_book2_k', disabled=True)],
-            [sg.Text('Opponent Search Info', font=('Consolas', 10), size=(30, 1),
+                          font=self.text_font, key='polyglot_book2_k', disabled=True)],
+            [sg.Text('Opponent Search Info', font=self.text_font, size=(30, 1),
                      right_click_menu=['Right',
                                        ['Show::right_search_info_k', 'Hide::right_search_info_k']])],
             [sg.Text('', key='search_info_all_k', size=(55, 1),
-                     font=('Consolas', 10), relief='sunken')],
+                     font=self.text_font, relief='sunken')],
         ]
 
         board_tab = [[sg.Column(board_layout)]]
@@ -2758,12 +2760,12 @@ class EasyChessGui:
                 player_list = []
                 sum_games = 0
                 layout = [
-                    [sg.Text('PGN', size=(4, 1)),
-                     sg.Input(size=(40, 1), key='pgn_k'), sg.FileBrowse()],
-                    [sg.Button('Display Players', size=(48, 1))],
-                    [sg.Text('Status:', size=(48, 1), key='status_k', relief='sunken')],
-                    [sg.T('Current players in the pgn', size=(43, 1))],
-                    [sg.Listbox([], size=(53, 10), key='player_k')],
+                    [sg.Text('PGN', font=self.text_font, size=(4, 1)),
+                     sg.Input(size=(40, 1), font=self.text_font, key='pgn_k'), sg.FileBrowse()],
+                    [sg.Button('Display Players', font=self.text_font, size=(48, 1))],
+                    [sg.Text('Status:', font=self.text_font, size=(48, 1), key='status_k', relief='sunken')],
+                    [sg.T('Current players in the pgn', font=self.text_font, size=(43, 1))],
+                    [sg.Listbox([], font=self.text_font, size=(53, 10), key='player_k')],
                     [sg.Button('Delete Player'), sg.Cancel()]
                 ]
 
@@ -2867,18 +2869,18 @@ class EasyChessGui:
             if button == 'User::tc_k':
                 win_title = 'Time/User'
                 layout = [
-                    [sg.T('Base time (minute)', size=(16, 1)),
-                     sg.Input(self.human_base_time_ms/60/1000,
+                    [sg.T('Base time (minute)', font=self.text_font, size=(16, 1)),
+                     sg.Input(self.human_base_time_ms/60/1000, font=self.text_font,
                               key='base_time_k', size=(8, 1))],
-                    [sg.T('Increment (second)', size=(16, 1)),
-                     sg.Input(self.human_inc_time_ms/1000, key='inc_time_k',
+                    [sg.T('Increment (second)', font=self.text_font, size=(16, 1)),
+                     sg.Input(self.human_inc_time_ms/1000, font=self.text_font, key='inc_time_k',
                               size=(8, 1))],
-                    [sg.T('Period moves', size=(16, 1), visible=False),
-                     sg.Input(self.human_period_moves, key='period_moves_k',
+                    [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
+                     sg.Input(self.human_period_moves, font=self.text_font, key='period_moves_k',
                               size=(8, 1), visible=False)],
-                    [sg.Radio('Fischer', 'tc_radio', key='fischer_type_k',
+                    [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
                               default=True if self.human_tc_type == 'fischer' else False),
-                     sg.Radio('Delay', 'tc_radio', key='delay_type_k',
+                     sg.Radio('Delay', 'tc_radio', font=self.text_font, key='delay_type_k',
                               default=True if self.human_tc_type == 'delay' else False)],
                     [sg.OK(), sg.Cancel()]
                 ]
@@ -2916,21 +2918,21 @@ class EasyChessGui:
             if button == 'Engine::tc_k':
                 win_title = 'Time/Engine'
                 layout = [
-                    [sg.T('Base time (minute)', size=(16, 1)),
+                    [sg.T('Base time (minute)', font=self.text_font, size=(16, 1)),
                      sg.Input(self.engine_base_time_ms / 60 / 1000,
-                              key='base_time_k', size=(8, 1))],
-                    [sg.T('Increment (second)', size=(16, 1)),
-                     sg.Input(self.engine_inc_time_ms / 1000,
+                              key='base_time_k', font=self.text_font, size=(8, 1))],
+                    [sg.T('Increment (second)', font=self.text_font, size=(16, 1)),
+                     sg.Input(self.engine_inc_time_ms / 1000, font=self.text_font,
                               key='inc_time_k',
                               size=(8, 1))],
-                    [sg.T('Period moves', size=(16, 1), visible=False),
-                     sg.Input(self.engine_period_moves,
+                    [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
+                     sg.Input(self.engine_period_moves, font=self.text_font,
                               key='period_moves_k', size=(8, 1),
                               visible=False)],
-                    [sg.Radio('Fischer', 'tc_radio', key='fischer_type_k',
+                    [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
                               default=True if
                               self.engine_tc_type == 'fischer' else False),
-                     sg.Radio('Time Per Move', 'tc_radio', key='timepermove_k',
+                     sg.Radio('Time Per Move', 'tc_radio', font=self.text_font, key='timepermove_k',
                               default=True if
                               self.engine_tc_type == 'timepermove' else
                               False, tooltip='Only base time will be used.')
@@ -3024,11 +3026,11 @@ class EasyChessGui:
                         button_title += '/' + e
 
                         add_layout = [
-                            [sg.Text('Engine', size=(6, 1)), sg.Input(key='engine_path_file_k'), sg.FileBrowse()],
+                            [sg.Text('Engine', font=self.text_font, size=(6, 1)), sg.Input(key='engine_path_file_k'), sg.FileBrowse()],
                             [
-                                sg.Text('Name', size=(6, 1)),
-                                sg.Input(key='engine_id_name_k', tooltip='Input name'),
-                                sg.Button('Get Id Name')
+                                sg.Text('Name', font=self.text_font, size=(6, 1)),
+                                sg.Input(key='engine_id_name_k', font=self.text_font, tooltip='Input name'),
+                                sg.Button('Get Id Name', font=self.text_font)
                             ],
                             [sg.OK(), sg.Cancel()]
                         ]
@@ -3486,12 +3488,12 @@ class EasyChessGui:
                 current_adviser_path_and_file = self.adviser_path_and_file
 
                 layout = [
-                        [sg.T('Current Adviser: {}'.format(self.adviser_id_name),
+                        [sg.T('Current Adviser: {}'.format(self.adviser_id_name), font=self.text_font,
                               size=(40, 1))],
-                        [sg.Listbox(values=self.engine_id_name_list, size=(48, 10),
+                        [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
                                     key='adviser_id_name_k')],
-                        [sg.T('Movetime (sec)', size=(12, 1)),
-                         sg.Spin([t for t in range(1, 3600, 1)],
+                        [sg.T('Movetime (sec)', font=self.text_font, size=(12, 1)),
+                         sg.Spin([t for t in range(1, 3600, 1)], font=self.text_font,
                                  initial_value=self.adviser_movetime_sec,
                                  size=(8, 1), key='adviser_movetime_k')],
                         [sg.OK(), sg.Cancel()]
@@ -3542,18 +3544,18 @@ class EasyChessGui:
                 current_max_book_ply = self.max_book_ply
 
                 layout = [
-                        [sg.Text('This is the book used by your engine opponent.')],
-                        [sg.T('Book File', size=(8, 1)),
-                         sg.T(self.gui_book_file, size=(36, 1), relief='sunken')],
-                        [sg.T('Max Ply', size=(8, 1)),
-                         sg.Spin([t for t in range(1, 33, 1)],
+                        [sg.Text('This is the book used by your engine opponent.', font=self.text_font)],
+                        [sg.T('Book File', font=self.text_font, size=(8, 1)),
+                         sg.T(self.gui_book_file, font=self.text_font, size=(36, 1), relief='sunken')],
+                        [sg.T('Max Ply', font=self.text_font, size=(8, 1)),
+                         sg.Spin([t for t in range(1, 33, 1)], font=self.text_font,
                                  initial_value=self.max_book_ply,
                                  size=(6, 1), key='book_ply_k')],
-                        [sg.CBox('Use book', key='use_gui_book_k',
+                        [sg.CBox('Use book', font=self.text_font, key='use_gui_book_k',
                                  default=self.is_use_gui_book)],
-                        [sg.Radio('Best move', 'Book Radio',
+                        [sg.Radio('Best move', 'Book Radio', font=self.text_font,
                                   default=False if self.is_random_book else True),
-                         sg.Radio('Random move', 'Book Radio',
+                         sg.Radio('Random move', 'Book Radio', font=self.text_font,
                                   key='random_move_k',
                                   default=True if self.is_random_book else False)],
                         [sg.OK(), sg.Cancel()],
@@ -3599,29 +3601,29 @@ class EasyChessGui:
                 win_title = 'Settings/Game'
                 layout = [
 
-                    [sg.CBox('Save time left in game notation',
+                    [sg.CBox('Save time left in game notation', font=self.text_font,
                              key='save_time_left_k',
                              default=self.is_save_time_left,
                              tooltip='[%clk h:mm:ss] will appear as\n' +
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
-                    [sg.CBox('Start in game-entry-mode',
+                    [sg.CBox('Start in game-entry-mode', font=self.text_font,
                              key='start_entry_mode',
                              default=self.preferences.preferences['start_entry_mode'])],
-                    [[sg.Text("Menu-font-size:"),
-                      sg.Combo(font_sizes, font=('Consolas', 10), expand_x=True, enable_events=True,
+                    [[sg.Text("Menu-font-size:", font=self.text_font),
+                      sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
-                    [[sg.Text("Chess-field-size:"),
-                      sg.Combo(field_sizes, font=('Consolas', 10), expand_x=True, enable_events=True,
+                    [[sg.Text("Chess-field-size:", font=self.text_font),
+                      sg.Combo(field_sizes, font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=str(self.FIELD_SIZE), key='field_size')]],
-                    [sg.Text('Sites', size=(7, 1), font=('Consolas', 10)),
-                    sg.InputText(",".join(self.sites_list), font=('Consolas', 10), key='sites_list_k',
+                    [sg.Text('Sites', size=(7, 1), font=self.text_font),
+                    sg.InputText(",".join(self.sites_list), font=self.text_font, key='sites_list_k',
                                  size=(24, 1))],
-                    [sg.Text('Events', size=(7, 1), font=('Consolas', 10)),
-                    sg.InputText(",".join(self.events_list), font=('Consolas', 10), key='events_list_k',
+                    [sg.Text('Events', size=(7, 1), font=self.text_font),
+                    sg.InputText(",".join(self.events_list), font=self.text_font, key='events_list_k',
                                  size=(24, 1))],
-                    [sg.Text('Players', size=(7, 1), font=('Consolas', 10)),
-                     sg.InputText(",".join(self.players), font=('Consolas', 10), key='players_k',
+                    [sg.Text('Players', size=(7, 1), font=self.text_font),
+                     sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
                                   size=(24, 1))],
 
                     [sg.OK(), sg.Cancel()],
