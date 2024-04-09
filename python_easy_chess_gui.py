@@ -753,6 +753,7 @@ class EasyChessGui:
         self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
         self.players = my_preferences["players"] if "players" in my_preferences else []
+        self.menu_font_size = my_preferences["menu_font_size"] if "menu_font_size" in my_preferences else 12
         self.is_save_user_comment = True
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
@@ -2592,7 +2593,7 @@ class EasyChessGui:
              sg.Text('', font=('Consolas', 10), key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1), font=('Consolas', 10), key='adviser_k',),
+            [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1), font=('Consolas', self.menu_font_size), key='adviser_k',),
              sg.Text('', font=('Consolas', 10), key='advise_info_k', relief='sunken',
                      size=(46, 1))],
 
@@ -2623,7 +2624,7 @@ class EasyChessGui:
 
         board_tab = [[sg.Column(board_layout)]]
 
-        self.menu_elem = sg.Menu(menu_def_neutral, tearoff=False)
+        self.menu_elem = sg.Menu(menu_def_neutral, tearoff=False, font=("Default", str(self.menu_font_size), ''))
 
         # White board layout, mode: Neutral
         layout = [
@@ -3546,6 +3547,7 @@ class EasyChessGui:
 
             # Mode: Neutral, Settings menu
             if button == 'Game::settings_game_k':
+                font_sizes = ['10', '12', '20', '32']
                 win_title = 'Settings/Game'
                 layout = [
 
@@ -3557,7 +3559,10 @@ class EasyChessGui:
                                      'list and saved in pgn file.')],
                     [sg.CBox('Start in game-entry-mode',
                              key='start_entry_mode',
-                             default=self.start_entry_mode)],
+                             default=self.preferences.preferences['start_entry_mode'])],
+                    [[sg.Text("Menu-font-size:"),
+                      sg.Combo(font_sizes, font=('Consolas', 10), expand_x=True, enable_events=True,
+                               readonly=False, key='menu_font_size')]],
                     [sg.Text('Sites', size=(7, 1), font=('Consolas', 10)),
                     sg.InputText(",".join(self.sites_list), font=('Consolas', 10), key='sites_list_k',
                                  size=(24, 1))],
@@ -3573,6 +3578,7 @@ class EasyChessGui:
 
                 w = sg.Window(win_title, layout,
                               icon=ico_path[platform]['pecg'])
+                w.find_element("menu_font_size").update(value=str(self.menu_font_size))
                 window.Hide()
 
                 while True:
@@ -3580,11 +3586,13 @@ class EasyChessGui:
                     if e is None or e == 'Cancel':
                         break
                     if e == 'OK':
+                        self.menu_font_size = v['menu_font_size']
                         self.is_save_time_left = v['save_time_left_k']
                         self.start_entry_mode = v['start_entry_mode']
                         self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                         self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                         self.players = [s.strip() for s in v['players_k'].split(",")]
+                        self.preferences.preferences["menu_font_size"] = self.menu_font_size
                         self.preferences.preferences["sites_list"] = self.sites_list
                         self.preferences.preferences["events_list"] = self.events_list
                         self.preferences.preferences["players"] = self.players
@@ -3719,7 +3727,7 @@ def main(engine):
     pecg = EasyChessGui(theme, engine_config_file, user_config_file,
                         pecg_book, book_from_computer_games,
                         book_from_human_games, is_use_gui_book, is_random_book,
-                         max_book_ply, engine)
+                         max_book_ply, engine, 32)
 
     pecg.main_loop()
 
