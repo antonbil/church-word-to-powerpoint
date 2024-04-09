@@ -1866,7 +1866,7 @@ class EasyChessGui:
                         break
 
                     # Mode: Play, Stm: User, Run adviser engine
-                    if button == 'Start::right_adviser_k':
+                    if button == 'adviser_k' and value['adviser_k'] == 'Start::right_adviser_k':
                         self.adviser_threads = self.get_engine_threads(
                             self.adviser_id_name)
                         self.adviser_hash = self.get_engine_hash(
@@ -1889,7 +1889,7 @@ class EasyChessGui:
                         while True:
                             button, value = window.Read(timeout=10)
 
-                            if button == 'Stop::right_adviser_k':
+                            if button == 'adviser_k' and value['adviser_k'] == 'Stop::right_adviser_k':
                                 search.stop()
 
                             # Exit app while adviser is thinking.
@@ -2592,11 +2592,7 @@ class EasyChessGui:
              sg.Text('', font=('Consolas', 10), key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.Text('Adviser', size=(7, 1), font=('Consolas', 10), key='adviser_k',
-                     right_click_menu=[
-                        'Right',
-                        ['Start::right_adviser_k', 'Stop::right_adviser_k']
-                    ]),
+            [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1), font=('Consolas', 10), key='adviser_k',),
              sg.Text('', font=('Consolas', 10), key='advise_info_k', relief='sunken',
                      size=(46, 1))],
 
