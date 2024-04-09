@@ -747,10 +747,12 @@ class EasyChessGui:
         self.gui_theme = 'Reddit'
         self.preferences = Preferences()
 
-        self.is_save_time_left = self.preferences.preferences["is_save_time_left"]
-        self.sites_list = self.preferences.preferences["sites_list"]
-        self.events_list = self.preferences.preferences["events_list"]
-        self.players = self.preferences.preferences["players"]
+        my_preferences = self.preferences.preferences
+        self.is_save_time_left = my_preferences["is_save_time_left"] if "is_save_time_left" in my_preferences else False
+        self.start_entry_mode = my_preferences["start_entry_mode"] if "start_entry_mode" in my_preferences else False
+        self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
+        self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
+        self.players = my_preferences["players"] if "players" in my_preferences else []
         self.is_save_user_comment = True
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
@@ -1790,6 +1792,7 @@ class EasyChessGui:
                     if button == 'Neutral':
                         is_exit_game = True
                         self.entry_game = False
+                        self.start_entry_mode = False
                         break
 
                     if button == 'Analise':
@@ -2046,6 +2049,7 @@ class EasyChessGui:
                     if button == 'Neutral' or is_search_stop_for_neutral:
                         is_exit_game = True
                         self.entry_game = False
+                        self.start_entry_mode = False
                         self.clear_elements(window)
                         break
 
@@ -3551,10 +3555,13 @@ class EasyChessGui:
 
                     [sg.CBox('Save time left in game notation',
                              key='save_time_left_k',
-                             default=self.sites_list,
+                             default=self.is_save_time_left,
                              tooltip='[%clk h:mm:ss] will appear as\n' +
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
+                    [sg.CBox('Start in game-entry-mode',
+                             key='start_entry_mode',
+                             default=self.start_entry_mode)],
                     [sg.Text('Sites', size=(7, 1), font=('Consolas', 10)),
                     sg.InputText(",".join(self.sites_list), font=('Consolas', 10), key='sites_list_k',
                                  size=(24, 1))],
@@ -3578,6 +3585,7 @@ class EasyChessGui:
                         break
                     if e == 'OK':
                         self.is_save_time_left = v['save_time_left_k']
+                        self.start_entry_mode = v['start_entry_mode']
                         self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                         self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                         self.players = [s.strip() for s in v['players_k'].split(",")]
@@ -3585,6 +3593,7 @@ class EasyChessGui:
                         self.preferences.preferences["events_list"] = self.events_list
                         self.preferences.preferences["players"] = self.players
                         self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
+                        self.preferences.preferences["start_entry_mode"] = self.start_entry_mode
                         self.preferences.save_preferences()
                         break
 
@@ -3651,8 +3660,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or button == 'Analise':
-                self.entry_game = button == 'Analise'
+            if button == 'Play' or button == 'Analise' or self.start_entry_mode:
+                self.entry_game = button == 'Analise' or self.start_entry_mode
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
