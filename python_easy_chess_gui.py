@@ -2325,10 +2325,10 @@ class EasyChessGui:
                         engine_timer.elapse += 100
 
                         # Hide/Unhide engine searching info while engine is thinking
-                        if button == 'Show::right_search_info_k':
+                        if button == 'search_info_k' and value['search_info_k'] == 'Show::right_search_info_k':
                             is_hide_search_info = False
 
-                        if button == 'Hide::right_search_info_k':
+                        if button == 'search_info_k' and value['search_info_k'] == 'Hide::right_search_info_k':
                             is_hide_search_info = True
                             window.Element('search_info_all_k').Update('')
 
@@ -2667,9 +2667,10 @@ class EasyChessGui:
                           font=self.text_font, key='polyglot_book1_k', disabled=True),
              sg.Multiline('', do_not_clear=True, autoscroll=False, size=(25, 4),
                           font=self.text_font, key='polyglot_book2_k', disabled=True)],
-            [sg.Text('Opponent Search Info', font=self.text_font, size=(30, 1),
-                     right_click_menu=['Right',
-                                       ['Show::right_search_info_k', 'Hide::right_search_info_k']])],
+
+            [sg.ButtonMenu('Opponent Search Info', ['Menu', ['Show::right_search_info_k', 'Hide::right_search_info_k']], size=(21, 1),
+                          font=('Consolas', self.menu_font_size), key='search_info_k', )],
+
             [sg.Text('', key='search_info_all_k', size=(55, 1),
                      font=self.text_font, relief='sunken')],
         ]
