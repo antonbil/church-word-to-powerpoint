@@ -270,6 +270,13 @@ menu_def_play = [
         ['&Engine', ['Go', 'Move Now']],
         ['&Help', ['GUI']],
 ]
+# (3) Mode: game-entry, info: hide
+menu_def_entry = [
+        ['&Mode', ['Neutral']],
+        ['&Game', ['Analise game']],
+        ['FEN', ['Paste']],
+        ['&Help', ['GUI']],
+]
 
 
 class Timer:
@@ -1765,6 +1772,9 @@ class EasyChessGui:
 
             # Mode: Play, Stm: computer (first move), Allow user to change settings.
             # User can start the engine by Engine->Go.
+            mode_indicator = 'Mode     Play'
+            if self.entry_game:
+                mode_indicator = 'Mode     Analise-entry'
             if not is_engine_ready:
                 window.find_element('_gamestatus_').Update(
                         'Mode     Play, press Engine->Go')
@@ -1779,6 +1789,7 @@ class EasyChessGui:
                     # Mode: Play, Stm: Computer first move
                     if button == 'Neutral':
                         is_exit_game = True
+                        self.entry_game = False
                         break
 
                     if button == 'Analise':
@@ -1804,7 +1815,7 @@ class EasyChessGui:
                         if not self.is_user_white and not board.turn:
                             is_human_stm = True
                             window.find_element('_gamestatus_').Update(
-                                'Mode     Play')
+                                mode_indicator)
 
                         # Elif user is black and side to move is white
                         elif not self.is_user_white and board.turn:
@@ -2034,6 +2045,7 @@ class EasyChessGui:
                     # Mode: Play, Stm: User
                     if button == 'Neutral' or is_search_stop_for_neutral:
                         is_exit_game = True
+                        self.entry_game = False
                         self.clear_elements(window)
                         break
 
@@ -2426,7 +2438,7 @@ class EasyChessGui:
                 elapse_str = self.get_time_h_mm_ss(engine_timer.base)
                 window.Element(k2).Update(elapse_str)
 
-                window.find_element('_gamestatus_').Update('Mode     Play')
+                window.find_element('_gamestatus_').Update(mode_indicator)
 
         # Auto-save game
         logging.info('Saving game automatically')
@@ -3648,14 +3660,20 @@ class EasyChessGui:
                     continue
 
                 # Change menu from Neutral to Play
-                self.menu_elem.Update(menu_def_play)
+                if self.entry_game:
+                    self.menu_elem.Update(menu_def_entry)
+                else:
+                    self.menu_elem.Update(menu_def_play)
                 self.psg_board = copy.deepcopy(initial_board)
                 board = chess.Board()
 
                 while True:
                     button, value = window.Read(timeout=100)
+                    mode_indicator = 'Mode     Play'
+                    if self.entry_game:
+                        mode_indicator = 'Mode     Analise-entry'
 
-                    window.find_element('_gamestatus_').Update('Mode     Play')
+                    window.find_element('_gamestatus_').Update(mode_indicator)
                     window.find_element('_movelist_').Update(disabled=False)
                     window.find_element('_movelist_').Update('', disabled=True)
 
