@@ -798,7 +798,7 @@ def change_nags(pgn):
     pgn = pgn.replace("$4 {", "{Blunder ")
     pgn = pgn.replace("$7 {", "{Good ")
     pgn = pgn.replace("$9 {", "{Brilliant ")
-    strs = pgn.split("\n")
+    strs = pgn.replace("  ", " ").split("\n")
     res = []
     res.append(strs.pop(0))
     for line in strs:

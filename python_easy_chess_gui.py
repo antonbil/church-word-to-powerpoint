@@ -775,7 +775,7 @@ class EasyChessGui:
                     self.node = self.node.add_variation(user_move)
 
                 # Save clock, add clock as comment after a move
-                if self.is_save_time_left:
+                if self.is_save_time_left and not self.entry_game:
                     rem_time = self.get_time_h_mm_ss(time_left, False)
                     self.node.comment = '[%clk {}] {}'.format(rem_time, user_comment)
                 else:
@@ -788,7 +788,7 @@ class EasyChessGui:
                 self.node = self.node.add_variation(user_move)
 
             # Save clock, add clock as comment after a move
-            if self.is_save_time_left:
+            if self.is_save_time_left and not self.entry_game:
                 rem_time = self.get_time_h_mm_ss(time_left, False)
                 self.node.comment = '[%clk {}]'.format(rem_time)
 
@@ -1368,10 +1368,11 @@ class EasyChessGui:
         window.find_element('polyglot_book2_k').Update('')
         window.find_element('advise_info_k').Update('')
         window.find_element('comment_k').Update('')
-        window.Element('w_base_time_k').Update('')
-        window.Element('b_base_time_k').Update('')
-        window.Element('w_elapse_k').Update('')
-        window.Element('b_elapse_k').Update('')
+        if not self.entry_game:
+            window.Element('w_base_time_k').Update('')
+            window.Element('b_base_time_k').Update('')
+            window.Element('w_elapse_k').Update('')
+            window.Element('b_elapse_k').Update('')
 
     def update_labels_and_game_tags(self, window, human='Human'):
         """ Update player names """
@@ -1689,7 +1690,8 @@ class EasyChessGui:
 
         elapse_str = self.get_time_h_mm_ss(timer.base)
         is_white_base = (self.is_user_white and name == 'human') or (not self.is_user_white and name != 'human')
-        window.Element('w_base_time_k' if is_white_base else 'b_base_time_k').Update(elapse_str)
+        if not self.entry_game:
+            window.Element('w_base_time_k' if is_white_base else 'b_base_time_k').Update(elapse_str)
 
         return timer
 
@@ -1842,7 +1844,8 @@ class EasyChessGui:
                     k = 'w_elapse_k'
                     if not self.is_user_white:
                         k = 'b_elapse_k'
-                    window.Element(k).Update(elapse_str)
+                    if not self.entry_game:
+                        window.Element(k).Update(elapse_str)
                     human_timer.elapse += 100
 
                     if not (is_human_stm or self.entry_game):
@@ -2185,17 +2188,18 @@ class EasyChessGui:
                                     k1 = 'b_elapse_k'
                                     k2 = 'b_base_time_k'
 
-                                # Update elapse box
-                                elapse_str = self.get_time_mm_ss_ms(
-                                    human_timer.elapse)
-                                window.Element(k1).Update(elapse_str)
+                                if not self.entry_game:
+                                    # Update elapse box
+                                    elapse_str = self.get_time_mm_ss_ms(
+                                        human_timer.elapse)
+                                    window.Element(k1).Update(elapse_str)
 
-                                # Update remaining time box
-                                elapse_str = self.get_time_h_mm_ss(
-                                    human_timer.base)
-                                window.Element(k2).Update(elapse_str)
+                                    # Update remaining time box
+                                    elapse_str = self.get_time_h_mm_ss(
+                                        human_timer.base)
+                                    window.Element(k2).Update(elapse_str)
 
-                                window.Element('advise_info_k').Update('')
+                                    window.Element('advise_info_k').Update('')
 
                             # Else if move is illegal
                             else:
