@@ -35,6 +35,9 @@ col is the same as in PySimpleGUI
 
 """
 
+import PIL
+from PIL import Image
+import io
 import PySimpleGUI as sg
 import os
 import sys
@@ -235,6 +238,39 @@ INIT_PGN_TAG = {
     'White': 'Human',
     'Black': 'Computer'
 }
+
+def convert_to_bytes(file_or_bytes, resize=None):
+    """
+    Will convert into bytes and optionally resize an image that is a file or a base64 bytes object.
+    Turns into  PNG format in the process so that can be displayed by tkinter
+    :param file_or_bytes: either a string filename or a bytes base64 image object
+    :type file_or_bytes:  (Union[str, bytes])
+    :param resize:  optional new size
+    :type resize: (Tuple[int, int] or None)
+    :param fill: If True then the image is filled/padded so that the image is not distorted
+    :type fill: (bool)
+    :return: (bytes) a byte-string object
+    :rtype: (bytes)
+    """
+    if isinstance(file_or_bytes, str):
+        img = PIL.Image.open(file_or_bytes)
+    else:
+        try:
+            img = PIL.Image.open(io.BytesIO(base64.b64decode(file_or_bytes)))
+        except Exception as e:
+            dataBytesIO = io.BytesIO(file_or_bytes)
+            img = PIL.Image.open(dataBytesIO)
+
+    cur_width, cur_height = img.size
+    if resize:
+        new_width, new_height = resize
+        scale = min(new_height / cur_height, new_width / cur_width)
+        img = img.resize((int(cur_width * scale), int(cur_height * scale)), PIL.Image.LANCZOS)
+    with io.BytesIO() as bio:
+        img.save(bio, format="PNG")
+        del img
+        return bio.getvalue()
+#
 
 
 # (1) Mode: Neutral
@@ -1523,8 +1559,9 @@ class EasyChessGui:
                         self.sq_light_color
                 piece_image = images[self.psg_board[i][j]]
                 elem = window.find_element(key=(i, j))
+                imgbytes = convert_to_bytes(piece_image, (self.FIELD_SIZE, self.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
-                            image_filename=piece_image, image_size=(self.FIELD_SIZE, self.FIELD_SIZE))
+                            image_data=imgbytes, image_size=(self.FIELD_SIZE, self.FIELD_SIZE))
 
     def render_square(self, image, key, location):
         """ Returns an RButton (Read Button) with image image """
@@ -1532,7 +1569,8 @@ class EasyChessGui:
             color = self.sq_dark_color  # Dark square
         else:
             color = self.sq_light_color
-        return sg.RButton('', image_filename=image, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
+        imgbytes = convert_to_bytes(image, (self.FIELD_SIZE, self.FIELD_SIZE))
+        return sg.RButton('', image_data=imgbytes, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
                           border_width=0, button_color=('white', color),
                           pad=(0, 0), key=key)
 

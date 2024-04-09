@@ -1,3 +1,4 @@
 chess==1.9.4
 pyperclip==1.8.2
 PySimpleGUI==4.60.5
+pillow
