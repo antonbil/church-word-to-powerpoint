@@ -3562,7 +3562,7 @@ class EasyChessGui:
                              default=self.preferences.preferences['start_entry_mode'])],
                     [[sg.Text("Menu-font-size:"),
                       sg.Combo(font_sizes, font=('Consolas', 10), expand_x=True, enable_events=True,
-                               readonly=False, key='menu_font_size')]],
+                               readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
                     [sg.Text('Sites', size=(7, 1), font=('Consolas', 10)),
                     sg.InputText(",".join(self.sites_list), font=('Consolas', 10), key='sites_list_k',
                                  size=(24, 1))],
@@ -3578,7 +3578,6 @@ class EasyChessGui:
 
                 w = sg.Window(win_title, layout,
                               icon=ico_path[platform]['pecg'])
-                w.find_element("menu_font_size").update(value=str(self.menu_font_size))
                 window.Hide()
 
                 while True:
