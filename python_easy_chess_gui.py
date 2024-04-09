@@ -780,9 +780,6 @@ class EasyChessGui:
         self.move_sq_light_color = '#E8E18E'
         self.move_sq_dark_color = '#B8AF4E'
 
-        self.gui_theme = 'Reddit'
-        self.text_font = ('Consolas', 12)
-
         self.preferences = Preferences()
 
         my_preferences = self.preferences.preferences
@@ -793,7 +790,12 @@ class EasyChessGui:
         self.players = my_preferences["players"] if "players" in my_preferences else []
         self.menu_font_size = my_preferences["menu_font_size"] if "menu_font_size" in my_preferences else 12
         self.FIELD_SIZE = my_preferences["field_size"] if "field_size" in my_preferences else 60
+        self.gui_theme = my_preferences["gui_theme"] if "gui_theme" in my_preferences else'Reddit'
+        self.font_size_ui = my_preferences["font_size_ui"] if "font_size_ui" in my_preferences else 10
+        self.board_color = my_preferences["board_color"] if "board_color" in my_preferences else "Brown::board_color_k"
         self.is_save_user_comment = True
+        self.text_font = ('Consolas', self.font_size_ui)
+        self.set_color_board(self.board_color, False)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.
@@ -1712,7 +1714,7 @@ class EasyChessGui:
         """ Returns max depth based from user setting """
         user_depth = sg.PopupGetText(
             f'Current depth is {self.max_depth}\n\nInput depth [{MIN_DEPTH} to {MAX_DEPTH}]',
-            title=BOX_TITLE,
+            title=BOX_TITLE, font=self.text_font,
             icon=ico_path[platform]['pecg']
         )
 
@@ -2696,6 +2698,39 @@ class EasyChessGui:
         except Exception:
             logging.exception('Error in getting adviser engine!')
 
+    def set_color_board(self, button, store):
+        self.board_color = button
+        # Mode: Neutral, Change board to gray
+        if button == 'Gray::board_color_k':
+            self.sq_light_color = '#D8D8D8'
+            self.sq_dark_color = '#808080'
+            self.move_sq_light_color = '#e0e0ad'
+            self.move_sq_dark_color = '#999966'
+
+        # Mode: Neutral, Change board to green
+        if button == 'Green::board_color_k':
+            self.sq_light_color = '#daf1e3'
+            self.sq_dark_color = '#3a7859'
+            self.move_sq_light_color = '#bae58f'
+            self.move_sq_dark_color = '#6fbc55'
+
+        # Mode: Neutral, Change board to blue
+        if button == 'Blue::board_color_k':
+            self.sq_light_color = '#b9d6e8'
+            self.sq_dark_color = '#4790c0'
+            self.move_sq_light_color = '#d2e4ba'
+            self.move_sq_dark_color = '#91bc9c'
+
+        # Mode: Neutral, Change board to brown, default
+        if button == 'Brown::board_color_k':
+            self.sq_light_color = '#F0D9B5'
+            self.sq_dark_color = '#B58863'
+            self.move_sq_light_color = '#E8E18E'
+            self.move_sq_dark_color = '#B8AF4E'
+        if store:
+            self.preferences.preferences["board_color"] = button
+            self.preferences.save_preferences()
+
     def get_default_engine_opponent(self):
         engine_id_name = None
         try:
@@ -2766,7 +2801,7 @@ class EasyChessGui:
                     [sg.Text('Status:', font=self.text_font, size=(48, 1), key='status_k', relief='sunken')],
                     [sg.T('Current players in the pgn', font=self.text_font, size=(43, 1))],
                     [sg.Listbox([], font=self.text_font, size=(53, 10), key='player_k')],
-                    [sg.Button('Delete Player'), sg.Cancel()]
+                    [sg.Button('Delete Player', font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
 
                 window.Hide()
@@ -2869,10 +2904,10 @@ class EasyChessGui:
             if button == 'User::tc_k':
                 win_title = 'Time/User'
                 layout = [
-                    [sg.T('Base time (minute)', font=self.text_font, size=(16, 1)),
+                    [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
                      sg.Input(self.human_base_time_ms/60/1000, font=self.text_font,
                               key='base_time_k', size=(8, 1))],
-                    [sg.T('Increment (second)', font=self.text_font, size=(16, 1)),
+                    [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
                      sg.Input(self.human_inc_time_ms/1000, font=self.text_font, key='inc_time_k',
                               size=(8, 1))],
                     [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
@@ -2882,7 +2917,7 @@ class EasyChessGui:
                               default=True if self.human_tc_type == 'fischer' else False),
                      sg.Radio('Delay', 'tc_radio', font=self.text_font, key='delay_type_k',
                               default=True if self.human_tc_type == 'delay' else False)],
-                    [sg.OK(), sg.Cancel()]
+                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
 
                 window.Hide()
@@ -2918,10 +2953,10 @@ class EasyChessGui:
             if button == 'Engine::tc_k':
                 win_title = 'Time/Engine'
                 layout = [
-                    [sg.T('Base time (minute)', font=self.text_font, size=(16, 1)),
+                    [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
                      sg.Input(self.engine_base_time_ms / 60 / 1000,
                               key='base_time_k', font=self.text_font, size=(8, 1))],
-                    [sg.T('Increment (second)', font=self.text_font, size=(16, 1)),
+                    [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
                      sg.Input(self.engine_inc_time_ms / 1000, font=self.text_font,
                               key='inc_time_k',
                               size=(8, 1))],
@@ -2937,7 +2972,7 @@ class EasyChessGui:
                               self.engine_tc_type == 'timepermove' else
                               False, tooltip='Only base time will be used.')
                      ],
-                    [sg.OK(), sg.Cancel()]
+                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
 
                 window.Hide()
@@ -2978,7 +3013,7 @@ class EasyChessGui:
                             self.username))],
                         [sg.T('Name', size=(4, 1)), sg.Input(
                                 self.username, key='username_k', size=(32, 1))],
-                        [sg.OK(), sg.Cancel()]
+                        [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
                 window.Hide()
                 w = sg.Window(win_title, layout,
@@ -3007,10 +3042,10 @@ class EasyChessGui:
                 new_engine_path_file, new_engine_id_name = None, None
 
                 install_layout = [
-                        [sg.Text('Current configured engine names')],
+                        [sg.Text('Current configured engine names', font=self.text_font)],
                         [sg.Listbox(values=self.engine_id_name_list,
-                                    size=(48, 10), disabled=True)],
-                        [sg.Button('Add'), sg.Button('Cancel')]
+                                    size=(48, 10), font=self.text_font, disabled=True)],
+                        [sg.Button('Add', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
                 ]
 
                 window.Hide()
@@ -3032,7 +3067,7 @@ class EasyChessGui:
                                 sg.Input(key='engine_id_name_k', font=self.text_font, tooltip='Input name'),
                                 sg.Button('Get Id Name', font=self.text_font)
                             ],
-                            [sg.OK(), sg.Cancel()]
+                            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                         ]
 
                         install_win.Hide()
@@ -3172,15 +3207,15 @@ class EasyChessGui:
                 engine_path_file, engine_id_name = None, None
 
                 edit_layout = [
-                        [sg.Text('Current configured engine names')],
+                        [sg.Text('Current configured engine names', font=self.text_font)],
                         [
                             sg.Listbox(
-                                values=self.engine_id_name_list,
+                                values=self.engine_id_name_list, font=self.text_font,
                                 size=(48, 10),
                                 key='engine_id_name_k'
                             )
                         ],
-                        [sg.Button('Modify'), sg.Button('Cancel')]
+                        [sg.Button('Modify', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
                 ]
 
                 window.Hide()
@@ -3326,7 +3361,7 @@ class EasyChessGui:
                                             option_layout.append(combo_layout)
                                 break
 
-                        option_layout.append([sg.OK(), sg.Cancel()])
+                        option_layout.append([sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)])
 
                         if len(option_layout2) > 1:
                             tab1 = [[sg.Column(option_layout)]]
@@ -3373,10 +3408,10 @@ class EasyChessGui:
             if button == 'Delete':
                 button_title = 'Engine/Manage/' + button
                 delete_layout = [
-                    [sg.Text('Current configured engine names')],
-                    [sg.Listbox(values=self.engine_id_name_list, size=(48, 10),
+                    [sg.Text('Current configured engine names', font=self.text_font)],
+                    [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
                                 key='engine_id_name_k')],
-                    [sg.Button('Delete'), sg.Cancel()]
+                    [sg.Button('Delete', font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
                 window.Hide()
                 delete_win = sg.Window(
@@ -3435,7 +3470,7 @@ class EasyChessGui:
                 layout = [
                         [sg.T('Current Opponent: {}'.format(self.opp_id_name), size=(40, 1))],
                         [sg.Listbox(values=self.engine_id_name_list, size=(48, 10), key='engine_id_k')],
-                        [sg.OK(), sg.Cancel()]
+                        [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
 
                 # Create new window and disable the main window
@@ -3492,11 +3527,11 @@ class EasyChessGui:
                               size=(40, 1))],
                         [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
                                     key='adviser_id_name_k')],
-                        [sg.T('Movetime (sec)', font=self.text_font, size=(12, 1)),
+                        [sg.T('Movetime (sec)', font=self.text_font, size=(14, 1)),
                          sg.Spin([t for t in range(1, 3600, 1)], font=self.text_font,
                                  initial_value=self.adviser_movetime_sec,
                                  size=(8, 1), key='adviser_movetime_k')],
-                        [sg.OK(), sg.Cancel()]
+                        [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                 ]
 
                 # Create new window and disable the main window
@@ -3558,7 +3593,7 @@ class EasyChessGui:
                          sg.Radio('Random move', 'Book Radio', font=self.text_font,
                                   key='random_move_k',
                                   default=True if self.is_random_book else False)],
-                        [sg.OK(), sg.Cancel()],
+                        [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
                 ]
 
                 w = sg.Window(BOX_TITLE + '/Set Book', layout,
@@ -3597,6 +3632,7 @@ class EasyChessGui:
             # Mode: Neutral, Settings menu
             if button == 'Game::settings_game_k':
                 font_sizes = ['10', '12', '20', '32']
+                font_ui_sizes = ['10', '12', '20', '32']
                 field_sizes = ['60', '70', '80', '90', '100', '105']
                 win_title = 'Settings/Game'
                 layout = [
@@ -3610,23 +3646,26 @@ class EasyChessGui:
                     [sg.CBox('Start in game-entry-mode', font=self.text_font,
                              key='start_entry_mode',
                              default=self.preferences.preferences['start_entry_mode'])],
-                    [[sg.Text("Menu-font-size:", font=self.text_font),
+                    [[sg.Text("Menu-font-size:", size=(16, 1), font=self.text_font),
                       sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
-                    [[sg.Text("Chess-field-size:", font=self.text_font),
+                    [[sg.Text("Font-size UI:", size=(16, 1), font=self.text_font),
+                      sg.Combo(font_ui_sizes, font=self.text_font, expand_x=True, enable_events=True,
+                               readonly=False, default_value=self.font_size_ui, key='font_size_ui')]],
+                    [[sg.Text("Chess-field-size:", size=(16, 1), font=self.text_font),
                       sg.Combo(field_sizes, font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=str(self.FIELD_SIZE), key='field_size')]],
                     [sg.Text('Sites', size=(7, 1), font=self.text_font),
                     sg.InputText(",".join(self.sites_list), font=self.text_font, key='sites_list_k',
-                                 size=(24, 1))],
+                                 size=(60, 1))],
                     [sg.Text('Events', size=(7, 1), font=self.text_font),
                     sg.InputText(",".join(self.events_list), font=self.text_font, key='events_list_k',
-                                 size=(24, 1))],
+                                 size=(60, 1))],
                     [sg.Text('Players', size=(7, 1), font=self.text_font),
                      sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
-                                  size=(24, 1))],
+                                  size=(60, 1))],
 
-                    [sg.OK(), sg.Cancel()],
+                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
                 ]
 
                 w = sg.Window(win_title, layout,
@@ -3639,6 +3678,7 @@ class EasyChessGui:
                         break
                     if e == 'OK':
                         self.menu_font_size = v['menu_font_size']
+                        self.font_size_ui = int(v['font_size_ui'])
                         self.FIELD_SIZE = int(v['field_size'])
                         self.is_save_time_left = v['save_time_left_k']
                         self.start_entry_mode = v['start_entry_mode']
@@ -3646,6 +3686,7 @@ class EasyChessGui:
                         self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                         self.players = [s.strip() for s in v['players_k'].split(",")]
                         self.preferences.preferences["menu_font_size"] = self.menu_font_size
+                        self.preferences.preferences["font_size_ui"] = self.font_size_ui
                         self.preferences.preferences["sites_list"] = self.sites_list
                         self.preferences.preferences["events_list"] = self.events_list
                         self.preferences.preferences["players"] = self.players
@@ -3662,45 +3703,35 @@ class EasyChessGui:
             # Mode: Neutral, Change theme
             if button in GUI_THEME:
                 self.gui_theme = button
+                self.preferences.preferences["gui_theme"] = self.gui_theme
+                self.preferences.save_preferences()
                 window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to gray
             if button == 'Gray::board_color_k':
-                self.sq_light_color = '#D8D8D8'
-                self.sq_dark_color = '#808080'
-                self.move_sq_light_color = '#e0e0ad'
-                self.move_sq_dark_color = '#999966'
+                self.set_color_board(button, True)
                 self.redraw_board(window)
                 window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to green
             if button == 'Green::board_color_k':
-                self.sq_light_color = '#daf1e3'
-                self.sq_dark_color = '#3a7859'
-                self.move_sq_light_color = '#bae58f'
-                self.move_sq_dark_color = '#6fbc55'
+                self.set_color_board(button, True)
                 self.redraw_board(window)
                 window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to blue
             if button == 'Blue::board_color_k':
-                self.sq_light_color = '#b9d6e8'
-                self.sq_dark_color = '#4790c0'
-                self.move_sq_light_color = '#d2e4ba'
-                self.move_sq_dark_color = '#91bc9c'
+                self.set_color_board(button, True)
                 self.redraw_board(window)
                 window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to brown, default
             if button == 'Brown::board_color_k':
-                self.sq_light_color = '#F0D9B5'
-                self.sq_dark_color = '#B58863'
-                self.move_sq_light_color = '#E8E18E'
-                self.move_sq_dark_color = '#B8AF4E'
+                self.set_color_board(button, True)
                 self.redraw_board(window)
                 window = self.create_new_window(window)
                 continue
