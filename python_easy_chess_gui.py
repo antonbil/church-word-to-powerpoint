@@ -59,6 +59,7 @@ import logging
 import platform as sys_plat
 from annotator import annotator
 from dialogs.header_dialog import HeaderDialog
+from pgn_viewer.pgn_viewer import PGNViewer
 from preferences.preferences import Preferences
 
 
@@ -286,7 +287,7 @@ menu_def_neutral = [
         ['&Time', ['User::tc_k', 'Engine::tc_k']],
         ['&Book', ['Set Book::book_set_k']],
         ['&User', ['Set Name::user_name_k']],
-        ['Tools', ['PGN', ['Delete Player::delete_player_k']]],
+        ['Tools', ['PGN', ['Delete Player::delete_player_k', 'PGN-Viewer']]],
         ['&Settings', ['Game::settings_game_k']],
         ['&Help', ['GUI']],
 ]
@@ -312,6 +313,13 @@ menu_def_entry = [
         ['&Game', ['Analise game']],
         ['FEN', ['Paste']],
         ['&Help', ['GUI']],
+]
+
+menu_def_pgnviewer = [
+        ['&Mode', ['Neutral']],
+        ['&Game', ['Read']],
+        ['Previous', ['Previous']],
+        ['Next', ['Next']],
 ]
 
 
@@ -1449,6 +1457,7 @@ class EasyChessGui:
 
     def fen_to_psg_board(self, window):
         """ Update psg_board based on FEN """
+        print("in gui: fen", self.fen)
         psgboard = []
 
         # Get piece locations only to build psg board
@@ -2648,7 +2657,16 @@ class EasyChessGui:
             [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1), font=('Consolas', self.menu_font_size), key='adviser_k',),
              sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
+            [sg.Frame(visible=False, font=self.text_font, key='pgn_row',
+            layout=[
+                [sg.Button("previous", font=self.text_font, key='Previous'),sg.Button("next", font=self.text_font, key='Next')
+                ,sg.Button("b1")]
+            ],
+            title="Cool subpanel",
+            relief=sg.RELIEF_GROOVE,
+        ),
 
+                sg.Text('Invisible', size=(16, 1), visible=False, font=self.text_font, key='pgn_row')],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 8),
                           font=self.text_font, key='_movelist_', disabled=True)],
@@ -2759,6 +2777,7 @@ class EasyChessGui:
                            layout, default_button_element_size=(12, 1),
                            auto_size_buttons=False,
                            icon=ico_path[platform]['pecg'])
+        self.window = window
 
         # Read user config file, if missing create and new one
         self.check_user_config_file()
@@ -2789,6 +2808,13 @@ class EasyChessGui:
             if button is None:
                 logging.info('Quit app from main loop, X is pressed.')
                 break
+            if button == 'PGN-Viewer':
+                self.menu_elem.Update(menu_def_pgnviewer)
+                PGNViewer(self, window)
+            if button == 'Next':
+                print("next")
+            if button == 'Previous':
+                print("previous")
 
             # Mode: Neutral, Delete player
             if button == 'Delete Player::delete_player_k':
@@ -3741,7 +3767,7 @@ class EasyChessGui:
             if button == 'Flip':
                 window.find_element('_gamestatus_').Update('Mode     Neutral')
                 self.clear_elements(window)
-                window = self.create_new_window(window, True)
+                self.window = self.create_new_window(window, True)
                 continue
 
             # Mode: Neutral
