@@ -19,10 +19,11 @@ class PGNViewer:
         self.move_number = 0
         self.current_move = None
         try:
+            game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
+                else ""
             file_name = self.gui.preferences.preferences["pgn_file"]
             self.open_pgn_file(file_name)
             self.pgn = file_name
-            game_name = self.gui.preferences.preferences["pgn_game"]
             self.my_game = game_name
             self.select_game()
 
@@ -51,7 +52,7 @@ class PGNViewer:
                 break
             if button == "Select":
                 layout = [
-                    [sg.Combo(self.game_descriptions, key='game_k')],
+                    [sg.Combo(self.game_descriptions, key='game_k', default_value=self.my_game, font=self.gui.text_font)],
                     [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
                 ]
 
@@ -73,7 +74,9 @@ class PGNViewer:
                 #see: https://docs.pysimplegui.com/en/latest/documentation/module/popups/
                 layout = [
                     [sg.Text('PGN', font=self.gui.text_font, size=(4, 1)),
-                     sg.Input(size=(40, 1), font=self.gui.text_font, key='pgn_k'), sg.FileBrowse('Select PGN File', file_types=(("PGN files", "*.pgn")))],
+                     sg.Input(size=(40, 1), font=self.gui.text_font, key='pgn_k'),
+                     sg.FileBrowse('Select PGN File',
+                                   font=self.gui.text_font, file_types=(("PGN files", "*.pgn")))],
                     [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
                 ]
 

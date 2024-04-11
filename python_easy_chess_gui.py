@@ -1458,7 +1458,6 @@ class EasyChessGui:
 
     def fen_to_psg_board(self, window):
         """ Update psg_board based on FEN """
-        print("in gui: fen", self.fen)
         psgboard = []
 
         # Get piece locations only to build psg board
