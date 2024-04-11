@@ -801,6 +801,7 @@ class EasyChessGui:
         self.gui_theme = my_preferences["gui_theme"] if "gui_theme" in my_preferences else'Reddit'
         self.font_size_ui = my_preferences["font_size_ui"] if "font_size_ui" in my_preferences else 10
         self.board_color = my_preferences["board_color"] if "board_color" in my_preferences else "Brown::board_color_k"
+        self.pgn_file = my_preferences["pgn_file"] if "pgn_file" in my_preferences else ""
         self.is_save_user_comment = True
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
@@ -2750,7 +2751,12 @@ class EasyChessGui:
             self.preferences.preferences["board_color"] = button
             self.preferences.save_preferences()
 
+    def save_pgn_file_in_preferences(self, pgn_file):
+        self.preferences.preferences["pgn_file"] = pgn_file
+        self.preferences.save_preferences()
+
     def get_default_engine_opponent(self):
+
         engine_id_name = None
         try:
             engine_id_name = self.opp_id_name = self.engine_id_name_list[0]

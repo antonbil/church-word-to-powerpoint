@@ -19,7 +19,8 @@ class Preferences:
                                'events_list':["Interne competitie Oostkapelle", "Zeeuwse competitie"],
                                'players':["Anton Bil"], "start_entry_mode": False, "menu_font_size": 12,
                                "gui_theme": "Reddit"
-                    , "field_size": 60, "font_size_ui": 10, "board_color": "Brown::board_color_k"}
+                    , "field_size": 60, "font_size_ui": 10, "board_color": "Brown::board_color_k",
+                               "pgn_file": ""}
             return preferences
 
     def save_preferences(self):

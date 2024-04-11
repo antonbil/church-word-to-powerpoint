@@ -17,6 +17,12 @@ class PGNViewer:
         self.game_descriptions = []
         self.move_number = 0
         self.current_move = None
+        try:
+            file_name = self.gui.preferences.preferences["pgn_file"]
+            self.open_pgn_file(file_name)
+            self.pgn = file_name
+        except:
+            pass
         self.execute_pgn()
         """
         end()→ GameNode[source] Follows the main variation to the end and returns the last node
@@ -88,23 +94,9 @@ class PGNViewer:
                         w.Close()
                         self.pgn = v['pgn_k']
                         print("pgn chosen", self.pgn)
-                        pgn = open(self.pgn)
-
-                        # Reading the game
-                        game = chess.pgn.read_game(pgn)
-                        self.game_descriptions = []
-                        self.game_descriptions.append(self.get_description_pgn(game))
-                        while True:
-                            game1 = chess.pgn.read_game(pgn)
-                            if game1 is None:
-                                break  # end of file
-
-                            self.game_descriptions.append(self.get_description_pgn(game1))
-                        print(self.game_descriptions)
-
-                        self.init_game(game)
-
-                        self.display_move()
+                        self.gui.save_pgn_file_in_preferences(self.pgn)
+                        pgn_file = self.pgn
+                        self.open_pgn_file(pgn_file)
                         break
 
             if button == 'Next':
@@ -143,6 +135,22 @@ class PGNViewer:
                         self.move_number = self.execute_previous_move(self.move_number)
                     else:
                         self.move_number = self.execute_next_move(self.move_number)
+
+    def open_pgn_file(self, pgn_file):
+        pgn = open(pgn_file)
+        # Reading the game
+        game = chess.pgn.read_game(pgn)
+        self.game_descriptions = []
+        self.game_descriptions.append(self.get_description_pgn(game))
+        while True:
+            game1 = chess.pgn.read_game(pgn)
+            if game1 is None:
+                break  # end of file
+
+            self.game_descriptions.append(self.get_description_pgn(game1))
+        print(self.game_descriptions)
+        self.init_game(game)
+        self.display_move()
 
     def init_game(self, game):
         self.moves.clear()
