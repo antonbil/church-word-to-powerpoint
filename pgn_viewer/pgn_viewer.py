@@ -6,8 +6,9 @@ class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
         self.gui = gui
-        window.find_element('comment_k').update(visible=False)
-        window.find_element('pgn_row').update(visible=True)
+        # window.find_element('comment_k').update(visible=False)
+        # window.find_element('pgn_row').update(visible=True)
+        window.find_element('_gamestatus_').Update('Mode     PGN-Viewer')
         self.window = window
         self.moves = []
         self.current_move = None
@@ -62,6 +63,9 @@ class PGNViewer:
             game.mainline_moves(), append=True, disabled=True)
         self.window.find_element('_Black_').Update(game.headers['Black'])
         self.window.find_element('_White_').Update(game.headers['White'])
+        info = "{} ({})".format((game.headers['Site'].replace('?', "")+game.headers['Date'].replace('?', "")).strip(),game.headers['Result'])
+        self.window.find_element('advise_info_k').Update(info)
+        #'advise_info_k'
 
         move_number = 0
 

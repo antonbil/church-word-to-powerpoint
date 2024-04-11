@@ -2811,6 +2811,8 @@ class EasyChessGui:
             if button == 'PGN-Viewer':
                 self.menu_elem.Update(menu_def_pgnviewer)
                 PGNViewer(self, window)
+                self.menu_elem.Update(menu_def_neutral)
+
             if button == 'Next':
                 print("next")
             if button == 'Previous':
