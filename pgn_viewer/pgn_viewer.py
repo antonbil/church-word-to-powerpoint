@@ -9,7 +9,14 @@ class PGNViewer:
         window.find_element('comment_k').update(visible=False)
         window.find_element('pgn_row').update(visible=True)
         self.window = window
+        self.moves = []
+        self.current_move = None
         self.execute_pgn()
+        """
+        end()→ GameNode[source] Follows the main variation to the end and returns the last node
+        turn()→ chess.Color[source] Gets the color to move at this node.
+        variations: List[ChildNode] A list of child nodes
+        """
 
     def execute_pgn(self):
         # creating a virtual chessboard
@@ -45,55 +52,20 @@ class PGNViewer:
         21. Nh4 Rg8 22. Qh5+ Kf8 23. Qh6+ Kf7 24. Bh5+ 1-0
         """
 
-        # Converting the string into StringIO object
-        pgn = StringIO(pgn_string)
         pgn = open('2023-09-28-Anton-Gerrit.pgn')
 
         # Reading the game
         game = chess.pgn.read_game(pgn)
+        self.current_move = game.game()
+        self.moves.append(self.current_move)
         self.window.find_element('_movelist_').Update(
             game.mainline_moves(), append=True, disabled=True)
         self.window.find_element('_Black_').Update(game.headers['Black'])
         self.window.find_element('_White_').Update(game.headers['White'])
-        # username of the player playing with white
-        white_username = game.headers['White']
 
-        # username of the player playing with black
-        black_username = game.headers['Black']
-        #time_control = game.headers['TimeControl']
+        move_number = 0
 
-        # time format of the game
-        # who won the game
-        game_result = game.headers['Result']
-
-        # Make sure that each header name
-        # used above is present in the PGN
-        print("White's chess.com Username:", white_username)
-        print("Black's chess.com Username:", black_username)
-        #print("Game's Time Control:", time_control, "seconds")
-        print("Game Result:", game_result)
-
-        # If white wins: 1-0
-        # If black wins: 0-1
-        # If game drawn: 1/2-1/2
-        # The move number for which we want the FEN
-        move_number = 8
-
-        fen = self.display_move(board, game, move_number)
-        print(fen)
-        print(board)
-        chess.svg.board(board, size=350)
-        svg_text = chess.svg.board(
-            board,
-            fill=dict.fromkeys(board.attacks(chess.E4), "#cc0000cc"),
-            arrows=[chess.svg.Arrow(chess.E4, chess.F6, color="#0000cccc")],
-            squares=chess.SquareSet(chess.BB_DARK_SQUARES & chess.BB_FILE_B),
-            size=350)
-
-        with open('example-board.svg', 'w') as f:
-            f.write(svg_text)
-
-        svg2png(bytestring=svg_text, write_to='example-board.png')
+        self.display_move(board, game, move_number)
 
         while True:
             button, value = self.window.Read(timeout=50)
@@ -103,29 +75,79 @@ class PGNViewer:
                 self.start_entry_mode = False
                 break
             if button == 'Next':
-                move_number = move_number + 1
-                print("move nmber:", move_number)
-                self.display_move(board, game, move_number)
+                move_number = self.execute_next_move(board, game, move_number)
             if button == 'Previous':
-                move_number = move_number - 1
-                print("move nmber:", move_number)
-                self.display_move(board, game, move_number)
+                move_number = self.execute_previous_move(board, game, move_number)
+            if type(button) is tuple:
+                # If fr_sq button is pressed
+                move_from = button
+                fr_row, fr_col = move_from
+                col = chr(fr_col + ord('a'))
+                row = str(7 - fr_row + 1)
+                coord = col+row
+                my_variation = False
+                for variation in self.current_move.variations:
+                    move = str(variation.move)
+
+                    if move.startswith(coord):
+                        self.moves.append(variation)
+                        self.current_move = variation
+                        move_number = move_number + 1
+                        my_variation = True
+                    if my_variation:
+                        self.display_move(board, game, move_number)
+                if not my_variation:
+                    if fr_col < 4:
+                        move_number = self.execute_previous_move(board, game, move_number)
+                    else:
+                        move_number = self.execute_next_move(board, game, move_number)
+
+    def execute_previous_move(self, board, game, move_number):
+        if move_number > 0:
+            move_number = move_number - 1
+            self.moves.pop()
+            self.current_move = self.moves[-1]
+            print("move number:", move_number)
+            self.display_move(board, game, move_number)
+        return move_number
+
+    def execute_next_move(self, board, game, move_number):
+        if len(self.current_move.variations) > 0:
+            move_number = move_number + 1
+            next_move = self.current_move.variations[0]
+            self.moves.append(next_move)
+            self.current_move = next_move
+            print("move nmber:", move_number)
+            self.display_move(board, game, move_number)
+        return move_number
 
     def display_move(self, board, game, move_number):
         board = chess.Board()
         # Go through each move in the game until
         # we reach the required move number
-        for number, move in enumerate(game.mainline_moves()):
+        last_variation = []
+        fen = None
+        for main_move in self.moves:
+            move = main_move.move
 
             # It copies the move played by each
             # player on the virtual board
-            print("move", move)
-            board.push(move)
+            try:
+                print("move", move)
+                board.push(move)
+                last_variation = main_move.variations
+            except:
+                pass
 
-            # Remember that number starts from 0
-            if number == move_number:
-                break
         fen = board.fen()
         self.gui.fen = fen
         self.gui.fen_to_psg_board(self.window)
+        if len(last_variation) > 1:
+            for move_variation in last_variation:
+                print("variation", move_variation.move)
+                move_str = str(move_variation.move)
+                fr_col = ord(move_str[0]) - ord('a')
+                fr_row = 8 - int(move_str[1])
+
+                self.gui.change_square_color(self.window, fr_row, fr_col)
         return fen
