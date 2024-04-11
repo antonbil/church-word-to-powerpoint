@@ -13,6 +13,8 @@ class PGNViewer:
         window.find_element('_gamestatus_').Update('Mode     PGN-Viewer')
         self.window = window
         self.moves = []
+        self.pgn = ""
+        self.game_descriptions = []
         self.move_number = 0
         self.current_move = None
         self.execute_pgn()
@@ -36,7 +38,39 @@ class PGNViewer:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            if button == "Select":
+                layout = [
+                    [sg.Combo(self.game_descriptions, key='game_k')],
+                    [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
+                ]
+
+                w = sg.Window("Read PGN", layout,
+                              icon='Icon/pecg.png')
+                while True:
+                    e, v = w.Read(timeout=10)
+                    if e is None or e == 'Cancel':
+                        w.Close()
+                        break
+                    if e == 'Ok':
+                        w.Close()
+                        my_game = v['game_k']
+                        pgn = open(self.pgn)
+
+                        # Reading the game
+                        game1 = chess.pgn.read_game(pgn)
+                        while not (self.get_description_pgn(game1) == my_game):
+                            game1 = chess.pgn.read_game(pgn)
+                            if game1 is None:
+                                break  # end of file
+
+                        self.init_game(game1)
+
+                        self.display_move()
+                        break
+
             if button == 'Read':
+                # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
+                #see: https://docs.pysimplegui.com/en/latest/documentation/module/popups/
                 layout = [
                     [sg.Text('PGN', font=self.gui.text_font, size=(4, 1)),
                      sg.Input(size=(40, 1), font=self.gui.text_font, key='pgn_k'), sg.FileBrowse('Select PGN File', file_types=(("PGN files", "*.pgn")))],
@@ -52,34 +86,23 @@ class PGNViewer:
                         break
                     if e == 'Ok':
                         w.Close()
-                        pgn = v['pgn_k']
-                        print("pgn chosen", pgn)
-                        pgn = open(pgn)
+                        self.pgn = v['pgn_k']
+                        print("pgn chosen", self.pgn)
+                        pgn = open(self.pgn)
+
                         # Reading the game
                         game = chess.pgn.read_game(pgn)
-                        my_list = []
-                        my_list.append(self.get_description_pgn(game))
+                        self.game_descriptions = []
+                        self.game_descriptions.append(self.get_description_pgn(game))
                         while True:
                             game1 = chess.pgn.read_game(pgn)
                             if game1 is None:
                                 break  # end of file
 
-                            my_list.append(self.get_description_pgn(game1))
-                        print(my_list)
+                            self.game_descriptions.append(self.get_description_pgn(game1))
+                        print(self.game_descriptions)
 
-                        self.current_move = game.game()
-                        self.moves.append(self.current_move)
-                        self.window.find_element('_movelist_').Update(
-                            game.mainline_moves(), append=True, disabled=True)
-                        self.window.find_element('_Black_').Update(game.headers['Black'])
-                        self.window.find_element('_White_').Update(game.headers['White'])
-                        info = "{} ({})".format(
-                            (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
-                            game.headers['Result'])
-                        self.window.find_element('advise_info_k').Update(info)
-                        # 'advise_info_k'
-
-                        self.move_number = 0
+                        self.init_game(game)
 
                         self.display_move()
                         break
@@ -96,6 +119,7 @@ class PGNViewer:
                 row = str(7 - fr_row + 1)
                 coord = col+row
                 my_variation = False
+                counter = 0
                 for variation in self.current_move.variations:
                     move = str(variation.move)
 
@@ -105,12 +129,42 @@ class PGNViewer:
                         self.move_number = self.move_number + 1
                         my_variation = True
                     if my_variation:
+                        window = self.window.find_element('comment_k')
+                        window.Update('')
+                        if counter > 0:
+                             window.Update(
+                                    self.current_move.mainline_moves(), append=True, disabled=True)
+
+                        # comment_k
                         self.display_move()
+                    counter = counter + 1
                 if not my_variation:
                     if fr_col < 4:
                         self.move_number = self.execute_previous_move(self.move_number)
                     else:
                         self.move_number = self.execute_next_move(self.move_number)
+
+    def init_game(self, game):
+        self.moves.clear()
+        self.current_move = game.game()
+        self.moves.append(self.current_move)
+        self.window.find_element('_movelist_').Update(
+            game.mainline_moves(), append=True, disabled=True)
+        self.window.find_element('_Black_').Update(game.headers['Black'])
+        self.window.find_element('_White_').Update(game.headers['White'])
+        info = "{} ({})".format(
+            (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
+            game.headers['Result'])
+        self.window.find_element('advise_info_k').Update(info)
+        # 'advise_info_k'
+        window = self.window.find_element('_movelist_')
+        window.Update('')
+        try:
+            window.Update(
+                self.current_move.mainline_moves(), append=True, disabled=True)
+        except:
+            pass
+        self.move_number = 0
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
@@ -160,11 +214,4 @@ class PGNViewer:
                 fr_row = 8 - int(move_str[1])
 
                 self.gui.change_square_color(self.window, fr_row, fr_col)
-        window = self.window.find_element('_movelist_')
-        window.Update('')
-        try:
-            window.Update(
-                self.current_move.mainline_moves(), append=True, disabled=True)
-        except:
-            pass
         return fen
