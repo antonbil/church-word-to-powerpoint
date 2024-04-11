@@ -2755,6 +2755,10 @@ class EasyChessGui:
         self.preferences.preferences["pgn_file"] = pgn_file
         self.preferences.save_preferences()
 
+    def save_pgn_game_in_preferences(self, pgn_file):
+        self.preferences.preferences["pgn_game"] = pgn_file
+        self.preferences.save_preferences()
+
     def get_default_engine_opponent(self):
 
         engine_id_name = None
