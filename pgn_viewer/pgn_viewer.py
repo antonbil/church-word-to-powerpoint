@@ -65,7 +65,7 @@ class PGNViewer:
 
         move_number = 0
 
-        self.display_move(board, game, move_number)
+        self.display_move()
 
         while True:
             button, value = self.window.Read(timeout=50)
@@ -75,9 +75,9 @@ class PGNViewer:
                 self.start_entry_mode = False
                 break
             if button == 'Next':
-                move_number = self.execute_next_move(board, game, move_number)
+                move_number = self.execute_next_move(move_number)
             if button == 'Previous':
-                move_number = self.execute_previous_move(board, game, move_number)
+                move_number = self.execute_previous_move(move_number)
             if type(button) is tuple:
                 # If fr_sq button is pressed
                 move_from = button
@@ -95,33 +95,33 @@ class PGNViewer:
                         move_number = move_number + 1
                         my_variation = True
                     if my_variation:
-                        self.display_move(board, game, move_number)
+                        self.display_move()
                 if not my_variation:
                     if fr_col < 4:
-                        move_number = self.execute_previous_move(board, game, move_number)
+                        move_number = self.execute_previous_move(move_number)
                     else:
-                        move_number = self.execute_next_move(board, game, move_number)
+                        move_number = self.execute_next_move(move_number)
 
-    def execute_previous_move(self, board, game, move_number):
+    def execute_previous_move(self, move_number):
         if move_number > 0:
             move_number = move_number - 1
             self.moves.pop()
             self.current_move = self.moves[-1]
             print("move number:", move_number)
-            self.display_move(board, game, move_number)
+            self.display_move()
         return move_number
 
-    def execute_next_move(self, board, game, move_number):
+    def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
             move_number = move_number + 1
             next_move = self.current_move.variations[0]
             self.moves.append(next_move)
             self.current_move = next_move
             print("move nmber:", move_number)
-            self.display_move(board, game, move_number)
+            self.display_move()
         return move_number
 
-    def display_move(self, board, game, move_number):
+    def display_move(self):
         board = chess.Board()
         # Go through each move in the game until
         # we reach the required move number
@@ -133,7 +133,7 @@ class PGNViewer:
             # It copies the move played by each
             # player on the virtual board
             try:
-                print("move", move)
+                #print("move", move)
                 board.push(move)
                 last_variation = main_move.variations
             except:
@@ -144,10 +144,14 @@ class PGNViewer:
         self.gui.fen_to_psg_board(self.window)
         if len(last_variation) > 1:
             for move_variation in last_variation:
-                print("variation", move_variation.move)
+                #print("variation", move_variation.move)
                 move_str = str(move_variation.move)
                 fr_col = ord(move_str[0]) - ord('a')
                 fr_row = 8 - int(move_str[1])
 
                 self.gui.change_square_color(self.window, fr_row, fr_col)
+        window = self.window.find_element('_movelist_')
+        window.Update('')
+        window.Update(
+            self.current_move.mainline_moves(), append=True, disabled=True)
         return fen
