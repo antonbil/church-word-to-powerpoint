@@ -7,6 +7,8 @@ import os
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.pgn_lines = []
+        self.positions = []
         self.gui = gui
         # window.find_element('comment_k').update(visible=False)
         # window.find_element('pgn_row').update(visible=True)
@@ -168,8 +170,8 @@ class PGNViewer:
         self.moves.clear()
         self.current_move = game.game()
         self.moves.append(self.current_move)
-        self.window.find_element('_movelist_').Update(
-            game.mainline_moves(), append=True, disabled=True)
+        moves = game.mainline_moves()
+        self.display_move_list(moves)
         self.window.find_element('_Black_').Update(game.headers['Black'])
         self.window.find_element('_White_').Update(game.headers['White'])
         info = "{} ({})".format(
@@ -186,12 +188,20 @@ class PGNViewer:
             pass
         self.move_number = 0
 
+    def display_move_list(self, moves):
+        movelist = self.window.find_element('_movelist_')
+        movelist.Update('')
+
+        movelist.Update(
+            moves, append=True, autoscroll=False, disabled=True)
+
     def execute_previous_move(self, move_number):
         if move_number > 0:
             move_number = move_number - 1
             self.moves.pop()
             self.current_move = self.moves[-1]
             print("move number:", move_number)
+            self.display_part_pgn(move_number, self.current_move)
             self.display_move()
         return move_number
     def get_all_moves(self, game):
@@ -204,29 +214,84 @@ class PGNViewer:
             moves.append(current_move)
             #print("move:", current_move)
         return moves
+    def split_line(self, line):
+        max_len_line = 50
+        line = line.strip().replace("_ ", "_")
+        if len(line) <= max_len_line:
+            return line
+        line = line.replace(".  ", ".H")
+        words = line.split(" ")
+        prefix_number = words[0].count("_")
+        len_line = len(words[0])
+        line=words[0]
+        words.pop(0)
+        for word in words:
+            if len_line + len(word) > max_len_line:
+                line = line+"\n"+("_"*prefix_number)
+                len_line = len(word)
+            else:
+                len_line = len_line + 1
+                line = line + " "
+            len_line = len_line + len(word)
+            line = line + word
+        line = line.replace( ".H",".  ")
+        return line
+
     def display_pgn(self, game):
         string = str(game.game())
+        """
+        set_vscroll_position(
+    percent_from_top
+)
+        """
         string = list(string)
         indent = 0
+        inside_comment = False
 
         for index, item in enumerate(string):
 
-                if item == "(" or item == "{":
+                if item == "(" and not inside_comment:
                     indent = indent + 1
                     string[index] = "\n"+("_"*indent)
-                if item == ")" or item == "}":
+                if item == "{":
+                    indent = indent + 1
+                    string[index] = "\n"+("_"*indent)
+                    inside_comment = True
+                if item == ")" and not inside_comment:
                     indent = indent - 1
                     string[index] = "\n"+("_"*indent)
+                if item == "}":
+                    indent = indent - 1
+                    string[index] = "\n"+("_"*indent)
+                    inside_comment = False
 
         lines = "".join(string).split("\n")
-        lines = [l for l in lines if len(l.replace("_","").strip())>0 and not l.startswith("[")]
+        lines = [self.split_line(l).replace("_", " ") for l in lines if len(l.replace("_","").strip())>0 and not l.startswith("[")]
+        lines = "\n".join(lines).split("\n")
+        self.pgn_lines = lines
         string = "\n".join(lines)
         print(string)
         moves = self.get_all_moves(game)
-        board = chess.Board()
+        previous = ""
+        self.positions = []
         for move in moves:
-            s = " ".join(str(move).split(" ")[:2])
-            print("move", s)
+            move_item = str(move).split(" ")[:2]
+            s = " ".join(move_item)
+            i = 0
+            line_number = -1
+            for line in lines:
+                if not line.startswith("_"):
+                    if s in line:
+                        line_number = i
+                    else:
+                        if "..." in s:
+                            s_total = previous + " " + move_item[1]
+                            if s_total in line:
+                                line_number = i
+                i = i + 1
+            self.positions.append(line_number)
+            print("move", s, line_number)
+            previous = s
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
@@ -234,9 +299,20 @@ class PGNViewer:
             next_move = self.current_move.variations[0]
             self.moves.append(next_move)
             self.current_move = next_move
-            print("move nmber:", move_number)
+            self.display_part_pgn(move_number, next_move)
             self.display_move()
         return move_number
+
+    def display_part_pgn(self, move_number, next_move):
+        if next_move.is_mainline():
+            line_number = self.positions[move_number]
+            print("line number:", line_number)
+            if line_number - 5 < 0:
+                line_number = 5
+            str = "\n".join(self.pgn_lines[line_number - 5: line_number + 15])
+            # self.pgn_lines
+            self.display_move_list(str)
+            print("move nmber:", move_number)
 
     def display_move(self):
         board = chess.Board()
