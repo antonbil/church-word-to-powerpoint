@@ -1522,6 +1522,15 @@ class EasyChessGui:
         self.psg_board = psgboard
         self.redraw_board(window)
 
+    def change_square_color_red(self, window, row, col):
+        """
+        Change the color of a square based on square row and col.
+        """
+        btn_sq = window.find_element(key=(row, col))
+        is_dark_square = True if (row + col) % 2 else False
+        bd_sq_color = '#ff0000'
+        btn_sq.Update(button_color=('white', bd_sq_color))
+
     def change_square_color(self, window, row, col):
         """
         Change the color of a square based on square row and col.

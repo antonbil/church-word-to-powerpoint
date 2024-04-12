@@ -19,6 +19,7 @@ class PGNViewer:
         self.my_game = ""
         self.game_descriptions = []
         self.move_number = 0
+        self.move_squares = [0,0,0,0]
         self.current_move = None
         try:
             game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
@@ -166,14 +167,14 @@ class PGNViewer:
         self.display_move()
 
     def init_game(self, game):
+        self.move_squares = [0, 0, 0, 0]
         self.display_pgn(game)
         self.moves.clear()
         self.current_move = game.game()
         self.moves.append(self.current_move)
-        moves = game.mainline_moves()
-        self.display_move_list(moves)
-        self.window.find_element('_Black_').Update(game.headers['Black'])
-        self.window.find_element('_White_').Update(game.headers['White'])
+        #moves = game.mainline_moves()
+        #self.display_move_list(moves, 0)
+        self.set_players(game)
         info = "{} ({})".format(
             (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
             game.headers['Result'])
@@ -188,12 +189,33 @@ class PGNViewer:
             pass
         self.move_number = 0
 
-    def display_move_list(self, moves):
+    def set_players(self, game):
+        self.window.find_element('_Black_').Update(game.headers['Black'])
+        self.window.find_element('_White_').Update(game.headers['White'])
+
+    def display_move_list(self, moves, number = 5, move_str = "Nothing"):
+        move_list = moves.split("\n")
         movelist = self.window.find_element('_movelist_')
+        if len(move_list) < number+2:
+            movelist.Update(
+                self.current_move.mainline_moves(), append=True, disabled=True)
+            return
+        firstpart = "\n".join(move_list[:number])
+        last_part = "\n".join(move_list[number+1:])
+        bold_part = move_list[number]
+        splits = bold_part.split(move_str)
+        # if len(splits) == 2:
+        #     firstpart = firstpart + splits[0]
+        #     last_part = splits[1] + last_part +"\n"
+        #     bold_part = move_str
         movelist.Update('')
 
-        movelist.Update(
-            moves, append=True, autoscroll=False, disabled=True)
+        movelist.print(
+            firstpart,font=self.gui.text_font, autoscroll=False)
+        movelist.print(
+            bold_part, font=("Helvetica", self.gui.font_size_ui,'bold'), autoscroll=False)
+        movelist.print(
+            last_part,font=self.gui.text_font, autoscroll=False)
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
@@ -306,13 +328,29 @@ class PGNViewer:
     def display_part_pgn(self, move_number, next_move):
         if next_move.is_mainline():
             line_number = self.positions[move_number]
+            display_number = 5
             print("line number:", line_number)
             if line_number - 5 < 0:
+                display_number = line_number
                 line_number = 5
-            str = "\n".join(self.pgn_lines[line_number - 5: line_number + 15])
+
+            str1 = "\n".join(self.pgn_lines[line_number - 5: line_number + 15])
             # self.pgn_lines
-            self.display_move_list(str)
-            print("move nmber:", move_number)
+            part = str(next_move).split(" ")[1]
+            self.display_move_list(str1, display_number, part)
+            print("move nmber:", move_number, part)
+            # print("variation", move_variation.move)
+            move_str = str(next_move.move)
+            fr_col = ord(move_str[0]) - ord('a')
+            fr_row = 8 - int(move_str[1])
+            self.move_squares=[]
+            self.move_squares.append(fr_col)
+            self.move_squares.append(fr_row)
+
+            fr_col = ord(move_str[2]) - ord('a')
+            fr_row = 8 - int(move_str[3])
+            self.move_squares.append(fr_col)
+            self.move_squares.append(fr_row)
 
     def display_move(self):
         board = chess.Board()
@@ -343,4 +381,7 @@ class PGNViewer:
                 fr_row = 8 - int(move_str[1])
 
                 self.gui.change_square_color(self.window, fr_row, fr_col)
+        if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] >0:
+            #self.gui.change_square_color_red(self.window, self.move_squares[1], self.move_squares[0])
+            self.gui.change_square_color_red(self.window, self.move_squares[3], self.move_squares[2])
         return fen
