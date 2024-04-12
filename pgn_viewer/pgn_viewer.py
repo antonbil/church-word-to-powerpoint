@@ -164,6 +164,7 @@ class PGNViewer:
         self.display_move()
 
     def init_game(self, game):
+        self.display_pgn(game)
         self.moves.clear()
         self.current_move = game.game()
         self.moves.append(self.current_move)
@@ -193,6 +194,39 @@ class PGNViewer:
             print("move number:", move_number)
             self.display_move()
         return move_number
+    def get_all_moves(self, game):
+        #print("move:")
+        current_move = game.game()
+        #print("move:", current_move)
+        moves=[current_move]
+        while len(current_move.variations) > 0:
+            current_move = current_move.variations[0]
+            moves.append(current_move)
+            #print("move:", current_move)
+        return moves
+    def display_pgn(self, game):
+        string = str(game.game())
+        string = list(string)
+        indent = 0
+
+        for index, item in enumerate(string):
+
+                if item == "(" or item == "{":
+                    indent = indent + 1
+                    string[index] = "\n"+("_"*indent)
+                if item == ")" or item == "}":
+                    indent = indent - 1
+                    string[index] = "\n"+("_"*indent)
+
+        lines = "".join(string).split("\n")
+        lines = [l for l in lines if len(l.replace("_","").strip())>0 and not l.startswith("[")]
+        string = "\n".join(lines)
+        print(string)
+        moves = self.get_all_moves(game)
+        board = chess.Board()
+        for move in moves:
+            s = " ".join(str(move).split(" ")[:2])
+            print("move", s)
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
