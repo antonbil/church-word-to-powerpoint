@@ -93,7 +93,7 @@ class PGNViewer:
                     if e == 'Ok':
                         w.Close()
                         self.pgn = v['pgn_k']
-                        print("pgn chosen", self.pgn)
+                        #print("pgn chosen", self.pgn)
                         self.gui.save_pgn_file_in_preferences(self.pgn)
                         pgn_file = self.pgn
                         self.open_pgn_file(pgn_file)
@@ -292,7 +292,7 @@ class PGNViewer:
         lines = "\n".join(lines).split("\n")
         self.pgn_lines = lines
         string = "\n".join(lines)
-        print(string)
+        #print(string)
         moves = self.get_all_moves(game)
         previous = ""
         self.positions = []
