@@ -2748,7 +2748,7 @@ class EasyChessGui:
                           font=self.text_font, key='_movelist_', disabled=True)],
 
             [sg.Text('Comment', size=(7, 1), font=self.text_font)],
-            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
+            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(70, 3),
                           font=self.text_font, key='comment_k')],
 
             # [sg.Text('BOOK 1, Comp games', size=(26, 1),

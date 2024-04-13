@@ -237,7 +237,7 @@ class PGNViewer:
             #print("move:", current_move)
         return moves
     def split_line(self, line):
-        max_len_line = 50
+        max_len_line = 70
         line = line.strip().replace("_ ", "_")
         if len(line) <= max_len_line:
             return line
