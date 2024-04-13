@@ -72,13 +72,17 @@ class PGNViewer:
                     if e is None or e == 'Cancel':
                         w.Close()
                         break
-                    if e == "Down" or e == 'scroll_down':
-                        print("Down button")
-                        index = index - 30
-                        w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
-                    if e == "Up":
-                        print("Up button")
+                    if e == 'scroll_down':
+                        # print("Down button")
                         index = index + 30
+                        if index >= len(self.game_descriptions):
+                            index = len(self.game_descriptions) - 1
+                        w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
+                    if e == "scroll_up":
+                        print("Up button")
+                        index = index - 30
+                        if index < 0:
+                            index = 0
                         w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
 
                     if e == 'Ok':
