@@ -56,7 +56,7 @@ class PGNViewer:
             if button == "Select":
                 layout = [
                     [sg.Listbox(self.game_descriptions, key='game_k', expand_y=True, enable_events=True, font=self.gui.text_font,
-                              size=(25, 20))],
+                              size=(30, 20))],
                     [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)
                         , sg.Button("Down",
                                     font=self.gui.text_font, key='scroll_down'),
@@ -65,7 +65,7 @@ class PGNViewer:
                 ]
 
                 w = sg.Window("Read PGN", layout,
-                              icon='Icon/pecg.png', size=(400, 800))
+                              icon='Icon/pecg.png')
                 index = 0
                 while True:
                     e, v = w.Read(timeout=10)
