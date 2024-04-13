@@ -222,7 +222,7 @@ class PGNViewer:
             move_number = move_number - 1
             self.moves.pop()
             self.current_move = self.moves[-1]
-            print("move number:", move_number)
+            #print("move number:", move_number)
             self.display_part_pgn(move_number, self.current_move)
             self.display_move()
         return move_number
