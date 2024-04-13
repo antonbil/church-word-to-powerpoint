@@ -329,7 +329,7 @@ class PGNViewer:
         if next_move.is_mainline():
             line_number = self.positions[move_number]
             display_number = 5
-            print("line number:", line_number)
+            #print("line number:", line_number)
             if line_number - 5 < 0:
                 display_number = line_number
                 line_number = 5
@@ -338,7 +338,7 @@ class PGNViewer:
             # self.pgn_lines
             part = str(next_move).split(" ")[1]
             self.display_move_list(str1, display_number, part)
-            print("move nmber:", move_number, part)
+            #print("move nmber:", move_number, part)
             # print("variation", move_variation.move)
             move_str = str(next_move.move)
             fr_col = ord(move_str[0]) - ord('a')
