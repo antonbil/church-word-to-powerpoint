@@ -805,6 +805,7 @@ class EasyChessGui:
         self.is_save_user_comment = True
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
+        self.main_layout = self.get_neutral_layout()
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.
@@ -2645,6 +2646,21 @@ class EasyChessGui:
         # Define board
         board_layout = self.create_board(is_user_white)
 
+        board_controls = self.main_layout
+
+        board_tab = [[sg.Column(board_layout)]]
+
+        self.menu_elem = sg.Menu(menu_def_neutral, tearoff=False, font=("Default", str(self.menu_font_size), ''))
+
+        # White board layout, mode: Neutral
+        layout = [
+                [self.menu_elem],
+                [sg.Column(board_tab), sg.Column(board_controls)]
+        ]
+
+        return layout
+
+    def get_neutral_layout(self):
         board_controls = [
             [sg.Text('Mode     Neutral', size=(36, 1), font=self.text_font, key='_gamestatus_')],
             [sg.Text('White', size=(7, 1), font=self.text_font),
@@ -2663,19 +2679,21 @@ class EasyChessGui:
              sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1), font=('Consolas', self.menu_font_size), key='adviser_k',),
+            [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1),
+                           font=('Consolas', self.menu_font_size), key='adviser_k', ),
              sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
             [sg.Frame(visible=False, font=self.text_font, key='pgn_row',
-            layout=[
-                [sg.Button("previous", font=self.text_font, key='Previous'),sg.Button("next", font=self.text_font, key='Next')
-                ,sg.Button("b1")]
-            ],
-            title="Cool subpanel",
-            relief=sg.RELIEF_GROOVE,
-        ),
+                      layout=[
+                          [sg.Button("previous", font=self.text_font, key='Previous'),
+                           sg.Button("next", font=self.text_font, key='Next')
+                              , sg.Button("b1")]
+                      ],
+                      title="Cool subpanel",
+                      relief=sg.RELIEF_GROOVE,
+                      ),
 
-                sg.Text('Invisible', size=(16, 1), visible=False, font=self.text_font, key='pgn_row')],
+             sg.Text('Invisible', size=(16, 1), visible=False, font=self.text_font, key='pgn_row')],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 8),
                           font=self.text_font, key='_movelist_', disabled=True)],
@@ -2695,24 +2713,63 @@ class EasyChessGui:
              sg.Multiline('', do_not_clear=True, autoscroll=False, size=(25, 4),
                           font=self.text_font, key='polyglot_book2_k', disabled=True)],
 
-            [sg.ButtonMenu('Opponent Search Info', ['Menu', ['Show::right_search_info_k', 'Hide::right_search_info_k']], size=(21, 1),
-                          font=('Consolas', self.menu_font_size), key='search_info_k', )],
+            [sg.ButtonMenu('Opponent Search Info', ['Menu', ['Show::right_search_info_k', 'Hide::right_search_info_k']],
+                           size=(21, 1),
+                           font=('Consolas', self.menu_font_size), key='search_info_k', )],
 
             [sg.Text('', key='search_info_all_k', size=(55, 1),
                      font=self.text_font, relief='sunken')],
         ]
+        return board_controls
 
-        board_tab = [[sg.Column(board_layout)]]
+    def get_png_layout(self):
+        board_controls = [
+            [sg.Text('Mode     PGN-Viewer', size=(36, 1), font=self.text_font, key='_gamestatus_')],
+            [sg.Text('White', size=(7, 1), font=self.text_font),
+             sg.InputText('Human', font=self.text_font, key='_White_',
+                          size=(24, 1)),
+             sg.Text('', font=self.text_font, key='w_base_time_k',
+                     size=(11, 1), relief='sunken'),
+             sg.Text('', font=self.text_font, key='w_elapse_k', size=(7, 1),
+                     relief='sunken')
+             ],
+            [sg.Text('Black', size=(7, 1), font=self.text_font),
+             sg.InputText('Computer', font=self.text_font, key='_Black_',
+                          size=(24, 1)),
+             sg.Text('', font=self.text_font, key='b_base_time_k',
+                     size=(11, 1), relief='sunken'),
+             sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
+                     relief='sunken')
+             ],
+            [sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
+                     size=(46, 1))],
+            [sg.Text('Move list', size=(16, 1), font=self.text_font)],
+            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 20),
+                          font=self.text_font, key='_movelist_', disabled=True)],
 
-        self.menu_elem = sg.Menu(menu_def_neutral, tearoff=False, font=("Default", str(self.menu_font_size), ''))
+            [sg.Text('Comment', size=(7, 1), font=self.text_font)],
+            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
+                          font=self.text_font, key='comment_k')],
 
-        # White board layout, mode: Neutral
-        layout = [
-                [self.menu_elem],
-                [sg.Column(board_tab), sg.Column(board_controls)]
+            # [sg.Text('BOOK 1, Comp games', size=(26, 1),
+            #          font=self.text_font,
+            #          right_click_menu=['Right', ['Show::right_book1_k', 'Hide::right_book1_k']]),
+            #  sg.Text('BOOK 2, Human games',
+            #          font=self.text_font,
+            #          right_click_menu=['Right', ['Show::right_book2_k', 'Hide::right_book2_k']])],
+            # [sg.Multiline('', do_not_clear=True, autoscroll=False, size=(23, 4),
+            #               font=self.text_font, key='polyglot_book1_k', disabled=True),
+            #  sg.Multiline('', do_not_clear=True, autoscroll=False, size=(25, 4),
+            #               font=self.text_font, key='polyglot_book2_k', disabled=True)],
+            #
+            # [sg.ButtonMenu('Opponent Search Info', ['Menu', ['Show::right_search_info_k', 'Hide::right_search_info_k']],
+            #                size=(21, 1),
+            #                font=('Consolas', self.menu_font_size), key='search_info_k', )],
+            #
+            # [sg.Text('', key='search_info_all_k', size=(55, 1),
+            #          font=self.text_font, relief='sunken')],
         ]
-
-        return layout
+        return board_controls
 
     def set_default_adviser_engine(self):
         try:
@@ -2827,8 +2884,12 @@ class EasyChessGui:
                 logging.info('Quit app from main loop, X is pressed.')
                 break
             if button == 'PGN-Viewer':
+                self.main_layout = self.get_png_layout()
+                window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_pgnviewer)
                 PGNViewer(self, window)
+                self.main_layout = self.get_neutral_layout()
+                window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_neutral)
 
             if button == 'Next':
