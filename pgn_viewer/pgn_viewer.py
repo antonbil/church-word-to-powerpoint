@@ -55,20 +55,36 @@ class PGNViewer:
                 break
             if button == "Select":
                 layout = [
-                    [sg.Combo(self.game_descriptions, key='game_k', default_value=self.my_game, font=self.gui.text_font)],
-                    [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
+                    [sg.Listbox(self.game_descriptions, key='game_k', expand_y=True, enable_events=True, font=self.gui.text_font,
+                              size=(25, 20))],
+                    [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)
+                        , sg.Button("Down",
+                                    font=self.gui.text_font, key='scroll_down'),
+                     sg.Button("Up", key='scroll_up', font=self.gui.text_font)
+                     ]
                 ]
 
                 w = sg.Window("Read PGN", layout,
-                              icon='Icon/pecg.png')
+                              icon='Icon/pecg.png', size=(400, 800))
+                index = 0
                 while True:
                     e, v = w.Read(timeout=10)
                     if e is None or e == 'Cancel':
                         w.Close()
                         break
+                    if e == "Down" or e == 'scroll_down':
+                        print("Down button")
+                        index = index - 30
+                        w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
+                    if e == "Up":
+                        print("Up button")
+                        index = index + 30
+                        w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
+
                     if e == 'Ok':
                         w.Close()
-                        self.my_game = v['game_k']
+                        print(v['game_k'])
+                        self.my_game = v['game_k'][0]
                         self.select_game()
                         break
 
