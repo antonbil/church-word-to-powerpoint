@@ -312,7 +312,7 @@ class PGNViewer:
                                 line_number = i
                 i = i + 1
             self.positions.append(line_number)
-            print("move", s, line_number)
+            # print("move", s, line_number)
             previous = s
 
     def execute_next_move(self, move_number):
