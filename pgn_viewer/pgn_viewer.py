@@ -343,7 +343,7 @@ class PGNViewer:
 
     def get_line_number(self, lines, move, previous):
         move_item = self.get_move_string(move)
-        move_item
+        s = move_item
         i = 0
         line_number = -1
         for line in lines:
