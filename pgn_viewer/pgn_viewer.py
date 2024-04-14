@@ -143,11 +143,10 @@ class PGNViewer:
                 row = str(7 - fr_row + 1)
                 coord = col+row
                 my_variation = False
-                if self.current_move.root:
-                    window = self.window.find_element('comment_k')
-                    window.Update('')
-                    window.Update(
-                            self.current_move.root.comment, append=True, disabled=True)
+                window = self.window.find_element('comment_k')
+                window.Update('')
+                window.Update(
+                        self.current_move.comment, append=True, disabled=True)
                 counter = 0
                 for variation in self.current_move.variations:
                     #print("str(variation.move):",str(variation.move))
