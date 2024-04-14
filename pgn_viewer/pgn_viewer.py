@@ -121,7 +121,7 @@ class PGNViewer:
                         self.open_pgn_file(pgn_file)
                         break
             if button == '_movelist_':
-                selection = values[event]
+                selection = value[button]
                 if selection:
                     item = selection[0]
                     items = item.split(" ").reverse()
