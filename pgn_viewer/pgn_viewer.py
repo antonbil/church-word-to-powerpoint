@@ -170,6 +170,7 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
     def select_game(self):
+        print("open pgn:", self.pgn)
         pgn = open(self.pgn)
         # Reading the game
         game1 = chess.pgn.read_game(pgn)
