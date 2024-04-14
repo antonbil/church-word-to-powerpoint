@@ -143,6 +143,8 @@ class PGNViewer:
                             val = (len(all_moves) - 1) * 2
                         self.moves = all_moves[:val * 2]
                         self.moves.pop()
+                        self.current_move = self.moves.pop()
+                        self.moves.append(self.current_move)
                         self.move_number = len(self.moves) - 1
                         self.move_number = self.execute_next_move(self.move_number)
 
