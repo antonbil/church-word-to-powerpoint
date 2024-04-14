@@ -143,10 +143,6 @@ class PGNViewer:
                 row = str(7 - fr_row + 1)
                 coord = col+row
                 my_variation = False
-                window = self.window.find_element('comment_k')
-                window.Update('')
-                window.Update(
-                        self.current_move.comment, append=True, disabled=True)
                 counter = 0
                 for variation in self.current_move.variations:
                     #print("str(variation.move):",str(variation.move))
@@ -382,6 +378,11 @@ class PGNViewer:
         return move_number
 
     def display_part_pgn(self, move_number, next_move):
+        window = self.window.find_element('comment_k')
+        window.Update('')
+        window.Update(
+            next_move.comment, append=True, disabled=True)
+
         move_string = self.get_move_string(next_move)
         self.window.find_element('b_base_time_k').Update(move_string)
         if next_move.is_mainline():
