@@ -158,8 +158,6 @@ class PGNViewer:
                         self.move_number = self.move_number + 1
                         my_variation = True
                     if my_variation:
-
-                        # hier!!
                         self.display_part_pgn(self.move_number, self.current_move)
                         #print("self.current_move.fen", variation.move.fen())
                         #print("self.current_move", self.current_move)
@@ -213,7 +211,7 @@ class PGNViewer:
         self.set_players(game)
         for k in nags:
             key = "$"+k
-            game = game.raplace(key, "{"+nags[k]+"}")
+            game = game.replace(key, "{"+nags[k]+"}")
         info = "{} ({})".format(
             (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
             game.headers['Result'])
