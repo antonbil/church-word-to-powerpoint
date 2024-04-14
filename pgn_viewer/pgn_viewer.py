@@ -210,9 +210,9 @@ class PGNViewer:
         #moves = game.mainline_moves()
         #self.display_move_list(moves, 0)
         self.set_players(game)
-        for k in nags:
-            key = "$"+k
-            game = game.replace(key, "{"+nags[k]+"}")
+        # for k in nags:
+        #     key = "$"+k
+        #     game = game.replace(key, "{"+nags[k]+"}")
         info = "{} ({})".format(
             (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
             game.headers['Result'])
