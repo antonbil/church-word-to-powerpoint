@@ -197,7 +197,6 @@ class PGNViewer:
         self.display_move()
 
     def init_game(self, game):
-        nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
         self.move_squares = [0, 0, 0, 0]
         self.display_pgn(game)
         self.moves.clear()
@@ -206,9 +205,6 @@ class PGNViewer:
         #moves = game.mainline_moves()
         #self.display_move_list(moves, 0)
         self.set_players(game)
-        # for k in nags:
-        #     key = "$"+k
-        #     game = game.replace(key, "{"+nags[k]+"}")
         info = "{} ({})".format(
             (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
             game.headers['Result'])
@@ -326,6 +322,7 @@ class PGNViewer:
 
         lines = "".join(string).split("\n")
         lines = [self.split_line(l).replace("_", " ") for l in lines if len(l.replace("_","").strip())>0 and not l.startswith("[")]
+        lines = [self.change_nag(line) for line in lines]
         lines = "\n".join(lines).split("\n")
         self.pgn_lines = lines
         string = "\n".join(lines)
@@ -338,6 +335,18 @@ class PGNViewer:
             self.positions.append(line_number)
             # print("move", s, line_number)
             previous = s
+    def change_nag(self,line):
+        nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
+        if "$" in line:
+            for i in range(0, 9):
+                line = line.replace("$"+str(i), "")
+                for k in nags:
+                    key = "$"+k
+                    game = game.replace(key, nags[k])
+
+        else:
+            return line
+
 
     def get_move_string(self, move):
         move_string = str(move)
