@@ -148,7 +148,8 @@ class PGNViewer:
                              window.Update(
                                     self.current_move.mainline_moves(), append=True, disabled=True)
 
-                        # comment_k
+                        # hier!!
+                        self.display_part_pgn(self.move_number, self.current_move)
                         self.display_move()
                     counter = counter + 1
                 if not my_variation:
