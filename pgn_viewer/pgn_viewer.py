@@ -342,7 +342,8 @@ class PGNViewer:
                 line = line.replace("$"+str(i), "")
                 for k in nags:
                     key = "$"+k
-                    game = game.replace(key, nags[k])
+                    line = line.replace(key, nags[k])
+            return line
 
         else:
             return line
