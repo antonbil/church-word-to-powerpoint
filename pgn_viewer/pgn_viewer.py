@@ -366,7 +366,7 @@ class PGNViewer:
         if move_string.startswith("{"):
             l = move_string.split("}")
             l.pop(0)
-            move_string = l.join("}")
+            move_string = "}".join(l)
         self.window.find_element('b_base_time_k').Update(move_string)
         if next_move.is_mainline():
             line_number = self.positions[move_number]
