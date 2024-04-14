@@ -143,11 +143,11 @@ class PGNViewer:
                 row = str(7 - fr_row + 1)
                 coord = col+row
                 my_variation = False
-                window = self.window.find_element('comment_k')
-                print("widget:", window.widget.winfo_rootx())
-                window.Update('')
-                window.Update(
-                        self.current_move.comment, append=True, disabled=True)
+                if self.current_move.root:
+                    window = self.window.find_element('comment_k')
+                    window.Update('')
+                    window.Update(
+                            self.current_move.root.comment, append=True, disabled=True)
                 counter = 0
                 for variation in self.current_move.variations:
                     #print("str(variation.move):",str(variation.move))
@@ -203,6 +203,7 @@ class PGNViewer:
         self.display_move()
 
     def init_game(self, game):
+        nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
         self.move_squares = [0, 0, 0, 0]
         self.display_pgn(game)
         self.moves.clear()
@@ -211,6 +212,9 @@ class PGNViewer:
         #moves = game.mainline_moves()
         #self.display_move_list(moves, 0)
         self.set_players(game)
+        for k in nags:
+            key = "$"+k
+            game = game.raplace(key, "{"+nags[k]+"}")
         info = "{} ({})".format(
             (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
             game.headers['Result'])
