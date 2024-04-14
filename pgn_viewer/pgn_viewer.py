@@ -151,7 +151,7 @@ class PGNViewer:
 
                         # hier!!
                         self.display_part_pgn(self.move_number, self.current_move)
-                        print("self.current_move.fen", variation.move.fen())
+                        #print("self.current_move.fen", variation.move.fen())
                         print("self.current_move", self.current_move)
                         self.display_move()
                     counter = counter + 1
@@ -363,6 +363,10 @@ class PGNViewer:
 
     def display_part_pgn(self, move_number, next_move):
         move_string = self.get_move_string(next_move)
+        if move_string.startswith("{"):
+            l = move_string.split("}")
+            l.pop(0)
+            move_string = l.join("}")
         self.window.find_element('b_base_time_k').Update(move_string)
         if next_move.is_mainline():
             line_number = self.positions[move_number]
