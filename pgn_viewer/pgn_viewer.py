@@ -17,6 +17,7 @@ class PGNViewer:
         self.window = window
         self.moves = []
         self.pgn = ""
+        self.game = None
         self.my_game = ""
         self.game_descriptions = []
         self.move_number = 0
@@ -119,6 +120,30 @@ class PGNViewer:
                         pgn_file = self.pgn
                         self.open_pgn_file(pgn_file)
                         break
+            if button == '_movelist_':
+                selection = values[event]
+                if selection:
+                    item = selection[0]
+                    items = item.split(" ").reverse()
+                    val = -1
+                    for move in items:
+                        var = move.replace(".", "")
+                        try:
+                            # try converting to integer
+                            val = int(var)
+                            break
+
+                        except ValueError:
+                            pass
+                    if val >=0:
+                        all_moves = self.get_all_moves(self.game)
+                        if val * 2 >= len(all_moves):
+                            val = (len(all_moves) - 1) * 2
+                        self.moves = all_moves[:val * 2]
+                        self.moves.pop()
+                        self.move_number = len(self.moves) - 1
+                        self.move_number = self.execute_next_move(self.move_number)
+
             if button == 'Next Game':
                 index = self.game_descriptions.index(self.my_game)
                 if index < len(self.game_descriptions) - 1:
@@ -197,6 +222,7 @@ class PGNViewer:
         self.display_move()
 
     def init_game(self, game):
+        self.game = game
         self.move_squares = [0, 0, 0, 0]
         self.display_pgn(game)
         self.moves.clear()
