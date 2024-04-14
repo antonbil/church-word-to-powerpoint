@@ -119,6 +119,17 @@ class PGNViewer:
                         pgn_file = self.pgn
                         self.open_pgn_file(pgn_file)
                         break
+            if button == 'Next Game':
+                index = self.game_descriptions.index(self.my_game)
+                if index < len(self.game_descriptions) - 1:
+                    self.my_game = self.game_descriptions[index + 1]
+                    self.select_game()
+
+            if button == 'Previous Game':
+                index = self.game_descriptions.index(self.my_game)
+                if index > 0:
+                    self.my_game = self.game_descriptions[index - 1]
+                    self.select_game()
 
             if button == 'Next':
                 self.move_number = self.execute_next_move(self.move_number)
@@ -208,7 +219,7 @@ class PGNViewer:
         window = self.window.find_element('_movelist_')
         #window.Update('')
         try:
-            window.Update(["Test"])
+            window.Update(self.pgn_lines)
         except:
             pass
         self.move_number = 0

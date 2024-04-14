@@ -317,7 +317,7 @@ menu_def_entry = [
 
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral']],
-        ['&Game', ['Read', "Select"]],
+        ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
         ['Previous', ['Previous']],
         ['Next', ['Next']],
 ]
