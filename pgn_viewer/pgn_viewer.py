@@ -333,16 +333,16 @@ class PGNViewer:
     def get_move_string(self, move):
         move_string = str(move)
         if move_string.startswith("{"):
-            l = move_string.split("}")
-            l.pop(0)
-            move_string = "}".join(l).strip()
-            print("new variation:", move_string)
+            l1 = move_string.split("}")
+            l1.pop(0)
+            move_string = "}".join(l1).strip()
+            # print("new variation:", move_string)
 
         move_item = move_string.split(" ")[:2]
         return " ".join(move_item)
 
     def get_line_number(self, lines, move, previous):
-        move_item = str(move).split(" ")[:2]
+        move_item = self.get_move_string(move)
         s = " ".join(move_item)
         i = 0
         line_number = -1
