@@ -370,11 +370,13 @@ class PGNViewer:
             if not line.startswith("_"):
                 if move_item in line:
                     line_number = i
+                    break
                 else:
                     if "..." in move_item:
                         s_total = previous + " " + move_item[1]
                         if s_total in line:
                             line_number = i
+                            break
             i = i + 1
         if line_number == -1:
             i = 0
@@ -382,6 +384,7 @@ class PGNViewer:
             for line in lines:
                 if last in line:
                     line_number = i
+                    break
                 i = i + 1
         return line_number, move_item
 
