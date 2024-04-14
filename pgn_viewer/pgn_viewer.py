@@ -134,6 +134,7 @@ class PGNViewer:
                 my_variation = False
                 counter = 0
                 for variation in self.current_move.variations:
+                    print("str(variation.move):",str(variation.move))
                     move = str(variation.move)
 
                     if move.startswith(coord):
@@ -150,6 +151,7 @@ class PGNViewer:
 
                         # hier!!
                         self.display_part_pgn(self.move_number, self.current_move)
+                        print("self.current_move", self.current_move)
                         self.display_move()
                     counter = counter + 1
                 if not my_variation:
