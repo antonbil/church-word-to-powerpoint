@@ -343,20 +343,20 @@ class PGNViewer:
 
     def get_line_number(self, lines, move, previous):
         move_item = self.get_move_string(move)
-        s = move_item
+        #s = move_item
         i = 0
         line_number = -1
         for line in lines:
             if not line.startswith("_"):
-                if s in line:
+                if move_item in line:
                     line_number = i
                 else:
-                    if "..." in s:
+                    if "..." in move_item:
                         s_total = previous + " " + move_item[1]
                         if s_total in line:
                             line_number = i
             i = i + 1
-        return line_number, s
+        return line_number, move_item
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
