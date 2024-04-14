@@ -80,7 +80,7 @@ class PGNViewer:
                             index = len(self.game_descriptions) - 1
                         w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
                     if e == "scroll_up":
-                        print("Up button")
+                        #print("Up button")
                         index = index - 30
                         if index < 0:
                             index = 0
@@ -88,7 +88,7 @@ class PGNViewer:
 
                     if e == 'Ok':
                         w.Close()
-                        print(v['game_k'])
+                        #print(v['game_k'])
                         self.my_game = v['game_k'][0]
                         self.select_game()
                         break
@@ -134,7 +134,7 @@ class PGNViewer:
                 my_variation = False
                 counter = 0
                 for variation in self.current_move.variations:
-                    print("str(variation.move):",str(variation.move))
+                    #print("str(variation.move):",str(variation.move))
                     move = str(variation.move)
 
                     if move.startswith(coord):
@@ -152,7 +152,7 @@ class PGNViewer:
                         # hier!!
                         self.display_part_pgn(self.move_number, self.current_move)
                         #print("self.current_move.fen", variation.move.fen())
-                        print("self.current_move", self.current_move)
+                        #print("self.current_move", self.current_move)
                         self.display_move()
                     counter = counter + 1
                 if not my_variation:
