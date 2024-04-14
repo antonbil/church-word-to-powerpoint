@@ -380,7 +380,7 @@ class PGNViewer:
             i = 0
             last = move_item.split(" ").pop()
             for line in lines:
-                if move_item in line:
+                if last in line:
                     line_number = i
                 i = i + 1
         return line_number, move_item
