@@ -132,6 +132,11 @@ class PGNViewer:
                 row = str(7 - fr_row + 1)
                 coord = col+row
                 my_variation = False
+                window = self.window.find_element('comment_k')
+                print("widget:", window.widget.winfo_rootx())
+                window.Update('')
+                window.Update(
+                        self.current_move.comment, append=True, disabled=True)
                 counter = 0
                 for variation in self.current_move.variations:
                     #print("str(variation.move):",str(variation.move))
@@ -143,11 +148,6 @@ class PGNViewer:
                         self.move_number = self.move_number + 1
                         my_variation = True
                     if my_variation:
-                        window = self.window.find_element('comment_k')
-                        window.Update('')
-                        if counter > 0:
-                             window.Update(
-                                    self.current_move.mainline_moves(), append=True, disabled=True)
 
                         # hier!!
                         self.display_part_pgn(self.move_number, self.current_move)
@@ -425,6 +425,8 @@ class PGNViewer:
 
                 self.gui.change_square_color(self.window, fr_row, fr_col)
         if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] >0:
-            #self.gui.change_square_color_red(self.window, self.move_squares[1], self.move_squares[0])
             self.gui.change_square_color_red(self.window, self.move_squares[3], self.move_squares[2])
+            # print("from coords:", self.gui.get_square_color_pos(self.window, self.move_squares[1], self.move_squares[0]))
+            # print("to coords:", self.gui.get_square_color_pos(self.window, self.move_squares[3], self.move_squares[2]))
+
         return fen

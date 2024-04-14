@@ -1523,6 +1523,13 @@ class EasyChessGui:
         self.psg_board = psgboard
         self.redraw_board(window)
 
+    def get_square_color_pos(self, window, row, col):
+        """
+        Change the color of a square based on square row and col.
+        """
+        btn_sq = window.find_element(key=(row, col))
+        return btn_sq.widget.winfo_x(), btn_sq.widget.winfo_y()
+
     def change_square_color_red(self, window, row, col):
         """
         Change the color of a square based on square row and col.
