@@ -125,7 +125,7 @@ class PGNViewer:
                 if selection:
                     item = selection[0]
                     print("item selected:", item)
-                    items = item.split(" ")\
+                    items = item.split(" ")
                     items.reverse()
                     val = -1
                     for move in items:
