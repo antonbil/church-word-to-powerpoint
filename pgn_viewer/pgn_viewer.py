@@ -335,6 +335,7 @@ class PGNViewer:
             self.positions.append(line_number)
             # print("move", s, line_number)
             previous = s
+
     def change_nag(self,line):
         nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
         if "$" in line:
@@ -375,6 +376,13 @@ class PGNViewer:
                         if s_total in line:
                             line_number = i
             i = i + 1
+        if line_number == -1:
+            i = 0
+            last = move_item.split(" ").pop()
+            for line in lines:
+                if move_item in line:
+                    line_number = i
+                i = i + 1
         return line_number, move_item
 
     def execute_next_move(self, move_number):
