@@ -151,6 +151,7 @@ class PGNViewer:
 
                         # hier!!
                         self.display_part_pgn(self.move_number, self.current_move)
+                        print("self.current_move.fen", variation.move.fen())
                         print("self.current_move", self.current_move)
                         self.display_move()
                     counter = counter + 1
