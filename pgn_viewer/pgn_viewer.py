@@ -331,7 +331,14 @@ class PGNViewer:
             previous = s
 
     def get_move_string(self, move):
-        move_item = str(move).split(" ")[:2]
+        move_string = str(move)
+        if move_string.startswith("{"):
+            l = move_string.split("}")
+            l.pop(0)
+            move_string = "}".join(l).strip()
+            print("new variation:", move_string)
+
+        move_item = move_string.split(" ")[:2]
         return " ".join(move_item)
 
     def get_line_number(self, lines, move, previous):
@@ -363,10 +370,6 @@ class PGNViewer:
 
     def display_part_pgn(self, move_number, next_move):
         move_string = self.get_move_string(next_move)
-        if move_string.startswith("{"):
-            l = move_string.split("}")
-            l.pop(0)
-            move_string = "}".join(l)
         self.window.find_element('b_base_time_k').Update(move_string)
         if next_move.is_mainline():
             line_number = self.positions[move_number]
