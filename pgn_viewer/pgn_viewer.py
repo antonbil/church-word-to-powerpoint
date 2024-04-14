@@ -10,6 +10,7 @@ class PGNViewer:
         self.pgn_lines = []
         self.positions = []
         self.gui = gui
+        self.previous_move = ""
         # window.find_element('comment_k').update(visible=False)
         # window.find_element('pgn_row').update(visible=True)
         window.find_element('_gamestatus_').Update('Mode     PGN-Viewer')
@@ -201,10 +202,9 @@ class PGNViewer:
         self.window.find_element('advise_info_k').Update(info)
         # 'advise_info_k'
         window = self.window.find_element('_movelist_')
-        window.Update('')
+        #window.Update('')
         try:
-            window.Update(
-                self.current_move.mainline_moves(), append=True, disabled=True)
+            window.Update(["Test"])
         except:
             pass
         self.move_number = 0
@@ -218,24 +218,26 @@ class PGNViewer:
         movelist = self.window.find_element('_movelist_')
         if len(move_list) < number+2:
             movelist.Update(
-                self.current_move.mainline_moves(), append=True, disabled=True)
+                move_list)
             return
         firstpart = "\n".join(move_list[:number])
         last_part = "\n".join(move_list[number+1:])
         bold_part = move_list[number]
         splits = bold_part.split(move_str)
+        movelist.Update(
+            move_list, set_to_index=number, scroll_to_index=number - 3 if number > 2 else 0)
         # if len(splits) == 2:
         #     firstpart = firstpart + splits[0]
         #     last_part = splits[1] + last_part +"\n"
         #     bold_part = move_str
-        movelist.Update('')
-
-        movelist.print(
-            firstpart,font=self.gui.text_font, autoscroll=False)
-        movelist.print(
-            bold_part, font=("Helvetica", self.gui.font_size_ui,'bold'), autoscroll=False)
-        movelist.print(
-            last_part,font=self.gui.text_font, autoscroll=False)
+        # movelist.Update('')
+        #
+        # movelist.print(
+        #     firstpart,font=self.gui.text_font, autoscroll=False)
+        # movelist.print(
+        #     bold_part, font=("Helvetica", self.gui.font_size_ui,'bold'), autoscroll=False)
+        # movelist.print(
+        #     last_part,font=self.gui.text_font, autoscroll=False)
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
@@ -246,6 +248,7 @@ class PGNViewer:
             self.display_part_pgn(move_number, self.current_move)
             self.display_move()
         return move_number
+
     def get_all_moves(self, game):
         #print("move:")
         current_move = game.game()
@@ -256,6 +259,7 @@ class PGNViewer:
             moves.append(current_move)
             #print("move:", current_move)
         return moves
+
     def split_line(self, line):
         max_len_line = 70
         line = line.strip().replace("_ ", "_")
@@ -317,23 +321,31 @@ class PGNViewer:
         previous = ""
         self.positions = []
         for move in moves:
-            move_item = str(move).split(" ")[:2]
-            s = " ".join(move_item)
-            i = 0
-            line_number = -1
-            for line in lines:
-                if not line.startswith("_"):
-                    if s in line:
-                        line_number = i
-                    else:
-                        if "..." in s:
-                            s_total = previous + " " + move_item[1]
-                            if s_total in line:
-                                line_number = i
-                i = i + 1
+            line_number, s = self.get_line_number(lines, move, previous)
             self.positions.append(line_number)
             # print("move", s, line_number)
             previous = s
+
+    def get_move_string(self, move):
+        move_item = str(move).split(" ")[:2]
+        return " ".join(move_item)
+
+    def get_line_number(self, lines, move, previous):
+        move_item = str(move).split(" ")[:2]
+        s = " ".join(move_item)
+        i = 0
+        line_number = -1
+        for line in lines:
+            if not line.startswith("_"):
+                if s in line:
+                    line_number = i
+                else:
+                    if "..." in s:
+                        s_total = previous + " " + move_item[1]
+                        if s_total in line:
+                            line_number = i
+            i = i + 1
+        return line_number, s
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
@@ -346,18 +358,17 @@ class PGNViewer:
         return move_number
 
     def display_part_pgn(self, move_number, next_move):
+        move_string = self.get_move_string(next_move)
+        self.window.find_element('b_base_time_k').Update(move_string)
         if next_move.is_mainline():
             line_number = self.positions[move_number]
-            display_number = 5
-            #print("line number:", line_number)
-            if line_number - 5 < 0:
-                display_number = line_number
-                line_number = 5
-
-            str1 = "\n".join(self.pgn_lines[line_number - 5: line_number + 15])
+        else:
+            line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
+        if line_number > -1:
+            str1 = "\n".join(self.pgn_lines)
             # self.pgn_lines
             part = str(next_move).split(" ")[1]
-            self.display_move_list(str1, display_number, part)
+            self.display_move_list(str1, line_number, part)
             #print("move nmber:", move_number, part)
             # print("variation", move_variation.move)
             move_str = str(next_move.move)
@@ -371,6 +382,7 @@ class PGNViewer:
             fr_row = 8 - int(move_str[3])
             self.move_squares.append(fr_col)
             self.move_squares.append(fr_row)
+        self.previous_move = move_string
 
     def display_move(self):
         board = chess.Board()
