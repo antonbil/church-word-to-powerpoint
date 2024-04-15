@@ -213,6 +213,7 @@ class PGNViewer:
 
         w = sg.Window("Analyse PGN", layout,
                       icon='Icon/pecg.png')
+        e, v = w.Read(timeout=10)
 
         i = 1
         for game_string in self.game_descriptions:
