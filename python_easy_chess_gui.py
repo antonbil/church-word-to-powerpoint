@@ -791,7 +791,7 @@ class EasyChessGui:
 
         my_preferences = self.preferences.preferences
         self.is_save_time_left = my_preferences["is_save_time_left"] if "is_save_time_left" in my_preferences else False
-        self.start_mode = my_preferences["start_entry_mode"] if "start_entry_mode" in my_preferences else False
+        self.start_mode = my_preferences["start_mode"] if "start_mode" in my_preferences else False
         self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
         self.players = my_preferences["players"] if "players" in my_preferences else []
@@ -3786,8 +3786,8 @@ class EasyChessGui:
                       sg.Combo(["","entry","pgnviewer"], font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=str(self.start_mode), key='start_mode')]],
                     # [sg.CBox('Start in game-entry-mode', font=self.text_font,
-                    #          key='start_entry_mode',
-                    #          default=self.preferences.preferences['start_entry_mode'])],
+                    #          key='start_mode',
+                    #          default=self.preferences.preferences['start_mode'])],
                     [[sg.Text("Menu-font-size:", size=(16, 1), font=self.text_font),
                       sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
@@ -3823,7 +3823,7 @@ class EasyChessGui:
                         self.font_size_ui = int(v['font_size_ui'])
                         self.FIELD_SIZE = int(v['field_size'])
                         self.is_save_time_left = v['save_time_left_k']
-                        self.start_mode = v['start_entry_mode']
+                        self.start_mode = v['start_mode']
                         self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                         self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                         self.players = [s.strip() for s in v['players_k'].split(",")]
@@ -3833,7 +3833,7 @@ class EasyChessGui:
                         self.preferences.preferences["events_list"] = self.events_list
                         self.preferences.preferences["players"] = self.players
                         self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
-                        self.preferences.preferences["start_entry_mode"] = self.start_mode
+                        self.preferences.preferences["start_mode"] = self.start_mode
                         self.preferences.preferences["field_size"] = self.FIELD_SIZE
                         self.preferences.save_preferences()
                         break
