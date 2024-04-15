@@ -276,7 +276,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-        ['&Mode', ['Play', 'Analise', 'PGN-Viewer']],
+        ['&Mode', ['Play', 'Analyse', 'PGN-Viewer']],
         ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                       'Blue::board_color_k',
                                       'Green::board_color_k',
@@ -294,7 +294,7 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-        ['&Mode', ['Neutral', 'Analise']],
+        ['&Mode', ['Neutral', 'Analyse']],
         ['&Game', ['&New::new_game_k',
                    'Save to My Games::save_game_k',
                    'Save to White Repertoire',
@@ -302,7 +302,7 @@ menu_def_play = [
                    'Resign::resign_game_k',
                    'User Wins::user_wins_k',
                    'User Draws::user_draws_k',
-                   'Analise game']],
+                   'Analyse game']],
         ['FEN', ['Paste']],
         ['&Engine', ['Go', 'Move Now', 'Set Depth']],
         ['&Help', ['GUI']],
@@ -310,7 +310,7 @@ menu_def_play = [
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
         ['&Mode', ['Neutral']],
-        ['&Game', ['Analise game']],
+        ['&Game', ['Analyse game']],
         ['FEN', ['Paste']],
         ['&Help', ['GUI']],
 ]
@@ -318,7 +318,7 @@ menu_def_entry = [
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral']],
         ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
-        ['Tools', ['Analise game', 'Analise move']]
+        ['Tools', ['Analyse db', 'Analyse game', 'Analyse move']]
 ]
 
 
@@ -1912,7 +1912,7 @@ class EasyChessGui:
                         self.start_mode_used = ""
                         break
 
-                    if button == 'Analise':
+                    if button == 'Analyse':
                         self.entry_game = True
                         break
 
@@ -2091,7 +2091,7 @@ class EasyChessGui:
                         self.clear_elements(window)
                         break
 
-                    if button == 'Analise game':
+                    if button == 'Analyse game':
                         header_dialog = HeaderDialog(value['_White_'], value['_Black_'], self.sites_list, self.events_list,
                                                      self.players)
                         print('new white:', header_dialog.white)
@@ -3940,8 +3940,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or button == 'Analise' or self.start_mode_used == "entry":
-                self.entry_game = button == 'Analise' or self.start_mode_used == "entry"
+            if button == 'Play' or button == 'Analyse' or self.start_mode_used == "entry":
+                self.entry_game = button == 'Analyse' or self.start_mode_used == "entry"
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',

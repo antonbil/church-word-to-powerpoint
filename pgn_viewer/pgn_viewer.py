@@ -155,12 +155,14 @@ class PGNViewer:
                     self.my_game = self.game_descriptions[index + 1]
                     self.select_game()
 
-            if button == 'Analise move':
-                self.analise_move()
+            if button == 'Analyse move':
+                self.analyse_move()
 
-            if button == "Analise game":
-                self.analise_game()
+            if button == "Analyse game":
+                self.analyse_game()
 
+            if button == "Analyse db":
+                self.analyse_db()
             if button == 'Previous Game':
                 index = self.game_descriptions.index(self.my_game)
                 if index > 0:
@@ -201,14 +203,25 @@ class PGNViewer:
                     else:
                         self.move_number = self.execute_next_move(self.move_number)
 
-    def analise_game(self):
+    def analyse_db(self):
+        for game_string in self.game_descriptions:
+            self.my_game = game_string
+            self.select_game()
+            self.analyse_game_func(True)
+
+    def analyse_game(self):
+        store_in_db = False
+        self.analyse_game_func(store_in_db)
+
+    def analyse_game_func(self, store_in_db):
         pgn_file = 'tempsave.pgn'
         with open(pgn_file, mode='w') as f:
             f.write('{}\n\n'.format(self.game))
-        name_file = self.game.headers['Date'].replace("/", "-") + "-" + self.game.headers['White'].replace(" ", "_") \
+        name_file = self.game.headers['Date'].replace("/", "-").replace(".??", "") + "-" + self.game.headers[
+            'White'].replace(" ", "_") \
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
         annotator.start_analise(pgn_file,
-                                self.gui.engine, name_file, False)
+                                self.gui.engine, name_file, store_in_db)
 
     def callback(self, advice):
         self.window.Read(timeout=5)
@@ -218,7 +231,7 @@ class PGNViewer:
             advice, append=True, disabled=True)
         self.window.Read(timeout=10)
 
-    def analise_move(self):
+    def analyse_move(self):
         advice, score = self.gui.get_advice(self.board, self.callback)
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
