@@ -414,6 +414,7 @@ class PGNViewer:
             i = 1
             last = move_item.split(" ").pop()
             number_ = self.move_number // 2
+            print("check for:",last,number_)
             for line in lines:
                 if last in line and number_ == i:
                     line_number = i
@@ -424,6 +425,7 @@ class PGNViewer:
             i = 1
             last = move_item.split(" ").pop()
             number_ = self.move_number // 2
+            print("check for previous:", last, number_)
             in_previous_line = False
             for line in lines:
                 if last in line and in_previous_line:
