@@ -7,6 +7,7 @@ import os
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.board = None
         self.pgn_lines = []
         self.positions = []
         self.gui = gui
@@ -153,6 +154,9 @@ class PGNViewer:
                     self.my_game = self.game_descriptions[index + 1]
                     self.select_game()
 
+            if button == 'Analise move':
+                self.analise_move()
+
             if button == 'Previous Game':
                 index = self.game_descriptions.index(self.my_game)
                 if index > 0:
@@ -192,6 +196,9 @@ class PGNViewer:
                         self.move_number = self.execute_previous_move(self.move_number)
                     else:
                         self.move_number = self.execute_next_move(self.move_number)
+
+    def analise_move(self):
+        self.gui.get_advice(self.board)
 
     def select_game(self):
         print("open pgn:", self.pgn)
@@ -529,5 +536,6 @@ class PGNViewer:
             self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
             # print("from coords:", self.gui.get_square_color_pos(self.window, self.move_squares[1], self.move_squares[0]))
             # print("to coords:", self.gui.get_square_color_pos(self.window, self.move_squares[3], self.move_squares[2]))
+        self.board = board
 
         return fen

@@ -318,7 +318,7 @@ menu_def_entry = [
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral']],
         ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
-        ['Tools', ['Analise game']]
+        ['Tools', ['Analise game', 'Analise move']]
 ]
 
 
@@ -1521,6 +1521,67 @@ class EasyChessGui:
 
         self.psg_board = psgboard
         self.redraw_board(window)
+
+    def get_advice(self, board):
+        self.adviser_threads = self.get_engine_threads(
+            self.adviser_id_name)
+        self.adviser_hash = self.get_engine_hash(
+            self.adviser_id_name)
+        adviser_base_ms = self.adviser_movetime_sec * 1000
+        adviser_inc_ms = 0
+
+        search = RunEngine(
+            self.queue, self.engine_config_file,
+            self.adviser_path_and_file, self.adviser_id_name,
+            MAX_ADVISER_DEPTH, adviser_base_ms, adviser_inc_ms,
+            tc_type='timepermove',
+            period_moves=0,
+            is_stream_search_info=True
+        )
+        search.get_board(board)
+        search.daemon = True
+        search.start()
+
+        while True:
+            button, value = window.Read(timeout=10)
+
+            # if button == 'adviser_k' and value['adviser_k'] == 'Stop::right_adviser_k':
+            #     search.stop()
+            #
+            # # Exit app while adviser is thinking.
+            # if button is None:
+            #     search.stop()
+            #     is_search_stop_for_exit = True
+            try:
+                msg = self.queue.get_nowait()
+                if 'pv' in msg:
+                    # Reformat msg, remove the word pv at the end
+                    msg_line = ' '.join(msg.split()[0:-1])
+                    print("advice:", msg_line)
+            except Exception:
+                continue
+
+            if 'bestmove' in msg:
+                # bestmove can be None so we do try/except
+                try:
+                    # Shorten msg line to 3 ply moves
+                    msg_line = ' '.join(msg_line.split()[0:3])
+                    msg_line += ' - ' + self.adviser_id_name
+                    window.Element('advise_info_k').Update(msg_line)
+                except Exception:
+                    logging.exception('Adviser engine error')
+                    sg.Popup(
+                        f'Adviser engine {self.adviser_id_name} error.\n \
+                        It is better to change this engine.\n \
+                        Change to Neutral mode first.',
+                        icon=ico_path[platform]['pecg'],
+                        title=BOX_TITLE
+                    )
+                break
+
+        search.join()
+        print("search.score",search.score, search.analysis)
+        search.quit_engine()
 
     def get_square_color_pos(self, window, row, col):
         """
