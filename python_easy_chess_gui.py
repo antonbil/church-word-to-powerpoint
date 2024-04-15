@@ -1535,9 +1535,8 @@ class EasyChessGui:
         Change the color of a square based on square row and col.
         """
         btn_sq = window.find_element(key=(row, col + 64))
-        is_dark_square = True if (row + col) % 2 else False
-        bd_sq_color = '#ff0000'
-        btn_sq.Update(background_color=color, border_width=4)
+        btn_sq.Update(border_width=4)
+        btn_sq.widget.configure(background=color)
 
     def change_square_color(self, window, row, col):
         """
