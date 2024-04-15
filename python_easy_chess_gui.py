@@ -276,7 +276,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-        ['&Mode', ['Play', 'Analise']],
+        ['&Mode', ['Play', 'Analise', 'PGN-Viewer']],
         ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                       'Blue::board_color_k',
                                       'Green::board_color_k',
@@ -294,7 +294,7 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-        ['&Mode', ['Neutral', 'Analise']],
+        ['&Mode', ['Neutral', 'Analise', 'PGN-Viewer']],
         ['&Game', ['&New::new_game_k',
                    'Save to My Games::save_game_k',
                    'Save to White Repertoire',
@@ -309,7 +309,7 @@ menu_def_play = [
 ]
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
-        ['&Mode', ['Neutral']],
+        ['&Mode', ['Neutral', 'PGN-Viewer']],
         ['&Game', ['Analise game']],
         ['FEN', ['Paste']],
         ['&Help', ['GUI']],
@@ -318,8 +318,7 @@ menu_def_entry = [
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral']],
         ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
-        ['Previous', ['Previous']],
-        ['Next', ['Next']],
+        ['Tools', ['Analise game']]
 ]
 
 
