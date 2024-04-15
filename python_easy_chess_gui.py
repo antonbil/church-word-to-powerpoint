@@ -2967,6 +2967,7 @@ class EasyChessGui:
                 self.menu_elem.Update(menu_def_pgnviewer)
                 PGNViewer(self, window)
                 self.main_layout = self.get_neutral_layout()
+                self.start_mode = ""
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_neutral)
 
