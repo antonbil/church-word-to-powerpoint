@@ -429,6 +429,7 @@ class PGNViewer:
             in_previous_line = False
             for line in lines:
                 if last in line and in_previous_line:
+                    print("in previous line:", last)
                     line_number = i
                     break
                 in_previous_line = number_ in line
