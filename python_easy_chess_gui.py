@@ -1541,27 +1541,14 @@ class EasyChessGui:
         search.get_board(board)
         search.daemon = True
         search.start()
-        advice = ""
         msg_line = ""
 
         while True:
-            #button, value = window.Read(timeout=10)
-
-            # if button == 'adviser_k' and value['adviser_k'] == 'Stop::right_adviser_k':
-            #     search.stop()
-            #
-            # # Exit app while adviser is thinking.
-            # if button is None:
-            #     search.stop()
-            #     is_search_stop_for_exit = True
             try:
                 msg = self.queue.get_nowait()
                 if 'pv' in msg:
                     # Reformat msg, remove the word pv at the end
                     msg_line = ' '.join(msg.split()[0:-1])
-                    print("advice:", msg_line)
-                    advice = msg_line
-                    print("search.score interally", search.score, search.analysis)
             except Exception:
                 continue
 
@@ -1570,26 +1557,11 @@ class EasyChessGui:
                 try:
                     # Shorten msg line to 3 ply moves (.split()[0:3])
                     msg_line = join(msg_line)
-                    #msg_line += ' - ' + self.adviser_id_name
-                    # sg.Popup(
-                    #     f'Adviser engine: {msg_line}.\n ',
-                    #     icon=ico_path[platform]['pecg'],
-                    #     title=BOX_TITLE
-                    # )
-                    #window.Element('advise_info_k').Update(msg_line)
                 except Exception:
                     logging.exception('Adviser engine error')
-                    sg.Popup(
-                        f'Adviser engine: {advice} error.\n \
-                        It is better to change this engine.\n \
-                        Change to Neutral mode first.',
-                        icon=ico_path[platform]['pecg'],
-                        title=BOX_TITLE
-                    )
                 break
 
         search.join()
-        print("search.score", search.score)
         search.quit_engine()
         return "{} ({})".format(msg_line, search.score)
 
