@@ -204,11 +204,26 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
     def analyse_db(self):
+        number_games = len(self.game_descriptions)
+        layout = [
+            [sg.Text("Analyse {}".format(self), font=self.gui.text_font, size=(4, 1))],
+            [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(52, 8),
+                          font=self.text_font, key='result_list', disabled=True)]
+        ]
+
+        w = sg.Window("Analyse PGN", layout,
+                      icon='Icon/pecg.png')
+
+        i = 1
         for game_string in self.game_descriptions:
             self.my_game = game_string
-            print("analyse:"+game_string)
+            window = w.find_element('result_list')
+            window.Update(
+                "{} ({} of {})".format(game_string, i, number_games), append=True, disabled=True)
             self.select_game()
             self.analyse_game_func(True)
+            i = i + 1
+        w.Close()
 
     def analyse_game(self):
         store_in_db = False
