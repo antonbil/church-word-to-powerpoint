@@ -220,7 +220,7 @@ class PGNViewer:
             self.my_game = game_string
             window = w.find_element('result_list')
             window.Update(
-                "{} ({} of {})".format(game_string, i, number_games), append=True, disabled=True)
+                "\n{} ({} of {})".format(game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
             self.select_game()
             self.analyse_game_func(True)
