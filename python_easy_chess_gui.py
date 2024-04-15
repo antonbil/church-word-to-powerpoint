@@ -1580,7 +1580,7 @@ class EasyChessGui:
                 break
 
         search.join()
-        print("search.score",search.score, search.analysis)
+        print("search.score", search.score, search.analysis)
         search.quit_engine()
 
     def get_square_color_pos(self, window, row, col):
