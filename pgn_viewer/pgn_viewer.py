@@ -216,6 +216,7 @@ class PGNViewer:
                 previous = ""
             else:
                 previous = "{}... {}".format(move_number, move)
+            is_black = not is_black
         if previous:
             res_moves.append(previous)
 
