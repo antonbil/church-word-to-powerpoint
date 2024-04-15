@@ -1541,6 +1541,7 @@ class EasyChessGui:
         search.get_board(board)
         search.daemon = True
         search.start()
+        advice = ""
 
         while True:
             #button, value = window.Read(timeout=10)
@@ -1558,6 +1559,8 @@ class EasyChessGui:
                     # Reformat msg, remove the word pv at the end
                     msg_line = ' '.join(msg.split()[0:-1])
                     print("advice:", msg_line)
+                    advice = msg_line
+                    print("search.score", search.score, search.analysis)
             except Exception:
                 continue
 
@@ -1567,11 +1570,18 @@ class EasyChessGui:
                     # Shorten msg line to 3 ply moves
                     msg_line = ' '.join(msg_line.split()[0:3])
                     msg_line += ' - ' + self.adviser_id_name
-                    window.Element('advise_info_k').Update(msg_line)
+                    sg.Popup(
+                        f'Adviser engine: {msg_line}.\n \
+                                            It is better to change this engine.\n \
+                                            Change to Neutral mode first.',
+                        icon=ico_path[platform]['pecg'],
+                        title=BOX_TITLE
+                    )
+                    #window.Element('advise_info_k').Update(msg_line)
                 except Exception:
                     logging.exception('Adviser engine error')
                     sg.Popup(
-                        f'Adviser engine {self.adviser_id_name} error.\n \
+                        f'Adviser engine: {advice} error.\n \
                         It is better to change this engine.\n \
                         Change to Neutral mode first.',
                         icon=ico_path[platform]['pecg'],
