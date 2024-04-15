@@ -792,6 +792,7 @@ class EasyChessGui:
         my_preferences = self.preferences.preferences
         self.is_save_time_left = my_preferences["is_save_time_left"] if "is_save_time_left" in my_preferences else False
         self.start_mode = my_preferences["start_mode"] if "start_mode" in my_preferences else False
+        self.start_mode_used = self.start_mode
         self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
         self.players = my_preferences["players"] if "players" in my_preferences else []
@@ -1905,10 +1906,10 @@ class EasyChessGui:
                         break
 
                     # Mode: Play, Stm: Computer first move
-                    if button == 'Neutral' or button == 'PGN-Viewer' or self.start_mode == "pgnviewer":
+                    if button == 'Neutral' or button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
                         is_exit_game = True
                         self.entry_game = False
-                        self.start_mode = ""
+                        self.start_mode_used = ""
                         break
 
                     if button == 'Analise':
@@ -2165,7 +2166,7 @@ class EasyChessGui:
                     if button == 'Neutral' or is_search_stop_for_neutral:
                         is_exit_game = True
                         self.entry_game = False
-                        self.start_mode = ""
+                        self.start_mode_used = ""
                         self.clear_elements(window)
                         break
 
@@ -2961,13 +2962,13 @@ class EasyChessGui:
             if button is None:
                 logging.info('Quit app from main loop, X is pressed.')
                 break
-            if button == 'PGN-Viewer' or self.start_mode == "pgnviewer":
+            if button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
                 self.main_layout = self.get_png_layout()
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_pgnviewer)
                 PGNViewer(self, window)
                 self.main_layout = self.get_neutral_layout()
-                self.start_mode = ""
+                self.start_mode_used = ""
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_neutral)
 
@@ -3939,8 +3940,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or button == 'Analise' or self.start_mode == "entry":
-                self.entry_game = button == 'Analise' or self.start_mode == "entry"
+            if button == 'Play' or button == 'Analise' or self.start_mode_used == "entry":
+                self.entry_game = button == 'Analise' or self.start_mode_used == "entry"
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
