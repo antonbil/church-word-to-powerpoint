@@ -198,6 +198,7 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
     def callback(self, advice):
+        print("advice", advice)
         window = self.window.find_element('comment_k')
         window.Update('')
         window.Update(
