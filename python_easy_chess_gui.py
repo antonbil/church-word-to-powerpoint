@@ -294,7 +294,7 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-        ['&Mode', ['Neutral', 'Analise', 'PGN-Viewer']],
+        ['&Mode', ['Neutral', 'Analise']],
         ['&Game', ['&New::new_game_k',
                    'Save to My Games::save_game_k',
                    'Save to White Repertoire',
@@ -309,7 +309,7 @@ menu_def_play = [
 ]
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
-        ['&Mode', ['Neutral', 'PGN-Viewer']],
+        ['&Mode', ['Neutral']],
         ['&Game', ['Analise game']],
         ['FEN', ['Paste']],
         ['&Help', ['GUI']],
@@ -2114,7 +2114,7 @@ class EasyChessGui:
                         break
 
                     # Mode: Play, Stm: User
-                    if button == 'Neutral' or button == 'PGN-Viewer' or is_search_stop_for_neutral:
+                    if button == 'Neutral' or is_search_stop_for_neutral:
                         is_exit_game = True
                         self.entry_game = False
                         self.start_entry_mode = False
@@ -2404,7 +2404,7 @@ class EasyChessGui:
                         self.check_depth_button(button)
 
                         # Mode: Play, Computer is thinking
-                        if button == 'Neutral' or button == 'PGN-Viewer':
+                        if button == 'Neutral':
                             search.stop()
                             is_search_stop_for_neutral = True
 
