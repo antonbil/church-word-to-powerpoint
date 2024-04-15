@@ -1567,13 +1567,11 @@ class EasyChessGui:
             if 'bestmove' in msg:
                 # bestmove can be None so we do try/except
                 try:
-                    # Shorten msg line to 3 ply moves
-                    msg_line = ' '.join(msg_line.split()[0:3])
+                    # Shorten msg line to 3 ply moves (.split()[0:3])
+                    msg_line = ' '.join(msg_line)
                     msg_line += ' - ' + self.adviser_id_name
                     sg.Popup(
-                        f'Adviser engine: {msg_line}.\n \
-                                            It is better to change this engine.\n \
-                                            Change to Neutral mode first.',
+                        f'Adviser engine: {msg_line}.\n ',
                         icon=ico_path[platform]['pecg'],
                         title=BOX_TITLE
                     )
