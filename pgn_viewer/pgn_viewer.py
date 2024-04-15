@@ -199,7 +199,7 @@ class PGNViewer:
 
     def analise_move(self):
         advice, score = self.gui.get_advice(self.board)
-        is_black = self.board.turn == chess.WHITE
+        is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
         moves = advice.split(" ")
         res_moves = []
