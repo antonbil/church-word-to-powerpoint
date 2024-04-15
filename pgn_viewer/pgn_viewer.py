@@ -210,12 +210,12 @@ class PGNViewer:
         previous = ""
         for move in moves:
             if is_black:
-                previous = previous + move
+                previous = previous + " " + move
                 move_number = move_number + 1
                 res_moves.append(previous)
                 previous = ""
             else:
-                previous = "{}... {}".format(move_number, move)
+                previous = "{}. {}".format(move_number, move)
             is_black = not is_black
         if previous:
             res_moves.append(previous)
