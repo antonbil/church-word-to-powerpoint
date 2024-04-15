@@ -1542,6 +1542,7 @@ class EasyChessGui:
         search.daemon = True
         search.start()
         advice = ""
+        msg_line = ""
 
         while True:
             #button, value = window.Read(timeout=10)
@@ -1560,7 +1561,7 @@ class EasyChessGui:
                     msg_line = ' '.join(msg.split()[0:-1])
                     print("advice:", msg_line)
                     advice = msg_line
-                    print("search.score", search.score, search.analysis)
+                    print("search.score interally", search.score, search.analysis)
             except Exception:
                 continue
 
@@ -1568,13 +1569,13 @@ class EasyChessGui:
                 # bestmove can be None so we do try/except
                 try:
                     # Shorten msg line to 3 ply moves (.split()[0:3])
-                    msg_line = ' '.join(msg_line)
-                    msg_line += ' - ' + self.adviser_id_name
-                    sg.Popup(
-                        f'Adviser engine: {msg_line}.\n ',
-                        icon=ico_path[platform]['pecg'],
-                        title=BOX_TITLE
-                    )
+                    msg_line = join(msg_line)
+                    #msg_line += ' - ' + self.adviser_id_name
+                    # sg.Popup(
+                    #     f'Adviser engine: {msg_line}.\n ',
+                    #     icon=ico_path[platform]['pecg'],
+                    #     title=BOX_TITLE
+                    # )
                     #window.Element('advise_info_k').Update(msg_line)
                 except Exception:
                     logging.exception('Adviser engine error')
@@ -1588,8 +1589,10 @@ class EasyChessGui:
                 break
 
         search.join()
-        print("search.score", search.score, search.analysis)
+        print("search.score", search.score)
         search.quit_engine()
+        return "{} ({})".format(msg_line, search.score)
+
 
     def get_square_color_pos(self, window, row, col):
         """

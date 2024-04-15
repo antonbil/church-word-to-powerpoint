@@ -198,7 +198,12 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
     def analise_move(self):
-        self.gui.get_advice(self.board)
+        advice = self.gui.get_advice(self.board)
+        window = self.window.find_element('comment_k')
+        window.Update('')
+        window.Update(
+            advice, append=True, disabled=True)
+
 
     def select_game(self):
         print("open pgn:", self.pgn)
