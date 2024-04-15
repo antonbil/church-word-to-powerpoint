@@ -223,7 +223,7 @@ class PGNViewer:
         window = self.window.find_element('comment_k')
         window.Update('')
         window.Update(
-            "{}\n{} {}".format(advice, " ".join(res_moves),score), append=True, disabled=True)
+            "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
 
 
     def select_game(self):
