@@ -3,6 +3,7 @@ import chess.pgn
 import chess.svg
 import PySimpleGUI as sg
 import os
+from annotator import annotator
 
 class PGNViewer:
     """header dialog class"""
@@ -157,6 +158,9 @@ class PGNViewer:
             if button == 'Analise move':
                 self.analise_move()
 
+            if button == "Analise game":
+                self.analise_game()
+
             if button == 'Previous Game':
                 index = self.game_descriptions.index(self.my_game)
                 if index > 0:
@@ -196,6 +200,15 @@ class PGNViewer:
                         self.move_number = self.execute_previous_move(self.move_number)
                     else:
                         self.move_number = self.execute_next_move(self.move_number)
+
+    def analise_game(self):
+        pgn_file = 'tempsave.pgn'
+        with open(pgn_file, mode='w') as f:
+            f.write('{}\n\n'.format(self.game))
+        name_file = self.game.headers['Date'].replace("/", "-") + "-" + self.game.headers['White'].replace(" ", "_") \
+                    + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
+        annotator.start_analise(pgn_file,
+                                self.gui.engine, name_file, False)
 
     def callback(self, advice):
         self.window.Read(timeout=5)
