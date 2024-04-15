@@ -2643,7 +2643,7 @@ class EasyChessGui:
         Set the borders of the squares to the default color
         """
 
-        if is_user_white:
+        if self.is_user_white:
             # Save the board with black at the top.
             start = 0
             end = 8
