@@ -411,6 +411,14 @@ class PGNViewer:
             i = 0
             last = move_item.split(" ").pop()
             for line in lines:
+                if last in line and str(self.move_number // 2):
+                    line_number = i
+                    break
+                i = i + 1
+        if line_number == -1:
+            i = 0
+            last = move_item.split(" ").pop()
+            for line in lines:
                 if last in line:
                     line_number = i
                     break
