@@ -1601,7 +1601,7 @@ class EasyChessGui:
         imgbytes = convert_to_bytes(image, (self.FIELD_SIZE, self.FIELD_SIZE))
         return sg.Frame('', [[sg.RButton('', image_data=imgbytes, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
                           border_width=0, button_color=('white', color),
-                          pad=(0, 0), key=key)]], background_color='yellow', pad=(0, 0), border_width=0, key=(key[0], key[1]+64))
+                          pad=(0, 0), key=key)]], background_color=color, pad=(0, 0), border_width=4, key=(key[0], key[1]+64))
 
     def select_promotion_piece(self, stm):
         """
