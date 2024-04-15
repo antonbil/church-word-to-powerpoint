@@ -411,7 +411,7 @@ class PGNViewer:
                             break
             i = i + 1
         if line_number == -1:
-            i = 0
+            i = 1
             last = move_item.split(" ").pop()
             number_ = self.move_number // 2
             for line in lines:
@@ -421,7 +421,7 @@ class PGNViewer:
                 i = i + 1
 
         if line_number == -1:
-            i = 0
+            i = 1
             last = move_item.split(" ").pop()
             number_ = self.move_number // 2
             in_previous_line = False
