@@ -197,8 +197,14 @@ class PGNViewer:
                     else:
                         self.move_number = self.execute_next_move(self.move_number)
 
+    def callback(self, advice):
+        window = self.window.find_element('comment_k')
+        window.Update('')
+        window.Update(
+            advice, append=True, disabled=True)
+
     def analise_move(self):
-        advice, score = self.gui.get_advice(self.board)
+        advice, score = self.gui.get_advice(self.board, self.callback)
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
         moves = advice.split(" ")

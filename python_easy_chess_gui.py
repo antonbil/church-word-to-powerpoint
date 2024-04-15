@@ -1522,7 +1522,7 @@ class EasyChessGui:
         self.psg_board = psgboard
         self.redraw_board(window)
 
-    def get_advice(self, board):
+    def get_advice(self, board, callback):
         self.adviser_threads = self.get_engine_threads(
             self.adviser_id_name)
         self.adviser_hash = self.get_engine_hash(
@@ -1549,6 +1549,7 @@ class EasyChessGui:
                 if 'pv' in msg:
                     # Reformat msg, remove the word pv at the end
                     msg_line = ' '.join(msg.split()[0:-1])
+                    callback(msg_line)
             except Exception:
                 continue
 
