@@ -1563,7 +1563,7 @@ class EasyChessGui:
 
         search.join()
         search.quit_engine()
-        return "{} ({})".format(msg_line, search.score)
+        return msg_line, search.score
 
 
     def get_square_color_pos(self, window, row, col):

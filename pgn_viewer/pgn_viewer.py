@@ -198,11 +198,31 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
     def analise_move(self):
-        advice = self.gui.get_advice(self.board)
+        advice, score = self.gui.get_advice(self.board)
+        is_black = self.board.turn == chess.WHITE
+        move_number = self.move_number // 2
+        moves = advice.split(" ")
+        res_moves = []
+        if is_black:
+            res_moves.append("{}... {}".format(move_number, moves.pop(0)))
+            is_black = False
+        move_number = move_number + 1
+        previous = ""
+        for move in moves:
+            if is_black:
+                previous = previous + move
+                move_number = move_number + 1
+                res_moves.append(previous)
+                previous = ""
+            else:
+                previous = "{}... {}".format(move_number, move)
+        if previous:
+            res_moves.append(previous)
+
         window = self.window.find_element('comment_k')
         window.Update('')
         window.Update(
-            advice, append=True, disabled=True)
+            "{} {}".format(" ".join(res_moves),score), append=True, disabled=True)
 
 
     def select_game(self):
