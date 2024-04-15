@@ -206,6 +206,7 @@ class PGNViewer:
     def analyse_db(self):
         for game_string in self.game_descriptions:
             self.my_game = game_string
+            print("analyse:"+game_string)
             self.select_game()
             self.analyse_game_func(True)
 

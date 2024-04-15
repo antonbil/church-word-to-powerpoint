@@ -793,11 +793,11 @@ def change_nags(pgn):
     """"
     blunder: 4 MISTAKE: 2 DUBIOUS: 6"""
     pgn = str(pgn)
-    pgn = pgn.replace("$6 {", "{Dubious ")
-    pgn = pgn.replace("$2 {", "{Mistake ")
-    pgn = pgn.replace("$4 {", "{Blunder ")
-    pgn = pgn.replace("$7 {", "{Good ")
-    pgn = pgn.replace("$9 {", "{Brilliant ")
+    # pgn = pgn.replace("$6 {", "{Dubious ")
+    # pgn = pgn.replace("$2 {", "{Mistake ")
+    # pgn = pgn.replace("$4 {", "{Blunder ")
+    # pgn = pgn.replace("$7 {", "{Good ")
+    # pgn = pgn.replace("$9 {", "{Brilliant ")
     strs = pgn.replace("  ", " ").split("\n")
     res = []
     res.append(strs.pop(0))
