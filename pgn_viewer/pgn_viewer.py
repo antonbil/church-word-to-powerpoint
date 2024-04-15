@@ -480,6 +480,7 @@ class PGNViewer:
         fen = board.fen()
         self.gui.fen = fen
         self.gui.fen_to_psg_board(self.window)
+        self.gui.default_board_borders(self.window)
         if len(last_variation) > 1:
             num_var = 0
             for move_variation in last_variation:

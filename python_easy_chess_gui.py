@@ -2638,6 +2638,32 @@ class EasyChessGui:
 
         return board_layout
 
+    def default_board_borders(self, window):
+        """
+        Set the borders of the squares to the default color
+        """
+
+        if is_user_white:
+            # Save the board with black at the top.
+            start = 0
+            end = 8
+            step = 1
+        else:
+            start = 7
+            end = -1
+            step = -1
+
+        # Loop through the board and create buttons with images
+        for i in range(start, end, step):
+            # Row numbers at left of board is blank
+            row = []
+            for j in range(start, end, step):
+                if (i +j) % 2:
+                    color = self.sq_dark_color  # Dark square
+                else:
+                    color = self.sq_light_color
+                self.change_square_color_border(window, i, j, color)
+
     def build_main_layout(self, is_user_white=True):
         """
         Creates all elements for the GUI, icluding the board layout.
