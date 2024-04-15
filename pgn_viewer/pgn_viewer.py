@@ -207,7 +207,7 @@ class PGNViewer:
         number_games = len(self.game_descriptions)
         layout = [
             [sg.Text("Analyse pgn's in file: {}".format(self), font=self.gui.text_font, size=(40, 1))],
-            [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(52, 8),
+            [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(70, 8),
                           font=self.gui.text_font, key='result_list', disabled=True)]
         ]
 
