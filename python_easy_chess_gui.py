@@ -2114,7 +2114,7 @@ class EasyChessGui:
                         break
 
                     # Mode: Play, Stm: User
-                    if button == 'Neutral' or is_search_stop_for_neutral:
+                    if button == 'Neutral' or button == 'PGN-Viewer' or is_search_stop_for_neutral:
                         is_exit_game = True
                         self.entry_game = False
                         self.start_entry_mode = False
@@ -2404,7 +2404,7 @@ class EasyChessGui:
                         self.check_depth_button(button)
 
                         # Mode: Play, Computer is thinking
-                        if button == 'Neutral':
+                        if button == 'Neutral' or button == 'PGN-Viewer':
                             search.stop()
                             is_search_stop_for_neutral = True
 
