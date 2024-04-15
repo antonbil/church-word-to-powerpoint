@@ -1543,7 +1543,7 @@ class EasyChessGui:
         search.start()
 
         while True:
-            button, value = window.Read(timeout=10)
+            #button, value = window.Read(timeout=10)
 
             # if button == 'adviser_k' and value['adviser_k'] == 'Stop::right_adviser_k':
             #     search.stop()
