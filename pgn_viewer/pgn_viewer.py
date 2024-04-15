@@ -359,11 +359,14 @@ class PGNViewer:
         moves = self.get_all_moves(game)
         previous = ""
         self.positions = []
+        self.move_number = 0
         for move in moves:
             line_number, s = self.get_line_number(lines, move, previous)
+            self.move_number = self.move_number + 1
             self.positions.append(line_number)
             # print("move", s, line_number)
             previous = s
+        self.move_number = 0
 
     def change_nag(self,line):
         nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
