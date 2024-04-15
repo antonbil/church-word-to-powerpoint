@@ -1530,14 +1530,14 @@ class EasyChessGui:
         btn_sq = window.find_element(key=(row, col))
         return btn_sq.widget.winfo_x(), btn_sq.widget.winfo_y()
 
-    def change_square_color_red(self, window, row, col):
+    def change_square_color_border(self, window, row, col, color):
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=(row, col))
+        btn_sq = window.find_element(key=(row, col + 64))
         is_dark_square = True if (row + col) % 2 else False
         bd_sq_color = '#ff0000'
-        btn_sq.Update(button_color=('white', bd_sq_color))
+        btn_sq.Update(background_color=color, border_width=4)
 
     def change_square_color(self, window, row, col):
         """
@@ -1600,9 +1600,9 @@ class EasyChessGui:
         else:
             color = self.sq_light_color
         imgbytes = convert_to_bytes(image, (self.FIELD_SIZE, self.FIELD_SIZE))
-        return sg.RButton('', image_data=imgbytes, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
+        return sg.Frame('', [[sg.RButton('', image_data=imgbytes, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
                           border_width=0, button_color=('white', color),
-                          pad=(0, 0), key=key)
+                          pad=(0, 0), key=key)]], background_color='yellow', pad=(0, 0), border_width=0, key=(key[0], key[1]+64))
 
     def select_promotion_piece(self, stm):
         """

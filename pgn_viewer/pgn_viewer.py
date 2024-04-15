@@ -124,7 +124,6 @@ class PGNViewer:
                 selection = value[button]
                 if selection:
                     item = selection[0]
-                    print("item selected:", item)
                     items = item.split(" ")
                     items.reverse()
                     val = -1
@@ -482,15 +481,26 @@ class PGNViewer:
         self.gui.fen = fen
         self.gui.fen_to_psg_board(self.window)
         if len(last_variation) > 1:
+            num_var = 0
             for move_variation in last_variation:
+                if num_var == 0:
+                    color = "#0000ff"
+                else:
+                    color = "#00ffff"
                 #print("variation", move_variation.move)
                 move_str = str(move_variation.move)
                 fr_col = ord(move_str[0]) - ord('a')
                 fr_row = 8 - int(move_str[1])
+                to_col = ord(move_str[2]) - ord('a')
+                to_row = 8 - int(move_str[3])
+                num_var = num_var + 1
 
                 self.gui.change_square_color(self.window, fr_row, fr_col)
+                self.gui.change_square_color_border(self.window, fr_row, fr_col, color)
+                self.gui.change_square_color_border(self.window, to_row, to_col, color)
         if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] >0:
-            self.gui.change_square_color_red(self.window, self.move_squares[3], self.move_squares[2])
+            self.gui.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
+            self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
             # print("from coords:", self.gui.get_square_color_pos(self.window, self.move_squares[1], self.move_squares[0]))
             # print("to coords:", self.gui.get_square_color_pos(self.window, self.move_squares[3], self.move_squares[2]))
 
