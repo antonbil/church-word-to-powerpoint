@@ -1857,7 +1857,7 @@ class EasyChessGui:
                         break
 
                     # Mode: Play, Stm: Computer first move
-                    if button == 'Neutral':
+                    if button == 'Neutral' or button == 'PGN-Viewer':
                         is_exit_game = True
                         self.entry_game = False
                         self.start_entry_mode = False
