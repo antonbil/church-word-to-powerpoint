@@ -3784,7 +3784,7 @@ class EasyChessGui:
                                      'list and saved in pgn file.')],
                     [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
                       sg.Combo(["","entry","pgnviewer"], font=self.text_font, expand_x=True, enable_events=True,
-                               readonly=False, default_value=str(self.start_mode), key='field_size')]],
+                               readonly=False, default_value=str(self.start_mode), key='start_mode')]],
                     # [sg.CBox('Start in game-entry-mode', font=self.text_font,
                     #          key='start_entry_mode',
                     #          default=self.preferences.preferences['start_entry_mode'])],
