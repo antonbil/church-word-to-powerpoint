@@ -845,7 +845,7 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library):
                     file1.close()
                     if add_to_library:
                         file1 = open("library.pgn", 'a')
-                        file1.writelines('\n'+str(analyzed_game))
+                        file1.writelines('\n\n'+str(analyzed_game))
                         file1.close()
 
 def main():
