@@ -198,13 +198,12 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
     def callback(self, advice):
-        button, value = self.window.Read(timeout=10)
-        print("advice", advice)
+        self.window.Read(timeout=5)
         window = self.window.find_element('comment_k')
         window.Update('')
         window.Update(
             advice, append=True, disabled=True)
-        button, value = self.window.Read(timeout=10)
+        self.window.Read(timeout=10)
 
     def analise_move(self):
         advice, score = self.gui.get_advice(self.board, self.callback)
