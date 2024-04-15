@@ -791,7 +791,7 @@ class EasyChessGui:
 
         my_preferences = self.preferences.preferences
         self.is_save_time_left = my_preferences["is_save_time_left"] if "is_save_time_left" in my_preferences else False
-        self.start_entry_mode = my_preferences["start_entry_mode"] if "start_entry_mode" in my_preferences else False
+        self.start_mode = my_preferences["start_entry_mode"] if "start_entry_mode" in my_preferences else False
         self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
         self.players = my_preferences["players"] if "players" in my_preferences else []
@@ -1857,10 +1857,10 @@ class EasyChessGui:
                         break
 
                     # Mode: Play, Stm: Computer first move
-                    if button == 'Neutral' or button == 'PGN-Viewer':
+                    if button == 'Neutral' or button == 'PGN-Viewer' or self.start_mode == "pgnviewer":
                         is_exit_game = True
                         self.entry_game = False
-                        self.start_entry_mode = False
+                        self.start_mode = ""
                         break
 
                     if button == 'Analise':
@@ -2117,7 +2117,7 @@ class EasyChessGui:
                     if button == 'Neutral' or is_search_stop_for_neutral:
                         is_exit_game = True
                         self.entry_game = False
-                        self.start_entry_mode = False
+                        self.start_mode = ""
                         self.clear_elements(window)
                         break
 
@@ -2914,7 +2914,7 @@ class EasyChessGui:
             if button is None:
                 logging.info('Quit app from main loop, X is pressed.')
                 break
-            if button == 'PGN-Viewer':
+            if button == 'PGN-Viewer' or self.start_mode == "pgnviewer":
                 self.main_layout = self.get_png_layout()
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_pgnviewer)
@@ -3782,9 +3782,12 @@ class EasyChessGui:
                              tooltip='[%clk h:mm:ss] will appear as\n' +
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
-                    [sg.CBox('Start in game-entry-mode', font=self.text_font,
-                             key='start_entry_mode',
-                             default=self.preferences.preferences['start_entry_mode'])],
+                    [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
+                      sg.Combo(["","entry","pgnviewer"], font=self.text_font, expand_x=True, enable_events=True,
+                               readonly=False, default_value=str(self.start_mode), key='field_size')]],
+                    # [sg.CBox('Start in game-entry-mode', font=self.text_font,
+                    #          key='start_entry_mode',
+                    #          default=self.preferences.preferences['start_entry_mode'])],
                     [[sg.Text("Menu-font-size:", size=(16, 1), font=self.text_font),
                       sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
@@ -3820,7 +3823,7 @@ class EasyChessGui:
                         self.font_size_ui = int(v['font_size_ui'])
                         self.FIELD_SIZE = int(v['field_size'])
                         self.is_save_time_left = v['save_time_left_k']
-                        self.start_entry_mode = v['start_entry_mode']
+                        self.start_mode = v['start_entry_mode']
                         self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                         self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                         self.players = [s.strip() for s in v['players_k'].split(",")]
@@ -3830,7 +3833,7 @@ class EasyChessGui:
                         self.preferences.preferences["events_list"] = self.events_list
                         self.preferences.preferences["players"] = self.players
                         self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
-                        self.preferences.preferences["start_entry_mode"] = self.start_entry_mode
+                        self.preferences.preferences["start_entry_mode"] = self.start_mode
                         self.preferences.preferences["field_size"] = self.FIELD_SIZE
                         self.preferences.save_preferences()
                         break
@@ -3888,8 +3891,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or button == 'Analise' or self.start_entry_mode:
-                self.entry_game = button == 'Analise' or self.start_entry_mode
+            if button == 'Play' or button == 'Analise' or self.start_mode == "entry":
+                self.entry_game = button == 'Analise' or self.start_mode == "entry"
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
