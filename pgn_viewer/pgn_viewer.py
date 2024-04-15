@@ -176,7 +176,7 @@ class PGNViewer:
                     #print("str(variation.move):",str(variation.move))
                     move = str(variation.move)
 
-                    if move.startswith(coord):
+                    if move.startswith(coord) or coord == move[2]+move[3]:
                         self.moves.append(variation)
                         self.current_move = variation
                         self.move_number = self.move_number + 1
