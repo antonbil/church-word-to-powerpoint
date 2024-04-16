@@ -2608,7 +2608,7 @@ class EasyChessGui:
 
         return False if is_exit_game else is_new_game
 
-    def save_game(self, value_white, value_black, pgn_game):
+    def save_game_pgn(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         with open(name_file, mode='w') as f:
             f.write('{}\n\n'.format(pgn_game))

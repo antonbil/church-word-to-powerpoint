@@ -81,7 +81,7 @@ class DataEntry:
             if button == 'Save':
                 value_white = value['_White_']
                 value_black = value['_Black_']
-                self.gui.save_game(value_white, value_black, self.game)
+                self.gui.save_game_pgn(value_white, value_black, self.game)
 
             if type(button) is tuple:
                 if move_state == 0:
