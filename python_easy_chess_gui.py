@@ -277,7 +277,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-        ['&Mode', ['Play', 'Analyse', 'PGN-Viewer', 'Analyse2']],
+        ['&Mode', ['Play', 'PGN-Viewer', 'Analyse']],
         ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                       'Blue::board_color_k',
                                       'Green::board_color_k',
@@ -1912,7 +1912,8 @@ class EasyChessGui:
                         break
 
                     if button == 'Analyse':
-                        self.entry_game = True
+                        #self.entry_game = True
+                        self.start_mode_used = "data-entry"
                         break
 
                     if button == 'GUI':
@@ -2977,7 +2978,7 @@ class EasyChessGui:
                 self.start_mode_used = ""
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_neutral)
-            if button == 'Analyse2' or self.start_mode_used == "data-entry":
+            if button == 'Analyse' or self.start_mode_used == "data-entry":
                 self.main_layout = self.get_png_layout()
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_entry)
@@ -3955,8 +3956,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or button == 'Analyse' or self.start_mode_used == "entry":
-                self.entry_game = button == 'Analyse' or self.start_mode_used == "entry"
+            if button == 'Play' or button == 'Analyse2' or self.start_mode_used == "entry":
+                self.entry_game = button == 'Analyse2' or self.start_mode_used == "entry"
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
