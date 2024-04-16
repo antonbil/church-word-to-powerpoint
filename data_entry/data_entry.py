@@ -48,24 +48,16 @@ class DataEntry:
             self.board.push(move)
         self.current_move = node
 
-        #game.headers["Result"] = board.result()
-        #return game
-
     def execute_data_entry(self):
 
         self.display_move()
         move_state = 0
-        move_str = ""
-        piece = None
-        moved_piece = None
-        fr_sq = None
         fr_row = 0
         fr_col = 0
 
         while True:
             button, value = self.window.Read(timeout=50)
             if button == 'Neutral':
-                is_exit_game = True
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
@@ -77,7 +69,7 @@ class DataEntry:
                 # window.Update('')
                 try:
                     window.Update(self.split_line(pgn_string))
-                except:
+                except (Exception, ):
                     return
 
                 self.display_move()
@@ -86,10 +78,6 @@ class DataEntry:
                     # If fr_sq button is pressed
                     move_from = button
                     fr_row, fr_col = move_from
-                    col = chr(fr_col + ord('a'))
-                    row = str(7 - fr_row + 1)
-                    move_str = col + row
-
 
                     # Change the color of the "fr" board square
                     self.gui.change_square_color(self.window, fr_row, fr_col)
@@ -98,14 +86,10 @@ class DataEntry:
                 elif move_state == 1:
                     move_from = button
                     to_row, to_col = move_from
-                    col = chr(to_col + ord('a'))
-                    row = str(7 - to_row + 1)
-                    move_str = move_str + col + row
 
                     self.gui.default_board_borders(self.window)
 
                     self.execute_move(fr_col, fr_row, to_col, to_row)
-                    move_str = ""
                     move_state = 0
 
     def execute_move(self, fr_col, fr_row, to_col, to_row):
@@ -119,7 +103,7 @@ class DataEntry:
         user_move = None
         if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
                 moved_piece == chess.PAWN:
-            is_promote = True
+            # is_promote = True
             pyc_promo, psg_promo = self.gui.get_promo_piece(
                 user_move, self.board.turn, True)
             user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
@@ -130,9 +114,9 @@ class DataEntry:
             return 0
         try:
             self.board.push(user_move)
-        except Exception as e:
+        except (Exception,):
             # illegal move
-            print("exception, e")
+            print("illegal move")
             return
         move = self.board.pop()
 
@@ -145,7 +129,7 @@ class DataEntry:
         # window.Update('')
         try:
             window.Update(self.split_line(pgn_string))
-        except:
+        except (Exception, ):
             return
 
         self.move_squares = []
@@ -160,7 +144,7 @@ class DataEntry:
 
         words = line.split(" ")
         len_line = len(words[0])
-        line=words[0]
+        line = words[0]
         words.pop(0)
         for word in words:
             if len_line + len(word) > max_len_line:
@@ -173,7 +157,6 @@ class DataEntry:
             line = line + word
         return line.split("\n")
 
-
     def display_move(self):
         board = chess.Board()
         for main_move in self.moves:
@@ -184,7 +167,7 @@ class DataEntry:
             try:
                 # print("move", move)
                 board.push(move)
-            except:
+            except (Exception, ):
                 pass
 
         fen = board.fen()
