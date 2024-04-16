@@ -311,7 +311,7 @@ menu_def_play = [
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
         ['&Mode', ['Neutral']],
-        ['&Game', ['Analyse game']],
+        ['&Game', ['Analyse game', "Back"]],
         ['FEN', ['Paste']],
         ['&Help', ['GUI']],
 ]
@@ -2975,7 +2975,7 @@ class EasyChessGui:
             if button == 'Analyse2' or self.start_mode_used == "data-entry":
                 self.main_layout = self.get_png_layout()
                 window = self.create_new_window(window)
-                self.menu_elem.Update(menu_def_pgnviewer)
+                self.menu_elem.Update(menu_def_entry)
                 DataEntry(self, window)
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = ""
