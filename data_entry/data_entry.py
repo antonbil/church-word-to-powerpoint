@@ -17,7 +17,7 @@ class DataEntry:
         self.pgn_lines = []
         self.positions = []
         self.gui = gui
-        window.find_element('_gamestatus_').Update('Mode     PGN-Viewer')
+        window.find_element('_gamestatus_').Update('Mode     PGN-Entry')
         self.window = window
         self.moves = []
         self.game = chess.pgn.Game()
