@@ -73,6 +73,11 @@ class DataEntry:
                     return
 
                 self.display_move()
+            if button == 'Analyse game':
+                value_white = value['_White_']
+                value_black = value['_Black_']
+                self.gui.analyse_game(value_white, value_black, self.game)
+
             if type(button) is tuple:
                 if move_state == 0:
                     # If fr_sq button is pressed

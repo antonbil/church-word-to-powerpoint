@@ -312,8 +312,6 @@ menu_def_play = [
 menu_def_entry = [
         ['&Mode', ['Neutral']],
         ['&Game', ['Analyse game', "Back"]],
-        ['FEN', ['Paste']],
-        ['&Help', ['GUI']],
 ]
 
 menu_def_pgnviewer = [
@@ -2093,24 +2091,10 @@ class EasyChessGui:
                         break
 
                     if button == 'Analyse game':
-                        header_dialog = HeaderDialog(value['_White_'], value['_Black_'], self.sites_list, self.events_list,
-                                                     self.players)
-                        print('new white:', header_dialog.white)
-                        print('new black:', header_dialog.black)
-                        logging.info('Saving game manually')
-                        pgn_file = 'tempsave.pgn'
-                        with open(pgn_file, mode='w') as f:
-                            self.game.headers['Event'] = header_dialog.event
-                            self.game.headers['White'] = header_dialog.white
-                            self.game.headers['Black'] = header_dialog.black
-                            self.game.headers['Site'] = header_dialog.site
-                            self.game.headers['Date'] = header_dialog.date
-                            self.game.headers['Round'] = header_dialog.round
-                            f.write('{}\n\n'.format(self.game))
-                        name_file = header_dialog.date.replace("/","-")+"-"+header_dialog.white.replace(" ","_")\
-                                    +"-" + header_dialog.black.replace(" ", "_")+".pgn"
-                        annotator.start_analise(pgn_file,
-                                                self.engine, name_file, header_dialog.add_to_library)
+                        value_white = value['_White_']
+                        value_black = value['_Black_']
+
+                        self.analyse_game(value_white, value_black, self.game)
                         break
 
                     if button == 'Save to My Games::save_game_k':
@@ -2622,6 +2606,27 @@ class EasyChessGui:
         self.clear_elements(window)
 
         return False if is_exit_game else is_new_game
+
+    def analyse_game(self, value_white, value_black, pgn_game):
+        header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
+                                     self.players)
+        print('new white:', header_dialog.white)
+        print('new black:', header_dialog.black)
+        logging.info('Saving game manually')
+        pgn_file = 'tempsave.pgn'
+        with open(pgn_file, mode='w') as f:
+            pgn_game.headers['Event'] = header_dialog.event
+            pgn_game.headers['White'] = header_dialog.white
+            pgn_game.headers['Black'] = header_dialog.black
+            pgn_game.headers['Site'] = header_dialog.site
+            pgn_game.headers['Date'] = header_dialog.date
+            pgn_game.headers['Round'] = header_dialog.round
+            f.write('{}\n\n'.format(pgn_game))
+        name_file = header_dialog.date.replace("/", "-") + "-" + header_dialog.white.replace(" ", "_") \
+                    + "-" + header_dialog.black.replace(" ", "_") + ".pgn"
+        annotator.start_analise(pgn_file,
+                                self.engine, name_file, header_dialog.add_to_library)
+        sg.popup_ok("PGN is annotated and saved", title="Analyse PGN")
 
     def check_depth_button(self, button):
         if button == 'Set Depth':
