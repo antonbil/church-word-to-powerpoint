@@ -116,6 +116,7 @@ class DataEntry:
         # Change the color of the "fr" board square
         self.gui.change_square_color(self.window, to_row, to_col)
         # If user move is a promote
+        user_move = None
         if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
                 moved_piece == chess.PAWN:
             is_promote = True
@@ -146,7 +147,7 @@ class DataEntry:
             window.Update(self.split_line(pgn_string))
         except:
             return
-        print("node:", self.current_move)
+
         self.move_squares = []
         self.move_squares.append(fr_col)
         self.move_squares.append(fr_row)
