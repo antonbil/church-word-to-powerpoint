@@ -311,7 +311,7 @@ menu_def_play = [
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
         ['&Mode', ['Neutral']],
-        ['&Game', ['Analyse game', "Back"]],
+        ['&Game', ['Save', 'Analyse game', "Back"]],
 ]
 
 menu_def_pgnviewer = [
@@ -2608,26 +2608,42 @@ class EasyChessGui:
 
         return False if is_exit_game else is_new_game
 
+    def save_game(self, value_white, value_black, pgn_game):
+        header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
+        with open(name_file, mode='w') as f:
+            f.write('{}\n\n'.format(pgn_game))
+        if header_dialog.add_to_library:
+            with open("library.pgn", 'a') as file1:
+                file1.write('{}\n\n'.format(pgn_game))
+
+        sg.popup_ok("PGN is saved as:{}".format(name_file), title="Save PGN")
+
     def analyse_game(self, value_white, value_black, pgn_game):
-        header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
-                                     self.players)
-        print('new white:', header_dialog.white)
-        print('new black:', header_dialog.black)
-        logging.info('Saving game manually')
+        header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         pgn_file = 'tempsave.pgn'
         with open(pgn_file, mode='w') as f:
-            pgn_game.headers['Event'] = header_dialog.event
-            pgn_game.headers['White'] = header_dialog.white
-            pgn_game.headers['Black'] = header_dialog.black
-            pgn_game.headers['Site'] = header_dialog.site
-            pgn_game.headers['Date'] = header_dialog.date
-            pgn_game.headers['Round'] = header_dialog.round
             f.write('{}\n\n'.format(pgn_game))
-        name_file = header_dialog.date.replace("/", "-") + "-" + header_dialog.white.replace(" ", "_") \
-                    + "-" + header_dialog.black.replace(" ", "_") + ".pgn"
         annotator.start_analise(pgn_file,
                                 self.engine, name_file, header_dialog.add_to_library)
         sg.popup_ok("PGN is annotated and saved", title="Analyse PGN")
+
+    def get_game_data(self, value_white, value_black, pgn_game):
+        header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
+                                     self.players)
+
+        print('new white:', header_dialog.white)
+        print('new black:', header_dialog.black)
+        logging.info('Saving game manually')
+        pgn_game.headers['Event'] = header_dialog.event
+        pgn_game.headers['White'] = header_dialog.white
+        pgn_game.headers['Black'] = header_dialog.black
+        pgn_game.headers['Site'] = header_dialog.site
+        pgn_game.headers['Date'] = header_dialog.date
+        pgn_game.headers['Round'] = header_dialog.round
+
+        name_file = header_dialog.date.replace("/", "-") + "-" + header_dialog.white.replace(" ", "_") \
+                    + "-" + header_dialog.black.replace(" ", "_") + ".pgn"
+        return header_dialog, name_file
 
     def check_depth_button(self, button):
         if button == 'Set Depth':
