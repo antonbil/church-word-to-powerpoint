@@ -3,6 +3,7 @@ import chess.pgn
 import chess.svg
 import PySimpleGUI as sg
 import os
+from io import StringIO
 from annotator import annotator
 
 class DataEntry:
@@ -41,7 +42,7 @@ class DataEntry:
                 self.gui.start_entry_mode = False
                 break
             if type(button) is tuple:
-                if (move_state == 0):
+                if move_state == 0:
                     # If fr_sq button is pressed
                     move_from = button
                     fr_row, fr_col = move_from
@@ -58,52 +59,61 @@ class DataEntry:
                     moved_piece = self.board.piece_type_at(chess.square(fr_col, 7 - fr_row))  # Pawn=1
                     print("selected piece", moved_piece)
                     move_state = 1
-                elif (move_state == 1):
+                elif move_state == 1:
                     move_from = button
                     to_row, to_col = move_from
                     col = chr(to_col + ord('a'))
                     row = str(7 - to_row + 1)
                     move_str = move_str + col + row
                     to_sq = chess.square(to_col, 7 - to_row)
+                    self.gui.default_board_borders(self.window)
 
-
-                    # Change the color of the "fr" board square
-                    self.gui.change_square_color(self.window, fr_row, fr_col)
-
-                    # If user move is a promote
-                    if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
-                            moved_piece == chess.PAWN:
-                        is_promote = True
-                        pyc_promo, psg_promo = self.gui.get_promo_piece(
-                            user_move, self.board.turn, True)
-                        user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
-                    else:
-                        user_move = chess.Move(fr_sq, to_sq)
-
-                    print("my move", piece, moved_piece, move_str)
-                    self.board.push(user_move)
-                    move = self.board.pop()
-                    print("added move", move)
-                    self.board.push(user_move)
-                    self.current_move = self.current_move.add_variation(move)
-                    self.moves.append(self.current_move)
-                    window = self.window.find_element('_movelist_')
-                    # window.Update('')
-                    try:
-                        window.Update(self.game.game())
-                    except:
-                        pass
+                    self.execute_move(fr_col, fr_row, fr_sq, to_col, to_row, to_sq, moved_piece, move_str)
                     move_str = ""
                     move_state = 0
 
-                    print("node:", self.current_move)
-                    self.move_squares = []
-                    self.move_squares.append(fr_col)
-                    self.move_squares.append(fr_row)
+    def execute_move(self, fr_col, fr_row, fr_sq, to_col, to_row, to_sq, moved_piece, move_str):
+        # Change the color of the "fr" board square
+        self.gui.change_square_color(self.window, to_row, to_col)
+        # If user move is a promote
+        if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
+                moved_piece == chess.PAWN:
+            is_promote = True
+            pyc_promo, psg_promo = self.gui.get_promo_piece(
+                user_move, self.board.turn, True)
+            user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
+        else:
+            user_move = chess.Move(fr_sq, to_sq)
+        if not user_move in list(self.board.legal_moves):
+            print ("illegal move")
+            return 0
+        print("my move", move_str)
+        try:
+            print("user_move", user_move)
+            self.board.push(user_move)
+        except Exception as e:
+            # illegal move
+            print("exception, e")
+            return
+        move = self.board.pop()
 
-                    self.move_squares.append(to_col)
-                    self.move_squares.append(to_row)
-                    self.display_move()
+        print("added move", move)
+        self.board.push(user_move)
+        self.current_move = self.current_move.add_variation(move)
+        self.moves.append(self.current_move)
+        window = self.window.find_element('_movelist_')
+        # window.Update('')
+        try:
+            window.Update(self.game.game())
+        except:
+            return
+        print("node:", self.current_move)
+        self.move_squares = []
+        self.move_squares.append(fr_col)
+        self.move_squares.append(fr_row)
+        self.move_squares.append(to_col)
+        self.move_squares.append(to_row)
+        self.display_move()
 
     def display_move(self):
         board = chess.Board()
