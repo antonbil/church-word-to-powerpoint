@@ -6,8 +6,10 @@ import os
 from io import StringIO
 from annotator import annotator
 
+
 class DataEntry:
     """header dialog class"""
+
     def __init__(self, gui, window):
         self.board = chess.Board()
         self.pgn_lines = []
@@ -84,8 +86,8 @@ class DataEntry:
             user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
         else:
             user_move = chess.Move(fr_sq, to_sq)
-        if not user_move in list(self.board.legal_moves):
-            print ("illegal move")
+        if user_move not in list(self.board.legal_moves):
+            print("illegal move")
             return 0
         print("my move", move_str)
         try:
@@ -102,9 +104,11 @@ class DataEntry:
         self.current_move = self.current_move.add_variation(move)
         self.moves.append(self.current_move)
         window = self.window.find_element('_movelist_')
+        exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
+        pgn_string = self.game.accept(exporter)
         # window.Update('')
         try:
-            window.Update(self.game.game())
+            window.Update(self.split_line(pgn_string))
         except:
             return
         print("node:", self.current_move)
@@ -115,6 +119,25 @@ class DataEntry:
         self.move_squares.append(to_row)
         self.display_move()
 
+    def split_line(self, line):
+        max_len_line = 58
+
+        words = line.split(" ")
+        len_line = len(words[0])
+        line=words[0]
+        words.pop(0)
+        for word in words:
+            if len_line + len(word) > max_len_line:
+                line = line+"\n"
+                len_line = len(word)
+            else:
+                len_line = len_line + 1
+                line = line + " "
+            len_line = len_line + len(word)
+            line = line + word
+        return line.split("\n")
+
+
     def display_move(self):
         board = chess.Board()
         for main_move in self.moves:
@@ -123,7 +146,7 @@ class DataEntry:
             # It copies the move played by each
             # player on the virtual board
             try:
-                #print("move", move)
+                # print("move", move)
                 board.push(move)
             except:
                 pass
@@ -133,7 +156,6 @@ class DataEntry:
         self.gui.fen_to_psg_board(self.window)
         self.gui.default_board_borders(self.window)
         self.board = board
-        if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] >0:
+        if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:
             self.gui.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
             self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
-
