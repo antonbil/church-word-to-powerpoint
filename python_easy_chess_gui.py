@@ -60,6 +60,7 @@ import platform as sys_plat
 from annotator import annotator
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
+from data_entry.data_entry import DataEntry
 from preferences.preferences import Preferences
 
 
@@ -276,7 +277,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-        ['&Mode', ['Play', 'Analyse', 'PGN-Viewer']],
+        ['&Mode', ['Play', 'Analyse', 'PGN-Viewer', 'Analyse2']],
         ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                       'Blue::board_color_k',
                                       'Green::board_color_k',
@@ -2971,6 +2972,15 @@ class EasyChessGui:
                 self.start_mode_used = ""
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_neutral)
+            if button == 'Analyse2' or self.start_mode_used == "data-entry":
+                self.main_layout = self.get_png_layout()
+                window = self.create_new_window(window)
+                self.menu_elem.Update(menu_def_pgnviewer)
+                DataEntry(self, window)
+                self.main_layout = self.get_neutral_layout()
+                self.start_mode_used = ""
+                window = self.create_new_window(window)
+                self.menu_elem.Update(menu_def_neutral)
 
             if button == 'Next':
                 print("next")
@@ -3832,7 +3842,7 @@ class EasyChessGui:
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
                     [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
-                      sg.Combo(["","entry","pgnviewer"], font=self.text_font, expand_x=True, enable_events=True,
+                      sg.Combo(["","entry","pgnviewer", "data-entry"], font=self.text_font, expand_x=True, enable_events=True,
                                readonly=False, default_value=str(self.start_mode), key='start_mode')]],
                     # [sg.CBox('Start in game-entry-mode', font=self.text_font,
                     #          key='start_mode',
