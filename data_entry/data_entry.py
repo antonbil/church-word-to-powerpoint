@@ -160,30 +160,35 @@ class DataEntry:
                     move_state = 0
 
     def analyse_manual_move(self):
+        """
+        user enters possible move, and engine adds most likely variation with score to current pgn
+        :return:
+        """
+        # display all current possible moves to user
         list_items = [l for l in list(self.board.legal_moves)]
         list_items_algebraic = [self.board.san(l) for l in list_items]
         title_window = "Get move"
         selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
         if selected_item:
+            # move is selected by user
+            # now get Move itself
             index = list_items_algebraic.index(selected_item)
             move_new = list_items[index]
+            # add previous moves with new_move to board
             board = chess.Board()
             for main_move in self.moves:
                 move = main_move.move
+                board.push(move)
 
-                # It copies the move played by each
-                # player on the virtual board
-                try:
-                    # print("move", move)
-                    board.push(move)
-                except (Exception,):
-                    pass
             board.push(move_new)
+            # get engine advice for this new situation
             advice, score, pv, pv_original, alternatives = self.gui.get_advice(board, self.callback)
+            # add all moves as coordinates in one line with spaces inbetween
             str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
-            print("add line variation", str_line3, score)
+            # ask user if he/she wants to add this new variation
             text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
                                      font=self.gui.text_font)
+            # add new variation if user agrees
             if text:
                 self.moves[-1].add_line(self.uci_string2_moves(str_line3))
                 self.moves[-1].variations[-1].comment = str(score)
