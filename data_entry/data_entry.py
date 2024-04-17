@@ -172,11 +172,15 @@ class DataEntry:
     def analyse_move(self):
         # str_line3 = "a7a6 g1f3 g8f6"
         # move2_main.add_line(UCIString2Moves(str_line3))
-        advice, score, pv, pv_original = self.gui.get_advice(self.board, self.callback)
+        advice, score, pv, pv_original, alternatives = self.gui.get_advice(self.board, self.callback)
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
-        print("pv:", pv)
         print("pv original:", pv_original)
+        a_list = list(alternatives)
+        max_alt = 3
+        if len(a_list) < 3:
+            max_alt = len(a_list)
+        print("alternatives", sorted(a_list, key=lambda item: -item[0], reverse=True)[0:max_alt])
         str_line3 = " ".join([str(m) for m in pv_original])
         print("add line variation", str_line3)
         self.moves[-1].add_line(self.uci_string2_moves(str_line3))

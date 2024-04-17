@@ -1548,6 +1548,7 @@ class EasyChessGui:
         search.daemon = True
         search.start()
         msg_line = ""
+        alternatives = {}
 
         while True:
             try:
@@ -1555,6 +1556,7 @@ class EasyChessGui:
                 if 'pv' in msg:
                     # Reformat msg, remove the word pv at the end
                     msg_line = ' '.join(msg.split()[0:-1])
+                    alternatives[msg_line] = [search.score, search.pv_original]
                     callback(msg_line)
             except Exception:
                 continue
@@ -1570,7 +1572,7 @@ class EasyChessGui:
 
         search.join()
         search.quit_engine()
-        return msg_line, search.score, search.pv, search.pv_original
+        return msg_line, search.score, search.pv, search.pv_original, alternatives
 
 
     def get_square_color_pos(self, window, row, col):
