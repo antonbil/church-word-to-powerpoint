@@ -312,7 +312,7 @@ menu_def_play = [
 menu_def_entry = [
         ['&Mode', ['Neutral']],
         ['&Mode', ['Switch mode', 'Previous', "Next"]],
-        ['&Annotate', ['Comment', 'Alternative']],
+        ['&Annotate', ['Comment', 'Alternative', "Alternative manual"]],
         ['&Game', ['Save', 'Analyse game', "Back"]],
 ]
 
@@ -1828,6 +1828,52 @@ class EasyChessGui:
             window.Element('w_base_time_k' if is_white_base else 'b_base_time_k').Update(elapse_str)
 
         return timer
+
+    def get_item_from_list(self, list_items, title_window):
+        """
+        display items from list, and return selected item if ok is rpessed
+        :param list_items: a list of strings
+        :param title_window: the title on top of the window
+        :return: the item selected if ok, empty string if cancel is pressed
+        """
+        layout = [
+            [sg.Listbox(list_items, key='game_k', expand_y=True, enable_events=True, font=self.text_font,
+                        size=(30, 20))],
+            [sg.Ok(font=self.text_font), sg.Cancel(font=self.text_font)
+                , sg.Button("Down",
+                            font=self.text_font, key='scroll_down'),
+             sg.Button("Up", key='scroll_up', font=self.text_font)
+             ]
+        ]
+        w = sg.Window(title_window, layout,
+                      icon='Icon/pecg.png')
+        index = 0
+        selected_item = ""
+        while True:
+            e, v = w.Read(timeout=10)
+            if e is None or e == 'Cancel':
+                w.Close()
+                selected_item = ""
+                break
+            if e == 'scroll_down':
+                # print("Down button")
+                index = index + 30
+                if index >= len(list_items):
+                    index = len(list_items) - 1
+                w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
+            if e == "scroll_up":
+                # print("Up button")
+                index = index - 30
+                if index < 0:
+                    index = 0
+                w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
+
+            if e == 'Ok':
+                w.Close()
+                # print(v['game_k'])
+                selected_item = v['game_k'][0]
+                break
+        return selected_item
 
     def play_game(self, window: sg.Window, board: chess.Board):
         """Play a game against an engine or human.

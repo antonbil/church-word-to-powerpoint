@@ -10,7 +10,9 @@ import collections
 
 
 class DataEntry:
-    """header dialog class"""
+    """
+    class for data-entry of new pgn-file
+    """
 
     def __init__(self, gui, window):
         self.board = chess.Board()
@@ -31,7 +33,11 @@ class DataEntry:
 
         self.execute_data_entry()
 
-    def board_to_game(self):
+    def remove_last_move(self):
+        """
+        remove last move and restore moves and board
+        :return:
+        """
         self.game = chess.pgn.Game()
         self.board.pop()
         self.moves.clear()
@@ -54,6 +60,11 @@ class DataEntry:
         self.all_moves = [m for m in self.moves]
 
     def execute_data_entry(self):
+        """
+        start the data-entry
+        main loop to enter data and add comments and variations
+        :return:
+        """
 
         self.display_move()
         move_state = 0
@@ -89,12 +100,16 @@ class DataEntry:
                 self.moves[-1].comment = text
                 self.update_pgn_display()
 
+            if button == 'Alternative manual' and self.mode == "annotate":
+                self.analyse_manual_move()
+                self.update_pgn_display()
+
             if button == 'Alternative' and self.mode == "annotate":
                 self.analyse_move()
                 self.update_pgn_display()
 
             if button == "Back" and self.mode == "entry":
-                self.board_to_game()
+                self.remove_last_move()
                 window = self.window.find_element('_movelist_')
                 exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
                 pgn_string = self.game.accept(exporter)
@@ -144,22 +159,70 @@ class DataEntry:
                     self.execute_move(fr_col, fr_row, to_col, to_row)
                     move_state = 0
 
+    def analyse_manual_move(self):
+        list_items = [l for l in list(self.board.legal_moves)]
+        list_items_algebraic = [self.board.san(l) for l in list_items]
+        title_window = "Get move"
+        selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
+        if selected_item:
+            index = list_items_algebraic.index(selected_item)
+            move_new = list_items[index]
+            board = chess.Board()
+            for main_move in self.moves:
+                move = main_move.move
+
+                # It copies the move played by each
+                # player on the virtual board
+                try:
+                    # print("move", move)
+                    board.push(move)
+                except (Exception,):
+                    pass
+            board.push(move_new)
+            advice, score, pv, pv_original, alternatives = self.gui.get_advice(board, self.callback)
+            str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
+            print("add line variation", str_line3, score)
+            text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
+                                     font=self.gui.text_font)
+            if text:
+                self.moves[-1].add_line(self.uci_string2_moves(str_line3))
+                self.moves[-1].variations[-1].comment = str(score)
+
     def uci_string2_moves(self, str_moves):
+        """
+        change moves in coordinates to uci-moves
+        :param str_moves: string with all moves (using coordinates), separated by spaces
+        :return: uci-representation of list of moves
+        """
         return [chess.Move.from_uci(move) for move in str_moves.split()]
 
     def execute_previous_move(self, move_number):
+        """
+        ececute previous move (in analysis-mode)
+        :param move_number: the current move-number
+        :return:
+        """
         if move_number > 0:
             self.move_number = move_number - 1
             self.moves.pop()
             self.define_moves_squares()
             self.display_move()
+        else:
+            sg.popup_error("Already at the first move", title="Error previous move", font=self.gui.text_font)
 
     def execute_next_move(self, move_number):
+        """
+        execute next move (in analysis-mode)
+        :param move_number:
+        :return:
+        """
         if move_number < len(self.all_moves) - 1:
             self.move_number = move_number + 1
             self.moves.append(self.all_moves[self.move_number])
             self.define_moves_squares()
             self.display_move()
+        else:
+            sg.popup_error("Already at the last move", title="Error next move", font=self.gui.text_font)
 
     def callback(self, advice):
         self.window.Read(timeout=5)
@@ -170,6 +233,9 @@ class DataEntry:
         self.window.Read(timeout=10)
 
     def analyse_move(self):
+        if len(self.moves) >= len(self.all_moves):
+            sg.popup_error("No analysis for last move", title="Error analysis", font=self.gui.text_font)
+            return
         # str_line3 = "a7a6 g1f3 g8f6"
         # move2_main.add_line(UCIString2Moves(str_line3))
         advice, score, pv, pv_original, alternatives = self.gui.get_advice(self.board, self.callback)
@@ -187,7 +253,7 @@ class DataEntry:
         print("alternatives2", [[l[0],l[1][0]] for l in alt_2])
         str_line3 = " ".join([str(m) for m in pv_original])
         print("add line variation", str_line3, score)
-        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",font=self.gui.text_font)
+        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?", font=self.gui.text_font)
         if text:
             self.moves[-1].add_line(self.uci_string2_moves(str_line3))
             self.moves[-1].variations[-1].comment = str(score)

@@ -57,44 +57,13 @@ class PGNViewer:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            list_items = self.game_descriptions
             if button == "Select":
-                layout = [
-                    [sg.Listbox(self.game_descriptions, key='game_k', expand_y=True, enable_events=True, font=self.gui.text_font,
-                              size=(30, 20))],
-                    [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)
-                        , sg.Button("Down",
-                                    font=self.gui.text_font, key='scroll_down'),
-                     sg.Button("Up", key='scroll_up', font=self.gui.text_font)
-                     ]
-                ]
-
-                w = sg.Window("Read PGN", layout,
-                              icon='Icon/pecg.png')
-                index = 0
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None or e == 'Cancel':
-                        w.Close()
-                        break
-                    if e == 'scroll_down':
-                        # print("Down button")
-                        index = index + 30
-                        if index >= len(self.game_descriptions):
-                            index = len(self.game_descriptions) - 1
-                        w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
-                    if e == "scroll_up":
-                        #print("Up button")
-                        index = index - 30
-                        if index < 0:
-                            index = 0
-                        w.find_element('game_k').Update(set_to_index=index, scroll_to_index=index - 3)
-
-                    if e == 'Ok':
-                        w.Close()
-                        #print(v['game_k'])
-                        self.my_game = v['game_k'][0]
-                        self.select_game()
-                        break
+                title_window = "Read PGN"
+                selected_item = self.gui.get_item_from_list(list_items, title_window)
+                if selected_item:
+                    self.my_game = selected_item
+                    self.select_game()
 
             if button == 'Read':
                 # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
@@ -150,9 +119,9 @@ class PGNViewer:
                         self.move_number = self.execute_next_move(self.move_number)
 
             if button == 'Next Game':
-                index = self.game_descriptions.index(self.my_game)
-                if index < len(self.game_descriptions) - 1:
-                    self.my_game = self.game_descriptions[index + 1]
+                index = list_items.index(self.my_game)
+                if index < len(list_items) - 1:
+                    self.my_game = list_items[index + 1]
                     self.select_game()
 
             if button == 'Analyse move':
@@ -164,9 +133,9 @@ class PGNViewer:
             if button == "Analyse db":
                 self.analyse_db()
             if button == 'Previous Game':
-                index = self.game_descriptions.index(self.my_game)
+                index = list_items.index(self.my_game)
                 if index > 0:
-                    self.my_game = self.game_descriptions[index - 1]
+                    self.my_game = list_items[index - 1]
                     self.select_game()
 
             if button == 'Next':
