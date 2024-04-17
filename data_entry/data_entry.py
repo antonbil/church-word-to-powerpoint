@@ -164,8 +164,8 @@ class DataEntry:
         :return:
         """
         # display all current possible moves to user
-        list_items = [l for l in list(self.board.legal_moves)]
-        list_items_algebraic = [self.board.san(l) for l in list_items]
+        list_items = [list_item for list_item in list(self.board.legal_moves)]
+        list_items_algebraic = [self.board.san(list_item) for list_item in list_items]
         title_window = "Get move"
         selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
         if selected_item:
@@ -247,19 +247,20 @@ class DataEntry:
         move_number = self.move_number // 2
         test = False
         if test:
-            # test-code to exaine alternatives; not clear yet what scores in Stockfish really mean, so not use it yet
-            a_list = [l for l in alternatives.items() if len(l[0].split(" ")) > 7]
+            # test-code to examine alternatives; not clear yet what scores in Stockfish really mean, so not use it yet
+            a_list = [item for item in alternatives.items() if len(item[0].split(" ")) > 7]
             max_alt = 3
             if len(a_list) < 3:
                 max_alt = len(a_list)
             reverse_sort = not self.board.turn == chess.WHITE
             alt_1 = sorted(a_list, key=lambda item: item[1][0], reverse=reverse_sort)[0:max_alt]
             alt_2 = sorted(a_list, key=lambda item: item[1][0], reverse=not reverse_sort)[0:max_alt]
-            print("alternatives", [[l[0],l[1][0]] for l in alt_1])
-            print("alternatives2", [[l[0],l[1][0]] for l in alt_2])
+            print("alternatives", [[list_item[0], list_item[1][0]] for list_item in alt_1])
+            print("alternatives2", [[list_item[0], list_item[1][0]] for list_item in alt_2])
         str_line3 = " ".join([str(m) for m in pv_original])
         print("add line variation", str_line3, score)
-        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?", font=self.gui.text_font)
+        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
+                                 font=self.gui.text_font)
         if text:
             self.moves[-1].add_line(self.uci_string2_moves(str_line3))
             self.moves[-1].variations[-1].comment = str(score)
@@ -286,7 +287,6 @@ class DataEntry:
         window.Update('')
         window.Update(
             "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
-
 
     def execute_move(self, fr_col, fr_row, to_col, to_row):
         fr_sq = chess.square(fr_col, 7 - fr_row)
