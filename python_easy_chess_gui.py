@@ -311,6 +311,8 @@ menu_def_play = [
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
         ['&Mode', ['Neutral']],
+        ['&Mode', ['Switch mode', 'Previous', "Next"]],
+        ['&Annotate', ['Comment', 'Alternative']],
         ['&Game', ['Save', 'Analyse game', "Back"]],
 ]
 
@@ -439,6 +441,7 @@ class RunEngine(threading.Thread):
         :param max_depth:
         """
         threading.Thread.__init__(self)
+        self.pv_original = []
         self._kill = threading.Event()
         self.engine_config_file = engine_config_file
         self.engine_path_and_file = engine_path_and_file
@@ -595,6 +598,7 @@ class RunEngine(threading.Thread):
                                 spv = self.short_variation_san()
                                 self.pv = spv
                             else:
+                                self.pv_original = [m for m in self.pv]
                                 self.pv = self.board.variation_san(self.pv)
 
                             self.eng_queue.put('{} pv'.format(self.pv))
@@ -652,6 +656,7 @@ class RunEngine(threading.Thread):
                     spv = self.short_variation_san()
                     self.pv = spv
                 else:
+                    self.pv_original = [m for m in self.pv]
                     self.pv = self.board.variation_san(self.pv)
             except Exception:
                 self.pv = None
@@ -696,6 +701,7 @@ class RunEngine(threading.Thread):
         """Returns variation in san but without move numbers."""
         if self.pv is None:
             return None
+        self.pv_original = [m for m in self.pv]
 
         short_san_pv = []
         tmp_board = self.board.copy()
@@ -1564,7 +1570,7 @@ class EasyChessGui:
 
         search.join()
         search.quit_engine()
-        return msg_line, search.score
+        return msg_line, search.score, search.pv, search.pv_original
 
 
     def get_square_color_pos(self, window, row, col):

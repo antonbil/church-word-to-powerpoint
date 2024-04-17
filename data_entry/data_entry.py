@@ -17,9 +17,13 @@ class DataEntry:
         self.pgn_lines = []
         self.positions = []
         self.gui = gui
+        self.move_number = 0
+
+        self.mode = "entry"
         window.find_element('_gamestatus_').Update('Mode     PGN-Entry')
         self.window = window
         self.moves = []
+        self.all_moves = []
         self.game = chess.pgn.Game()
         self.game.setup(self.board)
         self.current_move = self.game.game()
@@ -47,6 +51,7 @@ class DataEntry:
             self.moves.append(node)
             self.board.push(move)
         self.current_move = node
+        self.all_moves = [m for m in self.moves]
 
     def execute_data_entry(self):
 
@@ -54,6 +59,7 @@ class DataEntry:
         move_state = 0
         fr_row = 0
         fr_col = 0
+        self.mode = "entry"
 
         while True:
             button, value = self.window.Read(timeout=50)
@@ -61,7 +67,33 @@ class DataEntry:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
-            if button == "Back":
+            if button == 'Switch mode':
+                window_element = self.window.find_element('_gamestatus_')
+                if self.mode == "entry":
+                    self.mode = "annotate"
+                    self.move_number = len(self.all_moves) - 1
+                    window_element.Update('Mode     PGN-Annotate')
+                else:
+                    self.mode = "entry"
+                    window_element.Update('Mode     PGN-Entry')
+                self.moves = [m for m in self.all_moves]
+                self.display_move()
+            if button == 'Next' and self.mode == "annotate":
+                self.execute_next_move(self.move_number)
+
+            if button == 'Previous' and self.mode == "annotate":
+                self.execute_previous_move(self.move_number)
+
+            if button == 'Comment' and self.mode == "annotate":
+                text = sg.popup_get_text('Enter comment', title="Input comment")
+                self.moves[-1].comment = text
+                self.update_pgn_display()
+
+            if button == 'Alternative' and self.mode == "annotate":
+                self.analyse_move()
+                self.update_pgn_display()
+
+            if button == "Back" and self.mode == "entry":
                 self.board_to_game()
                 window = self.window.find_element('_movelist_')
                 exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
@@ -83,7 +115,17 @@ class DataEntry:
                 value_black = value['_Black_']
                 self.gui.save_game_pgn(value_white, value_black, self.game)
 
-            if type(button) is tuple:
+            if type(button) is tuple and self.mode == "annotate":
+                move_from = button
+                fr_row, fr_col = move_from
+
+                if fr_col < 4:
+                    self.execute_previous_move(self.move_number)
+                else:
+                    self.execute_next_move(self.move_number)
+
+                pass
+            if type(button) is tuple and self.mode == "entry":
                 if move_state == 0:
                     # If fr_sq button is pressed
                     move_from = button
@@ -101,6 +143,67 @@ class DataEntry:
 
                     self.execute_move(fr_col, fr_row, to_col, to_row)
                     move_state = 0
+
+    def uci_string2_moves(self, str_moves):
+        return [chess.Move.from_uci(move) for move in str_moves.split()]
+
+    def execute_previous_move(self, move_number):
+        if move_number > 0:
+            self.move_number = move_number - 1
+            self.moves.pop()
+            self.define_moves_squares()
+            self.display_move()
+
+    def execute_next_move(self, move_number):
+        if move_number < len(self.all_moves) - 1:
+            self.move_number = move_number + 1
+            self.moves.append(self.all_moves[self.move_number])
+            self.define_moves_squares()
+            self.display_move()
+
+    def callback(self, advice):
+        self.window.Read(timeout=5)
+        window = self.window.find_element('comment_k')
+        window.Update('')
+        window.Update(
+            advice, append=True, disabled=True)
+        self.window.Read(timeout=10)
+
+    def analyse_move(self):
+        # str_line3 = "a7a6 g1f3 g8f6"
+        # move2_main.add_line(UCIString2Moves(str_line3))
+        advice, score, pv, pv_original = self.gui.get_advice(self.board, self.callback)
+        is_black = not self.board.turn == chess.WHITE
+        move_number = self.move_number // 2
+        print("pv:", pv)
+        print("pv original:", pv_original)
+        str_line3 = " ".join([str(m) for m in pv_original])
+        print("add line variation", str_line3)
+        self.moves[-1].add_line(self.uci_string2_moves(str_line3))
+        moves = advice.split(" ")
+        res_moves = []
+        if is_black:
+            res_moves.append("{}... {}".format(move_number, moves.pop(0)))
+            is_black = False
+        move_number = move_number + 1
+        previous = ""
+        for move in moves:
+            if is_black:
+                previous = previous + " " + move
+                move_number = move_number + 1
+                res_moves.append(previous)
+                previous = ""
+            else:
+                previous = "{}. {}".format(move_number, move)
+            is_black = not is_black
+        if previous:
+            res_moves.append(previous)
+
+        window = self.window.find_element('comment_k')
+        window.Update('')
+        window.Update(
+            "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
+
 
     def execute_move(self, fr_col, fr_row, to_col, to_row):
         fr_sq = chess.square(fr_col, 7 - fr_row)
@@ -133,14 +236,8 @@ class DataEntry:
         self.board.push(user_move)
         self.current_move = self.current_move.add_variation(move)
         self.moves.append(self.current_move)
-        window = self.window.find_element('_movelist_')
-        exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
-        pgn_string = self.game.accept(exporter)
-        # window.Update('')
-        try:
-            window.Update(self.split_line(pgn_string))
-        except (Exception, ):
-            return
+        self.all_moves.append(self.current_move)
+        self.update_pgn_display()
 
         self.move_squares = []
         self.move_squares.append(fr_col)
@@ -148,6 +245,25 @@ class DataEntry:
         self.move_squares.append(to_col)
         self.move_squares.append(to_row)
         self.display_move()
+
+    def define_moves_squares(self):
+        move_str = str(self.moves[-1].move)
+        fr_col = ord(move_str[0]) - ord('a')
+        fr_row = 8 - int(move_str[1])
+        self.move_squares = []
+        self.move_squares.append(fr_col)
+        self.move_squares.append(fr_row)
+
+        fr_col = ord(move_str[2]) - ord('a')
+        fr_row = 8 - int(move_str[3])
+        self.move_squares.append(fr_col)
+        self.move_squares.append(fr_row)
+
+    def update_pgn_display(self):
+        window = self.window.find_element('_movelist_')
+        exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
+        pgn_string = self.game.accept(exporter)
+        window.Update(self.split_line(pgn_string))
 
     def split_line(self, line):
         max_len_line = 58
@@ -169,6 +285,9 @@ class DataEntry:
 
     def display_move(self):
         board = chess.Board()
+        if len(self.moves) > 0:
+            moves_ = " ".join(str(self.moves[-1]).split(" ")[:2])
+            self.window.find_element('b_base_time_k').Update(moves_)
         for main_move in self.moves:
             move = main_move.move
 

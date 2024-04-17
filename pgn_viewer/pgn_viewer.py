@@ -250,7 +250,7 @@ class PGNViewer:
         self.window.Read(timeout=10)
 
     def analyse_move(self):
-        advice, score = self.gui.get_advice(self.board, self.callback)
+        advice, score, pv = self.gui.get_advice(self.board, self.callback)
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
         moves = advice.split(" ")
