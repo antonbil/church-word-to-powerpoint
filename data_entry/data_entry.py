@@ -180,7 +180,8 @@ class DataEntry:
         max_alt = 3
         if len(a_list) < 3:
             max_alt = len(a_list)
-        print("alternatives", sorted(a_list, key=lambda item: -item[0], reverse=True)[0:max_alt])
+        reverse_sort = not self.board.turn == chess.WHITE
+        print("alternatives", sorted(a_list, key=lambda item: item[0], reverse=reverse_sort)[0:max_alt])
         str_line3 = " ".join([str(m) for m in pv_original])
         print("add line variation", str_line3)
         self.moves[-1].add_line(self.uci_string2_moves(str_line3))

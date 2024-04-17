@@ -1572,6 +1572,7 @@ class EasyChessGui:
 
         search.join()
         search.quit_engine()
+        alternatives[msg_line] = [search.score, search.pv_original]
         return msg_line, search.score, search.pv, search.pv_original, alternatives
 
 
