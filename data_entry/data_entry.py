@@ -176,14 +176,17 @@ class DataEntry:
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
         print("pv original:", pv_original)
-        a_list = list(alternatives)
+        a_list = [l for l in alternatives.items() if len(l[0].split(" ")) > 7]
         max_alt = 3
         if len(a_list) < 3:
             max_alt = len(a_list)
         reverse_sort = not self.board.turn == chess.WHITE
-        print("alternatives", sorted(a_list, key=lambda item: item[0], reverse=reverse_sort)[0:max_alt])
+        alt_1 = sorted(a_list, key=lambda item: item[1][0], reverse=reverse_sort)[0:max_alt]
+        alt_2 = sorted(a_list, key=lambda item: item[1][0], reverse=not reverse_sort)[0:max_alt]
+        print("alternatives", [[l[0],l[1][0]] for l in alt_1])
+        print("alternatives2", [[l[0],l[1][0]] for l in alt_2])
         str_line3 = " ".join([str(m) for m in pv_original])
-        print("add line variation", str_line3)
+        print("add line variation", str_line3, score)
         self.moves[-1].add_line(self.uci_string2_moves(str_line3))
         moves = advice.split(" ")
         res_moves = []
