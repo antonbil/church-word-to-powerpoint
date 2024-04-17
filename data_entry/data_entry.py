@@ -85,7 +85,7 @@ class DataEntry:
                 self.execute_previous_move(self.move_number)
 
             if button == 'Comment' and self.mode == "annotate":
-                text = sg.popup_get_text('Enter comment', title="Input comment")
+                text = sg.popup_get_text('Enter comment', title="Input comment", font=self.gui.text_font)
                 self.moves[-1].comment = text
                 self.update_pgn_display()
 
@@ -187,7 +187,7 @@ class DataEntry:
         print("alternatives2", [[l[0],l[1][0]] for l in alt_2])
         str_line3 = " ".join([str(m) for m in pv_original])
         print("add line variation", str_line3, score)
-        text = sg.popup_get_text('variation to be added:', advice, title="Add variation?")
+        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",font=self.gui.text_font)
         if text:
             self.moves[-1].add_line(self.uci_string2_moves(str_line3))
             self.moves[-1].variations[-1].comment = str(score)
