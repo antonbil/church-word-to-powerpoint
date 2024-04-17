@@ -187,7 +187,10 @@ class DataEntry:
         print("alternatives2", [[l[0],l[1][0]] for l in alt_2])
         str_line3 = " ".join([str(m) for m in pv_original])
         print("add line variation", str_line3, score)
-        self.moves[-1].add_line(self.uci_string2_moves(str_line3))
+        text = sg.popup_get_text('variation to be added:', advice, title="Add variation?")
+        if text:
+            self.moves[-1].add_line(self.uci_string2_moves(str_line3))
+            self.moves[-1].variations[-1].comment = str(score)
         moves = advice.split(" ")
         res_moves = []
         if is_black:
