@@ -62,6 +62,7 @@ from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from data_entry.data_entry import DataEntry
 from preferences.preferences import Preferences
+from common import menu_def_pgnviewer
 
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
@@ -310,17 +311,13 @@ menu_def_play = [
 ]
 # (3) Mode: game-entry, info: hide
 menu_def_entry = [
-        ['&Mode', ['Neutral']],
-        ['&Mode', ['Switch mode', 'Previous', "Next"]],
+        ['&Mode', ['Neutral', "PGN-Viewer"]],
+        ['&Entry', ['Switch mode', 'Previous', "Next"]],
         ['&Annotate', ['Comment', 'Alternative', "Alternative manual"]],
         ['&Game', ['Save', 'Analyse game', "Back"]],
 ]
 
-menu_def_pgnviewer = [
-        ['&Mode', ['Neutral']],
-        ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
-        ['Tools', ['Analyse db', 'Analyse game', 'Analyse move']]
-]
+
 
 
 class Timer:

@@ -7,6 +7,9 @@ from io import StringIO
 from annotator import annotator
 import copy
 import collections
+from pgn_viewer.pgn_viewer import PGNViewer
+from common import menu_def_pgnviewer
+
 
 
 class DataEntry:
@@ -78,6 +81,15 @@ class DataEntry:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            if button == 'PGN-Viewer':
+                name_file = "tempsave.pgn"
+                with open(name_file, mode='w') as f:
+                    f.write('{}\n\n'.format(self.game))
+                self.gui.menu_elem.Update(menu_def_pgnviewer)
+                self.gui.preferences.preferences["pgn_file"] = name_file
+                self.gui.preferences.preferences["pgn_game"] = ""
+                PGNViewer(self.gui, self.window)
+
             if button == 'Switch mode':
                 window_element = self.window.find_element('_gamestatus_')
                 if self.mode == "entry":
