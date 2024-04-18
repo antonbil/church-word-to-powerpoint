@@ -171,15 +171,18 @@ class DataEntry:
                 if len(variations) > 1:
                     print("number variations > 1")
                     main = variations[-1]
+                    move_number = len(self.moves)
                     self.moves = []
                     self.all_moves = []
                     current_move.promote_to_main(main)
                     node = self.game.root()
+                    i = 1
                     while len(node.variations) > 0:
                         node = node.variations[0]
-                        # print("node", node)
-                        self.moves.append(node)
+                        if i <= move_number:
+                            self.moves.append(node)
                         self.all_moves.append(node)
+                        i = i + 1
                     self.current_move = node
                     self.update_pgn_display()
 
