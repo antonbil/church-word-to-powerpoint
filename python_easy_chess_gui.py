@@ -2871,19 +2871,13 @@ class EasyChessGui:
             [sg.Text('Mode     PGN-Viewer', size=(36, 1), font=self.text_font, key='_gamestatus_')],
             [sg.Text('White', size=(7, 1), font=self.text_font),
              sg.InputText('Human', font=self.text_font, key='_White_',
-                          size=(24, 1)),
-             sg.Text('', font=self.text_font, key='w_base_time_k',
-                     size=(11, 1), relief='sunken'),
-             sg.Text('', font=self.text_font, key='w_elapse_k', size=(7, 1),
-                     relief='sunken')
+                          size=(24, 1)),sg.Frame('', [[]], key="button_frame")
              ],
             [sg.Text('Black', size=(7, 1), font=self.text_font),
              sg.InputText('Computer', font=self.text_font, key='_Black_',
                           size=(24, 1)),
              sg.Text('', font=self.text_font, key='b_base_time_k',
-                     size=(11, 1), relief='sunken'),
-             sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
-                     relief='sunken')
+                     size=(11, 1), relief='sunken')
              ],
             [sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
@@ -2914,6 +2908,13 @@ class EasyChessGui:
             #          font=self.text_font, relief='sunken')],
         ]
         return board_controls
+
+    def buttonbar_add_buttons(self, window, buttons):
+        for child in window.find_element('button_frame').widget.winfo_children():
+            #print("child:", child)
+            child.destroy()
+        window.extend_layout(window['button_frame'], [buttons])
+        window.Refresh()
 
     def set_default_adviser_engine(self):
         try:

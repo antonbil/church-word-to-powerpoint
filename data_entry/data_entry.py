@@ -17,6 +17,8 @@ class DataEntry:
     """
 
     def __init__(self, gui, window, file_name = ""):
+        self.button_nr = 0
+        self.button_ids = {}
         self.board = chess.Board()
         self.pgn_lines = []
         self.positions = []
@@ -81,6 +83,12 @@ class DataEntry:
         # self.current_move = node
         # self.all_moves = [m for m in self.moves]
 
+    def new_button(self, title):
+        self.button_nr = self.button_nr + 1
+        id = "_id{}_".format(self.button_nr)
+        self.button_ids[id] = title
+        return sg.Button(title, key=id)
+
     def execute_data_entry(self):
         """
         start the data-entry
@@ -92,7 +100,7 @@ class DataEntry:
         move_state = 0
         fr_row = 0
         fr_col = 0
-        self.mode = "entry"
+        self.set_entry_mode()
 
         while True:
             button, value = self.window.Read(timeout=50)
@@ -114,19 +122,22 @@ class DataEntry:
                 window_element = self.window.find_element('_gamestatus_')
                 if self.mode == "entry":
                     self.mode = "annotate"
+                    buttons = [self.new_button("Previous"), self.new_button("Next")]
+                    self.gui.buttonbar_add_buttons(self.window, buttons)
+
                     self.gui.menu_elem.Update(menu_def_annotate)
                     self.move_number = len(self.all_moves) - 1
                     window_element.Update('Mode     PGN-Annotate')
                 else:
-                    self.mode = "entry"
+                    self.set_entry_mode()
                     self.gui.menu_elem.Update(menu_def_entry)
                     window_element.Update('Mode     PGN-Entry')
                 self.moves = [m for m in self.all_moves]
                 self.display_move()
-            if button == 'Next' and self.mode == "annotate":
+            if self.get_button_id(button) == 'Next' and self.mode == "annotate":
                 self.execute_next_move(self.move_number)
 
-            if button == 'Previous' and self.mode == "annotate":
+            if self.get_button_id(button) == 'Previous' and self.mode == "annotate":
                 self.execute_previous_move(self.move_number)
 
             if button == 'Comment' and self.mode == "annotate":
@@ -143,7 +154,7 @@ class DataEntry:
                 self.analyse_move()
                 self.update_pgn_display()
 
-            if button == "Back" and self.mode == "entry":
+            if self.get_button_id(button) == "Back" and self.mode == "entry":
                 self.remove_last_move()
                 window = self.window.find_element('_movelist_')
                 exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
@@ -215,6 +226,18 @@ class DataEntry:
 
                     self.execute_move(fr_col, fr_row, to_col, to_row)
                     move_state = 0
+
+    def get_button_id(self, button):
+        if button in self.button_ids:
+            return self.button_ids[button]
+        if button in self.button_ids.values():
+            return button
+        return "Nonsense..."
+
+    def set_entry_mode(self):
+        self.mode = "entry"
+        buttons = [self.new_button("Back")]
+        self.gui.buttonbar_add_buttons(self.window, buttons)
 
     def promote_variation_to_mainline(self, current_move, index):
         main = current_move.variations[index]
