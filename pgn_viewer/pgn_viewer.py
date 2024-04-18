@@ -4,6 +4,7 @@ import chess.svg
 import PySimpleGUI as sg
 import os
 from annotator import annotator
+from common import menu_def_entry
 
 class PGNViewer:
     """header dialog class"""
@@ -32,7 +33,8 @@ class PGNViewer:
             self.open_pgn_file(file_name)
             self.pgn = file_name
             self.my_game = game_name
-            self.select_game()
+            if game_name:
+                self.select_game()
 
         except:
             pass
@@ -56,6 +58,16 @@ class PGNViewer:
                 is_exit_game = True
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
+                break
+            if button == 'Analyse':
+                # import later, to avoid recursive import
+                from data_entry.data_entry import DataEntry
+                name_file = "tempsave.pgn"
+                if not name_file == self.pgn:
+                    with open(name_file, mode='w') as f:
+                        f.write('{}\n\n'.format(self.game))
+                self.gui.menu_elem.Update(menu_def_entry)
+                DataEntry(self.gui, self.window, name_file)
                 break
             list_items = self.game_descriptions
             if button == "Select":
@@ -246,16 +258,19 @@ class PGNViewer:
         window.Update(
             "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
 
-
     def select_game(self):
         print("open pgn:", self.pgn)
         pgn = open(self.pgn)
         # Reading the game
         game1 = chess.pgn.read_game(pgn)
+        start_game = game1
         while not (self.get_description_pgn(game1) == self.my_game):
             game1 = chess.pgn.read_game(pgn)
             if game1 is None:
                 break  # end of file
+        if not game1:
+            self.init_game(start_game)
+            return
         self.init_game(game1)
         self.gui.save_pgn_game_in_preferences(self.my_game)
         self.display_move()
@@ -264,6 +279,7 @@ class PGNViewer:
         pgn = open(pgn_file)
         # Reading the game
         game = chess.pgn.read_game(pgn)
+        self.game = game
         self.game_descriptions = []
         self.game_descriptions.append(self.get_description_pgn(game))
         self.my_game = self.get_description_pgn(game)

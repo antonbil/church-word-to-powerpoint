@@ -17,7 +17,7 @@ class DataEntry:
     class for data-entry of new pgn-file
     """
 
-    def __init__(self, gui, window):
+    def __init__(self, gui, window, file_name = ""):
         self.board = chess.Board()
         self.pgn_lines = []
         self.positions = []
@@ -34,11 +34,25 @@ class DataEntry:
         self.current_move = self.game.game()
         self.move_squares = [0, 0, 0, 0]
 
+        if file_name:
+            pgn = open(file_name)
+            self.game = chess.pgn.read_game(pgn)
+            node = self.game.root()
+            while len(node.variations) > 0:
+                node = node.variations[0]
+                #print("node", node)
+                self.moves.append(node)
+                self.all_moves.append(node)
+            self.current_move = node
+            self.update_pgn_display()
+            #print("end-node", node)
+
         self.execute_data_entry()
 
     def remove_last_move(self):
         """
         remove last move and restore moves and board
+        only restores one line: the main-line currently displayed on the self. board
         :return:
         """
         self.game = chess.pgn.Game()
@@ -89,6 +103,7 @@ class DataEntry:
                 self.gui.preferences.preferences["pgn_file"] = name_file
                 self.gui.preferences.preferences["pgn_game"] = ""
                 PGNViewer(self.gui, self.window)
+                break
 
             if button == 'Switch mode':
                 window_element = self.window.find_element('_gamestatus_')
@@ -389,7 +404,7 @@ class DataEntry:
             # It copies the move played by each
             # player on the virtual board
             try:
-                # print("move", move)
+                #print("move", move)
                 board.push(move)
             except (Exception, ):
                 pass

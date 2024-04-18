@@ -62,7 +62,7 @@ from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from data_entry.data_entry import DataEntry
 from preferences.preferences import Preferences
-from common import menu_def_pgnviewer
+from common import menu_def_pgnviewer, menu_def_entry
 
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
@@ -309,16 +309,6 @@ menu_def_play = [
         ['&Engine', ['Go', 'Move Now', 'Set Depth']],
         ['&Help', ['GUI']],
 ]
-# (3) Mode: game-entry, info: hide
-menu_def_entry = [
-        ['&Mode', ['Neutral', "PGN-Viewer"]],
-        ['&Entry', ['Switch mode', 'Previous', "Next"]],
-        ['&Annotate', ['Comment', 'Alternative', "Alternative manual"]],
-        ['&Game', ['Save', 'Analyse game', "Back"]],
-]
-
-
-
 
 class Timer:
     def __init__(self, tc_type: str = 'fischer', base: int = 300000, inc: int = 10000, period_moves: int = 40) -> None:
@@ -3050,7 +3040,7 @@ class EasyChessGui:
                 self.main_layout = self.get_png_layout()
                 window = self.create_new_window(window)
                 self.menu_elem.Update(menu_def_entry)
-                DataEntry(self, window)
+                DataEntry(self, window)#, "2024-04-11-leo-anton.pgn")
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = ""
                 window = self.create_new_window(window)
