@@ -55,26 +55,32 @@ class DataEntry:
         only restores one line: the main-line currently displayed on the self. board
         :return:
         """
-        self.game = chess.pgn.Game()
-        self.board.pop()
-        self.moves.clear()
-
-        # Undo all moves.
-        switchyard = collections.deque()
-        while self.board.move_stack:
-            switchyard.append(self.board.pop())
-
-        self.game.setup(self.board)
-        node = self.game
-
-        # Replay all moves.
-        while switchyard:
-            move = switchyard.pop()
-            node = node.add_variation(move)
-            self.moves.append(node)
-            self.board.push(move)
-        self.current_move = node
-        self.all_moves = [m for m in self.moves]
+        parent = self.current_move.parent
+        parent.variations.remove(self.current_move)
+        self.moves.pop()
+        self.all_moves.pop()
+        self.current_move = parent
+        # return
+        # self.game = chess.pgn.Game()
+        # self.board.pop()
+        # self.moves.clear()
+        #
+        # # Undo all moves.
+        # switchyard = collections.deque()
+        # while self.board.move_stack:
+        #     switchyard.append(self.board.pop())
+        #
+        # self.game.setup(self.board)
+        # node = self.game
+        #
+        # # Replay all moves.
+        # while switchyard:
+        #     move = switchyard.pop()
+        #     node = node.add_variation(move)
+        #     self.moves.append(node)
+        #     self.board.push(move)
+        # self.current_move = node
+        # self.all_moves = [m for m in self.moves]
 
     def execute_data_entry(self):
         """
@@ -138,7 +144,7 @@ class DataEntry:
             if button == "Back" and self.mode == "entry":
                 self.remove_last_move()
                 window = self.window.find_element('_movelist_')
-                exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
+                exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
                 pgn_string = self.game.accept(exporter)
                 # window.Update('')
                 try:
