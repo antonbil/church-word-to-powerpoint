@@ -63,6 +63,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from data_entry.data_entry import DataEntry
 from preferences.preferences import Preferences
 from common import menu_def_pgnviewer, menu_def_entry
+from toolbar import ToolBar
 
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
@@ -726,6 +727,8 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine = '/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
                  max_depth=MAX_DEPTH):
+        self.game = None
+        self.toolbar = ToolBar()
         self.theme = theme
         self.engine = engine
         self.entry_game = True
@@ -2908,13 +2911,6 @@ class EasyChessGui:
             #          font=self.text_font, relief='sunken')],
         ]
         return board_controls
-
-    def buttonbar_add_buttons(self, window, buttons):
-        for child in window.find_element('button_frame').widget.winfo_children():
-            #print("child:", child)
-            child.destroy()
-        window.extend_layout(window['button_frame'], [buttons])
-        window.Refresh()
 
     def set_default_adviser_engine(self):
         try:
