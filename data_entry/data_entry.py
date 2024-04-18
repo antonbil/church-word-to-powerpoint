@@ -9,8 +9,7 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-
-
+from common import menu_def_entry, menu_def_annotate
 
 class DataEntry:
     """
@@ -111,14 +110,16 @@ class DataEntry:
                 PGNViewer(self.gui, self.window)
                 break
 
-            if button == 'Switch mode':
+            if button == 'Data entry' or button == 'Annotate':
                 window_element = self.window.find_element('_gamestatus_')
                 if self.mode == "entry":
                     self.mode = "annotate"
+                    self.gui.menu_elem.Update(menu_def_annotate)
                     self.move_number = len(self.all_moves) - 1
                     window_element.Update('Mode     PGN-Annotate')
                 else:
                     self.mode = "entry"
+                    self.gui.menu_elem.Update(menu_def_entry)
                     window_element.Update('Mode     PGN-Entry')
                 self.moves = [m for m in self.all_moves]
                 self.display_move()
