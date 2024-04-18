@@ -130,7 +130,8 @@ class DataEntry:
                 self.execute_previous_move(self.move_number)
 
             if button == 'Comment' and self.mode == "annotate":
-                text = sg.popup_get_text('Enter comment', title="Input comment", font=self.gui.text_font)
+                text = sg.popup_get_text('Enter comment', default_text=self.moves[-1].comment,
+                                         title="Input comment", font=self.gui.text_font)
                 self.moves[-1].comment = text
                 self.update_pgn_display()
 

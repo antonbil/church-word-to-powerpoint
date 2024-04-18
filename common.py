@@ -1,13 +1,13 @@
 menu_def_entry = [
         ['&Mode', ['Neutral', "PGN-Viewer", 'Annotate']],
-        ['&Entry', ['Previous', "Next"]],
-        ['&Game', ['Save', 'Analyse game', "Back"]],
+        ['&Entry', ['Previous', "Next", "Back"]],
+        ['&Game', ['Save', 'Analyse game']],
 ]
 menu_def_annotate = [
         ['&Mode', ['Neutral', "PGN-Viewer", 'Data entry']],
         ['&Entry', ["Promote alternative"]],
         ['&Annotate', ['Comment', 'Alternative', "Alternative manual"]],
-        ['&Game', ['Save', 'Analyse game', "Back"]],
+        ['&Game', ['Save', 'Analyse game']],
 ]
 
 menu_def_pgnviewer = [
