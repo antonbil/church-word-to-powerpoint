@@ -51,6 +51,8 @@ class PGNViewer:
     def execute_pgn(self):
 
         self.display_move()
+        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")]
+        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
         while True:
             button, value = self.window.Read(timeout=50)
@@ -150,9 +152,9 @@ class PGNViewer:
                     self.my_game = list_items[index - 1]
                     self.select_game()
 
-            if button == 'Next':
+            if self.gui.toolbar.get_button_id(button) == 'Next':
                 self.move_number = self.execute_next_move(self.move_number)
-            if button == 'Previous':
+            if self.gui.toolbar.get_button_id(button) == 'Previous':
                 self.move_number = self.execute_previous_move(self.move_number)
             if type(button) is tuple:
                 # If fr_sq button is pressed
