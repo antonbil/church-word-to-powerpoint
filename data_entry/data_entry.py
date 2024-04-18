@@ -178,7 +178,8 @@ class DataEntry:
                         title_window = "select new main line"
                         selected_item = self.gui.get_item_from_list(list_items, title_window)
                         if selected_item:
-                            index = list_items.index(selected_item)
+                            # first item is removed.... so add 1 to the found index
+                            index = list_items.index(selected_item) + 1
                         else:
                             # no promoting
                             index = 0
