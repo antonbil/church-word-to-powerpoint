@@ -1,11 +1,11 @@
 menu_def_entry = [
         ['&Mode', ['Neutral', "PGN-Viewer", 'Annotate']],
-        ['&Entry', ['Previous', "Next", "Back"]],
+        ['&Move', ["Back"]],
         ['&Game', ['Save', 'Analyse game']],
 ]
 menu_def_annotate = [
         ['&Mode', ['Neutral', "PGN-Viewer", 'Data entry']],
-        ['&Entry', ["Promote alternative"]],
+        ['&Move', ['Previous', "Next", "Promote alternative"]],
         ['&Annotate', ['Comment', 'Alternative', "Alternative manual"]],
         ['&Game', ['Save', 'Analyse game']],
 ]
