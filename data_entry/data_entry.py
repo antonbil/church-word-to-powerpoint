@@ -175,6 +175,7 @@ class DataEntry:
                     index = 1
                     list_items.pop(0)
                     if len(list_items) > 1:
+                        title_window = "select new main line"
                         selected_item = self.gui.get_item_from_list(list_items, title_window)
                         if selected_item:
                             index = list_items.index(selected_item)
