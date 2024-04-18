@@ -167,24 +167,22 @@ class DataEntry:
                 # last one of moves is active on the board
                 current_move = self.moves[-1]
                 variations = current_move.variations
-                print("variations:", variations)
+                #print("variations:", variations)
                 if len(variations) > 1:
-                    print("number variations > 1")
-                    main = variations[-1]
-                    move_number = len(self.moves)
-                    self.moves = []
-                    self.all_moves = []
-                    current_move.promote_to_main(main)
-                    node = self.game.root()
-                    i = 1
-                    while len(node.variations) > 0:
-                        node = node.variations[0]
-                        if i <= move_number:
-                            self.moves.append(node)
-                        self.all_moves.append(node)
-                        i = i + 1
-                    self.current_move = node
-                    self.update_pgn_display()
+                    #print("number variations > 1")
+                    list_items = [" ".join(str(v).split(" ")[0:2]) for v in variations]
+                    index = 1
+                    list_items.pop(0)
+                    if len(list_items) > 1:
+                        selected_item = self.gui.get_item_from_list(list_items, title_window)
+                        if selected_item:
+                            index = list_items.index(selected_item)
+                        else:
+                            # no promoting
+                            index = 0
+
+                    if index > 0:
+                        self.promote_variation_to_mainline(current_move, index)
 
             if type(button) is tuple and self.mode == "annotate":
                 move_from = button
@@ -213,6 +211,23 @@ class DataEntry:
 
                     self.execute_move(fr_col, fr_row, to_col, to_row)
                     move_state = 0
+
+    def promote_variation_to_mainline(self, current_move, index):
+        main = current_move.variations[index]
+        move_number = len(self.moves)
+        self.moves = []
+        self.all_moves = []
+        current_move.promote_to_main(main)
+        node = self.game.root()
+        i = 1
+        while len(node.variations) > 0:
+            node = node.variations[0]
+            if i <= move_number:
+                self.moves.append(node)
+            self.all_moves.append(node)
+            i = i + 1
+        self.current_move = node
+        self.update_pgn_display()
 
     def analyse_manual_move(self):
         """
