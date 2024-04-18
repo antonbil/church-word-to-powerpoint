@@ -1,6 +1,6 @@
 menu_def_entry = [
         ['&Mode', ['Neutral', "PGN-Viewer"]],
-        ['&Entry', ['Switch mode', 'Previous', "Next"]],
+        ['&Entry', ['Switch mode', 'Previous', "Next", "Promote alternative"]],
         ['&Annotate', ['Comment', 'Alternative', "Alternative manual"]],
         ['&Game', ['Save', 'Analyse game', "Back"]],
 ]

@@ -162,6 +162,26 @@ class DataEntry:
                 value_white = value['_White_']
                 value_black = value['_Black_']
                 self.gui.save_game_pgn(value_white, value_black, self.game)
+            #
+            if button == "Promote alternative" and self.mode == "annotate":
+                # last one of moves is active on the board
+                current_move = self.moves[-1]
+                variations = current_move.variations
+                print("variations:", variations)
+                if len(variations) > 1:
+                    print("number variations > 1")
+                    main = variations[-1]
+                    self.moves = []
+                    self.all_moves = []
+                    current_move.promote_to_main(main)
+                    node = self.game.root()
+                    while len(node.variations) > 0:
+                        node = node.variations[0]
+                        # print("node", node)
+                        self.moves.append(node)
+                        self.all_moves.append(node)
+                    self.current_move = node
+                    self.update_pgn_display()
 
             if type(button) is tuple and self.mode == "annotate":
                 move_from = button
