@@ -196,8 +196,12 @@ class DataEntry:
             if type(button) is tuple and self.mode == "annotate":
                 move_from = button
                 fr_row, fr_col = move_from
+                if fr_row == 0:
+                    new_number = min(int(fr_col * (len(self.all_moves) - 1) / 7), len(self.all_moves))
+                    self.moves = self.all_moves[0:new_number]
+                    self.display_move()
 
-                if fr_col < 4:
+                elif fr_col < 4:
                     self.execute_previous_move(self.move_number)
                 else:
                     self.execute_next_move(self.move_number)
