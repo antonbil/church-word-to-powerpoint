@@ -356,7 +356,7 @@ class PGNViewer:
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
-            not self.go_up = False
+            self.go_up = False
             move_number = move_number - 1
             self.moves.pop()
             self.current_move = self.moves[-1]
@@ -527,7 +527,7 @@ class PGNViewer:
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
-            not self.go_up = True
+            self.go_up = True
             move_number = move_number + 1
             next_move = self.current_move.variations[0]
             self.moves.append(next_move)
