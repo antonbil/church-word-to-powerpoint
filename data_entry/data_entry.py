@@ -21,6 +21,7 @@ class DataEntry:
         self.pgn_lines = []
         self.positions = []
         self.gui = gui
+        self.promoted = []
         self.move_number = 0
 
         self.mode = "entry"
@@ -170,6 +171,13 @@ class DataEntry:
                 value_black = value['_Black_']
                 self.gui.save_game_pgn(value_white, value_black, self.game)
             #
+            if button == "Restore alternative" and self.mode == "annotate":
+                if len(self.promoted) > 0:
+                    to_be_restored = self.promoted.pop()
+                    to_be_restored[0].promote_to_main(to_be_restored[1])
+                    self.restore_moves()
+                    self.display_move()
+
             if button == "Promote alternative" and self.mode == "annotate":
                 # last one of moves is active on the board
                 current_move = self.moves[-1]
@@ -236,11 +244,16 @@ class DataEntry:
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def promote_variation_to_mainline(self, current_move, index):
+        previous_mainline = current_move.variations[0]
+        self.promoted.append([current_move, previous_mainline])
         main = current_move.variations[index]
+        current_move.promote_to_main(main)
+        self.restore_moves()
+
+    def restore_moves(self):
         move_number = len(self.moves)
         self.moves = []
         self.all_moves = []
-        current_move.promote_to_main(main)
         node = self.game.root()
         i = 1
         while len(node.variations) > 0:
