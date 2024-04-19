@@ -557,20 +557,24 @@ class PGNViewer:
 
         move_string = self.get_move_string(next_move)
         self.window.find_element('b_base_time_k').Update(move_string)
+        # get formatted partial moves: rest of moves from current-move on
         part_text = self.beautify_lines(str(next_move))
         if self.variation_bool:
             window = self.window.find_element('_movelist_')
             window.Update(part_text)
             return
 
+        # see if line number can be gotten from comparing the first part of the partial moves
         part_found = False
-        if len(part_text)>0:
+        if len(part_text) > 0:
             part_top_line = part_text[0]
             parts = part_top_line.split(" ")
-            if len(parts)>0 and parts[0].endswith("..."):
+            # if line is starting with ... (black move), remove this first part
+            if len(parts) > 0 and parts[0].endswith("..."):
                 parts = parts[1:]
+            # create the significant first line of the partial moves
             line_to_search = " ".join(parts).strip()
-            #print("'"+line_to_search+"'")
+            # loop through the pgn_lines to see if there is exactly one line that contains it
             number = -1
             i = 0
             times = 0
@@ -580,12 +584,13 @@ class PGNViewer:
                     number = i
                     times = times + 1
                 i = i + 1
+            # if there is one hit, this line is used for the line_number
             if times == 1:
-                #print("set line number:", number)
                 line_number = number
             else:
                 part_found = False
         if not part_found:
+            # do some sophisticated search for the line the move is in
             if next_move.is_mainline():
                 line_number = self.positions[move_number]
             else:
