@@ -345,6 +345,7 @@ class PGNViewer:
         last_part = "\n".join(move_list[number+1:])
         bold_part = move_list[number]
         splits = bold_part.split(move_str)
+        #print("set to index:", number)
         movelist.Update(
             move_list, set_to_index=number, scroll_to_index=number - 3 if number > 2 else 0)
         # if len(splits) == 2:
@@ -556,20 +557,42 @@ class PGNViewer:
 
         move_string = self.get_move_string(next_move)
         self.window.find_element('b_base_time_k').Update(move_string)
+        part_text = self.beautify_lines(str(next_move))
         if self.variation_bool:
-            # line_number = -1
-            text = lines = self.beautify_lines(str(next_move))
             window = self.window.find_element('_movelist_')
-            window.Update(text)
+            window.Update(part_text)
             return
 
-        if next_move.is_mainline():
-            line_number = self.positions[move_number]
-        else:
-            line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
+        part_found = False
+        if len(part_text)>0:
+            part_top_line = part_text[0]
+            parts = part_top_line.split(" ")
+            if len(parts)>0 and parts[0].endswith("..."):
+                parts = parts[1:]
+            line_to_search = " ".join(parts).strip()
+            #print("'"+line_to_search+"'")
+            number = -1
+            i = 0
+            times = 0
+            for line in self.pgn_lines:
+                if line_to_search in line:
+                    part_found = True
+                    number = i
+                    times = times + 1
+                i = i + 1
+            if times == 1:
+                #print("set line number:", number)
+                line_number = number
+            else:
+                part_found = False
+        if not part_found:
+            if next_move.is_mainline():
+                line_number = self.positions[move_number]
+            else:
+                line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
 
         if line_number > -1:
-            str1 = "\n".join(self.pgn_lines)
+            str1 = "\n".join(self.pgn_lines)+"\n"
             # self.pgn_lines
             part = str(next_move).split(" ")[1]
             self.display_move_list(str1, line_number, part)
