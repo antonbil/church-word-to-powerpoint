@@ -2677,9 +2677,6 @@ class EasyChessGui:
     def get_game_data(self, value_white, value_black, pgn_game):
         header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
                                      self.players, pgn_game)
-
-        print('new white:', header_dialog.white)
-        print('new black:', header_dialog.black)
         logging.info('Saving game manually')
         pgn_game.headers['Event'] = header_dialog.event
         pgn_game.headers['White'] = header_dialog.white
