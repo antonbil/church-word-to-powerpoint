@@ -518,10 +518,11 @@ class PGNViewer:
                     line_number = i
                     break
                 i = i + 1
-        if self.go_up and line_number < self.current_line:
-            line_number = min(self.current_line + 1, len(lines) -1)
-        if not self.go_up and line_number < self.current_line:
-            line_number = max(self.current_line - 1, 0)
+        print("line-number", self.go_up, self.current_line, line_number)
+        # if self.go_up and line_number < self.current_line:
+        #     line_number = min(self.current_line + 1, len(lines) -1)
+        # if not self.go_up and line_number < self.current_line:
+        #     line_number = max(self.current_line - 1, 0)
         self.current_line = line_number
         return line_number, move_item
 
