@@ -111,6 +111,9 @@ class PGNViewer:
                 selection = value[button]
                 if selection:
                     item = selection[0]
+                    index = self.pgn_lines.index(item)
+                    self.current_line = index
+                    self.go_up = True
                     items = item.split(" ")
                     items.reverse()
                     val = -1
@@ -495,7 +498,7 @@ class PGNViewer:
             last = move_item.split(" ").pop()
             number_ = str(self.move_number // 2)+"."
             for line in lines:
-                if last in line and number_ in line:
+                if last in line and number_ in line and not line.startswith("_"):
                     line_number = i
                     break
                 i = i + 1
@@ -506,7 +509,7 @@ class PGNViewer:
             number_ = str(self.move_number // 2)+"."
             in_previous_line = False
             for line in lines:
-                if last in line and in_previous_line:
+                if last in line and in_previous_line and not line.startswith("_"):
                     line_number = i
                     break
                 in_previous_line = number_ in line
@@ -516,7 +519,7 @@ class PGNViewer:
             i = 0
             last = move_item.split(" ").pop()
             for line in lines:
-                if last in line:
+                if last in line and not line.startswith("_"):
                     line_number = i
                     break
                 i = i + 1
