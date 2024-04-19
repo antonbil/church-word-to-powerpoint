@@ -2655,26 +2655,28 @@ class EasyChessGui:
 
     def save_game_pgn(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
-        with open(name_file, mode='w') as f:
-            f.write('{}\n\n'.format(pgn_game))
-        if header_dialog.add_to_library:
-            with open("library.pgn", 'a') as file1:
-                file1.write('{}\n\n'.format(pgn_game))
+        if header_dialog.ok:
+            with open(name_file, mode='w') as f:
+                f.write('{}\n\n'.format(pgn_game))
+            if header_dialog.add_to_library:
+                with open("library.pgn", 'a') as file1:
+                    file1.write('{}\n\n'.format(pgn_game))
 
-        sg.popup_ok("PGN is saved as:{}".format(name_file), title="Save PGN")
+            sg.popup_ok("PGN is saved as:{}".format(name_file), title="Save PGN")
 
     def analyse_game(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
-        pgn_file = 'tempsave.pgn'
-        with open(pgn_file, mode='w') as f:
-            f.write('{}\n\n'.format(pgn_game))
-        annotator.start_analise(pgn_file,
-                                self.engine, name_file, header_dialog.add_to_library)
-        sg.popup_ok("PGN is annotated and saved", title="Analyse PGN")
+        if header_dialog.ok:
+            pgn_file = 'tempsave.pgn'
+            with open(pgn_file, mode='w') as f:
+                f.write('{}\n\n'.format(pgn_game))
+            annotator.start_analise(pgn_file,
+                                    self.engine, name_file, header_dialog.add_to_library)
+            sg.popup_ok("PGN is annotated and saved", title="Analyse PGN")
 
     def get_game_data(self, value_white, value_black, pgn_game):
         header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
-                                     self.players)
+                                     self.players, pgn_game)
 
         print('new white:', header_dialog.white)
         print('new black:', header_dialog.black)

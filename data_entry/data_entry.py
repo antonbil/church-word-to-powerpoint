@@ -102,6 +102,8 @@ class DataEntry:
                 break
             if button == 'PGN-Viewer':
                 name_file = "tempsave.pgn"
+                self.game.headers['White'] = value['_White_']
+                self.game.headers['Black'] = value['_Black_']
                 with open(name_file, mode='w') as f:
                     f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_pgnviewer)

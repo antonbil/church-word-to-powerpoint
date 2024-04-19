@@ -216,6 +216,8 @@ class PGNViewer:
 
     def analyse_game_func(self, store_in_db):
         pgn_file = 'tempsave.pgn'
+        self.game.headers['White'] = value['_White_']
+        self.game.headers['Black'] = value['_Black_']
         with open(pgn_file, mode='w') as f:
             f.write('{}\n\n'.format(self.game))
         name_file = self.game.headers['Date'].replace("/", "-").replace(".??", "") + "-" + self.game.headers[

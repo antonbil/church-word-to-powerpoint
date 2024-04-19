@@ -10,11 +10,20 @@ import json
 from datetime import date
 
 PREF = {}
-
+"""
+        pgn_game.headers['Event'] = header_dialog.event
+        pgn_game.headers['White'] = header_dialog.white
+        pgn_game.headers['Black'] = header_dialog.black
+        pgn_game.headers['Site'] = header_dialog.site
+        pgn_game.headers['Date'] = header_dialog.date
+        pgn_game.headers['Round'] = header_dialog.round
+"""
 
 class HeaderDialog:
     """header dialog class"""
-    def __init__(self, white, black, sites_list, events_list, players):
+    def __init__(self, white, black, sites_list, events_list, players, pgn_game):
+        self.ok = False
+        self.pgn_game = pgn_game
         self.white = white
         self.black = black
         self.result = "*"
@@ -22,9 +31,12 @@ class HeaderDialog:
         self.site = ""
         self.round = ""
         self.add_to_library = False
-        today = date.today()
-        formatted_date = today.strftime('%Y/%m/%d')
-        self.date = formatted_date
+        current_date = pgn_game.headers['Date'].replace("/", "").replace("?", "").replace(".", "")
+        self.date = pgn_game.headers['Date']
+        if len(self.date) == 0:
+            today = date.today()
+            formatted_date = today.strftime('%Y/%m/%d')
+            self.date = formatted_date
         PREF = {'white': white, 'black': black, 'date': self.date}
         results = ["1-0", "1/2-1/2", "0-1", "*"]
         rounds = [str(l) for l in range(1,50)]
@@ -32,27 +44,28 @@ class HeaderDialog:
         self.layout = [
             [[sg.Text("Event:"),
               sg.Combo(events_list, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                       readonly=False, key='event')]],
+                       readonly=False, key='event', default_value=self.default_value("Event"))]],
             [[sg.Text("Site:"),
               sg.Combo(sites_list, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                       readonly=False, key='site')]],
+                       readonly=False, key='site', default_value=self.default_value("Site"))]],
             [[sg.Text("Date:"),
-              sg.Input(key='date', size=(20, 1)), sg.CalendarButton('Calendar', target='date',
+              sg.Input(key='date',
+                       size=(20, 1)), sg.CalendarButton('Calendar', target='date',
                                                                     format='%Y/%m/%d',
                                                                     locale='nl_NL',
                                                                     begin_at_sunday_plus=1)]],
             [[sg.Text("Round:"),
               sg.Combo(rounds, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                       readonly=False, key='round')]],
+                       readonly=False, key='round', default_value=self.default_value("Round"))]],
             [[sg.Text("White:"),
                     sg.Combo(players, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                                readonly=False, key='white')]],
+                                readonly=False, key='white', default_value=self.default_value("White"))]],
             [[sg.Text("Black:"),
              sg.Combo(players, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                       readonly=False, key='black')]],
+                       readonly=False, key='black', default_value=self.default_value("Black"))]],
             [[sg.Text("Result:"),
               sg.Combo(results, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                       readonly=False, key='result')]],
+                       readonly=False, key='result', default_value=self.default_value("Result"))]],
             [
               sg.CBox('Add to library', key='add_to_library',
                       default=False)],
@@ -77,9 +90,16 @@ class HeaderDialog:
                 self.date = str(values['date'])
                 self.round = values['round']
                 self.add_to_library = values['add_to_library']
+                self.ok = True
                 break
 
         window.close()
+
+    def default_value(self, title):
+        s = self.pgn_game.headers[title]
+        if "?" in s:
+            return ""
+        return s
 
 
 def load_preferences():
