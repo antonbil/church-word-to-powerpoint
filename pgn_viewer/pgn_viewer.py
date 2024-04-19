@@ -438,6 +438,8 @@ class PGNViewer:
         previous = ""
         self.positions = []
         self.move_number = 0
+        self.go_up = True
+        self.current_line = -1
         for move in moves:
             line_number, s = self.get_line_number(lines, move, previous)
             self.move_number = self.move_number + 1
@@ -519,10 +521,10 @@ class PGNViewer:
                     break
                 i = i + 1
         print("line-number", self.go_up, self.current_line, line_number)
-        # if self.go_up and line_number < self.current_line:
-        #     line_number = min(self.current_line + 1, len(lines) -1)
-        # if not self.go_up and line_number < self.current_line:
-        #     line_number = max(self.current_line - 1, 0)
+        if self.go_up and line_number < self.current_line:
+            line_number = min(self.current_line + 1, len(lines) -1)
+        if not self.go_up and line_number < self.current_line:
+            line_number = max(self.current_line - 1, 0)
         self.current_line = line_number
         return line_number, move_item
 
