@@ -199,6 +199,11 @@ class DataEntry:
                 if fr_row == 0:
                     new_number = min(int(fr_col * (len(self.all_moves) - 1) / 7), len(self.all_moves))
                     self.moves = self.all_moves[0:new_number]
+                    self.move_number = len(self.moves) - 1
+                    if len(self.moves) > 0:
+                        self.current_move = self.moves[-1]
+                    else:
+                        self.game.game()
                     self.display_move()
 
                 elif fr_col < 4:
