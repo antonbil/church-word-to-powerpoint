@@ -10,6 +10,8 @@ class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
         self.board = None
+        self.go_up = True
+        self.current_line = -1
         self.pgn_lines = []
         self.positions = []
         self.gui = gui
@@ -299,6 +301,7 @@ class PGNViewer:
         self.display_move()
 
     def init_game(self, game):
+        self.go_up = True
         self.game = game
         self.move_squares = [0, 0, 0, 0]
         self.display_pgn(game)
@@ -353,6 +356,7 @@ class PGNViewer:
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
+            not self.go_up = False
             move_number = move_number - 1
             self.moves.pop()
             self.current_move = self.moves[-1]
@@ -514,10 +518,16 @@ class PGNViewer:
                     line_number = i
                     break
                 i = i + 1
+        if self.go_up and line_number < self.current_line:
+            line_number = min(self.current_line + 1, len(lines) -1)
+        if not self.go_up and line_number < self.current_line:
+            line_number = max(self.current_line - 1, 0)
+        self.current_line = line_number
         return line_number, move_item
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
+            not self.go_up = True
             move_number = move_number + 1
             next_move = self.current_move.variations[0]
             self.moves.append(next_move)
