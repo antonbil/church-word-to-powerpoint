@@ -9,6 +9,7 @@ from common import menu_def_entry
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.variation_bool = False
         self.board = None
         self.go_up = True
         self.current_line = -1
@@ -53,7 +54,7 @@ class PGNViewer:
     def execute_pgn(self):
 
         self.display_move()
-        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")]
+        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next"), self.gui.toolbar.new_button("Crop")]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
         while True:
@@ -156,7 +157,9 @@ class PGNViewer:
                 if index > 0:
                     self.my_game = list_items[index - 1]
                     self.select_game()
-
+            if self.gui.toolbar.get_button_id(button) == 'Crop':
+                self.variation_bool = not self.variation_bool
+                self.display_part_pgn(self.move_number, self.current_move)
             if self.gui.toolbar.get_button_id(button) == 'Next':
                 self.move_number = self.execute_next_move(self.move_number)
             if self.gui.toolbar.get_button_id(button) == 'Previous':
@@ -404,36 +407,7 @@ class PGNViewer:
 
     def display_pgn(self, game):
         string = str(game.game())
-        """
-        set_vscroll_position(
-    percent_from_top
-)
-        """
-        string = list(string)
-        indent = 0
-        inside_comment = False
-
-        for index, item in enumerate(string):
-
-                if item == "(" and not inside_comment:
-                    indent = indent + 1
-                    string[index] = "\n"+("_"*indent)
-                if item == "{":
-                    indent = indent + 1
-                    string[index] = "\n"+("_"*indent)
-                    inside_comment = True
-                if item == ")" and not inside_comment:
-                    indent = indent - 1
-                    string[index] = "\n"+("_"*indent)
-                if item == "}":
-                    indent = indent - 1
-                    string[index] = "\n"+("_"*indent)
-                    inside_comment = False
-
-        lines = "".join(string).split("\n")
-        lines = [self.split_line(l).replace("_", " ") for l in lines if len(l.replace("_","").strip())>0 and not l.startswith("[")]
-        lines = [self.change_nag(line) for line in lines]
-        lines = "\n".join(lines).split("\n")
+        lines = self.beautify_lines(string)
         self.pgn_lines = lines
         string = "\n".join(lines)
         #print(string)
@@ -450,6 +424,38 @@ class PGNViewer:
             # print("move", s, line_number)
             previous = s
         self.move_number = 0
+
+    def beautify_lines(self, string):
+        """
+            set_vscroll_position(
+        percent_from_top
+    )
+            """
+        string = list(string)
+        indent = 0
+        inside_comment = False
+        for index, item in enumerate(string):
+
+            if item == "(" and not inside_comment:
+                indent = indent + 1
+                string[index] = "\n" + ("_" * indent)
+            if item == "{":
+                indent = indent + 1
+                string[index] = "\n" + ("_" * indent)
+                inside_comment = True
+            if item == ")" and not inside_comment:
+                indent = indent - 1
+                string[index] = "\n" + ("_" * indent)
+            if item == "}":
+                indent = indent - 1
+                string[index] = "\n" + ("_" * indent)
+                inside_comment = False
+        lines = "".join(string).split("\n")
+        lines = [self.split_line(l).replace("_", " ") for l in lines if
+                 len(l.replace("_", "").strip()) > 0 and not l.startswith("[")]
+        lines = [self.change_nag(line) for line in lines]
+        lines = "\n".join(lines).split("\n")
+        return lines
 
     def change_nag(self,line):
         nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
@@ -550,10 +556,18 @@ class PGNViewer:
 
         move_string = self.get_move_string(next_move)
         self.window.find_element('b_base_time_k').Update(move_string)
+        if self.variation_bool:
+            # line_number = -1
+            text = lines = self.beautify_lines(str(next_move))
+            window = self.window.find_element('_movelist_')
+            window.Update(text)
+            return
+
         if next_move.is_mainline():
             line_number = self.positions[move_number]
         else:
             line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
+
         if line_number > -1:
             str1 = "\n".join(self.pgn_lines)
             # self.pgn_lines
