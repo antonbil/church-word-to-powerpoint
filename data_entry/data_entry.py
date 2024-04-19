@@ -465,6 +465,8 @@ class DataEntry:
         if len(self.moves) > 0:
             moves_ = " ".join(str(self.moves[-1]).split(" ")[:2])
             self.window.find_element('b_base_time_k').Update(moves_)
+            self.window.find_element('comment_k').Update(self.moves[-1].comment)
+
         for main_move in self.moves:
             move = main_move.move
 
