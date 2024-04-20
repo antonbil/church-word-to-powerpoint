@@ -116,6 +116,7 @@ class PGNViewer:
                     self.current_line = index
                     self.go_up = True
                     items = item.split(" ")
+                    # if line starts with a " ", it is a comment or a variation
                     is_variation = item.startswith(" ")
                     if not is_variation:
                         items.reverse()
@@ -127,9 +128,12 @@ class PGNViewer:
                             # try converting to integer
                             val = int(var)
                             if is_variation:
+                                # go to previous move to allow for selection of the variation
                                 val = max(0, val - 1)
+                            # the new position is per default at the start (white-move)
                             new_pos = val * 2
                             if is_variation or not is_variation and is_black:
+                                # move move-cursor one up, because the move-number itself is even (val * 2)
                                 new_pos = new_pos + 1
 
                             break
@@ -333,20 +337,17 @@ class PGNViewer:
         self.moves.clear()
         self.current_move = game.game()
         self.moves.append(self.current_move)
-        #moves = game.mainline_moves()
-        #self.display_move_list(moves, 0)
         self.set_players(game)
+        site = game.headers['Site'].replace('?', "")
+        if len(site) > 0:
+            site = site + " "
         info = "{} ({})".format(
-            (game.headers['Site'].replace('?', "") + game.headers['Date'].replace('?', "")).strip(),
+            (site + game.headers['Date'].replace('?', "").replace('..', "")
+             .replace('//', "")).strip(),
             game.headers['Result'])
         self.window.find_element('advise_info_k').Update(info)
-        # 'advise_info_k'
-        window = self.window.find_element('_movelist_')
-        #window.Update('')
-        try:
-            window.Update(self.pgn_lines)
-        except:
-            pass
+        move_list_gui_element = self.window.find_element('_movelist_')
+        move_list_gui_element.Update(self.pgn_lines)
         self.move_number = 0
 
     def set_players(self, game):
@@ -355,30 +356,14 @@ class PGNViewer:
 
     def display_move_list(self, moves, number = 5, move_str = "Nothing"):
         move_list = moves.split("\n")
-        movelist = self.window.find_element('_movelist_')
+        move_list_gui_element = self.window.find_element('_movelist_')
         if len(move_list) < number+2:
-            movelist.Update(
+            move_list_gui_element.Update(
                 move_list)
             return
-        firstpart = "\n".join(move_list[:number])
-        last_part = "\n".join(move_list[number+1:])
-        bold_part = move_list[number]
-        splits = bold_part.split(move_str)
-        #print("set to index:", number)
-        movelist.Update(
+
+        move_list_gui_element.Update(
             move_list, set_to_index=number, scroll_to_index=number - 3 if number > 2 else 0)
-        # if len(splits) == 2:
-        #     firstpart = firstpart + splits[0]
-        #     last_part = splits[1] + last_part +"\n"
-        #     bold_part = move_str
-        # movelist.Update('')
-        #
-        # movelist.print(
-        #     firstpart,font=self.gui.text_font, autoscroll=False)
-        # movelist.print(
-        #     bold_part, font=("Helvetica", self.gui.font_size_ui,'bold'), autoscroll=False)
-        # movelist.print(
-        #     last_part,font=self.gui.text_font, autoscroll=False)
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
@@ -386,20 +371,16 @@ class PGNViewer:
             move_number = move_number - 1
             self.moves.pop()
             self.current_move = self.moves[-1]
-            #print("move number:", move_number)
             self.display_part_pgn(move_number, self.current_move)
             self.display_move()
         return move_number
 
     def get_all_moves(self, game):
-        #print("move:")
         current_move = game.game()
-        #print("move:", current_move)
         moves=[current_move]
         while len(current_move.variations) > 0:
             current_move = current_move.variations[0]
             moves.append(current_move)
-            #print("move:", current_move)
         return moves
 
     def split_line(self, line):
