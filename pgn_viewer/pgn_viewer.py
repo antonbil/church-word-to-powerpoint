@@ -85,29 +85,15 @@ class PGNViewer:
             if button == 'Read':
                 # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
                 #see: https://docs.pysimplegui.com/en/latest/documentation/module/popups/
-                layout = [
-                    [sg.Text('PGN', font=self.gui.text_font, size=(4, 1)),
-                     sg.Input(size=(40, 1), font=self.gui.text_font, key='pgn_k'),
-                     sg.FileBrowse('Select PGN File',
-                                   font=self.gui.text_font, file_types=(("PGN files", "*.pgn")))],
-                    [sg.Ok(font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
-                ]
+                filename = sg.popup_get_file('message will not be shown', no_window=True,
+                                   font=self.gui.text_font, file_types=(("PGN files", ".pgn"),))
+                if filename:
+                    self.pgn = filename
+                    self.gui.save_pgn_file_in_preferences(filename)
+                    self.gui.save_pgn_file_in_preferences(self.pgn)
+                    pgn_file = self.pgn
+                    self.open_pgn_file(pgn_file)
 
-                w = sg.Window("Read PGN", layout,
-                              icon='Icon/pecg.png')
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None or e == 'Cancel':
-                        w.Close()
-                        break
-                    if e == 'Ok':
-                        w.Close()
-                        self.pgn = v['pgn_k']
-                        #print("pgn chosen", self.pgn)
-                        self.gui.save_pgn_file_in_preferences(self.pgn)
-                        pgn_file = self.pgn
-                        self.open_pgn_file(pgn_file)
-                        break
             if button == '_movelist_':
                 selection = value[button]
                 if selection:
