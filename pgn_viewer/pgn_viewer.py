@@ -116,27 +116,28 @@ class PGNViewer:
                     self.current_line = index
                     self.go_up = True
                     items = item.split(" ")
-                    items.reverse()
-                    val = -1
+                    is_variation = item.startswith(" ")
+                    if not is_variation:
+                        items.reverse()
+                    new_pos = -1
                     for move in items:
+                        is_black = "..." in move
                         var = move.replace(".", "")
                         try:
                             # try converting to integer
                             val = int(var)
+                            if is_variation:
+                                val = max(0, val - 1)
+                            new_pos = val * 2
+                            if is_variation or not is_variation and is_black:
+                                new_pos = new_pos + 1
+
                             break
 
                         except ValueError:
                             pass
-                    if val >=0:
-                        all_moves = self.get_all_moves(self.game)
-                        if val * 2 >= len(all_moves):
-                            val = (len(all_moves) - 1) * 2
-                        self.moves = all_moves[:val * 2]
-                        self.moves.pop()
-                        self.current_move = self.moves.pop()
-                        self.moves.append(self.current_move)
-                        self.move_number = len(self.moves) - 1
-                        self.move_number = self.execute_next_move(self.move_number)
+                    if new_pos >=0:
+                        self.set_new_position(new_pos)
 
             if button == 'Next Game':
                 index = list_items.index(self.my_game)
@@ -168,31 +169,49 @@ class PGNViewer:
                 # If fr_sq button is pressed
                 move_from = button
                 fr_row, fr_col = move_from
-                col = chr(fr_col + ord('a'))
-                row = str(7 - fr_row + 1)
-                coord = col+row
-                my_variation = False
-                counter = 0
-                for variation in self.current_move.variations:
-                    #print("str(variation.move):",str(variation.move))
-                    move = str(variation.move)
+                if fr_row == 0:
+                    all_moves = self.get_all_moves(self.game)
+                    new_number = max(min(int(fr_col * (len(all_moves) - 1) / 7), len(all_moves)), 2)
+                    self.set_new_position(new_number)
+                    self.display_part_pgn(new_number, self.current_move)
+                    self.display_move()
+                else:
+                    col = chr(fr_col + ord('a'))
+                    row = str(7 - fr_row + 1)
+                    coord = col+row
+                    my_variation = False
+                    counter = 0
+                    for variation in self.current_move.variations:
+                        #print("str(variation.move):",str(variation.move))
+                        move = str(variation.move)
 
-                    if move.startswith(coord) or coord == move[2]+move[3]:
-                        self.moves.append(variation)
-                        self.current_move = variation
-                        self.move_number = self.move_number + 1
-                        my_variation = True
-                    if my_variation:
-                        self.display_part_pgn(self.move_number, self.current_move)
-                        #print("self.current_move.fen", variation.move.fen())
-                        #print("self.current_move", self.current_move)
-                        self.display_move()
-                    counter = counter + 1
-                if not my_variation:
-                    if fr_col < 4:
-                        self.move_number = self.execute_previous_move(self.move_number)
-                    else:
-                        self.move_number = self.execute_next_move(self.move_number)
+                        if move.startswith(coord) or coord == move[2]+move[3]:
+                            self.moves.append(variation)
+                            self.current_move = variation
+                            self.move_number = self.move_number + 1
+                            my_variation = True
+                        if my_variation:
+                            self.display_part_pgn(self.move_number, self.current_move)
+                            #print("self.current_move.fen", variation.move.fen())
+                            #print("self.current_move", self.current_move)
+                            self.display_move()
+                        counter = counter + 1
+                    if not my_variation:
+                        if fr_col < 4:
+                            self.move_number = self.execute_previous_move(self.move_number)
+                        else:
+                            self.move_number = self.execute_next_move(self.move_number)
+
+    def set_new_position(self, new_pos):
+        all_moves = self.get_all_moves(self.game)
+        if new_pos >= len(all_moves):
+            new_pos = len(all_moves) - 1
+        self.moves = all_moves[:new_pos]
+        self.moves.pop()
+        self.current_move = self.moves.pop()
+        self.moves.append(self.current_move)
+        self.move_number = len(self.moves) - 1
+        self.move_number = self.execute_next_move(self.move_number)
 
     def analyse_db(self):
         number_games = len(self.game_descriptions)
