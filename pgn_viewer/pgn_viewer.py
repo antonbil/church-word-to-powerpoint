@@ -86,6 +86,7 @@ class PGNViewer:
                 # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
                 #see: https://docs.pysimplegui.com/en/latest/documentation/module/popups/
                 filename = sg.popup_get_file('message will not be shown', no_window=True,
+                                             # remember to place the "," in file_types
                                    font=self.gui.text_font, file_types=(("PGN files", ".pgn"),))
                 if filename:
                     self.pgn = filename
