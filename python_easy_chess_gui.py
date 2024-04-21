@@ -2843,11 +2843,13 @@ class EasyChessGui:
              sg.Text('Invisible', size=(16, 1), visible=False, font=self.text_font, key='pgn_row')],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 8),
-                          font=self.text_font, key='_movelist_', disabled=True)],
+                          font=self.text_font, key='_movelist_', disabled=True, sbar_width=self.scrollbar_width,
+                        sbar_arrow_width=self.scrollbar_width)],
 
             [sg.Text('Comment', size=(7, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
-                          font=self.text_font, key='comment_k')],
+                          font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
+                        sbar_arrow_width=self.scrollbar_width)],
 
             [sg.Text('BOOK 1, Comp games', size=(26, 1),
                      font=self.text_font,
@@ -2856,9 +2858,11 @@ class EasyChessGui:
                      font=self.text_font,
                      right_click_menu=['Right', ['Show::right_book2_k', 'Hide::right_book2_k']])],
             [sg.Multiline('', do_not_clear=True, autoscroll=False, size=(23, 4),
-                          font=self.text_font, key='polyglot_book1_k', disabled=True),
+                          font=self.text_font, key='polyglot_book1_k', disabled=True, sbar_width=self.scrollbar_width,
+                        sbar_arrow_width=self.scrollbar_width),
              sg.Multiline('', do_not_clear=True, autoscroll=False, size=(25, 4),
-                          font=self.text_font, key='polyglot_book2_k', disabled=True)],
+                          font=self.text_font, key='polyglot_book2_k', disabled=True, sbar_width=self.scrollbar_width,
+                        sbar_arrow_width=self.scrollbar_width)],
 
             [sg.ButtonMenu('Opponent Search Info', ['Menu', ['Show::right_search_info_k', 'Hide::right_search_info_k']],
                            size=(21, 1),
@@ -2891,7 +2895,8 @@ class EasyChessGui:
 
             [sg.Text('Comment', size=(7, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(70, 3),
-                          font=self.text_font, key='comment_k')],
+                          font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
+                        sbar_arrow_width=self.scrollbar_width)],
 
             # [sg.Text('BOOK 1, Comp games', size=(26, 1),
             #          font=self.text_font,
