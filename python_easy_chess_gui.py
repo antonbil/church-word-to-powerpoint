@@ -795,6 +795,7 @@ class EasyChessGui:
         self.FIELD_SIZE = my_preferences["field_size"] if "field_size" in my_preferences else 60
         self.gui_theme = my_preferences["gui_theme"] if "gui_theme" in my_preferences else'Reddit'
         self.font_size_ui = my_preferences["font_size_ui"] if "font_size_ui" in my_preferences else 10
+        self.scrollbar_width = int(self.font_size_ui * 16 / 10)
         self.board_color = my_preferences["board_color"] if "board_color" in my_preferences else "Brown::board_color_k"
         self.pgn_file = my_preferences["pgn_file"] if "pgn_file" in my_preferences else ""
         self.is_save_user_comment = True
@@ -1828,7 +1829,7 @@ class EasyChessGui:
         """
         layout = [
             [sg.Listbox(list_items, key='game_k', expand_y=True, enable_events=True, font=self.text_font,
-                        size=(30, 20), sbar_width=30)],
+                        size=(30, 20), sbar_width=self.scrollbar_width, sbar_arrow_width=self.scrollbar_width)],
             [sg.Ok(font=self.text_font), sg.Cancel(font=self.text_font)
                 , sg.Button("Down",
                             font=self.text_font, key='scroll_down'),
@@ -2885,7 +2886,7 @@ class EasyChessGui:
                      size=(46, 1))],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Listbox('', size=(70, 20), expand_y=True, enable_events=True,
-                          font=self.text_font, key='_movelist_', sbar_width=30)],
+                          font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width, sbar_arrow_width=self.scrollbar_width)],
 
             [sg.Text('Comment', size=(7, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(70, 3),
