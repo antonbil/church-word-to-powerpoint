@@ -2886,7 +2886,8 @@ class EasyChessGui:
                      size=(46, 1))],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Listbox('', size=(70, 20), expand_y=True, enable_events=True,
-                          font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width, sbar_arrow_width=self.scrollbar_width)],
+                          font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width,
+                        sbar_arrow_width=self.scrollbar_width)],
 
             [sg.Text('Comment', size=(7, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(70, 3),
