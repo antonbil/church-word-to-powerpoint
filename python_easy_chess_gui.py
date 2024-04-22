@@ -3973,6 +3973,7 @@ class EasyChessGui:
                 self.gui_theme = button
                 self.preferences.preferences["gui_theme"] = self.gui_theme
                 self.preferences.save_preferences()
+                self.main_layout = self.get_neutral_layout()
                 window = self.create_new_window(window)
                 continue
 
@@ -3980,6 +3981,7 @@ class EasyChessGui:
             if button == 'Gray::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
+                self.main_layout = self.get_neutral_layout()
                 window = self.create_new_window(window)
                 continue
 
@@ -3987,6 +3989,7 @@ class EasyChessGui:
             if button == 'Green::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
+                self.main_layout = self.get_neutral_layout()
                 window = self.create_new_window(window)
                 continue
 
@@ -3994,6 +3997,7 @@ class EasyChessGui:
             if button == 'Blue::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
+                self.main_layout = self.get_neutral_layout()
                 window = self.create_new_window(window)
                 continue
 
@@ -4001,6 +4005,7 @@ class EasyChessGui:
             if button == 'Brown::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
+                self.main_layout = self.get_neutral_layout()
                 window = self.create_new_window(window)
                 continue
 
@@ -4008,6 +4013,7 @@ class EasyChessGui:
             if button == 'Flip':
                 window.find_element('_gamestatus_').Update('Mode     Neutral')
                 self.clear_elements(window)
+                self.main_layout = self.get_neutral_layout()
                 self.window = self.create_new_window(window, True)
                 continue
 
