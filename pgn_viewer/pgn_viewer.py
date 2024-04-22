@@ -163,34 +163,34 @@ class PGNViewer:
                 # If fr_sq button is pressed
                 move_from = button
                 fr_row, fr_col = move_from
-                if fr_row == 0:
-                    all_moves = self.get_all_moves(self.game)
-                    new_number = max(min(int(fr_col * (len(all_moves) - 1) / 7), len(all_moves)), 2)
-                    self.set_new_position(new_number)
-                    self.display_part_pgn(new_number, self.current_move)
-                    self.display_move()
-                else:
-                    col = chr(fr_col + ord('a'))
-                    row = str(7 - fr_row + 1)
-                    coord = col+row
-                    my_variation = False
-                    counter = 0
-                    for variation in self.current_move.variations:
-                        #print("str(variation.move):",str(variation.move))
-                        move = str(variation.move)
+                col = chr(fr_col + ord('a'))
+                row = str(7 - fr_row + 1)
+                coord = col+row
+                my_variation = False
+                counter = 0
+                for variation in self.current_move.variations:
+                    #print("str(variation.move):",str(variation.move))
+                    move = str(variation.move)
 
-                        if move.startswith(coord) or coord == move[2]+move[3]:
-                            self.moves.append(variation)
-                            self.current_move = variation
-                            self.move_number = self.move_number + 1
-                            my_variation = True
-                        if my_variation:
-                            self.display_part_pgn(self.move_number, self.current_move)
-                            #print("self.current_move.fen", variation.move.fen())
-                            #print("self.current_move", self.current_move)
-                            self.display_move()
-                        counter = counter + 1
-                    if not my_variation:
+                    if move.startswith(coord) or coord == move[2]+move[3]:
+                        self.moves.append(variation)
+                        self.current_move = variation
+                        self.move_number = self.move_number + 1
+                        my_variation = True
+                    if my_variation:
+                        self.display_part_pgn(self.move_number, self.current_move)
+                        #print("self.current_move.fen", variation.move.fen())
+                        #print("self.current_move", self.current_move)
+                        self.display_move()
+                    counter = counter + 1
+                if not my_variation:
+                    if fr_row == 0:
+                        all_moves = self.get_all_moves(self.game)
+                        new_number = max(min(int(fr_col * (len(all_moves) - 1) / 7), len(all_moves)), 2)
+                        self.set_new_position(new_number)
+                        self.display_part_pgn(new_number, self.current_move)
+                        self.display_move()
+                    else:
                         if fr_col < 4:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
