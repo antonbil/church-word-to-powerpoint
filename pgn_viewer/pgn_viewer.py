@@ -450,9 +450,9 @@ class PGNViewer:
         return lines
 
     def change_nag(self,line):
-        nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!"}
+        nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!", "9":".."}
         if "$" in line:
-            for i in range(0, 9):
+            for i in range(0, 10):
                 line = line.replace("$"+str(i), "")
                 for k in nags:
                     key = "$"+k
