@@ -580,7 +580,8 @@ class PGNViewer:
                     times = times + 1
                 i = i + 1
             # if there is one hit, this line is used for the line_number
-            if times == 1:
+            # > 1: ambiguous->use the last one; the first occurrence must be an analysis?
+            if times > 0:
                 line_number = number
             else:
                 part_found = False
