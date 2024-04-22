@@ -127,7 +127,7 @@ class PGNViewer:
 
                         except ValueError:
                             pass
-                    if new_pos >=0:
+                    if new_pos >=1:
                         self.set_new_position(new_pos)
 
             if button == 'Next Game':
@@ -204,7 +204,8 @@ class PGNViewer:
         if new_pos >= len(all_moves):
             new_pos = len(all_moves) - 1
         self.moves = all_moves[:new_pos]
-        self.moves.pop()
+        if new_pos > 1:
+            self.moves.pop()
         self.current_move = self.moves.pop()
         self.moves.append(self.current_move)
         self.move_number = len(self.moves) - 1
