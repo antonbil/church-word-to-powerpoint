@@ -570,6 +570,7 @@ class PGNViewer:
             # if line is starting with ... (black move), remove this first part
             if len(parts) > 0 and parts[0].endswith("..."):
                 parts = parts[1:]
+            parts_end = len(parts) == 1
             # create the significant first line of the partial moves
             line_to_search = " ".join(parts).strip()
             # loop through the pgn_lines to see if there is exactly one line that contains it
@@ -577,7 +578,7 @@ class PGNViewer:
             i = 0
             times = 0
             for line in self.pgn_lines:
-                if line_to_search in line:
+                if part_text and line.endswith(line_to_search) or not part_text and line_to_search in line:
                     part_found = True
                     number = i
                     times = times + 1
