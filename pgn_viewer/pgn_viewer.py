@@ -548,7 +548,7 @@ class PGNViewer:
         alternatives = ""
         if len(next_move.variations) > 1:
             alternatives = [self.get_move_string(item) for item in next_move.variations]
-            # get next move-number
+            # get next move-number; display it only once at start of alternatives
             first = alternatives[0].split(" ")[0]
             alternatives = "({}->{})".format(first, ",".join([item.replace(first, "") for item in alternatives]))
         self.window.find_element('_currentmove_').Update(move_string + alternatives)
