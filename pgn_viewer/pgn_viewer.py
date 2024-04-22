@@ -166,8 +166,9 @@ class PGNViewer:
                 col = chr(fr_col + ord('a'))
                 row = str(7 - fr_row + 1)
                 coord = col+row
+
+                # first check if a square representing a variation is pressed
                 my_variation = False
-                counter = 0
                 for variation in self.current_move.variations:
                     #print("str(variation.move):",str(variation.move))
                     move = str(variation.move)
@@ -182,8 +183,9 @@ class PGNViewer:
                         #print("self.current_move.fen", variation.move.fen())
                         #print("self.current_move", self.current_move)
                         self.display_move()
-                    counter = counter + 1
+
                 if not my_variation:
+                    # check for first row; first row acts like a slider for the move-number
                     if fr_row == 0:
                         all_moves = self.get_all_moves(self.game)
                         new_number = max(min(int(fr_col * (len(all_moves) - 1) / 7), len(all_moves)), 2)
@@ -191,6 +193,7 @@ class PGNViewer:
                         self.display_part_pgn(new_number, self.current_move)
                         self.display_move()
                     else:
+                        # previous / next?
                         if fr_col < 4:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
