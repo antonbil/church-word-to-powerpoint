@@ -2883,10 +2883,10 @@ class EasyChessGui:
             [sg.Text('Black', size=(7, 1), font=self.text_font),
              sg.InputText('Computer', font=self.text_font, key='_Black_',
                           size=(24, 1)),
-             sg.Text('', font=self.text_font, key='b_base_time_k',
-                     size=(11, 1), relief='sunken')
+             sg.Text('', font=self.text_font, key='_currentmove_',
+                     size=(38, 1), relief='sunken')
              ],
-            [sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
+            [sg.Text('', font=self.text_font, key='overall_game_info', relief='sunken',
                      size=(46, 1))],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Listbox('', size=(70, 20), expand_y=True, enable_events=True,

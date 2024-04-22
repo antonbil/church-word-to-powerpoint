@@ -477,7 +477,7 @@ class DataEntry:
         board = chess.Board()
         if len(self.moves) > 0:
             moves_ = " ".join(str(self.moves[-1]).split(" ")[:2])
-            self.window.find_element('b_base_time_k').Update(moves_)
+            self.window.find_element('_currentmove_').Update(moves_)
             self.window.find_element('comment_k').Update(self.moves[-1].comment)
 
         for main_move in self.moves:

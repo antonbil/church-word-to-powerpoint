@@ -333,7 +333,7 @@ class PGNViewer:
             (site + game.headers['Date'].replace('?', "").replace('..', "")
              .replace('//', "")).strip(),
             game.headers['Result'])
-        self.window.find_element('advise_info_k').Update(info)
+        self.window.find_element('overall_game_info').Update(info) # previously: advise_info_k
         move_list_gui_element = self.window.find_element('_movelist_')
         move_list_gui_element.Update(self.pgn_lines)
         self.move_number = 0
@@ -473,6 +473,7 @@ class PGNViewer:
 
     def get_line_number(self, lines, move, previous):
         move_item = self.get_move_string(move)
+        # print("move item:", move_item)
         #s = move_item
         i = 0
         line_number = -1
@@ -544,7 +545,13 @@ class PGNViewer:
             next_move.comment, append=True, disabled=True)
 
         move_string = self.get_move_string(next_move)
-        self.window.find_element('b_base_time_k').Update(move_string)
+        alternatives = ""
+        if len(next_move.variations) > 1:
+            alternatives = [self.get_move_string(item) for item in next_move.variations]
+            # get next move-number
+            first = alternatives[0].split(" ")[0]
+            alternatives = "({}->{})".format(first, ",".join([item.replace(first, "") for item in alternatives]))
+        self.window.find_element('_currentmove_').Update(move_string + alternatives)
         # get formatted partial moves: rest of moves from current-move on
         part_text = self.beautify_lines(str(next_move))
         if self.variation_bool:
@@ -552,7 +559,7 @@ class PGNViewer:
             window.Update(part_text)
             return
 
-        # see if line number can be gotten from comparing the first part of the partial moves
+        # see if line number can be retrieved by comparing the first part of the partial moves
         part_found = False
         if len(part_text) > 0:
             part_top_line = part_text[0]
