@@ -1,4 +1,7 @@
 class BeautifyPgnLines:
+    def __init__(self, line_len = 69):
+        self.line_len = line_len
+
     def execute(self, string):
         """
             set_vscroll_position(
@@ -32,7 +35,7 @@ class BeautifyPgnLines:
         return lines
 
     def split_line(self, line):
-        max_len_line = 69
+        max_len_line = self.line_len
         line = line.strip().replace("_ ", "_")
         if len(line) <= max_len_line:
             return line
@@ -66,4 +69,49 @@ class BeautifyPgnLines:
 
             else:
                 return line
+    def get_line_number(self, next_move, pgn_lines):
+        part_text = self.execute(str(next_move))
+        line_number = -1
+        # see if line number can be retrieved by comparing the first part of the partial moves
+        part_found = False
+        if len(part_text) > 0:
+            part_top_line = part_text[0]
+            parts = part_top_line.split(" ")
+            is_black = False
+            black_search = "rubbish"
+            # if line is starting with ... (black move), remove this first part
+            if len(parts) > 0 and parts[0].endswith("..."):
+                black_search = parts[0] + " " + parts[1]
+                parts = parts[1:]
+                is_black = True
+            parts_end = len(parts) == 1
+            # create the significant first line of the partial moves
+            line_to_search = " ".join(parts).strip()
+            if is_black:
+                line_to_search = " " + line_to_search
+            #print("search line:"+line_to_search+":", is_black, parts_end)
+            # loop through the pgn_lines to see if there is exactly one line that contains it
+            number = -1
+            i = 0
+            times = 0
+            for line in pgn_lines:
+                line_plus_1 = line
+                if i + 1 < len(pgn_lines) and not line.startswith(" "):
+                    line_plus_1 = line + " " + pgn_lines[i+1]
+                #line = line.strip()
+                if line.startswith(black_search) or parts_end and line.endswith(line_to_search) or not parts_end and line_to_search in line_plus_1:
+                    part_found = True
+                    number = i
+                    times = times + 1
+                    if line.startswith(black_search):
+                        break
+                i = i + 1
+            # if there is one hit, this line is used for the line_number
+            # > 1: ambiguous->use the last one; the first occurrence must be an analysis?
+            if times > 0:
+                line_number = number
+            else:
+                part_found = False
+        return (line_number, part_found)
+
 

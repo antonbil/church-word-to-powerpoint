@@ -35,6 +35,7 @@ class DataEntry:
         self.game.setup(self.board)
         self.current_move = self.game.game()
         self.move_squares = [0, 0, 0, 0]
+        self.beautify_lines = BeautifyPgnLines(69)
 
         if file_name:
             pgn = open(file_name)
@@ -134,7 +135,10 @@ class DataEntry:
                     self.gui.menu_elem.Update(menu_def_entry)
                     window_element.Update('Mode     PGN-Entry')
                 self.moves = [m for m in self.all_moves]
-                self.display_move()
+                if button == 'Annotate':
+                    self.display_move_and_line_number()
+                else:
+                    self.display_move()
             if self.gui.toolbar.get_button_id(button) == 'Next' and self.mode == "annotate":
                 self.execute_next_move(self.move_number)
 
@@ -218,7 +222,7 @@ class DataEntry:
                         self.current_move = self.moves[-1]
                     else:
                         self.game.game()
-                    self.display_move()
+                    self.display_move_and_line_number()
 
                 elif fr_col < 4:
                     self.execute_previous_move(self.move_number)
@@ -323,7 +327,7 @@ class DataEntry:
             self.move_number = move_number - 1
             self.moves.pop()
             self.define_moves_squares()
-            self.display_move()
+            self.display_move_and_line_number()
         else:
             sg.popup_error("Already at the first move", title="Error previous move", font=self.gui.text_font)
 
@@ -336,10 +340,23 @@ class DataEntry:
         if move_number < len(self.all_moves) - 1:
             self.move_number = move_number + 1
             self.moves.append(self.all_moves[self.move_number])
-            self.define_moves_squares()
-            self.display_move()
+            self.display_move_and_line_number()
         else:
             sg.popup_error("Already at the last move", title="Error next move", font=self.gui.text_font)
+
+    def display_move_and_line_number(self):
+        move_list_gui_element = self.window.find_element('_movelist_')
+        if len(self.moves) > 0:
+            line_number, is_available = self.beautify_lines.get_line_number(self.moves[-1], self.pgn_lines)
+            # print("line-number", line_number, is_available)
+            move_list_gui_element.Update(
+                self.pgn_lines, set_to_index=line_number, scroll_to_index=line_number - 3 if line_number > 2 else 0)
+            self.define_moves_squares()
+        else:
+            move_list_gui_element.Update(
+                self.pgn_lines)
+
+        self.display_move()
 
     def callback(self, advice):
         self.window.Read(timeout=5)
@@ -458,8 +475,9 @@ class DataEntry:
     def update_pgn_display(self):
         window = self.window.find_element('_movelist_')
         exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
-        pgn_string = self.game.accept(exporter)
-        lines = BeautifyPgnLines().execute(pgn_string)
+        pgn_string = str(self.game.game())#accept(exporter)
+        lines = self.beautify_lines.execute(pgn_string)
+        self.pgn_lines = lines
         window.Update(lines)
 
     def split_line(self, line):
