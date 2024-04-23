@@ -17,6 +17,7 @@ class DataEntry:
     """
 
     def __init__(self, gui, window, file_name = ""):
+        self.is_win_closed = False
         self.board = chess.Board()
         self.pgn_lines = []
         self.positions = []
@@ -97,6 +98,9 @@ class DataEntry:
 
         while True:
             button, value = self.window.Read(timeout=50)
+            if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
+                self.is_win_closed = True
+                break
             if button == 'Neutral':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
@@ -110,7 +114,8 @@ class DataEntry:
                 self.gui.menu_elem.Update(menu_def_pgnviewer)
                 self.gui.preferences.preferences["pgn_file"] = name_file
                 self.gui.preferences.preferences["pgn_game"] = ""
-                PGNViewer(self.gui, self.window)
+                pgn_viewer = PGNViewer(self.gui, self.window)
+                self.is_win_closed = pgn_viewer.is_win_closed
                 break
 
             if button == 'Data entry' or button == 'Annotate':

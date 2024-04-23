@@ -9,6 +9,7 @@ from common import menu_def_entry
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.is_win_closed = False
         self.variation_bool = False
         self.board = None
         self.go_up = True
@@ -59,6 +60,9 @@ class PGNViewer:
 
         while True:
             button, value = self.window.Read(timeout=50)
+            if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
+                self.is_win_closed = True
+                break
             if button == 'Neutral':
                 is_exit_game = True
                 self.gui.entry_game = False
@@ -72,7 +76,8 @@ class PGNViewer:
                     with open(name_file, mode='w') as f:
                         f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_entry)
-                DataEntry(self.gui, self.window, name_file)
+                data_entry = DataEntry(self.gui, self.window, name_file)
+                self.is_win_closed = data_entry.is_win_closed
                 break
             list_items = self.game_descriptions
             if button == "Select":

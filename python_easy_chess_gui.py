@@ -801,7 +801,8 @@ class EasyChessGui:
         self.is_save_user_comment = True
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
-        self.main_layout = self.get_neutral_layout()
+        # on startup the layout-options are changed if default-window is not 'neutral'
+        self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer", "data-entry"] else self.get_neutral_layout()
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.
@@ -2797,7 +2798,14 @@ class EasyChessGui:
 
         board_tab = [[sg.Column(board_layout)]]
 
-        self.menu_elem = sg.Menu(menu_def_neutral, tearoff=False, font=("Default", str(self.menu_font_size), ''))
+        # on startup the menu-options are changed if default-window is not 'neutral'
+        menu_def = menu_def_neutral
+        if self.start_mode_used == "pgnviewer":
+            menu_def = menu_def_pgnviewer
+        if self.start_mode_used == "data-entry":
+            menu_def = menu_def_entry
+
+        self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''))
 
         # White board layout, mode: Neutral
         layout = [
@@ -3031,23 +3039,31 @@ class EasyChessGui:
                 logging.info('Quit app from main loop, X is pressed.')
                 break
             if button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
-                self.main_layout = self.get_png_layout()
-                window = self.create_new_window(window)
-                self.menu_elem.Update(menu_def_pgnviewer)
-                PGNViewer(self, window)
+                # if default-window is not 'neutral', layout and menu are already changed
+                if button == 'PGN-Viewer':
+                    self.main_layout = self.get_png_layout()
+                    window = self.create_new_window(window)
+                    self.menu_elem.Update(menu_def_pgnviewer)
+                pgn_viewer = PGNViewer(self, window)
+                # 'neutral' is selected in PGNViewer-menu
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = ""
-                window = self.create_new_window(window)
-                self.menu_elem.Update(menu_def_neutral)
+                if not pgn_viewer.is_win_closed:
+                    window = self.create_new_window(window)
+                    self.menu_elem.Update(menu_def_neutral)
             if button == 'Analyse' or self.start_mode_used == "data-entry":
-                self.main_layout = self.get_png_layout()
-                window = self.create_new_window(window)
-                self.menu_elem.Update(menu_def_entry)
-                DataEntry(self, window)#, "2024-04-11-leo-anton.pgn")
+                # if default-window is not 'neutral', layout and menu are already changed
+                if button == 'Analyse':
+                    self.main_layout = self.get_png_layout()
+                    window = self.create_new_window(window)
+                    self.menu_elem.Update(menu_def_entry)
+                data_entry = DataEntry(self, window)
+                # 'neutral' is selected in DataEntry-menu
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = ""
-                window = self.create_new_window(window)
-                self.menu_elem.Update(menu_def_neutral)
+                if not data_entry.is_win_closed:
+                    window = self.create_new_window(window)
+                    self.menu_elem.Update(menu_def_neutral)
 
             if button == 'Next':
                 print("next")
