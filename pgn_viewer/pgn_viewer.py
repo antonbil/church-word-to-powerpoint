@@ -543,7 +543,7 @@ class PGNViewer:
             i = 0
             times = 0
             for line in self.pgn_lines:
-                if part_text and line.endswith(line_to_search) or not part_text and line_to_search in line:
+                if parts_end and line.endswith(" "+line_to_search) or not parts_end and line_to_search in line:
                     part_found = True
                     number = i
                     times = times + 1
