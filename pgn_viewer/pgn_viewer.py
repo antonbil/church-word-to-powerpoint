@@ -155,7 +155,9 @@ class PGNViewer:
                 self.analyse_game()
 
             if button == "Analyse db":
-                self.analyse_db()
+                if self.check_edit_single_pgn():
+                    self.analyse_db()
+
             if button == 'Previous Game':
                 if self.check_edit_single_pgn():
                     index = self.game_descriptions.index(self.my_game)
