@@ -529,42 +529,43 @@ class PGNViewer:
             return
 
         # see if line number can be retrieved by comparing the first part of the partial moves
-        part_found = False
-        if len(part_text) > 0:
-            part_top_line = part_text[0]
-            parts = part_top_line.split(" ")
-            is_black = False
-            # if line is starting with ... (black move), remove this first part
-            if len(parts) > 0 and parts[0].endswith("..."):
-                parts = parts[1:]
-                is_black = True
-            parts_end = len(parts) == 1
-            # create the significant first line of the partial moves
-            line_to_search = " ".join(parts).strip()
-            if is_black:
-                line_to_search = " " + line_to_search
-            # loop through the pgn_lines to see if there is exactly one line that contains it
-            number = -1
-            i = 0
-            times = 0
-            for line in self.pgn_lines:
-                if parts_end and line.endswith(line_to_search) or not parts_end and line_to_search in line:
-                    part_found = True
-                    number = i
-                    times = times + 1
-                i = i + 1
-            # if there is one hit, this line is used for the line_number
-            # > 1: ambiguous->use the last one; the first occurrence must be an analysis?
-            if times > 0:
-                line_number = number
-            else:
-                part_found = False
-        if not part_found:
-            # do some sophisticated search for the line the move is in
-            if next_move.is_mainline():
-                line_number = self.positions[move_number]
-            else:
-                line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
+        line_number, is_available = self.beautify_lines.get_line_number(next_move, self.pgn_lines)
+        # part_found = False
+        # if len(part_text) > 0:
+        #     part_top_line = part_text[0]
+        #     parts = part_top_line.split(" ")
+        #     is_black = False
+        #     # if line is starting with ... (black move), remove this first part
+        #     if len(parts) > 0 and parts[0].endswith("..."):
+        #         parts = parts[1:]
+        #         is_black = True
+        #     parts_end = len(parts) == 1
+        #     # create the significant first line of the partial moves
+        #     line_to_search = " ".join(parts).strip()
+        #     if is_black:
+        #         line_to_search = " " + line_to_search
+        #     # loop through the pgn_lines to see if there is exactly one line that contains it
+        #     number = -1
+        #     i = 0
+        #     times = 0
+        #     for line in self.pgn_lines:
+        #         if parts_end and line.endswith(line_to_search) or not parts_end and line_to_search in line:
+        #             part_found = True
+        #             number = i
+        #             times = times + 1
+        #         i = i + 1
+        #     # if there is one hit, this line is used for the line_number
+        #     # > 1: ambiguous->use the last one; the first occurrence must be an analysis?
+        #     if times > 0:
+        #         line_number = number
+        #     else:
+        #         part_found = False
+        # if not part_found:
+        #     # do some sophisticated search for the line the move is in
+        #     if next_move.is_mainline():
+        #         line_number = self.positions[move_number]
+        #     else:
+        #         line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
 
         if line_number > -1:
             str1 = "\n".join(self.pgn_lines)+"\n"
