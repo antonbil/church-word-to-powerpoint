@@ -32,6 +32,7 @@ class PGNViewer:
         self.move_number = 0
         self.move_squares = [0,0,0,0]
         self.current_move = None
+        self.beautify_lines = BeautifyPgnLines()
         try:
             self.load_start_pgn()
 
@@ -409,7 +410,7 @@ class PGNViewer:
 
     def display_pgn(self, game):
         string = str(game.game())
-        lines = BeautifyPgnLines().execute(string)
+        lines = self.beautify_lines.execute(string)
         self.pgn_lines = lines
         string = "\n".join(lines)
         #print(string)
@@ -521,7 +522,7 @@ class PGNViewer:
             alternatives = "({}->{})".format(first, ",".join([item.replace(first, "") for item in alternatives]))
         self.window.find_element('_currentmove_').Update(move_string + alternatives)
         # get formatted partial moves: rest of moves from current-move on
-        part_text = BeautifyPgnLines().execute(str(next_move))
+        part_text = self.beautify_lines.execute(str(next_move))
         if self.variation_bool:
             window = self.window.find_element('_movelist_')
             window.Update(part_text)

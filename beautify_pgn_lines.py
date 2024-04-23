@@ -96,9 +96,14 @@ class BeautifyPgnLines:
             times = 0
             for line in pgn_lines:
                 line_plus_1 = line
-                if i + 1 < len(pgn_lines) and not line.startswith(" "):
-                    line_plus_1 = line + " " + pgn_lines[i+1]
-                #line = line.strip()
+
+                if i + 1 < len(pgn_lines):
+                    st_sp_1 = self.start_spaces(line)
+                    second_line = pgn_lines[i + 1]
+                    st_sp_2 = self.start_spaces(second_line)
+                    if st_sp_1 == st_sp_2:
+                        line_plus_1 = line.strip() + " " + second_line.strip()
+
                 if line.startswith(black_search) or parts_end and line.endswith(line_to_search) or not parts_end and line_to_search in line_plus_1:
                     part_found = True
                     number = i
@@ -113,5 +118,13 @@ class BeautifyPgnLines:
             else:
                 part_found = False
         return (line_number, part_found)
+
+    def start_spaces(self, line):
+        if len(line.strip()) == 0:
+            return 0
+        i = 0
+        while line[i] == " ":
+            i = i + 1
+        return i
 
 
