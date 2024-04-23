@@ -10,6 +10,7 @@ import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
 from common import menu_def_entry, menu_def_annotate, temp_file_name
+from beautify_pgn_lines import BeautifyPgnLines
 
 class DataEntry:
     """
@@ -458,7 +459,8 @@ class DataEntry:
         window = self.window.find_element('_movelist_')
         exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
         pgn_string = self.game.accept(exporter)
-        window.Update(self.split_line(pgn_string))
+        lines = BeautifyPgnLines().execute(pgn_string)
+        window.Update(lines)
 
     def split_line(self, line):
         max_len_line = 58

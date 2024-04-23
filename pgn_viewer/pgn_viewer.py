@@ -5,6 +5,8 @@ import PySimpleGUI as sg
 import os
 from annotator import annotator
 from common import menu_def_entry, temp_file_name
+from beautify_pgn_lines import BeautifyPgnLines
+
 
 class PGNViewer:
     """header dialog class"""
@@ -318,8 +320,8 @@ class PGNViewer:
     def check_edit_single_pgn(self):
         file_name = self.gui.preferences.preferences["pgn_file"]
         if file_name == temp_file_name:
-            if sg.popup_yes_no('Currently not available because you are editing a pgn"+'
-                               '"\nReread pgn?\n(changes on this pgn will be lost!!)') == 'Yes':
+            if sg.popup_yes_no('Currently not available because you are editing a pgn'+
+                               '\nReread pgn?\n(changes on this pgn will be lost!!)') == 'Yes':
                 self.gui.preferences.preferences = self.gui.preferences.load_preferences()
                 self.load_start_pgn()
                 return True
@@ -404,32 +406,10 @@ class PGNViewer:
             moves.append(current_move)
         return moves
 
-    def split_line(self, line):
-        max_len_line = 69
-        line = line.strip().replace("_ ", "_")
-        if len(line) <= max_len_line:
-            return line
-        line = line.replace(".  ", ".H")
-        words = line.split(" ")
-        prefix_number = words[0].count("_")
-        len_line = len(words[0])
-        line=words[0]
-        words.pop(0)
-        for word in words:
-            if len_line + len(word) > max_len_line:
-                line = line+"\n"+("_"*prefix_number)
-                len_line = len(word)
-            else:
-                len_line = len_line + 1
-                line = line + " "
-            len_line = len_line + len(word)
-            line = line + word
-        line = line.replace( ".H",".  ")
-        return line
 
     def display_pgn(self, game):
         string = str(game.game())
-        lines = self.beautify_lines(string)
+        lines = BeautifyPgnLines().execute(string)
         self.pgn_lines = lines
         string = "\n".join(lines)
         #print(string)
@@ -446,51 +426,6 @@ class PGNViewer:
             # print("move", s, line_number)
             previous = s
         self.move_number = 0
-
-    def beautify_lines(self, string):
-        """
-            set_vscroll_position(
-        percent_from_top
-    )
-            """
-        string = list(string)
-        indent = 0
-        inside_comment = False
-        for index, item in enumerate(string):
-
-            if item == "(" and not inside_comment:
-                indent = indent + 1
-                string[index] = "\n" + ("_" * indent)
-            if item == "{":
-                indent = indent + 1
-                string[index] = "\n" + ("_" * indent)
-                inside_comment = True
-            if item == ")" and not inside_comment:
-                indent = indent - 1
-                string[index] = "\n" + ("_" * indent)
-            if item == "}":
-                indent = indent - 1
-                string[index] = "\n" + ("_" * indent)
-                inside_comment = False
-        lines = "".join(string).split("\n")
-        lines = [self.split_line(l).replace("_", " ") for l in lines if
-                 len(l.replace("_", "").strip()) > 0 and not l.startswith("[")]
-        lines = [self.change_nag(line) for line in lines]
-        lines = "\n".join(lines).split("\n")
-        return lines
-
-    def change_nag(self,line):
-        nags = {"1":"!", "2":"?","3":"!!","4":"??","5":"!?","6":"?!", "9":".."}
-        if "$" in line:
-            for i in range(0, 10):
-                line = line.replace("$"+str(i), "")
-                for k in nags:
-                    key = "$"+k
-                    line = line.replace(key, nags[k])
-            return line
-
-        else:
-            return line
 
 
     def get_move_string(self, move):
@@ -586,7 +521,7 @@ class PGNViewer:
             alternatives = "({}->{})".format(first, ",".join([item.replace(first, "") for item in alternatives]))
         self.window.find_element('_currentmove_').Update(move_string + alternatives)
         # get formatted partial moves: rest of moves from current-move on
-        part_text = self.beautify_lines(str(next_move))
+        part_text = BeautifyPgnLines().execute(str(next_move))
         if self.variation_bool:
             window = self.window.find_element('_movelist_')
             window.Update(part_text)
