@@ -3048,6 +3048,7 @@ class EasyChessGui:
                 # 'neutral' is selected in PGNViewer-menu
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = ""
+                # check if window is forced close
                 if not pgn_viewer.is_win_closed:
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_neutral)
@@ -3061,6 +3062,7 @@ class EasyChessGui:
                 # 'neutral' is selected in DataEntry-menu
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = ""
+                # check if window is forced close
                 if not data_entry.is_win_closed:
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_neutral)
