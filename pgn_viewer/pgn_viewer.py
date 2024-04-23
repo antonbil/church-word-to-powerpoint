@@ -4,7 +4,7 @@ import chess.svg
 import PySimpleGUI as sg
 import os
 from annotator import annotator
-from common import menu_def_entry
+from common import menu_def_entry, temp_file_name
 
 class PGNViewer:
     """header dialog class"""
@@ -71,7 +71,7 @@ class PGNViewer:
             if button == 'Analyse':
                 # import later, to avoid recursive import
                 from data_entry.data_entry import DataEntry
-                name_file = "tempsave.pgn"
+                name_file = temp_file_name
                 if not name_file == self.pgn:
                     with open(name_file, mode='w') as f:
                         f.write('{}\n\n'.format(self.game))
@@ -95,7 +95,6 @@ class PGNViewer:
                                    font=self.gui.text_font, file_types=(("PGN files", ".pgn"),))
                 if filename:
                     self.pgn = filename
-                    self.gui.save_pgn_file_in_preferences(filename)
                     self.gui.save_pgn_file_in_preferences(self.pgn)
                     pgn_file = self.pgn
                     self.open_pgn_file(pgn_file)
@@ -245,7 +244,7 @@ class PGNViewer:
         self.analyse_game_func(store_in_db)
 
     def analyse_game_func(self, store_in_db):
-        pgn_file = 'tempsave.pgn'
+        pgn_file = temp_file_name
         with open(pgn_file, mode='w') as f:
             f.write('{}\n\n'.format(self.game))
         name_file = self.game.headers['Date'].replace("/", "-").replace(".??", "") + "-" + self.game.headers[
@@ -315,14 +314,15 @@ class PGNViewer:
         self.game_descriptions = []
         self.game_descriptions.append(self.get_description_pgn(game))
         self.my_game = self.get_description_pgn(game)
-        self.gui.save_pgn_game_in_preferences(self.my_game)
-        while True:
-            game1 = chess.pgn.read_game(pgn)
-            if game1 is None:
-                break  # end of file
+        if not (pgn_file == temp_file_name):
+            self.gui.save_pgn_game_in_preferences(self.my_game)
+            while True:
+                game1 = chess.pgn.read_game(pgn)
+                if game1 is None:
+                    break  # end of file
 
-            self.game_descriptions.append(self.get_description_pgn(game1))
-        #print(self.game_descriptions)
+                self.game_descriptions.append(self.get_description_pgn(game1))
+            #print(self.game_descriptions)
         self.init_game(game)
         self.display_move()
 

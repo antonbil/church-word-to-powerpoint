@@ -62,7 +62,7 @@ from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from data_entry.data_entry import DataEntry
 from preferences.preferences import Preferences
-from common import menu_def_pgnviewer, menu_def_entry
+from common import menu_def_pgnviewer, menu_def_entry, temp_file_name
 from toolbar import ToolBar
 
 
@@ -2669,7 +2669,7 @@ class EasyChessGui:
     def analyse_game(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         if header_dialog.ok:
-            pgn_file = 'tempsave.pgn'
+            pgn_file = temp_file_name
             with open(pgn_file, mode='w') as f:
                 f.write('{}\n\n'.format(pgn_game))
             annotator.start_analise(pgn_file,
@@ -2972,8 +2972,9 @@ class EasyChessGui:
             self.preferences.save_preferences()
 
     def save_pgn_file_in_preferences(self, pgn_file):
-        self.preferences.preferences["pgn_file"] = pgn_file
-        self.preferences.save_preferences()
+        if not (pgn_file == temp_file_name):
+            self.preferences.preferences["pgn_file"] = pgn_file
+            self.preferences.save_preferences()
 
     def save_pgn_game_in_preferences(self, pgn_file):
         self.preferences.preferences["pgn_game"] = pgn_file

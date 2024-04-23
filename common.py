@@ -15,3 +15,5 @@ menu_def_pgnviewer = [
         ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
         ['Tools', ['Analyse db', 'Analyse game', 'Analyse move']]
 ]
+
+temp_file_name = 'tempsave.pgn'

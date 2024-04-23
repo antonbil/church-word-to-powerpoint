@@ -9,7 +9,7 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-from common import menu_def_entry, menu_def_annotate
+from common import menu_def_entry, menu_def_annotate, temp_file_name
 
 class DataEntry:
     """
@@ -106,7 +106,7 @@ class DataEntry:
                 self.gui.start_entry_mode = False
                 break
             if button == 'PGN-Viewer':
-                name_file = "tempsave.pgn"
+                name_file = temp_file_name
                 self.game.headers['White'] = value['_White_']
                 self.game.headers['Black'] = value['_Black_']
                 with open(name_file, mode='w') as f:
