@@ -420,6 +420,7 @@ class PGNViewer:
         self.move_number = 0
         self.go_up = True
         self.current_line = -1
+        # obsolete
         for move in moves:
             line_number, s = self.get_line_number(lines, move, previous)
             self.move_number = self.move_number + 1
@@ -440,6 +441,7 @@ class PGNViewer:
         move_item = move_string.split(" ")[:2]
         return " ".join(move_item)
 
+    # obsolete
     def get_line_number(self, lines, move, previous):
         move_item = self.get_move_string(move)
         # print("move item:", move_item)
