@@ -322,8 +322,10 @@ class PGNViewer:
                 self.load_start_pgn()
                 return True
             else:
+                # user says: No!
                 return False
         else:
+            # no editing right now; continue as usual
             return True
 
     def open_pgn_file(self, pgn_file):
