@@ -31,14 +31,7 @@ class PGNViewer:
         self.move_squares = [0,0,0,0]
         self.current_move = None
         try:
-            game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
-                else ""
-            file_name = self.gui.preferences.preferences["pgn_file"]
-            self.open_pgn_file(file_name)
-            self.pgn = file_name
-            self.my_game = game_name
-            if game_name:
-                self.select_game()
+            self.load_start_pgn()
 
         except:
             pass
@@ -48,6 +41,16 @@ class PGNViewer:
         turn()→ chess.Color[source] Gets the color to move at this node.
         variations: List[ChildNode] A list of child nodes
         """
+
+    def load_start_pgn(self):
+        game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
+            else ""
+        file_name = self.gui.preferences.preferences["pgn_file"]
+        self.open_pgn_file(file_name)
+        self.pgn = file_name
+        self.my_game = game_name
+        if game_name:
+            self.select_game()
 
     def get_description_pgn(self, game):
         return "{}-{} {} ({})".format(game.headers['White'],game.headers['Black'],game.headers['Date'],game.headers['Result'])
@@ -79,13 +82,14 @@ class PGNViewer:
                 data_entry = DataEntry(self.gui, self.window, name_file)
                 self.is_win_closed = data_entry.is_win_closed
                 break
-            list_items = self.game_descriptions
+            #list_items = self.game_descriptions
             if button == "Select":
-                title_window = "Read PGN"
-                selected_item = self.gui.get_item_from_list(list_items, title_window)
-                if selected_item:
-                    self.my_game = selected_item
-                    self.select_game()
+                if self.check_edit_single_pgn():
+                    title_window = "Read PGN"
+                    selected_item = self.gui.get_item_from_list(self.game_descriptions, title_window)
+                    if selected_item:
+                        self.my_game = selected_item
+                        self.select_game()
 
             if button == 'Read':
                 # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
@@ -135,10 +139,11 @@ class PGNViewer:
                         self.set_new_position(new_pos)
 
             if button == 'Next Game':
-                index = list_items.index(self.my_game)
-                if index < len(list_items) - 1:
-                    self.my_game = list_items[index + 1]
-                    self.select_game()
+                if self.check_edit_single_pgn():
+                    index = self.game_descriptions.index(self.my_game)
+                    if index < len(self.game_descriptions) - 1:
+                        self.my_game = self.game_descriptions[index + 1]
+                        self.select_game()
 
             if button == 'Analyse move':
                 self.analyse_move()
@@ -152,10 +157,12 @@ class PGNViewer:
             if button == "Analyse db":
                 self.analyse_db()
             if button == 'Previous Game':
-                index = list_items.index(self.my_game)
-                if index > 0:
-                    self.my_game = list_items[index - 1]
-                    self.select_game()
+                if self.check_edit_single_pgn():
+                    index = self.game_descriptions.index(self.my_game)
+                    if index > 0:
+                        self.my_game = self.game_descriptions[index - 1]
+                        self.select_game()
+
             if self.gui.toolbar.get_button_id(button) == 'Crop':
                 self.variation_bool = not self.variation_bool
                 self.display_part_pgn(self.move_number, self.current_move)
@@ -305,6 +312,19 @@ class PGNViewer:
         self.init_game(game1)
         self.gui.save_pgn_game_in_preferences(self.my_game)
         self.display_move()
+
+    def check_edit_single_pgn(self):
+        file_name = self.gui.preferences.preferences["pgn_file"]
+        if file_name == temp_file_name:
+            if sg.popup_yes_no('Currently not available because you are editing a pgn"+'
+                               '"\nReread pgn?\n(changes on this pgn will be lost!!)') == 'Yes':
+                self.gui.preferences.preferences = self.gui.preferences.load_preferences()
+                self.load_start_pgn()
+                return True
+            else:
+                return False
+        else:
+            return True
 
     def open_pgn_file(self, pgn_file):
         pgn = open(pgn_file)
