@@ -123,7 +123,8 @@ class DataEntry:
             if button == 'Data entry' or button == 'Annotate':
                 if self.mode == "entry":
                     self.mode = "annotate"
-                    buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")]
+                    buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
+                               , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
                     self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
                     self.gui.menu_elem.Update(menu_def_annotate)
@@ -150,18 +151,12 @@ class DataEntry:
                 self.moves[-1].comment = text
                 self.update_pgn_display()
 
-            if button == 'Alternative manual' and self.mode == "annotate":
-                # sg.popup_error("No legal move", title="Error enter move",
-                #                font=self.gui.text_font)
-                sg.popup("Enter move \nby moving pieces on the board", title="Enter move for "+("White" if self.moves[-1].turn()else "Black"),
-                                font=self.gui.text_font)
-                self.mode = "manual move"
-                move_state = 0
-                self.set_status()
-                #self.analyse_manual_move()
-                #self.update_pgn_display()
+            if (button == 'Alternative manual' or self.gui.toolbar.get_button_id(button) == 'Add Move') \
+                    and self.mode == "annotate":
+                move_state = self.move_add_manual(move_state)
 
-            if button == 'Alternative' and self.mode == "annotate":
+            if (button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Best?') \
+                    and self.mode == "annotate":
                 self.analyse_move()
                 self.update_pgn_display()
 
@@ -271,6 +266,15 @@ class DataEntry:
                     else:
                         self.execute_move(fr_col, fr_row, to_col, to_row)
                         move_state = 0
+
+    def move_add_manual(self, move_state):
+        sg.popup("Enter move \nby moving pieces on the board",
+                 title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
+                 font=self.gui.text_font)
+        self.mode = "manual move"
+        move_state = 0
+        self.set_status()
+        return move_state
 
     def set_status(self):
         window_element = self.window.find_element('_gamestatus_')
