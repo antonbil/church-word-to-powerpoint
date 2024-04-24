@@ -97,11 +97,12 @@ class PGNViewer:
             if button == 'Read':
                 # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
                 #see: https://docs.pysimplegui.com/en/latest/documentation/module/popups/
-                filename = sg.popup_get_file('message will not be shown', no_window=True,
-                                             # remember to place the "," in file_types
-                                   font=self.gui.text_font, file_types=(("PGN files", ".pgn"),))
-                if filename:
-                    self.pgn = filename
+                self.gui.file_dialog.read_file()
+                # filename = sg.popup_get_file('message will not be shown', no_window=True,
+                #                              # remember to place the "," in file_types
+                #                    font=self.gui.text_font, file_types=(("PGN files", ".pgn"),))
+                if self.gui.file_dialog.filename:
+                    self.pgn = self.gui.file_dialog.filename
                     self.gui.save_pgn_file_in_preferences(self.pgn)
                     pgn_file = self.pgn
                     self.open_pgn_file(pgn_file)
@@ -239,8 +240,8 @@ class PGNViewer:
             'White'].replace(" ", "_") \
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
         analysed_game = annotator.start_analise(pgn_file,
-                                self.gui.engine, name_file, store_in_db)
-        return analyzed_game
+                                self.gui.engine, name_file, store_in_db, self.gui)
+        return analysed_game
 
     def callback(self, advice):
         self.window.Read(timeout=5)

@@ -64,6 +64,7 @@ from data_entry.data_entry import DataEntry
 from preferences.preferences import Preferences
 from common import menu_def_pgnviewer, menu_def_entry, temp_file_name
 from toolbar import ToolBar
+from dialogs.file_actions import FileDialog
 
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
@@ -798,11 +799,13 @@ class EasyChessGui:
         self.scrollbar_width = int(int(self.menu_font_size) * 16 / 12)
         self.board_color = my_preferences["board_color"] if "board_color" in my_preferences else "Brown::board_color_k"
         self.pgn_file = my_preferences["pgn_file"] if "pgn_file" in my_preferences else ""
+        self.default_png_dir = my_preferences["default_png_dir"] if "default_png_dir" in my_preferences else "./"
         self.is_save_user_comment = True
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
         self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer", "data-entry"] else self.get_neutral_layout()
+        self.file_dialog = FileDialog(self, self.default_png_dir)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.
@@ -2658,13 +2661,15 @@ class EasyChessGui:
     def save_game_pgn(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         if header_dialog.ok:
-            with open(name_file, mode='w') as f:
-                f.write('{}\n\n'.format(pgn_game))
-            if header_dialog.add_to_library:
-                with open("library.pgn", 'a') as file1:
-                    file1.write('{}\n\n'.format(pgn_game))
+            self.file_dialog.save_file(name_file)
+            if self.file_dialog.filename:
+                with open(self.file_dialog.filename, mode='w') as f:
+                    f.write('{}\n\n'.format(pgn_game))
+                if header_dialog.add_to_library:
+                    with open(os.path.join(gui.default_png_dir, "library.pgn"), 'a') as file1:
+                        file1.write('{}\n\n'.format(pgn_game))
 
-            sg.popup_ok("PGN is saved as:{}".format(name_file), title="Save PGN")
+                sg.popup_ok("PGN is saved as:{}".format(self.file_dialog.filename), title="Save PGN")
 
     def analyse_game(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
@@ -2680,7 +2685,7 @@ class EasyChessGui:
             with open(pgn_file, mode='w') as f:
                 f.write('{}\n\n'.format(pgn_game))
             analysed_game = annotator.start_analise(pgn_file,
-                                    self.engine, name_file, header_dialog.add_to_library)
+                                    self.engine, name_file, header_dialog.add_to_library, self)
             window.close()
             sg.popup_ok("PGN is annotated and saved", title="Analyse PGN")
             return analysed_game
