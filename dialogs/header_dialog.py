@@ -21,8 +21,9 @@ PREF = {}
 
 class HeaderDialog:
     """header dialog class"""
-    def __init__(self, white, black, sites_list, events_list, players, pgn_game):
+    def __init__(self, white, black, sites_list, events_list, players, pgn_game, gui):
         self.ok = False
+        self.gui = gui
         self.pgn_game = pgn_game
         self.white = white
         self.black = black
@@ -40,39 +41,39 @@ class HeaderDialog:
         PREF = {'white': white, 'black': black, 'date': self.date}
         results = ["1-0", "1/2-1/2", "0-1", "*"]
         rounds = [str(l) for l in range(1,50)]
-        sg.theme('default')
+        #sg.theme('default')
         self.layout = [
-            [[sg.Text("Event:"),
-              sg.Combo(events_list, font=('Arial Bold', 14), expand_x=True, enable_events=True,
-                       readonly=False, key='event', default_value=self.default_value("Event"))]],
-            [[sg.Text("Site:"),
-              sg.Combo(sites_list, font=('Arial Bold', 14), expand_x=True, enable_events=True,
+            [[sg.Text("Event:", font=self.gui.text_font),
+              sg.Combo(events_list, expand_x=True, enable_events=True,
+                       readonly=False, font=self.gui.text_font, key='event', default_value=self.default_value("Event"))]],
+            [[sg.Text("Site:", font=self.gui.text_font),
+              sg.Combo(sites_list, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='site', default_value=self.default_value("Site"))]],
-            [[sg.Text("Date:"),
+            [[sg.Text("Date:", font=self.gui.text_font),
               sg.Input(key='date',
-                       size=(20, 1)), sg.CalendarButton('Calendar', target='date',
-                                                                    format='%Y/%m/%d',
+                       size=(20, 1), font=self.gui.text_font), sg.CalendarButton('Calendar', target='date',
+                                                                    format='%Y/%m/%d', font=self.gui.text_font,
                                                                     locale='nl_NL',
                                                                     begin_at_sunday_plus=1)]],
-            [[sg.Text("Round:"),
-              sg.Combo(rounds, font=('Arial Bold', 14), expand_x=True, enable_events=True,
+            [[sg.Text("Round:", font=self.gui.text_font),
+              sg.Combo(rounds, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='round', default_value=self.default_value("Round"))]],
-            [[sg.Text("White:"),
-                    sg.Combo(players, font=('Arial Bold', 14), expand_x=True, enable_events=True,
+            [[sg.Text("White:", font=self.gui.text_font),
+                    sg.Combo(players, font=self.gui.text_font, expand_x=True, enable_events=True,
                                 readonly=False, key='white', default_value=self.default_value("White"))]],
-            [[sg.Text("Black:"),
-             sg.Combo(players, font=('Arial Bold', 14), expand_x=True, enable_events=True,
+            [[sg.Text("Black:", font=self.gui.text_font),
+             sg.Combo(players, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='black', default_value=self.default_value("Black"))]],
-            [[sg.Text("Result:"),
-              sg.Combo(results, font=('Arial Bold', 14), expand_x=True, enable_events=True,
+            [[sg.Text("Result:", font=self.gui.text_font),
+              sg.Combo(results, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='result', default_value=self.default_value("Result"))]],
             [
               sg.CBox('Add to library', key='add_to_library',
-                      default=False)],
-                    [sg.Button("Save"), sg.Button("Close")]
+                      default=False, font=self.gui.text_font)],
+                    [sg.Button("Save", font=self.gui.text_font), sg.Button("Close", font=self.gui.text_font)]
                     ]
 
-        window = sg.Window("Game data", self.layout, font=("Ubuntu", 12), size=(600, 450),
+        window = sg.Window("Game data", self.layout, font=self.gui.text_font, size=(600, 450),
                         finalize=True, modal=True, keep_on_top=True)
 
         sg.fill_form_with_values(window=window, values_dict=PREF)

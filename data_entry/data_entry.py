@@ -187,6 +187,7 @@ class DataEntry:
                 value_white = value['_White_']
                 value_black = value['_Black_']
                 self.gui.save_game_pgn(value_white, value_black, self.game)
+                self.update_player_data()
             #
             if button == "Restore alternative" and self.mode == "annotate":
                 if len(self.promoted) > 0:
@@ -272,6 +273,10 @@ class DataEntry:
                     else:
                         self.execute_move(fr_col, fr_row, to_col, to_row)
                         move_state = 0
+
+    def update_player_data(self):
+        self.window.find_element('_White_').Update(self.game.headers['White'])
+        self.window.find_element('_Black_').Update(self.game.headers['Black'])
 
     def move_add_manual(self, move_state):
         sg.popup("Enter move \nby moving pieces on the board",
