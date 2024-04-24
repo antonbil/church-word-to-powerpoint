@@ -121,7 +121,6 @@ class DataEntry:
                 break
 
             if button == 'Data entry' or button == 'Annotate':
-                window_element = self.window.find_element('_gamestatus_')
                 if self.mode == "entry":
                     self.mode = "annotate"
                     buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")]
@@ -129,11 +128,11 @@ class DataEntry:
 
                     self.gui.menu_elem.Update(menu_def_annotate)
                     self.move_number = len(self.all_moves) - 1
-                    window_element.Update('Mode     PGN-Annotate')
+                    self.set_status()
                 else:
                     self.set_entry_mode()
                     self.gui.menu_elem.Update(menu_def_entry)
-                    window_element.Update('Mode     PGN-Entry')
+                    self.set_status()
                 self.moves = [m for m in self.all_moves]
                 if button == 'Annotate':
                     self.display_move_and_line_number()
@@ -152,8 +151,15 @@ class DataEntry:
                 self.update_pgn_display()
 
             if button == 'Alternative manual' and self.mode == "annotate":
-                self.analyse_manual_move()
-                self.update_pgn_display()
+                # sg.popup_error("No legal move", title="Error enter move",
+                #                font=self.gui.text_font)
+                sg.popup("Enter move \nby moving pieces on the board", title="Enter move for "+("White" if self.moves[-1].turn()else "Black"),
+                                font=self.gui.text_font)
+                self.mode = "manual move"
+                move_state = 0
+                self.set_status()
+                #self.analyse_manual_move()
+                #self.update_pgn_display()
 
             if button == 'Alternative' and self.mode == "annotate":
                 self.analyse_move()
@@ -234,7 +240,7 @@ class DataEntry:
                 else:
                     self.execute_next_move(self.move_number)
 
-            if type(button) is tuple and self.mode == "entry":
+            if type(button) is tuple and self.mode in ["entry", "manual move"]:
                 if move_state == 0:
                     # If fr_sq button is pressed
                     move_from = button
@@ -249,9 +255,31 @@ class DataEntry:
                     to_row, to_col = move_from
                     # remove all colors from squares
                     self.gui.default_board_borders(self.window)
+                    if self.mode == "manual move":
+                        legal_move, user_move = self.get_algebraic_move_from_coordinates(fr_col, fr_row, to_col, to_row)
+                        if legal_move:
+                            self.analise_new_move(user_move)
+                            self.update_pgn_display()
+                            self.update_move_display_element()
+                        else:
+                            sg.popup_error("No legal move", title="Error enter move",
+                                           font=self.gui.text_font)
+                        self.mode = "annotate"
+                        self.set_status()
+                        move_state = 0
+                        self.display_move()
+                    else:
+                        self.execute_move(fr_col, fr_row, to_col, to_row)
+                        move_state = 0
 
-                    self.execute_move(fr_col, fr_row, to_col, to_row)
-                    move_state = 0
+    def set_status(self):
+        window_element = self.window.find_element('_gamestatus_')
+        if self.mode == "annotate":
+            window_element.Update('Mode     PGN-Annotate')
+        elif self.mode == "entry":
+            window_element.Update('Mode     PGN-Entry')
+        elif self.mode == "manual move":
+            window_element.Update('Mode     Manual-Entry')
 
     def set_position_move(self, new_number):
         self.moves = self.all_moves[0:new_number]
@@ -305,23 +333,25 @@ class DataEntry:
             index = list_items_algebraic.index(selected_item)
             move_new = list_items[index]
             # add previous moves with new_move to board
-            board = chess.Board()
-            for main_move in self.moves:
-                move = main_move.move
-                board.push(move)
+            self.analise_new_move(move_new)
 
-            board.push(move_new)
-            # get engine advice for this new situation
-            advice, score, pv, pv_original, alternatives = self.gui.get_advice(board, self.callback)
-            # add all moves as coordinates in one line with spaces inbetween
-            str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
-            # ask user if he/she wants to add this new variation
-            text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
-                                     font=self.gui.text_font)
-            # add new variation if user agrees
-            if text:
-                self.moves[-1].add_line(self.uci_string2_moves(str_line3))
-                self.moves[-1].variations[-1].comment = str(score)
+    def analise_new_move(self, move_new):
+        board = chess.Board()
+        for main_move in self.moves:
+            move = main_move.move
+            board.push(move)
+        board.push(move_new)
+        # get engine advice for this new situation
+        advice, score, pv, pv_original, alternatives = self.gui.get_advice(board, self.callback)
+        # add all moves as coordinates in one line with spaces inbetween
+        str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
+        # ask user if he/she wants to add this new variation
+        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
+                                 font=self.gui.text_font)
+        # add new variation if user agrees
+        if text:
+            self.moves[-1].add_line(self.uci_string2_moves(str_line3))
+            self.moves[-1].variations[-1].comment = str(score)
 
     def uci_string2_moves(self, str_moves):
         """
@@ -433,23 +463,8 @@ class DataEntry:
             "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
 
     def execute_move(self, fr_col, fr_row, to_col, to_row):
-        fr_sq = chess.square(fr_col, 7 - fr_row)
-        to_sq = chess.square(to_col, 7 - to_row)
-        moved_piece = self.board.piece_type_at(chess.square(fr_col, 7 - fr_row))  # Pawn=1
-
-        # Change the color of the "fr" board square
-        self.gui.change_square_color(self.window, to_row, to_col)
-        # If user move is a promote
-        user_move = None
-        if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
-                moved_piece == chess.PAWN:
-            # is_promote = True
-            pyc_promo, psg_promo = self.gui.get_promo_piece(
-                user_move, self.board.turn, True)
-            user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
-        else:
-            user_move = chess.Move(fr_sq, to_sq)
-        if user_move not in list(self.board.legal_moves):
+        legal_move, user_move = self.get_algebraic_move_from_coordinates(fr_col, fr_row, to_col, to_row)
+        if not legal_move:
             print("illegal move")
             return 0
         try:
@@ -472,6 +487,27 @@ class DataEntry:
         self.move_squares.append(to_col)
         self.move_squares.append(to_row)
         self.display_move()
+
+    def get_algebraic_move_from_coordinates(self, fr_col, fr_row, to_col, to_row):
+        legal_move = True
+        fr_sq = chess.square(fr_col, 7 - fr_row)
+        to_sq = chess.square(to_col, 7 - to_row)
+        moved_piece = self.board.piece_type_at(chess.square(fr_col, 7 - fr_row))  # Pawn=1
+        # Change the color of the "fr" board square
+        self.gui.change_square_color(self.window, to_row, to_col)
+        # If user move is a promote
+        user_move = None
+        if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
+                moved_piece == chess.PAWN:
+            # is_promote = True
+            pyc_promo, psg_promo = self.gui.get_promo_piece(
+                user_move, self.board.turn, True)
+            user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
+        else:
+            user_move = chess.Move(fr_sq, to_sq)
+        if user_move not in list(self.board.legal_moves):
+            legal_move = False
+        return legal_move, user_move
 
     def define_moves_squares(self):
         move_str = str(self.moves[-1].move)
@@ -514,10 +550,7 @@ class DataEntry:
 
     def display_move(self):
         board = chess.Board()
-        if len(self.moves) > 0:
-            alternatives, move_string = self.pgn_display.get_nice_move_string(self.moves[-1])
-            self.window.find_element('_currentmove_').Update(move_string + alternatives)
-            self.window.find_element('comment_k').Update(self.moves[-1].comment)
+        self.update_move_display_element()
 
         for main_move in self.moves:
             move = main_move.move
@@ -538,3 +571,9 @@ class DataEntry:
         if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:
             self.gui.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
             self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
+
+    def update_move_display_element(self):
+        if len(self.moves) > 0:
+            alternatives, move_string = self.pgn_display.get_nice_move_string(self.moves[-1])
+            self.window.find_element('_currentmove_').Update(move_string + alternatives)
+            self.window.find_element('comment_k').Update(self.moves[-1].comment)
