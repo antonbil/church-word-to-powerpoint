@@ -159,6 +159,7 @@ class DataEntry:
                     and self.mode == "annotate":
                 self.analyse_move()
                 self.update_pgn_display()
+                self.display_move_and_line_number()
 
             if self.gui.toolbar.get_button_id(button) == "Back" and self.mode == "entry":
                 self.remove_last_move()
@@ -262,7 +263,7 @@ class DataEntry:
                         self.mode = "annotate"
                         self.set_status()
                         move_state = 0
-                        self.display_move()
+                        self.display_move_and_line_number()
                     else:
                         self.execute_move(fr_col, fr_row, to_col, to_row)
                         move_state = 0
