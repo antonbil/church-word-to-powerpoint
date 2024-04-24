@@ -10,7 +10,7 @@ import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
 from common import menu_def_entry, menu_def_annotate, temp_file_name
-from beautify_pgn_lines import BeautifyPgnLines
+from beautify_pgn_lines import PgnDisplay
 
 class DataEntry:
     """
@@ -35,7 +35,7 @@ class DataEntry:
         self.game.setup(self.board)
         self.current_move = self.game.game()
         self.move_squares = [0, 0, 0, 0]
-        self.beautify_lines = BeautifyPgnLines(69)
+        self.pgn_display = PgnDisplay(69)
 
         if file_name:
             pgn = open(file_name)
@@ -211,18 +211,23 @@ class DataEntry:
                     if index > 0:
                         self.promote_variation_to_mainline(current_move, index)
 
+            if button == '_movelist_' and self.mode == "annotate":
+                selection = value[button]
+                if selection:
+                    item = selection[0]
+                    index = self.pgn_lines.index(item)
+                    self.current_line = index
+                    self.go_up = True
+                    new_pos = self.pgn_display.get_position_move_from_pgn_line(item)
+                    if new_pos >=1:
+                        self.set_position_move(new_pos)
+
             if type(button) is tuple and self.mode == "annotate":
                 move_from = button
                 fr_row, fr_col = move_from
                 if fr_row == 0:
                     new_number = min(int(fr_col * (len(self.all_moves) - 1) / 7), len(self.all_moves))
-                    self.moves = self.all_moves[0:new_number]
-                    self.move_number = len(self.moves) - 1
-                    if len(self.moves) > 0:
-                        self.current_move = self.moves[-1]
-                    else:
-                        self.game.game()
-                    self.display_move_and_line_number()
+                    self.set_position_move(new_number)
 
                 elif fr_col < 4:
                     self.execute_previous_move(self.move_number)
@@ -247,6 +252,15 @@ class DataEntry:
 
                     self.execute_move(fr_col, fr_row, to_col, to_row)
                     move_state = 0
+
+    def set_position_move(self, new_number):
+        self.moves = self.all_moves[0:new_number]
+        self.move_number = len(self.moves) - 1
+        if len(self.moves) > 0:
+            self.current_move = self.moves[-1]
+        else:
+            self.game.game()
+        self.display_move_and_line_number()
 
     def set_entry_mode(self):
         self.mode = "entry"
@@ -347,7 +361,7 @@ class DataEntry:
     def display_move_and_line_number(self):
         move_list_gui_element = self.window.find_element('_movelist_')
         if len(self.moves) > 0:
-            line_number, is_available = self.beautify_lines.get_line_number(self.moves[-1], self.pgn_lines)
+            line_number, is_available = self.pgn_display.get_line_number(self.moves[-1], self.pgn_lines)
             # print("line-number", line_number, is_available)
             move_list_gui_element.Update(
                 self.pgn_lines, set_to_index=line_number, scroll_to_index=line_number - 3 if line_number > 2 else 0)
@@ -476,7 +490,7 @@ class DataEntry:
         window = self.window.find_element('_movelist_')
         exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
         pgn_string = str(self.game.game())#accept(exporter)
-        lines = self.beautify_lines.execute(pgn_string)
+        lines = self.pgn_display.beautify_lines(pgn_string)
         self.pgn_lines = lines
         window.Update(lines)
 
@@ -501,8 +515,8 @@ class DataEntry:
     def display_move(self):
         board = chess.Board()
         if len(self.moves) > 0:
-            moves_ = " ".join(str(self.moves[-1]).split(" ")[:2])
-            self.window.find_element('_currentmove_').Update(moves_)
+            alternatives, move_string = self.pgn_display.get_nice_move_string(self.moves[-1])
+            self.window.find_element('_currentmove_').Update(move_string + alternatives)
             self.window.find_element('comment_k').Update(self.moves[-1].comment)
 
         for main_move in self.moves:

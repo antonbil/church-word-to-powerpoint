@@ -1,8 +1,8 @@
-class BeautifyPgnLines:
+class PgnDisplay:
     def __init__(self, line_len = 69):
         self.line_len = line_len
 
-    def execute(self, string):
+    def beautify_lines(self, string):
         """
             set_vscroll_position(
         percent_from_top
@@ -70,7 +70,7 @@ class BeautifyPgnLines:
             else:
                 return line
     def get_line_number(self, next_move, pgn_lines):
-        part_text = self.execute(str(next_move))
+        part_text = self.beautify_lines(str(next_move))
         line_number = -1
         # see if line number can be retrieved by comparing the first part of the partial moves
         part_found = False
@@ -126,5 +126,55 @@ class BeautifyPgnLines:
         while line[i] == " ":
             i = i + 1
         return i
+
+    def get_position_move_from_pgn_line(self, item):
+        items = item.split(" ")
+        # if line starts with a " ", it is a comment or a variation
+        is_variation = item.startswith(" ")
+        if not is_variation:
+            items.reverse()
+        new_pos = -1
+        for move in items:
+            is_black = "..." in move
+            var = move.replace(".", "")
+            try:
+                # try converting to integer
+                val = int(var)
+                if is_variation:
+                    # go to previous move to allow for selection of the variation
+                    val = max(0, val - 1)
+                # the new position is per default at the start (white-move)
+                new_pos = val * 2
+                if is_variation or not is_variation and is_black:
+                    # move move-cursor one up, because the move-number itself is even (val * 2)
+                    new_pos = new_pos + 1
+
+                break
+
+            except ValueError:
+                pass
+        return new_pos
+
+    def get_move_string(self, move):
+        move_string = str(move)
+        if move_string.startswith("{"):
+            l1 = move_string.split("}")
+            l1.pop(0)
+            move_string = "}".join(l1).strip()
+
+        move_item = move_string.split(" ")[:2]
+        return " ".join(move_item)
+
+    def get_nice_move_string(self, next_move):
+        move_string = self.get_move_string(next_move)
+        alternatives = ""
+        if len(next_move.variations) > 1:
+            alternatives = [self.get_move_string(item) for item in next_move.variations]
+            # get next move-number; display it only once at start of alternatives
+            first = alternatives[0].split(" ")[0]
+            alternatives = "({}->{})".format(first, ",".join([item.replace(first, "") for item in alternatives]))
+        return alternatives, move_string
+
+
 
 

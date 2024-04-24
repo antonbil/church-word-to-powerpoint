@@ -5,7 +5,7 @@ import PySimpleGUI as sg
 import os
 from annotator import annotator
 from common import menu_def_entry, temp_file_name
-from beautify_pgn_lines import BeautifyPgnLines
+from beautify_pgn_lines import PgnDisplay
 
 
 class PGNViewer:
@@ -32,7 +32,7 @@ class PGNViewer:
         self.move_number = 0
         self.move_squares = [0,0,0,0]
         self.current_move = None
-        self.beautify_lines = BeautifyPgnLines()
+        self.pgn_display = PgnDisplay()
         try:
             self.load_start_pgn()
 
@@ -113,31 +113,7 @@ class PGNViewer:
                     index = self.pgn_lines.index(item)
                     self.current_line = index
                     self.go_up = True
-                    items = item.split(" ")
-                    # if line starts with a " ", it is a comment or a variation
-                    is_variation = item.startswith(" ")
-                    if not is_variation:
-                        items.reverse()
-                    new_pos = -1
-                    for move in items:
-                        is_black = "..." in move
-                        var = move.replace(".", "")
-                        try:
-                            # try converting to integer
-                            val = int(var)
-                            if is_variation:
-                                # go to previous move to allow for selection of the variation
-                                val = max(0, val - 1)
-                            # the new position is per default at the start (white-move)
-                            new_pos = val * 2
-                            if is_variation or not is_variation and is_black:
-                                # move move-cursor one up, because the move-number itself is even (val * 2)
-                                new_pos = new_pos + 1
-
-                            break
-
-                        except ValueError:
-                            pass
+                    new_pos = self.pgn_display.get_position_move_from_pgn_line(item)
                     if new_pos >=1:
                         self.set_new_position(new_pos)
 
@@ -407,10 +383,9 @@ class PGNViewer:
             moves.append(current_move)
         return moves
 
-
     def display_pgn(self, game):
         string = str(game.game())
-        lines = self.beautify_lines.execute(string)
+        lines = self.pgn_display.beautify_lines(string)
         self.pgn_lines = lines
         string = "\n".join(lines)
         #print(string)
@@ -420,83 +395,7 @@ class PGNViewer:
         self.move_number = 0
         self.go_up = True
         self.current_line = -1
-        # obsolete
-        for move in moves:
-            line_number, s = self.get_line_number(lines, move, previous)
-            self.move_number = self.move_number + 1
-            self.positions.append(line_number)
-            # print("move", s, line_number)
-            previous = s
         self.move_number = 0
-
-
-    def get_move_string(self, move):
-        move_string = str(move)
-        if move_string.startswith("{"):
-            l1 = move_string.split("}")
-            l1.pop(0)
-            move_string = "}".join(l1).strip()
-            # print("new variation:", move_string)
-
-        move_item = move_string.split(" ")[:2]
-        return " ".join(move_item)
-
-    # obsolete
-    def get_line_number(self, lines, move, previous):
-        move_item = self.get_move_string(move)
-        # print("move item:", move_item)
-        #s = move_item
-        i = 0
-        line_number = -1
-        for line in lines:
-            if not line.startswith("_"):
-                if move_item in line:
-                    line_number = i
-                    break
-                else:
-                    if "..." in move_item:
-                        s_total = previous + " " + move_item[1]
-                        if s_total in line:
-                            line_number = i
-                            break
-            i = i + 1
-        if line_number == -1:
-            i = 0
-            last = move_item.split(" ").pop()
-            number_ = str(self.move_number // 2)+"."
-            for line in lines:
-                if last in line and number_ in line and not line.startswith("_"):
-                    line_number = i
-                    break
-                i = i + 1
-
-        if line_number == -1:
-            i = 0
-            last = move_item.split(" ").pop()
-            number_ = str(self.move_number // 2)+"."
-            in_previous_line = False
-            for line in lines:
-                if last in line and in_previous_line and not line.startswith("_"):
-                    line_number = i
-                    break
-                in_previous_line = number_ in line
-                i = i + 1
-        #
-        if line_number == -1:
-            i = 0
-            last = move_item.split(" ").pop()
-            for line in lines:
-                if last in line and not line.startswith("_"):
-                    line_number = i
-                    break
-                i = i + 1
-        # print("line-number", self.go_up, self.current_line, line_number)
-        if self.go_up and line_number < self.current_line:
-            line_number = self.current_line
-        if not self.go_up and line_number < self.current_line:
-            line_number = self.current_line
-        self.current_line = line_number
-        return line_number, move_item
 
     def execute_next_move(self, move_number):
         if len(self.current_move.variations) > 0:
@@ -515,59 +414,17 @@ class PGNViewer:
         window.Update(
             next_move.comment, append=True, disabled=True)
 
-        move_string = self.get_move_string(next_move)
-        alternatives = ""
-        if len(next_move.variations) > 1:
-            alternatives = [self.get_move_string(item) for item in next_move.variations]
-            # get next move-number; display it only once at start of alternatives
-            first = alternatives[0].split(" ")[0]
-            alternatives = "({}->{})".format(first, ",".join([item.replace(first, "") for item in alternatives]))
+        alternatives, move_string = self.pgn_display.get_nice_move_string(next_move)
         self.window.find_element('_currentmove_').Update(move_string + alternatives)
         # get formatted partial moves: rest of moves from current-move on
-        part_text = self.beautify_lines.execute(str(next_move))
+        part_text = self.pgn_display.beautify_lines(str(next_move))
         if self.variation_bool:
             window = self.window.find_element('_movelist_')
             window.Update(part_text)
             return
 
         # see if line number can be retrieved by comparing the first part of the partial moves
-        line_number, is_available = self.beautify_lines.get_line_number(next_move, self.pgn_lines)
-        # part_found = False
-        # if len(part_text) > 0:
-        #     part_top_line = part_text[0]
-        #     parts = part_top_line.split(" ")
-        #     is_black = False
-        #     # if line is starting with ... (black move), remove this first part
-        #     if len(parts) > 0 and parts[0].endswith("..."):
-        #         parts = parts[1:]
-        #         is_black = True
-        #     parts_end = len(parts) == 1
-        #     # create the significant first line of the partial moves
-        #     line_to_search = " ".join(parts).strip()
-        #     if is_black:
-        #         line_to_search = " " + line_to_search
-        #     # loop through the pgn_lines to see if there is exactly one line that contains it
-        #     number = -1
-        #     i = 0
-        #     times = 0
-        #     for line in self.pgn_lines:
-        #         if parts_end and line.endswith(line_to_search) or not parts_end and line_to_search in line:
-        #             part_found = True
-        #             number = i
-        #             times = times + 1
-        #         i = i + 1
-        #     # if there is one hit, this line is used for the line_number
-        #     # > 1: ambiguous->use the last one; the first occurrence must be an analysis?
-        #     if times > 0:
-        #         line_number = number
-        #     else:
-        #         part_found = False
-        # if not part_found:
-        #     # do some sophisticated search for the line the move is in
-        #     if next_move.is_mainline():
-        #         line_number = self.positions[move_number]
-        #     else:
-        #         line_number, s = self.get_line_number(self.pgn_lines, next_move, self.previous_move)
+        line_number, is_available = self.pgn_display.get_line_number(next_move, self.pgn_lines)
 
         if line_number > -1:
             str1 = "\n".join(self.pgn_lines)+"\n"
