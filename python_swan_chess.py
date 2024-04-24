@@ -2669,12 +2669,21 @@ class EasyChessGui:
     def analyse_game(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         if header_dialog.ok:
+            layout = [
+                [sg.Text(text="Analyse game", size=(20, 1),
+                         justification='center', font=self.text_font, key='INDICATOR')],
+            ]
+
+            window = sg.Window('Wait a minute...', layout, finalize=True)
+            window.Read(timeout=50)
             pgn_file = temp_file_name
             with open(pgn_file, mode='w') as f:
                 f.write('{}\n\n'.format(pgn_game))
-            annotator.start_analise(pgn_file,
+            analysed_game = annotator.start_analise(pgn_file,
                                     self.engine, name_file, header_dialog.add_to_library)
+            window.close()
             sg.popup_ok("PGN is annotated and saved", title="Analyse PGN")
+            return analysed_game
 
     def get_game_data(self, value_white, value_black, pgn_game):
         header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,

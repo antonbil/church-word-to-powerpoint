@@ -39,18 +39,21 @@ class DataEntry:
 
         if file_name:
             pgn = open(file_name)
-            self.game = chess.pgn.read_game(pgn)
-            node = self.game.root()
-            while len(node.variations) > 0:
-                node = node.variations[0]
-                #print("node", node)
-                self.moves.append(node)
-                self.all_moves.append(node)
-            self.current_move = node
-            self.update_pgn_display()
+            self.read_file_from_io(pgn)
             #print("end-node", node)
 
         self.execute_data_entry()
+
+    def read_file_from_io(self, pgn):
+        self.game = chess.pgn.read_game(pgn)
+        node = self.game.root()
+        while len(node.variations) > 0:
+            node = node.variations[0]
+            # print("node", node)
+            self.moves.append(node)
+            self.all_moves.append(node)
+        self.current_move = node
+        self.update_pgn_display()
 
     def remove_last_move(self):
         """
@@ -176,7 +179,9 @@ class DataEntry:
             if button == 'Analyse game':
                 value_white = value['_White_']
                 value_black = value['_Black_']
-                self.gui.analyse_game(value_white, value_black, self.game)
+                analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
+                pgn = StringIO(analysed_game)
+                self.read_file_from_io(pgn)
 
             if button == 'Save':
                 value_white = value['_White_']

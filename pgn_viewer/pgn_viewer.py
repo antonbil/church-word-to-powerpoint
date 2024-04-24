@@ -238,8 +238,9 @@ class PGNViewer:
         name_file = self.game.headers['Date'].replace("/", "-").replace(".??", "") + "-" + self.game.headers[
             'White'].replace(" ", "_") \
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
-        annotator.start_analise(pgn_file,
+        analysed_game = annotator.start_analise(pgn_file,
                                 self.gui.engine, name_file, store_in_db)
+        return analyzed_game
 
     def callback(self, advice):
         self.window.Read(timeout=5)

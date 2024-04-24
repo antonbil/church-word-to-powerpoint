@@ -822,7 +822,8 @@ def change_nags(pgn):
     return pgn
 
 def start_analise(pgnfile, engine, fine_name_file, add_to_library):
-        with open(pgnfile) as pgn:
+    analyzed_game = ""
+    with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
                     analyzed_game = change_nags(analyze_game(game, 1,
@@ -847,6 +848,7 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library):
                         file1 = open("library.pgn", 'a')
                         file1.writelines('\n\n'+str(analyzed_game))
                         file1.close()
+    return analyzed_game
 
 def main():
     """
