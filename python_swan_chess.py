@@ -2032,6 +2032,10 @@ class EasyChessGui:
                     if not (is_human_stm or self.entry_game):
                         break
 
+                    if button == 'Analyse':
+                        #self.entry_game = True
+                        self.start_mode_used = "data-entry"
+                        break
                     # Mode: Play, Stm: User, Run adviser engine
                     if button == 'adviser_k' and value['adviser_k'] == 'Start::right_adviser_k':
                         self.adviser_threads = self.get_engine_threads(
