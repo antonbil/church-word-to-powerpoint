@@ -29,12 +29,7 @@ class DataEntry:
         self.mode = "entry"
         window.find_element('_gamestatus_').Update('Mode     PGN-Entry')
         self.window = window
-        self.moves = []
-        self.all_moves = []
-        self.game = chess.pgn.Game()
-        self.game.setup(self.board)
-        self.current_move = self.game.game()
-        self.move_squares = [0, 0, 0, 0]
+        self.start_empty_game()
         self.pgn_display = PgnDisplay(69)
 
         if file_name:
@@ -43,6 +38,14 @@ class DataEntry:
             #print("end-node", node)
 
         self.execute_data_entry()
+
+    def start_empty_game(self):
+        self.moves = []
+        self.all_moves = []
+        self.game = chess.pgn.Game()
+        self.game.setup(self.board)
+        self.current_move = self.game.game()
+        self.move_squares = [0, 0, 0, 0]
 
     def read_file_from_io(self, pgn):
         self.game = chess.pgn.read_game(pgn)
@@ -110,6 +113,14 @@ class DataEntry:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            if button == 'Clear':
+                if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
+                    self.board = chess.Board()
+                    self.start_empty_game()
+                    self.update_pgn_display()
+                    self.display_move_and_line_number()
+                    self.window.find_element('comment_k').Update('')
+
             if button == 'PGN-Viewer':
                 name_file = temp_file_name
                 self.game.headers['White'] = value['_White_']
