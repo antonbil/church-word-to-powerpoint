@@ -207,6 +207,28 @@ class DataEntry:
                     self.restore_moves()
                     self.display_move()
 
+            if button == "Remove alternative" and self.mode == "annotate":
+                current_move = self.moves[-1]
+                variations = current_move.variations
+                list_items = [" ".join(str(v).split(" ")[0:2]) for v in variations]
+                list_items.pop(0)
+                if len(list_items) > 1:
+                    index = 1
+                    title_window = "select new main line"
+                    selected_item = self.gui.get_item_from_list(list_items, title_window)
+                    if selected_item:
+                        # first item is removed.... so add 1 to the found index
+                        index = list_items.index(selected_item) + 1
+                        self.remove_variation(current_move, index)
+                        self.update_pgn_display()
+                        self.display_move_and_line_number()
+
+                else:
+                    if sg.popup_yes_no("Remove alternative", "OK to remove alternative:'{}'?".format(list_items[0]))=="Yes":
+                        self.remove_variation(current_move, 1)
+                        self.update_pgn_display()
+                        self.display_move_and_line_number()
+
             if button == "Promote alternative" and self.mode == "annotate":
                 # last one of moves is active on the board
                 current_move = self.moves[-1]
@@ -288,6 +310,9 @@ class DataEntry:
     def update_player_data(self):
         self.window.find_element('_White_').Update(self.game.headers['White'])
         self.window.find_element('_Black_').Update(self.game.headers['Black'])
+
+    def remove_variation(self, current_move, index):
+        current_move.remove_variation(index)
 
     def move_add_manual(self, move_state):
         sg.popup("Enter move \nby moving pieces on the board",
