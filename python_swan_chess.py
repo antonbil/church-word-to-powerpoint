@@ -733,7 +733,6 @@ class EasyChessGui:
         self.toolbar = ToolBar()
         self.theme = theme
         self.engine = engine
-        self.entry_game = True
         self.user_config_file = user_config_file
         self.engine_config_file = engine_config_file
         self.gui_book_file = gui_book_file
@@ -837,7 +836,7 @@ class EasyChessGui:
                     self.node = self.node.add_variation(user_move)
 
                 # Save clock, add clock as comment after a move
-                if self.is_save_time_left and not self.entry_game:
+                if self.is_save_time_left:
                     rem_time = self.get_time_h_mm_ss(time_left, False)
                     self.node.comment = '[%clk {}] {}'.format(rem_time, user_comment)
                 else:
@@ -850,7 +849,7 @@ class EasyChessGui:
                 self.node = self.node.add_variation(user_move)
 
             # Save clock, add clock as comment after a move
-            if self.is_save_time_left and not self.entry_game:
+            if self.is_save_time_left:
                 rem_time = self.get_time_h_mm_ss(time_left, False)
                 self.node.comment = '[%clk {}]'.format(rem_time)
 
@@ -1430,11 +1429,11 @@ class EasyChessGui:
         window.find_element('polyglot_book2_k').Update('')
         window.find_element('advise_info_k').Update('')
         window.find_element('comment_k').Update('')
-        if not self.entry_game:
-            window.Element('w_base_time_k').Update('')
-            window.Element('b_base_time_k').Update('')
-            window.Element('w_elapse_k').Update('')
-            window.Element('b_elapse_k').Update('')
+
+        window.Element('w_base_time_k').Update('')
+        window.Element('b_base_time_k').Update('')
+        window.Element('w_elapse_k').Update('')
+        window.Element('b_elapse_k').Update('')
 
     def update_labels_and_game_tags(self, window, human='Human'):
         """ Update player names """
@@ -1820,8 +1819,7 @@ class EasyChessGui:
 
         elapse_str = self.get_time_h_mm_ss(timer.base)
         is_white_base = (self.is_user_white and name == 'human') or (not self.is_user_white and name != 'human')
-        if not self.entry_game:
-            window.Element('w_base_time_k' if is_white_base else 'b_base_time_k').Update(elapse_str)
+        window.Element('w_base_time_k' if is_white_base else 'b_base_time_k').Update(elapse_str)
 
         return timer
 
@@ -1942,8 +1940,7 @@ class EasyChessGui:
             # Mode: Play, Stm: computer (first move), Allow user to change settings.
             # User can start the engine by Engine->Go.
             mode_indicator = 'Mode     Play'
-            if self.entry_game:
-                mode_indicator = 'Mode     Analise-entry'
+
             if not is_engine_ready:
                 window.find_element('_gamestatus_').Update(
                         'Mode     Play, press Engine->Go')
@@ -1962,7 +1959,6 @@ class EasyChessGui:
                     # Mode: Play, Stm: Computer first move
                     if button == 'Neutral' or button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
                         is_exit_game = True
-                        self.entry_game = False
                         self.start_mode_used = ""
                         break
 
@@ -2024,7 +2020,7 @@ class EasyChessGui:
                     break
 
             # If side to move is human
-            if is_human_stm or self.entry_game:
+            if is_human_stm:
                 move_state = 0
 
                 while True:
@@ -2035,21 +2031,18 @@ class EasyChessGui:
                     k = 'w_elapse_k'
                     if not self.is_user_white:
                         k = 'b_elapse_k'
-                    if not self.entry_game:
-                        window.Element(k).Update(elapse_str)
+                    window.Element(k).Update(elapse_str)
                     human_timer.elapse += 100
 
-                    if not (is_human_stm or self.entry_game):
+                    if not (is_human_stm):
                         break
 
                     if button == 'Analyse':
                         print("analyse pushed in human-move")
-                        #self.entry_game = True
                         self.start_mode_used = "data-entry"
                         break
                     if button == 'PGN-Viewer':
                         print("analyse pushed in human-move")
-                        #self.entry_game = True
                         self.start_mode_used = "pgnviewer"
                         break
                     # Mode: Play, Stm: User, Run adviser engine
@@ -2221,7 +2214,6 @@ class EasyChessGui:
                     # Mode: Play, Stm: User
                     if button == 'Neutral' or is_search_stop_for_neutral:
                         is_exit_game = True
-                        self.entry_game = False
                         self.start_mode_used = ""
                         self.clear_elements(window)
                         break
@@ -2274,7 +2266,7 @@ class EasyChessGui:
                     # Mode: Play, stm: User, user starts moving
                     if type(button) is tuple:
                         # If fr_sq button is pressed
-                        if (move_state == 0) or self.entry_game and not is_human_stm and (move_state == 0):
+                        if (move_state == 0):
                             move_from = button
                             fr_row, fr_col = move_from
                             piece = self.psg_board[fr_row][fr_col]  # get the move-from piece
@@ -2379,18 +2371,17 @@ class EasyChessGui:
                                     k1 = 'b_elapse_k'
                                     k2 = 'b_base_time_k'
 
-                                if not self.entry_game:
-                                    # Update elapse box
-                                    elapse_str = self.get_time_mm_ss_ms(
-                                        human_timer.elapse)
-                                    window.Element(k1).Update(elapse_str)
+                                # Update elapse box
+                                elapse_str = self.get_time_mm_ss_ms(
+                                    human_timer.elapse)
+                                window.Element(k1).Update(elapse_str)
 
-                                    # Update remaining time box
-                                    elapse_str = self.get_time_h_mm_ss(
-                                        human_timer.base)
-                                    window.Element(k2).Update(elapse_str)
+                                # Update remaining time box
+                                elapse_str = self.get_time_h_mm_ss(
+                                    human_timer.base)
+                                window.Element(k2).Update(elapse_str)
 
-                                    window.Element('advise_info_k').Update('')
+                                window.Element('advise_info_k').Update('')
 
                             # Else if move is illegal
                             else:
@@ -4099,8 +4090,6 @@ class EasyChessGui:
                 while True:
                     button, value = window.Read(timeout=100)
                     mode_indicator = 'Mode     Play'
-                    if self.entry_game:
-                        mode_indicator = 'Mode     Analise-entry'
 
                     window.find_element('_gamestatus_').Update(mode_indicator)
                     window.find_element('_movelist_').Update(disabled=False)
