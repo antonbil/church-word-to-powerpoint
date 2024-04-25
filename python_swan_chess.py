@@ -298,7 +298,7 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-        ['&Mode', ['Neutral', 'Analyse']],
+        ['&Mode', ['Neutral', 'PGN-Viewer', 'Analyse']],
         ['&Game', ['&New::new_game_k',
                    'Save to My Games::save_game_k',
                    'Save to White Repertoire',
@@ -728,6 +728,7 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine = '/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
                  max_depth=MAX_DEPTH):
+        self.returning_from_playing = False
         self.game = None
         self.toolbar = ToolBar()
         self.theme = theme
@@ -1950,6 +1951,7 @@ class EasyChessGui:
                     button, value = window.Read(timeout=100)
 
                     if self.start_mode_used in ["data-entry", "pgnviewer"]:
+                        print("start-mode set to data-entry..")
                         break
 
                     # Mode: Play, Stm: computer (first move)
@@ -1965,8 +1967,13 @@ class EasyChessGui:
                         break
 
                     if button == 'Analyse':
-                        #self.entry_game = True
+                        print("analyse pushed in computer-move")
                         self.start_mode_used = "data-entry"
+                        break
+
+                    if button == 'PGN-Viewer':
+                        print("analyse pushed in computer-move")
+                        self.start_mode_used = "pgnviewer"
                         break
 
                     if button == 'GUI':
@@ -2036,8 +2043,14 @@ class EasyChessGui:
                         break
 
                     if button == 'Analyse':
+                        print("analyse pushed in human-move")
                         #self.entry_game = True
                         self.start_mode_used = "data-entry"
+                        break
+                    if button == 'PGN-Viewer':
+                        print("analyse pushed in human-move")
+                        #self.entry_game = True
+                        self.start_mode_used = "pgnviewer"
                         break
                     # Mode: Play, Stm: User, Run adviser engine
                     if button == 'adviser_k' and value['adviser_k'] == 'Start::right_adviser_k':
@@ -2388,7 +2401,6 @@ class EasyChessGui:
                                 # Restore the color of the fr square
                                 button_square.Update(button_color=('white', color))
                                 continue
-
                 if (is_new_game or is_exit_game or is_exit_app or
                         is_user_resigns or is_user_wins or is_user_draws):
                     break
@@ -2606,6 +2618,11 @@ class EasyChessGui:
                 window.Element(k2).Update(elapse_str)
 
                 window.find_element('_gamestatus_').Update(mode_indicator)
+
+            if self.start_mode_used in ["data-entry", "pgnviewer"]:
+                        print("start-mode set to data-entry.. under human")
+                        self.returning_from_playing = True
+                        break
 
         # Auto-save game
         logging.info('Saving game automatically')
@@ -3062,10 +3079,11 @@ class EasyChessGui:
                 break
             if button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
                 # if default-window is not 'neutral', layout and menu are already changed
-                if button == 'PGN-Viewer':
+                if button == 'PGN-Viewer' or self.returning_from_playing:
                     self.main_layout = self.get_png_layout()
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_pgnviewer)
+                    self.returning_from_playing = False
                 pgn_viewer = PGNViewer(self, window)
                 # 'neutral' is selected in PGNViewer-menu
                 self.main_layout = self.get_neutral_layout()
@@ -3076,10 +3094,11 @@ class EasyChessGui:
                     self.menu_elem.Update(menu_def_neutral)
             if button == 'Analyse' or self.start_mode_used == "data-entry":
                 # if default-window is not 'neutral', layout and menu are already changed
-                if button == 'Analyse':
+                if button == 'Analyse' or self.returning_from_playing:
                     self.main_layout = self.get_png_layout()
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_entry)
+                    self.returning_from_playing = False
                 data_entry = DataEntry(self, window)
                 # 'neutral' is selected in DataEntry-menu
                 self.main_layout = self.get_neutral_layout()
