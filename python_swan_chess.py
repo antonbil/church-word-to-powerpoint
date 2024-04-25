@@ -711,6 +711,9 @@ def parse_args():
     parser.add_argument("--engine", "-e",
                         help="analysis engine (default: %(default)s)",
                         default="stockfish")
+    parser.add_argument("--startmode", "-s",
+                        help="startmode program (default: %(default)s)",
+                        default="neutral")
     parser.add_argument("--threads", "-t",
                         help="threads for use by the engine \
                             (default: %(default)s)",
@@ -727,7 +730,7 @@ class EasyChessGui:
                  gui_book_file, computer_book_file, human_book_file,
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine = '/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
-                 max_depth=MAX_DEPTH):
+                 max_depth=MAX_DEPTH, start_mode = "neutral"):
         self.returning_from_playing = False
         self.game = None
         self.toolbar = ToolBar()
@@ -788,6 +791,7 @@ class EasyChessGui:
         my_preferences = self.preferences.preferences
         self.is_save_time_left = my_preferences["is_save_time_left"] if "is_save_time_left" in my_preferences else False
         self.start_mode = my_preferences["start_mode"] if "start_mode" in my_preferences else False
+        if not start_mode == "neutral":self.start_mode = start_mode
         self.start_mode_used = self.start_mode
         self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
@@ -1963,12 +1967,10 @@ class EasyChessGui:
                         break
 
                     if button == 'Analyse':
-                        print("analyse pushed in computer-move")
                         self.start_mode_used = "data-entry"
                         break
 
                     if button == 'PGN-Viewer':
-                        print("analyse pushed in computer-move")
                         self.start_mode_used = "pgnviewer"
                         break
 
@@ -2038,11 +2040,9 @@ class EasyChessGui:
                         break
 
                     if button == 'Analyse':
-                        print("analyse pushed in human-move")
                         self.start_mode_used = "data-entry"
                         break
                     if button == 'PGN-Viewer':
-                        print("analyse pushed in human-move")
                         self.start_mode_used = "pgnviewer"
                         break
                     # Mode: Play, Stm: User, Run adviser engine
@@ -2611,9 +2611,8 @@ class EasyChessGui:
                 window.find_element('_gamestatus_').Update(mode_indicator)
 
             if self.start_mode_used in ["data-entry", "pgnviewer"]:
-                        print("start-mode set to data-entry.. under human")
-                        self.returning_from_playing = True
-                        break
+                self.returning_from_playing = True
+                break
 
         # Auto-save game
         logging.info('Saving game automatically')
@@ -4116,7 +4115,7 @@ class EasyChessGui:
         window.Close()
 
 
-def main(engine):
+def main(engine, start_mode):
     engine_config_file = 'pecg_engines.json'
     user_config_file = 'pecg_user.json'
 
@@ -4132,7 +4131,7 @@ def main(engine):
     pecg = EasyChessGui(theme, engine_config_file, user_config_file,
                         pecg_book, book_from_computer_games,
                         book_from_human_games, is_use_gui_book, is_random_book,
-                         max_book_ply, engine, 32)
+                         max_book_ply, engine, 32, start_mode)
 
     pecg.main_loop()
 
@@ -4140,4 +4139,5 @@ def main(engine):
 if __name__ == "__main__":
     args = parse_args()
     engine = args.engine.split()[0]
-    main(engine)
+    start_mode = args.startmode.split()[0]
+    main(engine, start_mode)
