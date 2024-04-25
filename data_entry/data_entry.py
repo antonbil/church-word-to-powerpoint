@@ -113,6 +113,12 @@ class DataEntry:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            if button == 'Play':
+                self.gui.entry_game = False
+                self.gui.start_entry_mode = False
+                self.gui.start_mode_used = "play"
+                break
+
             if button == 'Clear':
                 if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
                     self.board = chess.Board()

@@ -3087,7 +3087,7 @@ class EasyChessGui:
                 pgn_viewer = PGNViewer(self, window)
                 # 'neutral' is selected in PGNViewer-menu
                 self.main_layout = self.get_neutral_layout()
-                self.start_mode_used = ""
+                self.start_mode_used = self.start_mode_used.replace("pgnviewer","")
                 # check if window is forced close
                 if not pgn_viewer.is_win_closed:
                     window = self.create_new_window(window)
@@ -3102,7 +3102,7 @@ class EasyChessGui:
                 data_entry = DataEntry(self, window)
                 # 'neutral' is selected in DataEntry-menu
                 self.main_layout = self.get_neutral_layout()
-                self.start_mode_used = ""
+                self.start_mode_used = self.start_mode_used.replace("data-entry","")
                 # check if window is forced close
                 if not data_entry.is_win_closed:
                     window = self.create_new_window(window)
@@ -4082,8 +4082,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or button == 'Analyse2' or self.start_mode_used == "entry":
-                self.entry_game = button == 'Analyse2' or self.start_mode_used == "entry"
+            if button == 'Play' or self.start_mode_used == "play":
+
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
@@ -4091,10 +4091,8 @@ class EasyChessGui:
                     continue
 
                 # Change menu from Neutral to Play
-                if self.entry_game:
-                    self.menu_elem.Update(menu_def_entry)
-                else:
-                    self.menu_elem.Update(menu_def_play)
+                self.menu_elem.Update(menu_def_play)
+                self.start_mode_used = self.start_mode_used.replace("play", "")
                 self.psg_board = copy.deepcopy(initial_board)
                 board = chess.Board()
 

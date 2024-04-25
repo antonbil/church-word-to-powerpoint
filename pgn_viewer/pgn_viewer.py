@@ -74,6 +74,12 @@ class PGNViewer:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            if button == 'Play':
+                self.gui.entry_game = False
+                self.gui.start_entry_mode = False
+                self.gui.start_mode_used = "play"
+                break
+
             if button == 'Analyse':
                 # import later, to avoid recursive import
                 from data_entry.data_entry import DataEntry
