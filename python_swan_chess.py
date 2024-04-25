@@ -1949,6 +1949,9 @@ class EasyChessGui:
                 while True:
                     button, value = window.Read(timeout=100)
 
+                    if self.start_mode_used in ["data-entry", "pgnviewer"]:
+                        break
+
                     # Mode: Play, Stm: computer (first move)
                     if button == 'New::new_game_k':
                         is_new_game = True
