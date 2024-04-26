@@ -11,6 +11,7 @@ from beautify_pgn_lines import PgnDisplay
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.is_black = False
         self.is_win_closed = False
         self.variation_bool = False
         self.board = None
@@ -78,6 +79,10 @@ class PGNViewer:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 self.gui.start_mode_used = "play"
+                break
+
+            if button == 'Play from here':
+                self.play_from_here()
                 break
 
             if button == 'Analyse':
@@ -197,6 +202,25 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def play_from_here(self):
+        board = chess.Board()
+        # Go through each move in the game until
+        # we reach the required move number
+        last_move = None
+        for main_move in self.moves:
+            move = main_move.move
+            try:
+                board.push(move)
+                last_move = main_move
+            except:
+                pass
+
+        fen = board.fen()
+        self.gui.fen_from_here = fen
+        if last_move:
+            self.is_black = board.turn == chess.BLACK
+        self.gui.start_mode_used = "play"
 
     def set_new_position(self, new_pos):
         all_moves = self.get_all_moves(self.game)

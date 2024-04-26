@@ -13,7 +13,7 @@ menu_def_annotate = [
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral', "Play", 'Analyse']],
         ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
-        ['Tools', ['Analyse db', 'Analyse game', 'Analyse move']]
+        ['Tools', ['Analyse db', 'Analyse game', 'Analyse move', 'Play from here']]
 ]
 
 temp_file_name = 'tempsave.pgn'

@@ -724,6 +724,7 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine='/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
                  max_depth=MAX_DEPTH, start_mode="neutral"):
+        self.fen_from_here = None
         self.is_exit_game = None
         self.is_new_game = None
         self.engine_timer = None
@@ -2077,9 +2078,13 @@ class EasyChessGui:
                 sg.PopupScrolled(HELP_MSG, title=BOX_TITLE)
                 continue
 
-            if button == 'Paste':
+            if button == 'Paste' or self.fen_from_here:
                 try:
-                    self.get_fen()
+                    if button == 'Paste':
+                        self.get_fen()
+                    else:
+                        self.fen = self.fen_from_here
+                        self.fen_from_here = None
                     self.set_new_game()
                     board = chess.Board(self.fen)
                 except Exception:
@@ -2269,14 +2274,20 @@ class EasyChessGui:
                 break
 
             # Mode: Play, stm: User
-            if button == 'Paste':
+            if button == 'Paste' or self.fen_from_here:
                 # Pasting fen is only allowed before the game starts.
                 if len(self.game.variations):
                     sg.Popup('Press Game->New then paste your fen.',
                              title='Mode Play')
                     continue
                 try:
-                    self.get_fen()
+                    if button == 'Paste':
+                        self.get_fen()
+                    else:
+                        # here it is read
+                        self.fen = self.fen_from_here
+                        self.fen_from_here = None
+
                     self.set_new_game()
                     board = chess.Board(self.fen)
                 except Exception:
@@ -3080,7 +3091,7 @@ class EasyChessGui:
                 self.start_mode_used = self.start_mode_used.replace("pgnviewer", "")
                 # check if window is forced close
                 if not pgn_viewer.is_win_closed:
-                    window = self.create_new_window(window)
+                    window = self.create_new_window(window, pgn_viewer.is_black)
                     self.menu_elem.Update(menu_def_neutral)
             if button == 'Analyse' or self.start_mode_used == "data-entry":
                 # if default-window is not 'neutral', layout and menu are already changed
