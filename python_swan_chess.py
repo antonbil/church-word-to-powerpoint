@@ -724,6 +724,7 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine='/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
                  max_depth=MAX_DEPTH, start_mode="neutral"):
+        self.piece = None
         self.is_search_stop_for_user_draws = None
         self.is_search_stop_for_user_wins = None
         self.is_search_stop_for_resign = None
@@ -2056,7 +2057,7 @@ class EasyChessGui:
                         self.start_mode_used = "pgnviewer"
                         break
                     # Mode: Play, Stm: User, Run adviser engine
-                    if button == 'adviser_k' and value['adviser_k'] == 'Start::right_adviser_k':
+                    if button == 'adviser_k':
                         self.give_advice(board, window)
                         break
 
@@ -2215,7 +2216,7 @@ class EasyChessGui:
                     # Mode: Play, stm: User, user starts moving
                     if type(button) is tuple:
                         # If fr_sq button is pressed
-                        if (self.move_state == 0):
+                        if self.move_state == 0:
                             move_from = button
                             self.fr_row, self.fr_col = move_from
                             self.piece = self.psg_board[self.fr_row][self.fr_col]  # get the move-from piece
@@ -2556,7 +2557,7 @@ class EasyChessGui:
         while True:
             button, value = window.Read(timeout=10)
 
-            if button == 'adviser_k' and value['adviser_k'] == 'Stop::right_adviser_k':
+            if button == 'adviser_k':
                 search.stop()
 
             # Exit app while adviser is thinking.
@@ -2878,8 +2879,8 @@ class EasyChessGui:
              sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.ButtonMenu('Adviser', ['Menu', ['Start::right_adviser_k', 'Stop::right_adviser_k']], size=(7, 1),
-                           font=('Consolas', self.menu_font_size), key='adviser_k', ),
+            [sg.Button('Adviser', size=(7, 1),
+                           font=self.text_font, key='adviser_k', ),
              sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
             [sg.Frame(visible=False, font=self.text_font, key='pgn_row',
