@@ -27,7 +27,7 @@ class PgnEditor:
         self.move_number = 0
 
         self.mode = "entry"
-        window.find_element('_gamestatus_').Update('Mode     PGN-Entry')
+        window.find_element('_gamestatus_').Update('Mode     PGN-Editor Entry')
         self.window = window
         self.start_empty_game()
         self.pgn_display = PgnDisplay(69)
@@ -140,7 +140,7 @@ class PgnEditor:
                 self.is_win_closed = pgn_viewer.is_win_closed
                 break
 
-            if button == 'Data entry' or button == 'Variations Edit':
+            if button == 'PGN Move entry' or button == 'Variations Edit':
                 if self.mode == "entry":
                     self.mode = "annotate"
                     buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
@@ -336,11 +336,11 @@ class PgnEditor:
     def set_status(self):
         window_element = self.window.find_element('_gamestatus_')
         if self.mode == "annotate":
-            window_element.Update('Mode     PGN-Annotate')
+            window_element.Update('Mode     PGN-Variations Edit')
         elif self.mode == "entry":
-            window_element.Update('Mode     PGN-Entry')
+            window_element.Update('Mode     PGN-Editor Entry')
         elif self.mode == "manual move":
-            window_element.Update('Mode     Manual-Entry')
+            window_element.Update('Mode     Manual Move Entry')
 
     def set_position_move(self, new_number):
         self.moves = self.all_moves[0:new_number]
