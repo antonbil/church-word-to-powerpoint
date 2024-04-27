@@ -272,6 +272,10 @@ class DataEntry:
             if type(button) is tuple and self.mode == "annotate":
                 move_from = button
                 fr_row, fr_col = move_from
+                if not self.gui.is_user_white:
+                    fr_row = 7 - fr_row
+                    fr_col = 7 - fr_col
+
                 if fr_row == 0:
                     new_number = min(int(fr_col * (len(self.all_moves) - 1) / 7), len(self.all_moves))
                     self.set_position_move(new_number)

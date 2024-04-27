@@ -4,7 +4,7 @@ import chess.svg
 import PySimpleGUI as sg
 import os
 from annotator import annotator
-from common import menu_def_entry, temp_file_name
+from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
 
 
@@ -84,6 +84,9 @@ class PGNViewer:
             if button == 'Play from here':
                 self.play_from_here()
                 break
+
+            if button == 'Turn board':
+                self.turn_board()
 
             if button == 'Analyse':
                 # import later, to avoid recursive import
@@ -190,6 +193,9 @@ class PGNViewer:
 
                 if not my_variation:
                     # check for first row; first row acts like a slider for the move-number
+                    if not self.gui.is_user_white:
+                        fr_row = 7 - fr_row
+                        fr_col = 7 - fr_col
                     if fr_row == 0:
                         all_moves = self.get_all_moves(self.game)
                         new_number = max(min(int(fr_col * (len(all_moves) - 1) / 7), len(all_moves)), 2)
@@ -202,6 +208,15 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def turn_board(self):
+        self.gui.is_user_white = not self.gui.is_user_white
+        self.gui.main_layout = self.gui.get_png_layout()
+        self.gui.menu_elem.Update(menu_def_pgnviewer)
+        window = self.gui.create_new_window(self.gui.window, self.gui.is_user_white)
+        pgn_viewer = PGNViewer(self.gui, window)
+
+
 
     def play_from_here(self):
         board = chess.Board()

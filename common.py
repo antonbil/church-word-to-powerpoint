@@ -12,7 +12,7 @@ menu_def_annotate = [
 
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral', "Play", 'Analyse']],
-        ['&Game', ['Read', "Select", "Next Game", "Previous Game"]],
+        ['&Game', ['Read', "Select", "Next Game", "Previous Game", "Turn board"]],
         ['Tools', ['Analyse db', 'Analyse game', 'Analyse move', 'Play from here']]
 ]
 
