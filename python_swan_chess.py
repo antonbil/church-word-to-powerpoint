@@ -2451,8 +2451,10 @@ class EasyChessGui:
                 self.check_depth_button(button)
 
                 # Mode: Play, Computer is thinking
-                if button == 'Neutral':
+                if button == 'Neutral' or button == 'PGN-Viewer':
                     search.stop()
+                    if button == 'PGN-Viewer':
+                        self.start_mode_used = "pgnviewer"
                     self.is_search_stop_for_neutral = True
 
                 if button == 'Resign::resign_game_k':
