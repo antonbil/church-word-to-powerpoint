@@ -18,6 +18,11 @@ class PgnEditor:
     """
 
     def __init__(self, gui, window, file_name = ""):
+        self.move_squares = None
+        self.game = None
+        self.current_move = None
+        self.moves = []
+        self.all_moves = []
         self.is_win_closed = False
         self.board = chess.Board()
         self.pgn_lines = []
@@ -35,7 +40,6 @@ class PgnEditor:
         if file_name:
             pgn = open(file_name)
             self.read_file_from_io(pgn)
-            #print("end-node", node)
 
         self.execute_data_entry()
 
@@ -57,6 +61,21 @@ class PgnEditor:
             self.all_moves.append(node)
         self.current_move = node
         self.update_pgn_display()
+
+    def remove_from_this_move_onward(self):
+        """
+        remove current move and all successors in the line, and restore moves and board
+        only restores one line: the main-line currently displayed on the self. board
+        :return:
+        """
+        old_move = self.current_move
+        index_moves = self.moves.index(old_move)
+        index_all_moves = self.all_moves.index(old_move)
+        parent = self.current_move.parent
+        parent.variations.remove(self.current_move)
+        self.moves = self.moves[:index_moves]
+        self.all_moves = self.all_moves[:index_all_moves]
+        self.current_move = parent
 
     def remove_last_move(self):
         """
@@ -113,6 +132,11 @@ class PgnEditor:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+
+            if button == 'Remove from this move onward':
+                self.remove_from_this_move_onward()
+                self.display_new_situation()
+
             if button == 'Play':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
@@ -183,15 +207,7 @@ class PgnEditor:
 
             if self.gui.toolbar.get_button_id(button) == "Back" and self.mode == "editor-entry":
                 self.remove_last_move()
-                window = self.window.find_element('_movelist_')
-                exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
-                pgn_string = self.game.accept(exporter)
-                # window.Update('')
-                try:
-                    window.Update(self.split_line(pgn_string))
-                except (Exception, ):
-                    return
-                self.display_move()
+                self.display_new_situation()
 
             if button == 'Analyse game':
                 value_white = value['_White_']
@@ -316,6 +332,17 @@ class PgnEditor:
                     else:
                         self.execute_move(fr_col, fr_row, to_col, to_row)
                         move_state = 0
+
+    def display_new_situation(self):
+        window = self.window.find_element('_movelist_')
+        exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
+        pgn_string = self.game.accept(exporter)
+        # window.Update('')
+        try:
+            window.Update(self.split_line(pgn_string))
+        except (Exception,):
+            pass
+        self.display_move()
 
     def update_player_data(self):
         self.window.find_element('_White_').Update(self.game.headers['White'])

@@ -102,7 +102,7 @@ class PGNViewer:
                 data_entry = PgnEditor(self.gui, self.window, name_file)
                 self.is_win_closed = data_entry.is_win_closed
                 break
-            #list_items = self.game_descriptions
+
             if button == "Select":
                 if self.check_edit_single_pgn():
                     title_window = "Read PGN"
@@ -112,12 +112,7 @@ class PGNViewer:
                         self.select_game()
 
             if button == 'Read':
-                # use: filename = sg.popup_get_file('message will not be shown', no_window=True)
-                #see: https://docs.pysimplegui.com/en/latest/documentation/module/popups/
                 self.gui.file_dialog.read_file()
-                # filename = sg.popup_get_file('message will not be shown', no_window=True,
-                #                              # remember to place the "," in file_types
-                #                    font=self.gui.text_font, file_types=(("PGN files", ".pgn"),))
                 if self.gui.file_dialog.filename:
                     self.pgn = self.gui.file_dialog.filename
                     self.gui.save_pgn_file_in_preferences(self.pgn)
