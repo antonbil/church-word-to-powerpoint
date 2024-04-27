@@ -1,5 +1,5 @@
 menu_def_entry = [
-        ['&Mode', ['Neutral', "Play", "PGN-Viewer", 'Annotate']],
+        ['&Mode', ['Neutral', "Play", "PGN-Viewer", 'Variations Edit']],
         ['&Move', ["Back"]],
         ['&Game', ['Save', 'Clear', 'Analyse game']],
 ]
@@ -11,7 +11,7 @@ menu_def_annotate = [
 ]
 
 menu_def_pgnviewer = [
-        ['&Mode', ['Neutral', "Play", 'Analyse']],
+        ['&Mode', ['Neutral', "Play", 'PGN_Editor']],
         ['&Game', ['Read', "Select", "Next Game", "Previous Game", "Turn board"]],
         ['Tools', ['Analyse db', 'Analyse game', 'Analyse move', 'Play from here']]
 ]

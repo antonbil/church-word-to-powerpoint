@@ -140,7 +140,7 @@ class DataEntry:
                 self.is_win_closed = pgn_viewer.is_win_closed
                 break
 
-            if button == 'Data entry' or button == 'Annotate':
+            if button == 'Data entry' or button == 'Variations Edit':
                 if self.mode == "entry":
                     self.mode = "annotate"
                     buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
@@ -155,7 +155,7 @@ class DataEntry:
                     self.gui.menu_elem.Update(menu_def_entry)
                     self.set_status()
                 self.moves = [m for m in self.all_moves]
-                if button == 'Annotate':
+                if button == 'Variations Edit':
                     self.display_move_and_line_number()
                 else:
                     self.display_move()

@@ -91,7 +91,7 @@ class PGNViewer:
                 self.restart = True
                 break
 
-            if button == 'Analyse':
+            if button == 'PGN_Editor':
                 # import later, to avoid recursive import
                 from data_entry.data_entry import DataEntry
                 name_file = temp_file_name

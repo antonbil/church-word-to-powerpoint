@@ -270,7 +270,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-    ['&Mode', ['Play', 'PGN-Viewer', 'Analyse']],
+    ['&Mode', ['Play', 'PGN-Viewer', 'PGN_Editor']],
     ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                   'Blue::board_color_k',
                                   'Green::board_color_k',
@@ -288,7 +288,7 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-    ['&Mode', ['Neutral', 'PGN-Viewer', 'Analyse']],
+    ['&Mode', ['Neutral', 'PGN-Viewer', 'PGN_Editor']],
     ['&Game', ['&New::new_game_k',
                'Save to My Games::save_game_k',
                'Save to White Repertoire',
@@ -1886,7 +1886,10 @@ class EasyChessGui:
             if e == 'Ok':
                 w.Close()
                 # print(v['game_k'])
-                selected_item = v['game_k'][0]
+                try:
+                    selected_item = v['game_k'][0]
+                except:
+                    selected_item = ""
                 break
         return selected_item
 
@@ -2066,7 +2069,7 @@ class EasyChessGui:
                 self.start_mode_used = ""
                 break
 
-            if button == 'Analyse':
+            if button == 'PGN_Editor':
                 self.start_mode_used = "data-entry"
                 break
 
@@ -2139,7 +2142,7 @@ class EasyChessGui:
             if not self.is_human_stm:
                 break
 
-            if button == 'Analyse':
+            if button == 'PGN_Editor':
                 self.start_mode_used = "data-entry"
                 break
             if button == 'PGN-Viewer':
@@ -3100,9 +3103,9 @@ class EasyChessGui:
                 if not pgn_viewer.is_win_closed:
                     window = self.create_new_window(window, False)
                     self.menu_elem.Update(menu_def_neutral)
-            if button == 'Analyse' or self.start_mode_used == "data-entry":
+            if button == 'PGN_Editor' or self.start_mode_used == "data-entry":
                 # if default-window is not 'neutral', layout and menu are already changed
-                if button == 'Analyse' or self.returning_from_playing:
+                if button == 'PGN_Editor' or self.returning_from_playing:
                     self.main_layout = self.get_png_layout()
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_entry)
