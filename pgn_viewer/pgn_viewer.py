@@ -91,7 +91,7 @@ class PGNViewer:
                 self.restart = True
                 break
 
-            if button == 'PGN_Editor':
+            if button == 'PGN-Editor':
                 # import later, to avoid recursive import
                 from pgn_editor.pgn_editor import PgnEditor
                 name_file = temp_file_name

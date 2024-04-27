@@ -270,7 +270,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-    ['&Mode', ['Play', 'PGN-Viewer', 'PGN_Editor']],
+    ['&Mode', ['Play', 'PGN-Viewer', 'PGN-Editor']],
     ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                   'Blue::board_color_k',
                                   'Green::board_color_k',
@@ -288,7 +288,7 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-    ['&Mode', ['Neutral', 'PGN-Viewer', 'PGN_Editor']],
+    ['&Mode', ['Neutral', 'PGN-Viewer', 'PGN-Editor']],
     ['&Game', ['&New::new_game_k',
                'Save to My Games::save_game_k',
                'Save to White Repertoire',
@@ -825,7 +825,7 @@ class EasyChessGui:
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
         self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer",
-                                                                             "data-entry"] else self.get_neutral_layout()
+                                                                             "pgneditor"] else self.get_neutral_layout()
         self.file_dialog = FileDialog(self, self.default_png_dir)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
@@ -1986,7 +1986,7 @@ class EasyChessGui:
                 if no_best_move:
                     break
 
-            if self.start_mode_used in ["data-entry", "pgnviewer"]:
+            if self.start_mode_used in ["pgneditor", "pgnviewer"]:
                 self.returning_from_playing = True
                 break
 
@@ -2054,7 +2054,7 @@ class EasyChessGui:
         while True:
             button, value = window.Read(timeout=100)
 
-            if self.start_mode_used in ["data-entry", "pgnviewer"]:
+            if self.start_mode_used in ["pgneditor", "pgnviewer"]:
                 print("start-mode set to data-entry..")
                 break
 
@@ -2069,8 +2069,8 @@ class EasyChessGui:
                 self.start_mode_used = ""
                 break
 
-            if button == 'PGN_Editor':
-                self.start_mode_used = "data-entry"
+            if button == 'PGN-Editor':
+                self.start_mode_used = "pgneditor"
                 break
 
             if button == 'PGN-Viewer':
@@ -2142,8 +2142,8 @@ class EasyChessGui:
             if not self.is_human_stm:
                 break
 
-            if button == 'PGN_Editor':
-                self.start_mode_used = "data-entry"
+            if button == 'PGN-Editor':
+                self.start_mode_used = "pgneditor"
                 break
             if button == 'PGN-Viewer':
                 self.start_mode_used = "pgnviewer"
@@ -2862,7 +2862,7 @@ class EasyChessGui:
         menu_def = menu_def_neutral
         if self.start_mode_used == "pgnviewer":
             menu_def = menu_def_pgnviewer
-        if self.start_mode_used == "data-entry":
+        if self.start_mode_used == "pgneditor":
             menu_def = menu_def_entry
 
         self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''))
@@ -3103,9 +3103,9 @@ class EasyChessGui:
                 if not pgn_viewer.is_win_closed:
                     window = self.create_new_window(window, False)
                     self.menu_elem.Update(menu_def_neutral)
-            if button == 'PGN_Editor' or self.start_mode_used == "data-entry":
+            if button == 'PGN-Editor' or self.start_mode_used == "pgneditor":
                 # if default-window is not 'neutral', layout and menu are already changed
-                if button == 'PGN_Editor' or self.returning_from_playing:
+                if button == 'PGN-Editor' or self.returning_from_playing:
                     self.main_layout = self.get_png_layout()
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_entry)
@@ -3113,7 +3113,7 @@ class EasyChessGui:
                 data_entry = PgnEditor(self, window)
                 # 'neutral' is selected in DataEntry-menu
                 self.main_layout = self.get_neutral_layout()
-                self.start_mode_used = self.start_mode_used.replace("data-entry", "")
+                self.start_mode_used = self.start_mode_used.replace("pgneditor", "")
                 # check if window is forced close
                 if not data_entry.is_win_closed:
                     window = self.create_new_window(window)
@@ -3980,7 +3980,7 @@ class EasyChessGui:
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
                     [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
-                      sg.Combo(["", "entry", "pgnviewer", "data-entry"], font=self.text_font, expand_x=True,
+                      sg.Combo(["", "entry", "pgnviewer", "pgneditor"], font=self.text_font, expand_x=True,
                                enable_events=True,
                                readonly=False, default_value=str(self.start_mode), key='start_mode')]],
                     # [sg.CBox('Start in game-entry-mode', font=self.text_font,
