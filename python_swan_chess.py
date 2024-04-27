@@ -3086,6 +3086,13 @@ class EasyChessGui:
                     self.menu_elem.Update(menu_def_pgnviewer)
                     self.returning_from_playing = False
                 pgn_viewer = PGNViewer(self, window)
+                while pgn_viewer.restart:
+                    self.main_layout = self.get_png_layout()
+                    #must be improved; now only called if flip = True
+                    window = self.create_new_window(window, False)
+                    self.menu_elem.Update(menu_def_pgnviewer)
+                    pgn_viewer = PGNViewer(self, window)
+
                 # 'neutral' is selected in PGNViewer-menu
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = self.start_mode_used.replace("pgnviewer", "")

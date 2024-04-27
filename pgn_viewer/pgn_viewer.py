@@ -11,6 +11,7 @@ from beautify_pgn_lines import PgnDisplay
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.restart = False
         self.is_black = False
         self.is_win_closed = False
         self.variation_bool = False
@@ -86,7 +87,9 @@ class PGNViewer:
                 break
 
             if button == 'Turn board':
-                self.turn_board()
+                self.gui.is_user_white = not self.gui.is_user_white
+                self.restart = True
+                break
 
             if button == 'Analyse':
                 # import later, to avoid recursive import
@@ -208,15 +211,6 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
-
-    def turn_board(self):
-        self.gui.is_user_white = not self.gui.is_user_white
-        self.gui.main_layout = self.gui.get_png_layout()
-        self.gui.menu_elem.Update(menu_def_pgnviewer)
-        window = self.gui.create_new_window(self.gui.window, self.gui.is_user_white)
-        pgn_viewer = PGNViewer(self.gui, window)
-
-
 
     def play_from_here(self):
         board = chess.Board()
