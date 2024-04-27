@@ -60,7 +60,7 @@ import platform as sys_plat
 from annotator import annotator
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
-from data_entry.data_entry import DataEntry
+from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import menu_def_pgnviewer, menu_def_entry, temp_file_name
 from toolbar import ToolBar
@@ -3110,7 +3110,7 @@ class EasyChessGui:
                     window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_entry)
                     self.returning_from_playing = False
-                data_entry = DataEntry(self, window)
+                data_entry = PgnEditor(self, window)
                 # 'neutral' is selected in DataEntry-menu
                 self.main_layout = self.get_neutral_layout()
                 self.start_mode_used = self.start_mode_used.replace("data-entry", "")

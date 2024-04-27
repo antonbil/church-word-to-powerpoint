@@ -93,13 +93,13 @@ class PGNViewer:
 
             if button == 'PGN_Editor':
                 # import later, to avoid recursive import
-                from data_entry.data_entry import DataEntry
+                from pgn_editor.pgn_editor import PgnEditor
                 name_file = temp_file_name
                 if not name_file == self.pgn:
                     with open(name_file, mode='w') as f:
                         f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_entry)
-                data_entry = DataEntry(self.gui, self.window, name_file)
+                data_entry = PgnEditor(self.gui, self.window, name_file)
                 self.is_win_closed = data_entry.is_win_closed
                 break
             #list_items = self.game_descriptions

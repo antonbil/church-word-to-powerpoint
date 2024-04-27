@@ -12,7 +12,7 @@ from common import menu_def_pgnviewer
 from common import menu_def_entry, menu_def_annotate, temp_file_name
 from beautify_pgn_lines import PgnDisplay
 
-class DataEntry:
+class PgnEditor:
     """
     class for data-entry of new pgn-file
     """
