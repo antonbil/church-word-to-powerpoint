@@ -2451,10 +2451,12 @@ class EasyChessGui:
                 self.check_depth_button(button)
 
                 # Mode: Play, Computer is thinking
-                if button == 'Neutral' or button == 'PGN-Viewer':
+                if button in ['Neutral', 'PGN-Viewer', 'PGN-Editor']:
                     search.stop()
                     if button == 'PGN-Viewer':
                         self.start_mode_used = "pgnviewer"
+                    if button == 'PGN-Editor':
+                        self.start_mode_used = "pgneditor"
                     self.is_search_stop_for_neutral = True
 
                 if button == 'Resign::resign_game_k':
@@ -3982,7 +3984,7 @@ class EasyChessGui:
                                      'move comment and is shown in move\n' +
                                      'list and saved in pgn file.')],
                     [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
-                      sg.Combo(["", "entry", "pgnviewer", "pgneditor"], font=self.text_font, expand_x=True,
+                      sg.Combo(["", "pgnviewer", "pgneditor"], font=self.text_font, expand_x=True,
                                enable_events=True,
                                readonly=False, default_value=str(self.start_mode), key='start_mode')]],
                     # [sg.CBox('Start in game-entry-mode', font=self.text_font,

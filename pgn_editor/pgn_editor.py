@@ -26,7 +26,7 @@ class PgnEditor:
         self.promoted = []
         self.move_number = 0
 
-        self.mode = "entry"
+        self.mode = "editor-entry"
         window.find_element('_gamestatus_').Update('Mode     PGN-Editor Entry')
         self.window = window
         self.start_empty_game()
@@ -141,7 +141,7 @@ class PgnEditor:
                 break
 
             if button == 'PGN Move entry' or button == 'Variations Edit':
-                if self.mode == "entry":
+                if self.mode == "editor-entry":
                     self.mode = "annotate"
                     buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
                                , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
@@ -181,7 +181,7 @@ class PgnEditor:
                 self.update_pgn_display()
                 self.display_move_and_line_number()
 
-            if self.gui.toolbar.get_button_id(button) == "Back" and self.mode == "entry":
+            if self.gui.toolbar.get_button_id(button) == "Back" and self.mode == "editor-entry":
                 self.remove_last_move()
                 window = self.window.find_element('_movelist_')
                 exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
@@ -285,7 +285,7 @@ class PgnEditor:
                 else:
                     self.execute_next_move(self.move_number)
 
-            if type(button) is tuple and self.mode in ["entry", "manual move"]:
+            if type(button) is tuple and self.mode in ["editor-entry", "manual move"]:
                 if move_state == 0:
                     # If fr_sq button is pressed
                     move_from = button
@@ -337,7 +337,7 @@ class PgnEditor:
         window_element = self.window.find_element('_gamestatus_')
         if self.mode == "annotate":
             window_element.Update('Mode     PGN-Variations Edit')
-        elif self.mode == "entry":
+        elif self.mode == "editor-entry":
             window_element.Update('Mode     PGN-Editor Entry')
         elif self.mode == "manual move":
             window_element.Update('Mode     Manual Move Entry')
@@ -352,7 +352,7 @@ class PgnEditor:
         self.display_move_and_line_number()
 
     def set_entry_mode(self):
-        self.mode = "entry"
+        self.mode = "editor-entry"
         buttons = [self.gui.toolbar.new_button("Back")]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
