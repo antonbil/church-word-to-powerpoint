@@ -86,7 +86,7 @@ class PGNViewer:
                 self.play_from_here()
                 break
 
-            if button == 'Turn board':
+            if button == 'Switch Sides':
                 self.gui.is_user_white = not self.gui.is_user_white
                 self.restart = True
                 break
