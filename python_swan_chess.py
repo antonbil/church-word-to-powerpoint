@@ -3098,7 +3098,7 @@ class EasyChessGui:
                 self.start_mode_used = self.start_mode_used.replace("pgnviewer", "")
                 # check if window is forced close
                 if not pgn_viewer.is_win_closed:
-                    window = self.create_new_window(window, pgn_viewer.is_black)
+                    window = self.create_new_window(window, False)
                     self.menu_elem.Update(menu_def_neutral)
             if button == 'Analyse' or self.start_mode_used == "data-entry":
                 # if default-window is not 'neutral', layout and menu are already changed

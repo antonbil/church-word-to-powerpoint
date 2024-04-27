@@ -229,6 +229,7 @@ class PGNViewer:
         self.gui.fen_from_here = fen
         if last_move:
             self.is_black = board.turn == chess.BLACK
+            self.gui.is_user_white = not self.is_black
         self.gui.start_mode_used = "play"
 
     def set_new_position(self, new_pos):
