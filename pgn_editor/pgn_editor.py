@@ -433,7 +433,12 @@ class PgnEditor:
 
     def promote_variation_to_mainline(self, current_move, index):
         previous_mainline = current_move.variations[0]
-        self.promoted.append([current_move, previous_mainline])
+        moves_index = self.all_moves.index(current_move)
+        if len(self.promoted) > 0 and self.promoted[-1][2] > moves_index:
+            sg.popup_error("You cannot save mainline \nif you are behind the previous mainline to be restored",
+                           title="Error promote variation", font=self.gui.text_font)
+            return
+        self.promoted.append([current_move, previous_mainline, moves_index])
         main = current_move.variations[index]
         current_move.promote_to_main(main)
         self.restore_moves()
