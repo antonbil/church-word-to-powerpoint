@@ -357,6 +357,10 @@ class PgnEditor:
 
                             self.display_move()
                             move_state = 0
+                            sg.popup("You can now enter the remainder of the moves of the variation\n"+
+                                     "Execute \"Restore alternative\" at the end of the variation-line",
+                                     title="Input moves variation",
+                                     font=self.gui.text_font)
 
                         else:
                             sg.popup_error("No legal move", title="Error enter move",
