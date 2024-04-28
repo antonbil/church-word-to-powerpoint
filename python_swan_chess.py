@@ -2130,6 +2130,10 @@ class EasyChessGui:
         self.move_state = 0
         while True:
             button, value = window.Read(timeout=100)
+            if button == sg.WIN_CLOSED:
+                logging.warning('User closes the window while the engine is thinking.')
+                search.stop()
+                sys.exit(0)  # the engine is run on daemon threads so it will quit as well
 
             # Update elapse box in m:s format
             elapse_str = self.get_time_mm_ss_ms(self.human_timer.elapse)

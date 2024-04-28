@@ -255,8 +255,8 @@ class PGNViewer:
         i = 1
         for game_string in self.game_descriptions:
             self.my_game = game_string
-            window = w.find_element('result_list')
-            window.Update(
+            result_list_element = w.find_element('result_list')
+            result_list_element.Update(
                 "\n{} ({} of {})".format(game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
             self.select_game()
@@ -266,7 +266,8 @@ class PGNViewer:
 
     def analyse_game(self):
         store_in_db = False
-        self.analyse_game_func(store_in_db)
+        self.analyse_game_func()
+
     def analyse_game_func_silent(self, store_in_db):
         pgn_file = temp_file_name
         with open(pgn_file, mode='w') as f:
@@ -277,13 +278,12 @@ class PGNViewer:
         analysed_game = annotator.start_analise(pgn_file,
                                 self.gui.engine, name_file, store_in_db, self.gui)
 
-    def analyse_game_func(self, store_in_db):
+    def analyse_game_func(self):
         value_white = self.game.headers['White']
         value_black = self.game.headers['Black']
         analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
         pgn = StringIO(analysed_game)
         self.open_pgn_io(pgn, temp_file_name)
-        return analysed_game
 
     def callback(self, advice):
         self.window.Read(timeout=5)
