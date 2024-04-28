@@ -260,13 +260,22 @@ class PGNViewer:
                 "\n{} ({} of {})".format(game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
             self.select_game()
-            self.analyse_game_func(True)
+            self.analyse_game_func_silent(True)
             i = i + 1
         w.Close()
 
     def analyse_game(self):
         store_in_db = False
         self.analyse_game_func(store_in_db)
+    def analyse_game_func_silent(self, store_in_db):
+        pgn_file = temp_file_name
+        with open(pgn_file, mode='w') as f:
+            f.write('{}\n\n'.format(self.game))
+        name_file = self.game.headers['Date'].replace("/", "-").replace(".??", "") + "-" + self.game.headers[
+            'White'].replace(" ", "_") \
+                    + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
+        analysed_game = annotator.start_analise(pgn_file,
+                                self.gui.engine, name_file, store_in_db, self.gui)
 
     def analyse_game_func(self, store_in_db):
         value_white = self.game.headers['White']
