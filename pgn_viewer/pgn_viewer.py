@@ -3,6 +3,7 @@ import chess.pgn
 import chess.svg
 import PySimpleGUI as sg
 import os
+from io import StringIO
 from annotator import annotator
 from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
@@ -268,14 +269,11 @@ class PGNViewer:
         self.analyse_game_func(store_in_db)
 
     def analyse_game_func(self, store_in_db):
-        pgn_file = temp_file_name
-        with open(pgn_file, mode='w') as f:
-            f.write('{}\n\n'.format(self.game))
-        name_file = self.game.headers['Date'].replace("/", "-").replace(".??", "") + "-" + self.game.headers[
-            'White'].replace(" ", "_") \
-                    + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
-        analysed_game = annotator.start_analise(pgn_file,
-                                self.gui.engine, name_file, store_in_db, self.gui)
+        value_white = self.game.headers['White']
+        value_black = self.game.headers['Black']
+        analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
+        pgn = StringIO(analysed_game)
+        self.open_pgn_io(pgn, temp_file_name)
         return analysed_game
 
     def callback(self, advice):
@@ -349,6 +347,9 @@ class PGNViewer:
     def open_pgn_file(self, pgn_file):
         pgn = open(pgn_file)
         # Reading the game
+        self.open_pgn_io(pgn, pgn_file)
+
+    def open_pgn_io(self, pgn, pgn_file):
         game = chess.pgn.read_game(pgn)
         self.game = game
         self.game_descriptions = []
@@ -362,7 +363,7 @@ class PGNViewer:
                     break  # end of file
 
                 self.game_descriptions.append(self.get_description_pgn(game1))
-            #print(self.game_descriptions)
+            # print(self.game_descriptions)
         self.init_game(game)
         self.display_move()
 
