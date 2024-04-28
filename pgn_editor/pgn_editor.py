@@ -18,6 +18,7 @@ class PgnEditor:
     """
 
     def __init__(self, gui, window, file_name = ""):
+        self.current_line = None
         self.move_squares = None
         self.game = None
         self.current_move = None
@@ -133,6 +134,9 @@ class PgnEditor:
                 self.gui.start_entry_mode = False
                 break
 
+            if button == 'Manual variation' and self.mode == "annotate":
+                move_state = self.move_add_manual("manual variation")
+
             if button == 'Remove from this move onward':
                 self.remove_from_this_move_onward()
                 self.display_new_situation()
@@ -166,14 +170,7 @@ class PgnEditor:
 
             if button == 'PGN Move entry' or button == 'Variations Edit':
                 if self.mode == "editor-entry":
-                    self.mode = "annotate"
-                    buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
-                               , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
-                    self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
-
-                    self.gui.menu_elem.Update(menu_def_annotate)
-                    self.move_number = len(self.all_moves) - 1
-                    self.set_status()
+                    self.set_mode_to_annotate()
                 else:
                     self.set_entry_mode()
                     self.gui.menu_elem.Update(menu_def_entry)
@@ -197,7 +194,7 @@ class PgnEditor:
 
             if (button == 'Alternative manual' or self.gui.toolbar.get_button_id(button) == 'Add Move') \
                     and self.mode == "annotate":
-                move_state = self.move_add_manual(move_state)
+                move_state = self.move_add_manual("manual move")
 
             if (button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Best?') \
                     and self.mode == "annotate":
@@ -222,12 +219,27 @@ class PgnEditor:
                 self.gui.save_game_pgn(value_white, value_black, self.game)
                 self.update_player_data()
             #
-            if button == "Restore alternative" and self.mode == "annotate":
+            if button == "Restore alternative":
                 if len(self.promoted) > 0:
                     to_be_restored = self.promoted.pop()
-                    to_be_restored[0].promote_to_main(to_be_restored[1])
+                    # set current node to parent-node of the variation-node to be restored
+                    parent_node = to_be_restored[0]
+                    parent_node.promote_to_main(to_be_restored[1])
+                    # get index of parent-node; it is the new current move
+                    index = self.moves.index(parent_node)
+                    self.moves = self.moves[:index]
+                    move_number = len(self.moves) - 1
+                    # restore the moves
                     self.restore_moves()
+                    self.set_mode_to_annotate()
+                    # restore the state of the current move (move-number and the from/to-squares)
+                    self.move_number = move_number
+                    self.define_moves_squares()
+                    # display the restored baord
                     self.display_move()
+                if self.mode == "manual variation":
+                    self.mode = "editor-entry"
+                    self.set_status()
 
             if button == "Remove alternative" and self.mode == "annotate":
                 current_move = self.moves[-1]
@@ -301,7 +313,7 @@ class PgnEditor:
                 else:
                     self.execute_next_move(self.move_number)
 
-            if type(button) is tuple and self.mode in ["editor-entry", "manual move"]:
+            if type(button) is tuple and self.mode in ["editor-entry", "manual move", "manual variation"]:
                 if move_state == 0:
                     # If fr_sq button is pressed
                     move_from = button
@@ -329,9 +341,39 @@ class PgnEditor:
                         self.set_status()
                         move_state = 0
                         self.display_move_and_line_number()
+                    elif self.mode == "manual variation":
+                        legal_move, user_move = self.get_algebraic_move_from_coordinates(fr_col, fr_row, to_col, to_row)
+                        if legal_move:
+                            self.analise_new_move(user_move)
+                            self.set_entry_mode()
+                            self.gui.menu_elem.Update(menu_def_entry)
+                            self.set_status()
+                            self.moves = [m for m in self.all_moves]
+                            self.move_squares = []
+                            self.move_squares.append(fr_col)
+                            self.move_squares.append(fr_row)
+                            self.move_squares.append(to_col)
+                            self.move_squares.append(to_row)
+
+                            self.display_move()
+                            move_state = 0
+
+                        else:
+                            sg.popup_error("No legal move", title="Error enter move",
+                                           font=self.gui.text_font)
+
                     else:
                         self.execute_move(fr_col, fr_row, to_col, to_row)
                         move_state = 0
+
+    def set_mode_to_annotate(self):
+        self.mode = "annotate"
+        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
+            , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
+        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
+        self.gui.menu_elem.Update(menu_def_annotate)
+        self.move_number = len(self.all_moves) - 1
+        self.set_status()
 
     def display_new_situation(self):
         window = self.window.find_element('_movelist_')
@@ -351,11 +393,11 @@ class PgnEditor:
     def remove_variation(self, current_move, index):
         current_move.remove_variation(index)
 
-    def move_add_manual(self, move_state):
+    def move_add_manual(self, new_mode):
         sg.popup("Enter move \nby moving pieces on the board",
                  title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
                  font=self.gui.text_font)
-        self.mode = "manual move"
+        self.mode = new_mode
         move_state = 0
         self.set_status()
         return move_state
@@ -368,6 +410,8 @@ class PgnEditor:
             window_element.Update('Mode     PGN-Editor Entry')
         elif self.mode == "manual move":
             window_element.Update('Mode     Manual Move Entry')
+        elif self.mode == "manual variation":
+            window_element.Update('Mode     Manual Variation Entry')
 
     def set_position_move(self, new_number):
         self.moves = self.all_moves[0:new_number]
@@ -429,17 +473,25 @@ class PgnEditor:
             move = main_move.move
             board.push(move)
         board.push(move_new)
-        # get engine advice for this new situation
-        advice, score, pv, pv_original, alternatives = self.gui.get_advice(board, self.callback)
-        # add all moves as coordinates in one line with spaces inbetween
-        str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
+        str_line3 = str(move_new)
+        advice = str_line3
+        score = 0
+        if self.mode == "manual move":
+            # get engine advice for this new situation
+            advice, score, pv, pv_original, alternatives = self.gui.get_advice(board, self.callback)
+            # add all moves as coordinates in one line with spaces inbetween
+            str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
         # ask user if he/she wants to add this new variation
         text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
                                  font=self.gui.text_font)
         # add new variation if user agrees
         if text:
-            self.moves[-1].add_line(self.uci_string2_moves(str_line3))
-            self.moves[-1].variations[-1].comment = str(score)
+            current_move = self.moves[-1]
+            current_move.add_line(self.uci_string2_moves(str_line3))
+            if self.mode == "manual move":
+                current_move.variations[-1].comment = str(score)
+            else:
+                self.promote_variation_to_mainline(current_move, len(current_move.variations) - 1)
 
     def uci_string2_moves(self, str_moves):
         """
@@ -553,7 +605,7 @@ class PgnEditor:
     def execute_move(self, fr_col, fr_row, to_col, to_row):
         legal_move, user_move = self.get_algebraic_move_from_coordinates(fr_col, fr_row, to_col, to_row)
         if not legal_move:
-            print("illegal move")
+            print("illegal move", fr_col, fr_row, to_col, to_row)
             return 0
         try:
             self.board.push(user_move)
