@@ -115,10 +115,10 @@ class PGNViewer:
                         self.select_game()
 
             if button == 'Replace in db':
-                def action(index, games_index, game1):
+                def action(file_name, index, games_index, game1):
                     if index == games_index:
                         game1 = self.game
-                    with open(old_file, 'a') as f:
+                    with open(file_name, 'a') as f:
                         f.write('{}\n\n'.format(game1))
 
                 index, file_name = self.do_action_with_pgn_db(action)
@@ -126,14 +126,15 @@ class PGNViewer:
                 sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
 
             if button == 'Remove from db':
-                def action(index, games_index, game1):
+                def action(file_name, index, games_index, game1):
                     if not index == games_index:
-                        with open(old_file, 'a') as f:
+                        with open(file_name, 'a') as f:
                             f.write('{}\n\n'.format(game1))
 
                 index, file_name = self.do_action_with_pgn_db(action)
 
                 sg.Popup('PGN removed from {}'.format(file_name), title='PGN removed')
+                self.game_descriptions.remove(self.my_game)
                 if index < len(self.game_descriptions) - 1:
                     self.my_game = self.game_descriptions[index + 1]
                     self.select_game()
@@ -263,7 +264,7 @@ class PGNViewer:
             #     game1 = self.game
             # with open(old_file, 'a') as f:
             #         f.write('{}\n\n'.format(game1))
-            action(index, games_index, game1)
+            action(old_file, index, games_index, game1)
             game1 = chess.pgn.read_game(pgn)
             games_index = games_index + 1
         return index, file_name
