@@ -125,6 +125,14 @@ class PGNViewer:
 
                 sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
 
+            if button == 'Add to db':
+                self.gui.file_dialog.read_file()
+                if self.gui.file_dialog.filename:
+                    filename = self.gui.file_dialog.filename
+                    with open(filename, 'a') as f:
+                        f.write('\n\n{}'.format(self.game))
+                    sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
+
             if button == 'Remove from db':
                 def action(file_name, index, games_index, game1):
                     if not index == games_index:
@@ -250,7 +258,7 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def do_action_with_pgn_db(self, action):
-        old_file = os.path.join(self.pgn)
+        old_file = self.pgn
         file_name = self.pgn.split('/')[-1]
         new_file = file_name + ".bak"
         new_file = os.path.join(self.gui.default_png_dir, new_file)
