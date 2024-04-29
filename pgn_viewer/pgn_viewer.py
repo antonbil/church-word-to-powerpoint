@@ -407,7 +407,7 @@ class PGNViewer:
             self.my_game = game_string
             result_list_element = w.find_element('result_list')
             end = pc() - start
-            time_str = str(datetime.timedelta(seconds=end))
+            time_str = str(datetime.timedelta(seconds=end)).split(".")[0]
             result_list_element.Update(
                 "\n({}) {} ({} of {})".format(time_str, game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
