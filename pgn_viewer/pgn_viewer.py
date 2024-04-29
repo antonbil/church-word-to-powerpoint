@@ -114,25 +114,32 @@ class PGNViewer:
                         self.my_game = selected_item
                         self.select_game()
 
-            if button == 'Save in db':
-                old_file = os.path.join(self.pgn)
-                new_file = self.pgn.split('/')[-1] + ".bak"
-                new_file = os.path.join(self.gui.default_png_dir, new_file)
-                os.rename(old_file, new_file)
-                pgn = open(new_file)
-                game1 = chess.pgn.read_game(pgn)
-                index = self.game_descriptions.index(self.my_game)
-                games_index = 0
-                while game1:
+            if button == 'Replace in db':
+                def action(index, games_index, game1):
                     if index == games_index:
                         game1 = self.game
                     with open(old_file, 'a') as f:
+                        f.write('{}\n\n'.format(game1))
+
+                index, file_name = self.do_action_with_pgn_db(action)
+
+                sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
+
+            if button == 'Remove from db':
+                def action(index, games_index, game1):
+                    if not index == games_index:
+                        with open(old_file, 'a') as f:
                             f.write('{}\n\n'.format(game1))
 
-                    game1 = chess.pgn.read_game(pgn)
-                    games_index = games_index + 1
+                index, file_name = self.do_action_with_pgn_db(action)
 
-                pass
+                sg.Popup('PGN removed from {}'.format(file_name), title='PGN removed')
+                if index < len(self.game_descriptions) - 1:
+                    self.my_game = self.game_descriptions[index + 1]
+                    self.select_game()
+                elif index > 0:
+                    self.my_game = self.game_descriptions[index - 1]
+                    self.select_game()
 
             if button == 'Comment':
                 comment = sg.PopupGetText(
@@ -240,6 +247,26 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def do_action_with_pgn_db(self, action):
+        old_file = os.path.join(self.pgn)
+        file_name = self.pgn.split('/')[-1]
+        new_file = file_name + ".bak"
+        new_file = os.path.join(self.gui.default_png_dir, new_file)
+        os.rename(old_file, new_file)
+        pgn = open(new_file)
+        game1 = chess.pgn.read_game(pgn)
+        index = self.game_descriptions.index(self.my_game)
+        games_index = 0
+        while game1:
+            # if index == games_index:
+            #     game1 = self.game
+            # with open(old_file, 'a') as f:
+            #         f.write('{}\n\n'.format(game1))
+            action(index, games_index, game1)
+            game1 = chess.pgn.read_game(pgn)
+            games_index = games_index + 1
+        return index, file_name
 
     def select_games(self):
         print("select games start")
