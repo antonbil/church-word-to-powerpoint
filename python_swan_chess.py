@@ -1973,7 +1973,7 @@ class EasyChessGui:
 
             # If side to move is human
             if self.is_human_stm:
-                board = self.method_name(move_from, moved_piece, board, window)
+                board = self.do_human_move(move_from, moved_piece, board, window)
                 if (self.is_new_game or self.is_exit_game or self.is_exit_app or
                         self.is_user_resigns or self.is_user_wins or self.is_user_draws):
                     break
@@ -2126,7 +2126,7 @@ class EasyChessGui:
                 break
         return board
 
-    def method_name(self, move_from, moved_piece, board, window):
+    def do_human_move(self, move_from, moved_piece, board, window):
         self.move_state = 0
         while True:
             button, value = window.Read(timeout=100)
