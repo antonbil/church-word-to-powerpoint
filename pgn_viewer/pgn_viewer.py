@@ -58,7 +58,10 @@ class PGNViewer:
             self.select_game()
 
     def get_description_pgn(self, game):
-        return "{}-{} {} ({})".format(game.headers['White'],game.headers['Black'],game.headers['Date'],game.headers['Result'])
+        try:
+            return "{}-{} {} ({})".format(game.headers['White'],game.headers['Black'],game.headers['Date'].replace("?","").replace("..", ""),game.headers['Result'])
+        except:
+            return ""
 
     def execute_pgn(self):
 
@@ -285,7 +288,7 @@ class PGNViewer:
         game1 = chess.pgn.read_game(pgn)
         while game1:
             player_white = game1.headers['White']
-            print("player white", player_white)
+            # print("player white", player_white)
             player_black = game1.headers['Black']
             if player_white not in players:
                 players.append(player_white)
@@ -297,7 +300,9 @@ class PGNViewer:
             column_players.append([sg.Checkbox(player, key='player'+str(index), enable_events=True)])
         layout = [
                     [[sg.Column(column_players, size=(300, 300), scrollable=True)]],
-                    [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
+                    [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font),
+                     sg.Button('Select all', font=self.gui.text_font),
+                     sg.Button('Select none', font=self.gui.text_font)]
                 ]
 
         form = sg.Window('Select players',layout)
@@ -313,6 +318,16 @@ class PGNViewer:
                         selected_players.append(player)
             if event in ("Cancel", sg.WIN_CLOSED):
                 break
+
+            if event in ("Select none"):
+                for index, player in enumerate(players):
+                    form.find_element('player' + str(index)).Update(False)
+                selected_players = []
+
+            if event in ("Select all"):
+                for index, player in enumerate(players):
+                    form.find_element('player' + str(index)).Update(True)
+                selected_players = players
 
             if event in ("OK"):
                 pgn = open(self.pgn)
