@@ -5,7 +5,7 @@ import PySimpleGUI as sg
 import os
 from io import StringIO
 import datetime
-import time
+from time import perf_counter as pc
 from annotator import annotator
 from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
@@ -399,15 +399,15 @@ class PGNViewer:
 
         w = sg.Window("Analyse PGN", layout,
                       icon='Icon/pecg.png')
-        start = time.time()
+        start = pc()
         w.Read(timeout=10)
 
         i = 1
         for game_string in self.game_descriptions:
             self.my_game = game_string
             result_list_element = w.find_element('result_list')
-            end = time.time()
-            time_str = str(datetime.timedelta(end-start))
+            end = pc() - start
+            time_str = str(datetime.timedelta(end))
             result_list_element.Update(
                 "\n({}) {} ({} of {})".format(time_str, game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
