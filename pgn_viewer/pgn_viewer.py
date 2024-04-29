@@ -4,6 +4,8 @@ import chess.svg
 import PySimpleGUI as sg
 import os
 from io import StringIO
+import datetime
+import time
 from annotator import annotator
 from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
@@ -397,14 +399,17 @@ class PGNViewer:
 
         w = sg.Window("Analyse PGN", layout,
                       icon='Icon/pecg.png')
+        start = time.time()
         w.Read(timeout=10)
 
         i = 1
         for game_string in self.game_descriptions:
             self.my_game = game_string
             result_list_element = w.find_element('result_list')
+            end = time.time()
+            time_str = str(datetime.timedelta(end-start))
             result_list_element.Update(
-                "\n{} ({} of {})".format(game_string, i, number_games), append=True, disabled=True)
+                "\n({}) {} ({} of {})".format(time_str, game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
             self.select_game()
             self.analyse_game_func_silent(True)
