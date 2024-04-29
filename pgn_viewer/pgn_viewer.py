@@ -250,7 +250,7 @@ class PGNViewer:
                 pgn = open(self.pgn)
                 # Reading the game
                 game1 = chess.pgn.read_game(pgn)
-                temp_file_name = os.path.join(self.gui.default_png_dir, temp_file_name)
+                temp_file_name2 = os.path.join(self.gui.default_png_dir, temp_file_name)
                 while game1:
                     player_white = game1.headers['White']
                     player_black = game1.headers['Black']
@@ -258,13 +258,13 @@ class PGNViewer:
                     if (player_white in selected_players or player_black in selected_players)\
                             and result in ["1-0", "0-1"]:
                         print("player white", player_white)
-                        with open(temp_file_name, 'a') as f:
+                        with open(temp_file_name2, 'a') as f:
                             f.write('{}\n\n'.format(game1))
 
                     game1 = chess.pgn.read_game(pgn)
-                if sg.popup_yes_no('Selected games stored in ' + temp_file_name +
-                                   '\nOpen this file?') == 'Yes':
-                    self.open_pgn_file(temp_file_name)
+                if sg.popup_yes_no('Selected games stored in ' + (temp_file_name2.split("/")[-1]) +
+                                   '\nOpen this file?', "Open created file?") == 'Yes':
+                    self.open_pgn_file(temp_file_name2)
 
                 break
 
@@ -305,7 +305,7 @@ class PGNViewer:
     def analyse_db(self):
         number_games = len(self.game_descriptions)
         layout = [
-            [sg.Text("Analyse pgn's in file: {}".format(self.pgn), font=self.gui.text_font, size=(40, 1))],
+            [sg.Text("Analyse pgn's in file: {}".format(self.pgn.split("/")[-1]), font=self.gui.text_font, size=(40, 1))],
             [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(70, 8),
                           font=self.gui.text_font, key='result_list', disabled=True)]
         ]
