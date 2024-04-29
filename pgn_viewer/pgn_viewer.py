@@ -115,6 +115,23 @@ class PGNViewer:
                         self.select_game()
 
             if button == 'Save in db':
+                old_file = os.path.join(self.pgn)
+                new_file = self.pgn.split('/')[-1] + ".bak"
+                new_file = os.path.join(self.gui.default_png_dir, new_file)
+                os.rename(old_file, new_file)
+                pgn = open(new_file)
+                game1 = chess.pgn.read_game(pgn)
+                index = self.game_descriptions.index(self.my_game)
+                games_index = 0
+                while game1:
+                    if index == games_index:
+                        game1 = self.game
+                    with open(old_file, 'a') as f:
+                            f.write('{}\n\n'.format(game1))
+
+                    game1 = chess.pgn.read_game(pgn)
+                    games_index = games_index + 1
+
                 pass
 
             if button == 'Comment':
