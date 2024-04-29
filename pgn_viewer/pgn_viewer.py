@@ -134,9 +134,9 @@ class PGNViewer:
                     sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
 
             if button == 'Remove from db':
-                def action(file_name, index, games_index, game1):
-                    if not index == games_index:
-                        with open(file_name, 'a') as f:
+                def action(file_name1, index1, games_index, game1):
+                    if not index1 == games_index:
+                        with open(file_name1, 'a') as f:
                             f.write('{}\n\n'.format(game1))
 
                 index, file_name = self.do_action_with_pgn_db(action)
@@ -319,6 +319,8 @@ class PGNViewer:
                 # Reading the game
                 game1 = chess.pgn.read_game(pgn)
                 temp_file_name2 = os.path.join(self.gui.default_png_dir, temp_file_name)
+                with open(temp_file_name2, 'w') as f:
+                    f.write('\n')
                 while game1:
                     player_white = game1.headers['White']
                     player_black = game1.headers['Black']
