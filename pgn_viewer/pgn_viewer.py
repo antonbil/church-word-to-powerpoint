@@ -23,8 +23,6 @@ class PGNViewer:
         self.positions = []
         self.gui = gui
         self.previous_move = ""
-        # window.find_element('comment_k').update(visible=False)
-        # window.find_element('pgn_row').update(visible=True)
         window.find_element('_gamestatus_').Update('Mode     PGN-Viewer')
         self.window = window
         self.moves = []
@@ -243,7 +241,7 @@ class PGNViewer:
     def analyse_db(self):
         number_games = len(self.game_descriptions)
         layout = [
-            [sg.Text("Analyse pgn's in file: {}".format(self), font=self.gui.text_font, size=(40, 1))],
+            [sg.Text("Analyse pgn's in file: {}".format(self.pgn), font=self.gui.text_font, size=(40, 1))],
             [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(70, 8),
                           font=self.gui.text_font, key='result_list', disabled=True)]
         ]

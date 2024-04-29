@@ -839,12 +839,13 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui):
                 else:
                     print(analyzed_game, '\n')
                     new_filename = pgnfile[:-4] + "-annotated.pgn"
-                    file1 = open(os.path.join(gui.preferences.preferences["default_png_dir"], new_filename), 'w')
-                    file1.writelines(str(analyzed_game))
-                    file1.close()
-                    file1 = open(fine_name_file, 'w')
-                    file1.writelines(str(analyzed_game))
-                    file1.close()
+                    if not add_to_library:
+                        file1 = open(os.path.join(gui.preferences.preferences["default_png_dir"], new_filename), 'w')
+                        file1.writelines(str(analyzed_game))
+                        file1.close()
+                        file1 = open(fine_name_file, 'w')
+                        file1.writelines(str(analyzed_game))
+                        file1.close()
                     if add_to_library:
                         file1 = open(os.path.join(gui.default_png_dir, "library.pgn"), 'a')
                         file1.writelines('\n\n'+str(analyzed_game))
