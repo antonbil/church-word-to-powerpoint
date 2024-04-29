@@ -81,6 +81,9 @@ class PGNViewer:
                 self.gui.start_mode_used = "play"
                 break
 
+            if button == 'Select games':
+                self.select_games()
+
             if button == 'Play from here':
                 self.play_from_here()
                 break
@@ -205,6 +208,67 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def select_games(self):
+        print("select games start")
+        players = []
+        pgn = open(self.pgn)
+        # Reading the game
+        game1 = chess.pgn.read_game(pgn)
+        while game1:
+            player_white = game1.headers['White']
+            print("player white", player_white)
+            player_black = game1.headers['Black']
+            if player_white not in players:
+                players.append(player_white)
+            if player_black not in players:
+                players.append(player_black)
+            game1 = chess.pgn.read_game(pgn)
+        column_players = []
+        for index, player in enumerate(players):
+            column_players.append([sg.Checkbox(player, key='player'+str(index), enable_events=True)])
+        layout = [
+                    [[sg.Column(column_players, size=(300, 300), scrollable=True)]],
+                    [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
+                ]
+
+        form = sg.Window('Select players',layout)
+        selected_players = []
+        while True:
+            event, values = form.read()
+            for index, player in enumerate(players):
+                if 'player'+str(index) == event:
+                    print("player selected:", player)
+                    if player in selected_players:
+                        selected_players.remove(player)
+                    else:
+                        selected_players.append(player)
+            if event in ("Cancel", sg.WIN_CLOSED):
+                break
+
+            if event in ("OK"):
+                pgn = open(self.pgn)
+                # Reading the game
+                game1 = chess.pgn.read_game(pgn)
+                temp_file_name = os.path.join(self.gui.default_png_dir, temp_file_name)
+                while game1:
+                    player_white = game1.headers['White']
+                    player_black = game1.headers['Black']
+                    result = game1.headers['Result']
+                    if (player_white in selected_players or player_black in selected_players)\
+                            and result in ["1-0", "0-1"]:
+                        print("player white", player_white)
+                        with open(temp_file_name, 'a') as f:
+                            f.write('{}\n\n'.format(game1))
+
+                    game1 = chess.pgn.read_game(pgn)
+                if sg.popup_yes_no('Selected games stored in ' + temp_file_name +
+                                   '\nOpen this file?') == 'Yes':
+                    self.open_pgn_file(temp_file_name)
+
+                break
+
+        form.close()
 
     def play_from_here(self):
         board = chess.Board()
