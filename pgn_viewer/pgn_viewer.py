@@ -12,6 +12,7 @@ from beautify_pgn_lines import PgnDisplay
 class PGNViewer:
     """header dialog class"""
     def __init__(self, gui, window):
+        self.move_description = ""
         self.restart = False
         self.is_black = False
         self.is_win_closed = False
@@ -112,6 +113,20 @@ class PGNViewer:
                     if selected_item:
                         self.my_game = selected_item
                         self.select_game()
+
+            if button == 'Save in db':
+                pass
+
+            if button == 'Comment':
+                comment = sg.PopupGetText(
+            f'Enter comment:',
+            title="Comment for " + self.move_description, font=self.gui.text_font)
+                if comment:
+                    self.current_move.comment = (self.current_move.comment + " " + comment).strip()
+                    string = str(self.game.game())
+                    lines = self.pgn_display.beautify_lines(string)
+                    self.pgn_lines = lines
+                    self.display_part_pgn(self.move_number, self.current_move)
 
             if button == 'Read':
                 self.gui.file_dialog.read_file()
@@ -524,7 +539,8 @@ class PGNViewer:
             next_move.comment, append=True, disabled=True)
 
         alternatives, move_string = self.pgn_display.get_nice_move_string(next_move)
-        self.window.find_element('_currentmove_').Update(move_string + alternatives)
+        self.move_description = move_string + alternatives
+        self.window.find_element('_currentmove_').Update(self.move_description)
         # get formatted partial moves: rest of moves from current-move on
         part_text = self.pgn_display.beautify_lines(str(next_move))
         if self.variation_bool:

@@ -102,4 +102,5 @@ class FileDialog:
             file_list = []
         fnames = [f for f in file_list if os.path.isfile(
             os.path.join(folder, f)) and f.lower().endswith(".pgn")]
-        return fnames.sort()
+        fnames.sort()
+        return fnames
