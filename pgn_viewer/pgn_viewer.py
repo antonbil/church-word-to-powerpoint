@@ -61,7 +61,10 @@ class PGNViewer:
 
     def get_description_pgn(self, game):
         try:
-            return "{}-{} {} ({})".format(game.headers['White'],game.headers['Black'],game.headers['Date'].replace("?","").replace("..", ""),game.headers['Result'])
+            date = game.headers['Date'].replace("?", "").replace("..", "")
+            opening = game.headers['Opening']
+            result_ = game.headers['Result']
+            return "{}-{} {} ({}){}".format(game.headers['White'], game.headers['Black'], date, result_, opening)
         except:
             return ""
 
@@ -114,7 +117,7 @@ class PGNViewer:
             if button == "Select":
                 if self.check_edit_single_pgn():
                     title_window = "Read PGN"
-                    selected_item = self.gui.get_item_from_list(self.game_descriptions, title_window)
+                    selected_item = self.gui.get_item_from_list(self.game_descriptions, title_window, width=60)
                     if selected_item:
                         self.my_game = selected_item
                         self.select_game()

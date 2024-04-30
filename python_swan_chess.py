@@ -1844,16 +1844,17 @@ class EasyChessGui:
 
         return timer
 
-    def get_item_from_list(self, list_items, title_window):
+    def get_item_from_list(self, list_items, title_window, width = 30):
         """
         display items from list, and return selected item if ok is rpessed
+        :param width:
         :param list_items: a list of strings
         :param title_window: the title on top of the window
         :return: the item selected if ok, empty string if cancel is pressed
         """
         layout = [
             [sg.Listbox(list_items, key='game_k', expand_y=True, enable_events=True, font=self.text_font,
-                        size=(30, 20), sbar_width=self.scrollbar_width, sbar_arrow_width=self.scrollbar_width)],
+                        size=(width, 20), sbar_width=self.scrollbar_width, sbar_arrow_width=self.scrollbar_width)],
             [sg.Ok(font=self.text_font), sg.Cancel(font=self.text_font)
                 , sg.Button("Down",
                             font=self.text_font, key='scroll_down'),
