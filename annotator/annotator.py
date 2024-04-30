@@ -802,7 +802,7 @@ def change_nags(pgn):
     res = []
     res.append(strs.pop(0))
     for line in strs:
-        if len(line) < 80:
+        if len(line) < 80 or line.startswith("["):
             res.append(line)
         else:
             line_strs = line.split(" ")

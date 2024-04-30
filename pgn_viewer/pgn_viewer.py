@@ -283,7 +283,6 @@ class PGNViewer:
         return index, file_name
 
     def select_games(self):
-        print("select games start")
         players = []
         pgn = open(self.pgn)
         # Reading the game
@@ -300,11 +299,13 @@ class PGNViewer:
         column_players = []
         for index, player in enumerate(players):
             column_players.append([sg.Checkbox(player, key='player'+str(index), enable_events=True)])
-        layout = [
-                    [[sg.Column(column_players, size=(300, 300), scrollable=True)]],
+        layout = [[[sg.Column([[sg.Checkbox("Skip draws", default = True, key='skip_draws',
+                                            enable_events=True)]], size=(170, 300)),
+                    sg.Column(column_players, size=(300, 400), vertical_scroll_only=True, scrollable=True)]],
                     [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font),
                      sg.Button('Select all', font=self.gui.text_font),
-                     sg.Button('Select none', font=self.gui.text_font)]
+                     sg.Button('Select none', font=self.gui.text_font)
+                     ]
                 ]
 
         form = sg.Window('Select players',layout)
@@ -332,26 +333,33 @@ class PGNViewer:
                 selected_players = players
 
             if event in ("OK"):
+                skip_draws = values["skip_draws"]
                 pgn = open(self.pgn)
                 # Reading the game
                 game1 = chess.pgn.read_game(pgn)
                 temp_file_name2 = os.path.join(self.gui.default_png_dir, temp_file_name)
                 with open(temp_file_name2, 'w') as f:
                     f.write('\n')
+                nr_copied_games = 0
                 while game1:
                     player_white = game1.headers['White']
                     player_black = game1.headers['Black']
                     result = game1.headers['Result']
                     if (player_white in selected_players or player_black in selected_players)\
-                            and result in ["1-0", "0-1"]:
-                        print("player white", player_white)
+                            and (not skip_draws or result in ["1-0", "0-1"]):
+                        #print("player white", player_white)
+                        nr_copied_games = nr_copied_games + 1
                         with open(temp_file_name2, 'a') as f:
                             f.write('{}\n\n'.format(game1))
 
                     game1 = chess.pgn.read_game(pgn)
-                if sg.popup_yes_no('Selected games stored in ' + (temp_file_name2.split("/")[-1]) +
-                                   '\nOpen this file?', "Open created file?") == 'Yes':
-                    self.open_pgn_file(temp_file_name2)
+                if nr_copied_games > 0:
+                    if sg.popup_yes_no('{} Selected games stored in {}\nOpen this file?'
+                                           .format(nr_copied_games, temp_file_name2.split("/")[-1]) +
+                                   '', "Open created file?") == 'Yes':
+                        self.open_pgn_file(temp_file_name2)
+                else:
+                    sg.popup("No games selected")
 
                 break
 
