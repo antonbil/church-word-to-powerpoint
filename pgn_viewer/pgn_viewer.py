@@ -123,7 +123,7 @@ class PGNViewer:
 
             if button == "Select":
                 if self.check_edit_single_pgn():
-                    title_window = "Read PGN"
+                    title_window = "Read PGN from {}".format(self.pgn.split("/")[-1])
                     selected_item = self.gui.get_item_from_list(self.game_descriptions, title_window, width=100)
                     if selected_item:
                         self.my_game = selected_item
