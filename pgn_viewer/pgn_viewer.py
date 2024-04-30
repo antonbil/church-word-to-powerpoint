@@ -9,6 +9,7 @@ from time import perf_counter as pc
 from annotator import annotator
 from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
+from analyse_db.analyse_db import AnalyseDb
 
 
 class PGNViewer:
@@ -108,6 +109,9 @@ class PGNViewer:
                 self.gui.is_user_white = not self.gui.is_user_white
                 self.restart = True
                 break
+
+            if button == 'Find in db':
+                self.find_in_db()
 
             if button == 'PGN-Editor':
                 # import later, to avoid recursive import
@@ -271,6 +275,41 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def find_in_db(self):
+        layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
+         sg.InputText('', font=self.gui.text_font, key='_Player_',
+                      size=(24, 1))],
+                  [sg.Text('Opening', size=(7, 1), font=self.gui.text_font),
+                   sg.InputText('', font=self.gui.text_font, key='_Opening_',
+                                size=(24, 1))],
+                  [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font)]
+        ]
+        window = sg.Window("Search db", layout, font=self.gui.text_font, size=(600, 450),
+                           finalize=True, modal=True, keep_on_top=True)
+        while True:
+            event, values = window.read()
+            if event in ("Cancel", sg.WIN_CLOSED):
+                window.close()
+                break
+            if event == "Search":
+                window.close()
+                db_analyse = AnalyseDb(self.gui.default_png_dir)
+                temp_file_name2 = os.path.join(self.gui.default_png_dir, "found_files.pgn")
+                db_analyse.name_file = temp_file_name2
+                num_games = db_analyse.search(player=values['_Player_'], opening=values['_Opening_'])
+                if num_games > 0:
+                    self.pgn = temp_file_name2
+                    self.open_pgn_file(temp_file_name2)
+                    selected_item = self.gui.get_item_from_list(self.game_descriptions, "Found games", width=100)
+                    if selected_item:
+                        self.my_game = selected_item
+                        self.select_game()
+                else:
+                    sg.popup("No games found")
+                print("{} games found".format(num_games))
+                break
+
 
     def do_action_with_pgn_db(self, action):
         old_file = self.pgn
