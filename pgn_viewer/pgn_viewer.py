@@ -61,11 +61,11 @@ class PGNViewer:
 
     def get_description_pgn(self, game):
         try:
-            date = game.headers['Date'].replace("?", "").replace("..", "")
-            opening = game.headers['Opening']
-            result_ = game.headers['Result']
-            white_ = game.headers['White']
-            black_ = game.headers['Black']
+            date = game.headers['Date'].replace("?", "").replace("..", "") if 'Date' in game.headers else ""
+            opening = game.headers['Opening'] if 'Opening' in game.headers else ""
+            result_ = game.headers['Result'] if 'Result' in game.headers else ""
+            white_ = game.headers['White'] if 'White' in game.headers else ""
+            black_ = game.headers['Black'] if 'Black' in game.headers else ""
             max_title = 50
             filler_width = 0
             if len(white_)+len(black_) + 1 <= max_title:
@@ -319,8 +319,7 @@ class PGNViewer:
         game, root_node, ply_count = annotator.classify_opening(self.game)
 
     def classify_opening_db(self):
-        #original_file_name = "world_matches.pgn"
-        #read_file = os.path.join(self.gui.default_png_dir, original_file_name)
+
         self.gui.file_dialog.read_file()
         if self.gui.file_dialog.filename:
             read_file = self.gui.file_dialog.filename
@@ -328,16 +327,14 @@ class PGNViewer:
             new_file = file_name + ".bak"
             new_file = os.path.join(self.gui.default_png_dir, new_file)
             os.rename(read_file, new_file)
-
-            out_file = os.path.join(self.gui.default_png_dir, "classified_files.pgn")
+            # clear the contents of the out-file
             with open(read_file, 'w') as f:
                 f.write('\n')
+            # read the content of the old file; it contains the data to be changed
             pgn = open(new_file, 'r')
             game = chess.pgn.read_game(pgn)
             annotator.classify_opening(game)
             with open(read_file, 'a') as f:
-                f.write('{}\n\n'.format(game))
-            with open(out_file, 'a') as f:
                 f.write('{}\n\n'.format(game))
             while True:
                     game1 = chess.pgn.read_game(pgn)
