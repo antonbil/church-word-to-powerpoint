@@ -307,7 +307,7 @@ class PGNViewer:
                         self.select_game()
                 else:
                     sg.popup("No games found")
-                print("{} games found".format(num_games))
+                #print("{} games found".format(num_games))
                 break
 
 
