@@ -10,10 +10,9 @@ from annotator import annotator
 from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
-
-
+import json
 class PGNViewer:
-    """header dialog class"""
+    """pgn viewer class"""
     def __init__(self, gui, window):
         self.move_description = ""
         self.restart = False
@@ -100,6 +99,12 @@ class PGNViewer:
 
             if button == 'Select games':
                 self.select_games()
+
+            if button == 'Classify Opening':
+                self.classify_opening()
+
+            if button == 'Classify db':
+                self.classify_opening_db()
 
             if button == 'Play from here':
                 self.play_from_here()
@@ -310,6 +315,38 @@ class PGNViewer:
                 #print("{} games found".format(num_games))
                 break
 
+    def classify_opening(self):
+        game, root_node, ply_count = annotator.classify_opening(self.game)
+
+    def classify_opening_db(self):
+        #original_file_name = "world_matches.pgn"
+        #read_file = os.path.join(self.gui.default_png_dir, original_file_name)
+        self.gui.file_dialog.read_file()
+        if self.gui.file_dialog.filename:
+            read_file = self.gui.file_dialog.filename
+            file_name = read_file.split('/')[-1]
+            new_file = file_name + ".bak"
+            new_file = os.path.join(self.gui.default_png_dir, new_file)
+            os.rename(read_file, new_file)
+
+            out_file = os.path.join(self.gui.default_png_dir, "classified_files.pgn")
+            with open(read_file, 'w') as f:
+                f.write('\n')
+            pgn = open(new_file, 'r')
+            game = chess.pgn.read_game(pgn)
+            annotator.classify_opening(game)
+            with open(read_file, 'a') as f:
+                f.write('{}\n\n'.format(game))
+            with open(out_file, 'a') as f:
+                f.write('{}\n\n'.format(game))
+            while True:
+                    game1 = chess.pgn.read_game(pgn)
+                    if game1 is None:
+                        break  # end of file
+                    annotator.classify_opening(game1)
+                    with open(read_file, 'a') as f:
+                        f.write('{}\n\n'.format(game1))
+            sg.popup("DB with name {} openings are classified".format(file_name))
 
     def do_action_with_pgn_db(self, action):
         old_file = self.pgn
