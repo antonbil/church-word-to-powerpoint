@@ -127,12 +127,13 @@ class PGNViewer:
                     with open(name_file, mode='w') as f:
                         f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_entry)
-                data_entry = PgnEditor(self.gui, self.window, name_file,from_pgn_viewer=True, pgn_viewer_move=self.move_number)
+                previous_move_number = self.move_number
+                data_entry = PgnEditor(self.gui, self.window, name_file,from_pgn_viewer=True, pgn_viewer_move=previous_move_number)
                 #return from entry
                 self.game = data_entry.game
 
                 string = str(self.game.game())
-                self.set_new_position(1)
+                self.set_new_position(min(previous_move_number, len(self.get_all_moves())-1))
                 lines = self.pgn_display.beautify_lines(string)
                 self.pgn_lines = lines
                 self.display_part_pgn(self.move_number, self.current_move)
