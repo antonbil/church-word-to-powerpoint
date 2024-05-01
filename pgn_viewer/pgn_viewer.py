@@ -150,13 +150,7 @@ class PGNViewer:
                         self.select_game()
 
             if button == 'Replace in db':
-                def action(file_name, index, games_index, game1):
-                    if index == games_index:
-                        game1 = self.game
-                    with open(file_name, 'a') as f:
-                        f.write('{}\n\n'.format(game1))
-
-                index, file_name = self.do_action_with_pgn_db(action)
+                index, file_name = self.do_action_with_pgn_db("replace")
 
                 sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
 
@@ -169,12 +163,7 @@ class PGNViewer:
                     sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
 
             if button == 'Remove from db':
-                def action(file_name1, index1, games_index, game1):
-                    if not index1 == games_index:
-                        with open(file_name1, 'a') as f:
-                            f.write('{}\n\n'.format(game1))
-
-                index, file_name = self.do_action_with_pgn_db(action)
+                index, file_name = self.do_action_with_pgn_db("remove")
 
                 sg.Popup('PGN removed from {}'.format(file_name), title='PGN removed')
                 self.game_descriptions.remove(self.my_game)
@@ -407,7 +396,17 @@ class PGNViewer:
             #     game1 = self.game
             # with open(old_file, 'a') as f:
             #         f.write('{}\n\n'.format(game1))
-            action(old_file, index, games_index, game1)
+            if action == "remove":
+                if not index == games_index:
+                    with open(old_file, 'a') as f:
+                        f.write('{}\n\n'.format(game1))
+            elif action=="replace":
+                if index == games_index:
+                    game1 = self.game
+                with open(old_file, 'a') as f:
+                    f.write('{}\n\n'.format(game1))
+
+            # action(old_file, index, games_index, game1)
             game1 = chess.pgn.read_game(pgn)
             games_index = games_index + 1
         return index, file_name

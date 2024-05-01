@@ -521,7 +521,7 @@ class PgnEditor:
             variation_nr = variation_nr + 1
         if move_present:
             if sg.popup_yes_no(
-                    "Variation exists", "A variation starting with {} already exists\n" +
+                    "Variation exists", "A variation starting with {} already exists\n".format(first_move) +
                                         "Replace this variation?") == "Yes":
                 self.remove_variation(current_move, variation_nr)
 
