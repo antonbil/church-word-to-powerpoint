@@ -127,7 +127,7 @@ class PGNViewer:
                     with open(name_file, mode='w') as f:
                         f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_entry)
-                data_entry = PgnEditor(self.gui, self.window, name_file,from_pgn_viewer=True)
+                data_entry = PgnEditor(self.gui, self.window, name_file,from_pgn_viewer=True, pgn_viewer_move=self.move_number)
                 #return from entry
                 self.game = data_entry.game
 

@@ -17,8 +17,9 @@ class PgnEditor:
     class for data-entry of new pgn-file
     """
 
-    def __init__(self, gui, window, file_name = "", from_pgn_viewer=False):
+    def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0):
         self.from_pgn_viewer = from_pgn_viewer
+        self.pgn_viewer_move = pgn_viewer_move
         self.current_line = None
         self.move_squares = None
         self.game = None
@@ -170,14 +171,18 @@ class PgnEditor:
                     self.is_win_closed = pgn_viewer.is_win_closed
                 break
 
-            if button == 'PGN Move entry' or button == 'Variations Edit':
-                if self.mode == "editor-entry":
+            if button == 'PGN Move entry' or button == 'Variations Edit' or self.pgn_viewer_move>0:
+                if self.mode == "editor-entry" or self.pgn_viewer_move>0:
                     self.set_mode_to_annotate()
                 else:
                     self.set_entry_mode()
                     self.gui.menu_elem.Update(menu_def_entry)
                     self.set_status()
                 self.moves = [m for m in self.all_moves]
+                if self.pgn_viewer_move>0:
+                    self.set_position_move(self.pgn_viewer_move)
+                    self.pgn_viewer_move = 0
+                    self.display_move_and_line_number()
                 if button == 'Variations Edit':
                     self.display_move_and_line_number()
                 else:
