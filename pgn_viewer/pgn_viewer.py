@@ -186,15 +186,28 @@ class PGNViewer:
                     self.select_game()
 
             if button == 'Comment':
-                comment = sg.PopupGetText(
-            f'Enter comment:',
-            title="Comment for " + self.move_description, font=self.gui.text_font)
-                if comment:
-                    self.current_move.comment = (self.current_move.comment + " " + comment).strip()
-                    string = str(self.game.game())
-                    lines = self.pgn_display.beautify_lines(string)
-                    self.pgn_lines = lines
-                    self.display_part_pgn(self.move_number, self.current_move)
+                #<Cmd+Return> = return in comment
+                layout = [[sg.Multiline(self.current_move.comment, key='Comment', font=self.gui.text_font
+                                        , size=(60, 10))],
+                          [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
+                          ]
+
+                window = sg.Window('Enter comment', layout, finalize=True)
+
+                while True:
+                    event, values = window.read()
+                    if event == "Cancel" or event == sg.WIN_CLOSED or event == 'Exit':
+                        break
+                    if event == "OK":
+                        comment=values['Comment']
+                        self.current_move.comment = comment.strip()
+                        string = str(self.game.game())
+                        lines = self.pgn_display.beautify_lines(string)
+                        self.pgn_lines = lines
+                        self.display_part_pgn(self.move_number, self.current_move)
+
+                        break
+                window.close()
 
             if button == 'Read':
                 self.gui.file_dialog.read_file()
@@ -526,7 +539,10 @@ class PGNViewer:
         self.current_move = self.moves.pop()
         self.moves.append(self.current_move)
         self.move_number = len(self.moves) - 1
-        self.move_number = self.execute_next_move(self.move_number)
+        try:
+            self.move_number = self.execute_next_move(self.move_number)
+        except:
+            pass
 
     def analyse_db(self):
         number_games = len(self.game_descriptions)
