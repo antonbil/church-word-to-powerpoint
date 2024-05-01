@@ -3,6 +3,7 @@ import chess.pgn
 import chess.svg
 import PySimpleGUI as sg
 import os
+import shutil
 from io import StringIO
 import datetime
 from time import perf_counter as pc
@@ -346,7 +347,12 @@ class PGNViewer:
             file_name = read_file.split('/')[-1]
             new_file = file_name + ".bak"
             new_file = os.path.join(self.gui.default_png_dir, new_file)
-            os.rename(read_file, new_file)
+            #os.rename(read_file, new_file)
+            try:
+                os.remove(new_file)
+            except:
+                pass
+            shutil.copyfile(read_file, new_file)
             # clear the contents of the out-file
             with open(read_file, 'w') as f:
                 f.write('\n')
@@ -370,9 +376,21 @@ class PGNViewer:
         file_name = self.pgn.split('/')[-1]
         new_file = file_name + ".bak"
         new_file = os.path.join(self.gui.default_png_dir, new_file)
-        os.rename(old_file, new_file)
+        #os.rename(old_file, new_file)
+        try:
+            os.remove(new_file)
+        except:
+            pass
+        shutil.copyfile(old_file, new_file)
+        # empty old file
+        with open(old_file, 'w') as f:
+            f.write('\n')
+
         pgn = open(new_file)
         game1 = chess.pgn.read_game(pgn)
+        if self.my_game not in self.game_descriptions:
+            sg.popup("The description: {} is not in current games-list".format(self.my_game))
+            return
         index = self.game_descriptions.index(self.my_game)
         games_index = 0
         while game1:

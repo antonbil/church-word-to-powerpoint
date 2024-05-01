@@ -32,7 +32,7 @@ class AnalyseDb:
         for file in onlyfiles:
             path = join(self.path, file)
 
-            self.do_action_with_pgn_db(path, self.action)
+            self.do_action_with_pgn_db(path, self.search_action)
         return self.num_games
 
     def check_elements(self, elements_tosearch, element_in, do_print):
@@ -47,7 +47,7 @@ class AnalyseDb:
                     do_print = True
         return do_print
 
-    def action(self, games_index, game1):
+    def search_action(self, games_index, game1):
         player_white = game1.headers['White'].lower() if 'White' in game1.headers else None
         player_black = game1.headers['Black'].lower() if 'Black' in game1.headers else None
         opening_game = game1.headers['Opening'].lower() if 'Opening' in game1.headers else None
