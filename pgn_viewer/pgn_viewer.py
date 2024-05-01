@@ -187,27 +187,13 @@ class PGNViewer:
 
             if button == 'Comment':
                 #<Cmd+Return> = return in comment
-                layout = [[sg.Multiline(self.current_move.comment, key='Comment', font=self.gui.text_font
-                                        , size=(60, 10))],
-                          [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font)]
-                          ]
-
-                window = sg.Window('Enter comment', layout, finalize=True)
-
-                while True:
-                    event, values = window.read()
-                    if event == "Cancel" or event == sg.WIN_CLOSED or event == 'Exit':
-                        break
-                    if event == "OK":
-                        comment=values['Comment']
-                        self.current_move.comment = comment.strip()
-                        string = str(self.game.game())
-                        lines = self.pgn_display.beautify_lines(string)
-                        self.pgn_lines = lines
-                        self.display_part_pgn(self.move_number, self.current_move)
-
-                        break
-                window.close()
+                current_move = self.current_move
+                ok = self.gui.file_dialog.get_comment(current_move, self.gui)
+                if ok:
+                    string = str(self.game.game())
+                    lines = self.pgn_display.beautify_lines(string)
+                    self.pgn_lines = lines
+                    self.display_part_pgn(self.move_number, self.current_move)
 
             if button == 'Read':
                 self.gui.file_dialog.read_file()

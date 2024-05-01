@@ -104,3 +104,25 @@ class FileDialog:
             os.path.join(folder, f)) and f.lower().endswith(".pgn")]
         fnames.sort()
         return fnames
+
+    def get_comment(self, current_move, gui):
+        layout = [[sg.Multiline(current_move.comment, key='Comment', font=gui.text_font
+                                , size=(60, 10))],
+                  [sg.Button('OK', font=gui.text_font), sg.Cancel(font=gui.text_font)]
+                  ]
+        window = sg.Window('Enter comment', layout, finalize=True)
+        ok = False
+        while True:
+            event, values = window.read()
+            if event == "Cancel" or event == sg.WIN_CLOSED or event == 'Exit':
+                break
+            if event == "OK":
+                comment = values['Comment']
+                ok = True
+                current_move.comment = comment.strip()
+
+                break
+        window.close()
+        return ok
+
+

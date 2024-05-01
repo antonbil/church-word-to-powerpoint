@@ -194,10 +194,9 @@ class PgnEditor:
                 self.execute_previous_move(self.move_number)
 
             if button == 'Comment' and self.mode == "annotate":
-                text = sg.popup_get_text('Enter comment', default_text=self.moves[-1].comment,
-                                         title="Input comment", font=self.gui.text_font)
-                self.moves[-1].comment = text
-                self.update_pgn_display()
+                ok = self.gui.file_dialog.get_comment(self.moves[-1], self.gui)
+                if ok:
+                    self.update_pgn_display()
 
             if (button == 'Alternative manual' or self.gui.toolbar.get_button_id(button) == 'Add Move') \
                     and self.mode == "annotate":
