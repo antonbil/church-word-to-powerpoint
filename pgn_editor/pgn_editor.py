@@ -502,11 +502,28 @@ class PgnEditor:
         # add new variation if user agrees
         if text:
             current_move = self.moves[-1]
+            first_move = str_line3.split(" ")[0].strip()
+            self.check_for_variation_replace(current_move, first_move)
+
             current_move.add_line(self.uci_string2_moves(str_line3))
             if self.mode == "manual move":
                 current_move.variations[-1].comment = str(score)
             else:
                 self.promote_variation_to_mainline(current_move, len(current_move.variations) - 1)
+
+    def check_for_variation_replace(self, current_move, first_move):
+        move_present = False
+        variation_nr = 0
+        for variation in current_move.variations:
+            if str(variation.move) == first_move:
+                move_present = True
+                break
+            variation_nr = variation_nr + 1
+        if move_present:
+            if sg.popup_yes_no(
+                    "Variation exists", "A variation starting with {} already exists\n" +
+                                        "Replace this variation?") == "Yes":
+                self.remove_variation(current_move, variation_nr)
 
     def uci_string2_moves(self, str_moves):
         """
@@ -569,8 +586,6 @@ class PgnEditor:
         if len(self.moves) >= len(self.all_moves):
             sg.popup_error("No analysis for last move", title="Error analysis", font=self.gui.text_font)
             return
-        # str_line3 = "a7a6 g1f3 g8f6"
-        # move2_main.add_line(UCIString2Moves(str_line3))
         advice, score, pv, pv_original, alternatives = self.gui.get_advice(self.board, self.callback)
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
@@ -587,12 +602,15 @@ class PgnEditor:
             print("alternatives", [[list_item[0], list_item[1][0]] for list_item in alt_1])
             print("alternatives2", [[list_item[0], list_item[1][0]] for list_item in alt_2])
         str_line3 = " ".join([str(m) for m in pv_original])
-        print("add line variation", str_line3, score)
         text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
                                  font=self.gui.text_font)
         if text:
-            self.moves[-1].add_line(self.uci_string2_moves(str_line3))
-            self.moves[-1].variations[-1].comment = str(score)
+            current_move = self.moves[-1]
+            first_move = str_line3.split(" ")[0].strip()
+            self.check_for_variation_replace(current_move, first_move)
+
+            current_move.add_line(self.uci_string2_moves(str_line3))
+            current_move.variations[-1].comment = str(score)
         moves = advice.split(" ")
         res_moves = []
         if is_black:
