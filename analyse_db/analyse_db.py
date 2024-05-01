@@ -7,16 +7,22 @@ import chess.pgn
 class AnalyseDb:
     """header dialog class"""
     def __init__(self, path):
+        # used for search
+        self.dates = None
+        self.events = None
         self.openings = None
         self.players = None
         self.num_games = None
+
         self.path = path
         self.name_file = join(self.path, "tempsave.pgn")
 
-    def search(self, player="", opening=""):
+    def search(self, player="", opening="", event="", date=''):
         self.num_games = 0
         self.players = [p.strip() for p in player.split(",") if len(p.strip()) > 0]
         self.openings = [p.strip() for p in opening.split(",") if len(p.strip()) > 0]
+        self.events = [p.strip() for p in event.split(",") if len(p.strip()) > 0]
+        self.dates = [p.strip() for p in date.split(",") if len(p.strip()) > 0]
         #print("players",players)
         with open(self.name_file, mode='w') as f:
             f.write('\n\n')
@@ -29,25 +35,35 @@ class AnalyseDb:
             self.do_action_with_pgn_db(path, self.action)
         return self.num_games
 
-    def action(self, games_index, game1):
-            player_white = game1.headers['White'].lower() if 'White' in game1.headers else None
-            player_black = game1.headers['Black'].lower() if 'Black' in game1.headers else None
-            opening_game = game1.headers['Opening'].lower() if 'Opening' in game1.headers else None
-            for player in self.players:
-                if player in player_white or player in player_black:
+    def check_elements(self, elements_tosearch, element_in, do_print):
+        if not do_print:
+            return False
+        if len(elements_tosearch) > 0 and not element_in:
+            do_print = False
+        if len(elements_tosearch) > 0 and element_in:
+            do_print = False
+            for element in elements_tosearch:
+                if element in element_in:
                     do_print = True
-                    if len(self.openings) > 0 and not opening_game:
-                        do_print = False
-                    if len(self.openings) > 0 and opening_game:
-                        do_print = False
-                        for opening in self.openings:
-                            if opening in opening_game:
-                                do_print = True
-                    if do_print:
-                        self.num_games = self.num_games + 1
-                        #print("game1", game1.headers['White'], game1.headers['Black'], opening_game)
-                        with open(self.name_file, 'a') as f:
-                            f.write('{}\n\n'.format(game1))
+        return do_print
+
+    def action(self, games_index, game1):
+        player_white = game1.headers['White'].lower() if 'White' in game1.headers else None
+        player_black = game1.headers['Black'].lower() if 'Black' in game1.headers else None
+        opening_game = game1.headers['Opening'].lower() if 'Opening' in game1.headers else None
+        event_game = game1.headers['Event'].lower() if 'Event' in game1.headers else None
+        date_game = game1.headers['Date'].lower() if 'Date' in game1.headers else None
+        do_print = True
+        do_print = self.check_elements(self.openings, opening_game, do_print)
+        do_print = self.check_elements(self.dates, date_game, do_print)
+        do_print = self.check_elements(self.events, event_game, do_print)
+        do_print = self.check_elements(self.players, player_white+player_black, do_print)
+
+        if do_print:
+            self.num_games = self.num_games + 1
+            #print("game1", game1.headers['White'], game1.headers['Black'], opening_game)
+            with open(self.name_file, 'a') as f:
+                f.write('{}\n\n'.format(game1))
 
     def do_action_with_pgn_db(self, path, action):
 

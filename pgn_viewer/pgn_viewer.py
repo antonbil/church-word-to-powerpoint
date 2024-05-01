@@ -282,11 +282,21 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def find_in_db(self):
+        """
+        locate games in db's (pgn-files) in default_png_dir
+        :return:
+        """
         layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
          sg.InputText('', font=self.gui.text_font, key='_Player_',
                       size=(24, 1))],
                   [sg.Text('Opening', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Opening_',
+                                size=(24, 1))],
+                  [sg.Text('Event', size=(7, 1), font=self.gui.text_font),
+                   sg.InputText('', font=self.gui.text_font, key='_Event_',
+                                size=(24, 1))],
+                  [sg.Text('Date', size=(7, 1), font=self.gui.text_font),
+                   sg.InputText('', font=self.gui.text_font, key='_Date_',
                                 size=(24, 1))],
                   [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font)]
         ]
@@ -298,11 +308,13 @@ class PGNViewer:
                 window.close()
                 break
             if event == "Search":
+                # search button invokes action
                 window.close()
                 db_analyse = AnalyseDb(self.gui.default_png_dir)
                 temp_file_name2 = os.path.join(self.gui.default_png_dir, "found_files.pgn")
                 db_analyse.name_file = temp_file_name2
-                num_games = db_analyse.search(player=values['_Player_'], opening=values['_Opening_'])
+                num_games = db_analyse.search(player=values['_Player_'], opening=values['_Opening_'],
+                                              event=values['_Event_'], date=values['_Date_'])
                 if num_games > 0:
                     self.pgn = temp_file_name2
                     self.open_pgn_file(temp_file_name2)
@@ -312,17 +324,25 @@ class PGNViewer:
                         self.select_game()
                 else:
                     sg.popup("No games found")
-                #print("{} games found".format(num_games))
                 break
 
     def classify_opening(self):
+        """
+        Classify game opening
+        :return:
+        """
         game, root_node, ply_count = annotator.classify_opening(self.game)
 
     def classify_opening_db(self):
-
+        """
+        Classify opening for all games in database
+        :return:
+        """
+        # get file from user-input
         self.gui.file_dialog.read_file()
         if self.gui.file_dialog.filename:
             read_file = self.gui.file_dialog.filename
+            # copy file to backup
             file_name = read_file.split('/')[-1]
             new_file = file_name + ".bak"
             new_file = os.path.join(self.gui.default_png_dir, new_file)
@@ -330,19 +350,19 @@ class PGNViewer:
             # clear the contents of the out-file
             with open(read_file, 'w') as f:
                 f.write('\n')
-            # read the content of the old file; it contains the data to be changed
+            # read the content of the backup (old file); it contains the data to be changed
             pgn = open(new_file, 'r')
+            # read first game
             game = chess.pgn.read_game(pgn)
-            annotator.classify_opening(game)
-            with open(read_file, 'a') as f:
-                f.write('{}\n\n'.format(game))
-            while True:
-                    game1 = chess.pgn.read_game(pgn)
-                    if game1 is None:
-                        break  # end of file
-                    annotator.classify_opening(game1)
-                    with open(read_file, 'a') as f:
-                        f.write('{}\n\n'.format(game1))
+            # for all games
+            while game:
+                annotator.classify_opening(game)
+                # do action; append to file
+                with open(read_file, 'a') as f:
+                    f.write('{}\n\n'.format(game))
+                # read next game
+                game = chess.pgn.read_game(pgn)
+
             sg.popup("DB with name {} openings are classified".format(file_name))
 
     def do_action_with_pgn_db(self, action):
@@ -503,7 +523,10 @@ class PGNViewer:
                 "\n({}) {} ({} of {})".format(time_str, game_string, i, number_games), append=True, disabled=True)
             w.Read(timeout=10)
             self.select_game()
-            self.analyse_game_func_silent(True)
+            try:
+                self.analyse_game_func_silent(True)
+            except:
+                result_list_element.Update('\nerror in analysing game!!')
             i = i + 1
         w.Close()
 
