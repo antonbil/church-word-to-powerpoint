@@ -106,6 +106,13 @@ class FileDialog:
         return fnames
 
     def get_comment(self, current_move, gui):
+        """
+        get comment for current move
+        should be in other file; temporary stored in fiel_actions for convenience
+        :param current_move:
+        :param gui:
+        :return:
+        """
         layout = [[sg.Multiline(current_move.comment, key='Comment', font=gui.text_font
                                 , size=(60, 10))],
                   [sg.Button('OK', font=gui.text_font), sg.Cancel(font=gui.text_font)]
