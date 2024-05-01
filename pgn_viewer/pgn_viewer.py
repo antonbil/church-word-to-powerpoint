@@ -519,11 +519,12 @@ class PGNViewer:
         if new_pos >= len(all_moves):
             new_pos = len(all_moves) - 1
         self.moves = all_moves[:new_pos]
-        if new_pos > 1:
+        if new_pos > 1 and len(self.moves) > 0:
             self.moves.pop()
-        self.current_move = self.moves.pop()
-        self.moves.append(self.current_move)
-        self.move_number = len(self.moves) - 1
+        if len(self.moves) > 0:
+            self.current_move = self.moves.pop()
+            self.moves.append(self.current_move)
+        self.move_number = max(len(self.moves) - 1, 0)
         try:
             self.move_number = self.execute_next_move(self.move_number)
         except:
