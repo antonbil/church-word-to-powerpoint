@@ -133,7 +133,7 @@ class PGNViewer:
                 self.game = data_entry.game
 
                 string = str(self.game.game())
-                self.set_new_position(min(previous_move_number, len(self.get_all_moves())-1))
+                self.set_new_position(min(previous_move_number, len(self.get_all_moves(self.game))-1))
                 lines = self.pgn_display.beautify_lines(string)
                 self.pgn_lines = lines
                 self.display_part_pgn(self.move_number, self.current_move)
