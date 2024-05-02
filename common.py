@@ -14,7 +14,7 @@ menu_def_annotate = [
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral', "Play", 'PGN-Editor']],
         ['Move', ['Comment']],
-        ['&Game', ['Read', "Select", '---', "Replace in db", "Remove from db", "Add to db", '---', "Next Game",
+        ['&Game', ['Read', "Select", 'From clipboard', '---', "Replace in db", "Remove from db", "Add to db", '---', "Next Game",
                    "Previous Game", '---', "Switch Sides", '---', "Classify Opening"]],
         ['Tools', ['Analyse db', 'Analyse game', 'Analyse move', '---', 'Play from here', '---', 'Select games', '---','Find in db', 'Classify db']]
 ]

@@ -4,6 +4,7 @@ import chess.svg
 import PySimpleGUI as sg
 import os
 import shutil
+import pyperclip
 from io import StringIO
 import datetime
 from time import perf_counter as pc
@@ -11,6 +12,7 @@ from annotator import annotator
 from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
+from Tools.clean_pgn import get_cleaned_string_pgn
 import json
 
 # free pgn's at: https://www.pgnmentor.com/files.html#world
@@ -102,6 +104,9 @@ class PGNViewer:
 
             if button == 'Select games':
                 self.select_games()
+
+            if button == 'From clipboard':
+                self.from_clipboard()
 
             if button == 'Classify Opening':
                 self.classify_opening()
@@ -413,6 +418,14 @@ class PGNViewer:
             games_index = games_index + 1
         return index, file_name
 
+    def from_clipboard(self):
+        if sg.popup_yes_no('Put pgn in clipboard, and press Yes', title="PGN from clipboard") == 'Yes':
+            pgn_data = pyperclip.paste()
+            pgn_data = get_cleaned_string_pgn(pgn_data)
+            pgn = StringIO(pgn_data)
+            self.open_pgn_io(pgn, temp_file_name)
+
+        pass
     def select_games(self):
         players = []
         pgn = open(self.pgn)

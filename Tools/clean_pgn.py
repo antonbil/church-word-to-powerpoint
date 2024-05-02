@@ -29,21 +29,7 @@ def main():
         res = ""
         with (open(pgnfile) as pgn):
             data = pgn.read()
-            splits = data.split('[%c_effect')
-            lines = [splits.pop(0)]
-            for line in splits:
-                line1 = line.split(';true]')
-                lines.append(line1[1])
-            res = " ".join(lines)
-            """
-            {[%evp }"""
-            fp = '{'
-            sp = '}'
-            #[%cal
-            res = replace_remove(res, '[%c_arrow', ']')
-            res = replace_remove(res, '{[%evp', '}')
-            res = replace_between(res, fp, sp)
-            res = res.replace('{ }', '').replace('{  ', '{').replace('  ', ' ')
+            res = get_cleaned_string_pgn(data)
         print(res)
         text_file = open(pgnfile, "w")
         text_file.write(res)
@@ -52,6 +38,25 @@ def main():
 
     except PermissionError:
         errormsg = "Input file not readable. Aborting..."
+
+
+def get_cleaned_string_pgn(data):
+    splits = data.split('[%c_effect')
+    lines = [splits.pop(0)]
+    for line in splits:
+        line1 = line.split(';true]')
+        lines.append(line1[1])
+    res = " ".join(lines)
+    """
+            {[%evp }"""
+    fp = '{'
+    sp = '}'
+    # [%cal
+    res = replace_remove(res, '[%c_arrow', ']')
+    res = replace_remove(res, '{[%evp', ']}')
+    res = replace_between(res, fp, sp)
+    res = res.replace('{ }', '').replace('{  ', '{').replace('  ', ' ').replace('\n\n', '\n').replace('\n\n', '\n')
+    return res
 
 
 def replace_between(res, fp, sp):
