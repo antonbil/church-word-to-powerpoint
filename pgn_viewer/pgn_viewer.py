@@ -12,6 +12,8 @@ from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 import json
+
+# free pgn's at: https://www.pgnmentor.com/files.html#world
 class PGNViewer:
     """pgn viewer class"""
     def __init__(self, gui, window):
