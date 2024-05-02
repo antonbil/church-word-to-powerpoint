@@ -158,8 +158,10 @@ class PGNViewer:
 
             if button == 'Replace in db':
                 index, file_name = self.do_action_with_pgn_db("replace")
-
-                sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
+                if index >= 0:
+                    sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
+                else:
+                    sg.Popup('PGN not in database in {}\nPGN is not saved'.format(file_name), title='PGN NOT saved')
 
             if button == 'Add to db':
                 self.gui.file_dialog.read_file()
