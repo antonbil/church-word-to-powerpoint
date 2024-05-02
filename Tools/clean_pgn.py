@@ -37,9 +37,11 @@ def main():
             res = " ".join(lines)
             """
             {[%evp }"""
-            res = replace_between(res, '{[%evp', sp)
             fp = '{'
             sp = '}'
+            #[%cal
+            res = replace_remove(res, '[%c_arrow', ']')
+            res = replace_remove(res, '{[%evp', '}')
             res = replace_between(res, fp, sp)
             res = res.replace('{ }', '').replace('{  ', '{').replace('  ', ' ')
         print(res)
@@ -68,6 +70,24 @@ def replace_between(res, fp, sp):
         line1 = first + sp + second
         lines.append(line1)
     res = fp.join(lines)
+    return res
+
+def replace_remove(res, fp, sp):
+    splits = res.split(fp)
+    lines = [splits.pop(0)]
+    for line in splits:
+        line1 = line.split(sp)
+        first = line1.pop(0)
+        if len(line1) > 1:
+            second = " ".join(line1)
+        elif len(line1) == 1:
+            second = line1[0]
+        else:
+            second = ""
+        first = first.replace("\n", " ")
+        line1 = second
+        lines.append(line1)
+    res = " ".join(lines)
     return res
 
 
