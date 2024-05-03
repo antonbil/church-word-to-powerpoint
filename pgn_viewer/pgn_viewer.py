@@ -267,8 +267,6 @@ class PGNViewer:
                 if self.mode == "entry":
                     self.mode = "viewer"
                     self.add_move(coord)
-                    sg.popup("Move added",
-                             title="Move added for " + ("White" if self.moves[-1].turn() else "Black"))
                     continue
 
                 # first check if a square representing a variation is pressed
