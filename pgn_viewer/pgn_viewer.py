@@ -130,7 +130,10 @@ class PGNViewer:
 
             if button == 'Add move':
                 self.mode = "entry"
-                #self.add_move()
+                sg.popup("Enter move \nby picking a start/end field on the board",
+                         title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
+                         font=self.gui.text_font)
+                continue
 
             if button == 'PGN-Editor':
                 # import later, to avoid recursive import
@@ -264,6 +267,8 @@ class PGNViewer:
                 if self.mode == "entry":
                     self.mode = "viewer"
                     self.add_move(coord)
+                    sg.popup("Move added",
+                             title="Move added for " + ("White" if self.moves[-1].turn() else "Black"))
                     continue
 
                 # first check if a square representing a variation is pressed
@@ -306,6 +311,7 @@ class PGNViewer:
         lines = self.pgn_display.beautify_lines(string)
         self.pgn_lines = lines
         self.display_part_pgn(self.move_number, self.current_move)
+        self.display_move()
 
     def callback(self, advice):
         self.window.Read(timeout=5)
@@ -316,17 +322,27 @@ class PGNViewer:
         self.window.Read(timeout=10)
 
     def add_move(self, coord):
+        """
+        add move to game, based on pressed coordinate (chess-field)
+        if destination-chess-field is unique, the destination-piece is chosen
+        if origin-chess-field is unique, the origin-piece is chosen
+        otherwise a selection of destinations is shown, one of which the user can choose
+        :param coord:
+        :return:
+        """
         chosen_move = None
         list_items_start = [list_item for list_item in list(self.board.legal_moves) if str(list_item).startswith(coord)]
         list_items_end = [list_item for list_item in list(self.board.legal_moves) if str(list_item).endswith(coord)]
+        # if destination-chess-field is unique, the destination-piece-move is chosen
         if len(list_items_end) == 1:
             chosen_move = list_items_end[0]
         if not chosen_move:
-
+            # if origin-chess-field is unique, the origin-piece-move is chosen
             if len(list_items_start) == 1:
                 chosen_move = list_items_start[0]
 
         if not chosen_move and len(list_items_start) > 0:
+            # otherwise a selection of destinations is shown, one of which the user can choose
             list_items_algebraic = [self.board.san(list_item) for list_item in list_items_start]
             title_window = "Get move"
             selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
@@ -338,6 +354,9 @@ class PGNViewer:
         if chosen_move:
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
             # add previous moves with new_move to board
+            # move = self.moves.pop()
+            # self.redraw_all()
+            # self.moves.append(move)
             self.redraw_all()
 
     def find_in_db(self):
