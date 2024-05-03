@@ -183,15 +183,18 @@ class PGNViewer:
                     self.my_game = self.game_descriptions[index - 1]
                     self.select_game()
 
+            if button == 'Alternative':
+                from pgn_editor.pgn_editor import get_and_add_variation
+                get_and_add_variation(self.current_move, self.move_number, self.board, self.callback,
+                                      self.window.find_element('comment_k'), self.gui)
+                self.redraw_all()
+
             if button == 'Comment':
                 #<Cmd+Return> = return in comment
                 current_move = self.current_move
                 ok = self.gui.file_dialog.get_comment(current_move, self.gui)
                 if ok:
-                    string = str(self.game.game())
-                    lines = self.pgn_display.beautify_lines(string)
-                    self.pgn_lines = lines
-                    self.display_part_pgn(self.move_number, self.current_move)
+                    self.redraw_all()
 
             if button == 'Read':
                 self.gui.file_dialog.read_file()
@@ -289,6 +292,19 @@ class PGNViewer:
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
 
+    def redraw_all(self):
+        string = str(self.game.game())
+        lines = self.pgn_display.beautify_lines(string)
+        self.pgn_lines = lines
+        self.display_part_pgn(self.move_number, self.current_move)
+
+    def callback(self, advice):
+        self.window.Read(timeout=5)
+        window = self.window.find_element('comment_k')
+        window.Update('')
+        window.Update(
+            advice, append=True, disabled=True)
+        self.window.Read(timeout=10)
     def find_in_db(self):
         """
         locate games in db's (pgn-files) in default_png_dir
