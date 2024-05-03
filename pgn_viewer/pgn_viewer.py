@@ -14,12 +14,13 @@ from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
 import json
-from Tools.add_variation import get_and_add_variation
+from Tools.add_variation import get_and_add_variation, uci_string2_moves
 
 # free pgn's at: https://www.pgnmentor.com/files.html#world
 class PGNViewer:
     """pgn viewer class"""
     def __init__(self, gui, window):
+        self.mode = "viewer"
         self.move_description = ""
         self.restart = False
         self.is_black = False
@@ -126,6 +127,10 @@ class PGNViewer:
 
             if button == 'Find in db':
                 self.find_in_db()
+
+            if button == 'Add move':
+                self.mode = "entry"
+                #self.add_move()
 
             if button == 'PGN-Editor':
                 # import later, to avoid recursive import
@@ -256,6 +261,10 @@ class PGNViewer:
                 col = chr(fr_col + ord('a'))
                 row = str(7 - fr_row + 1)
                 coord = col+row
+                if self.mode == "entry":
+                    self.mode = "viewer"
+                    self.add_move(coord)
+                    continue
 
                 # first check if a square representing a variation is pressed
                 my_variation = False
@@ -305,6 +314,32 @@ class PGNViewer:
         window.Update(
             advice, append=True, disabled=True)
         self.window.Read(timeout=10)
+
+    def add_move(self, coord):
+        chosen_move = None
+        list_items_start = [list_item for list_item in list(self.board.legal_moves) if str(list_item).startswith(coord)]
+        list_items_end = [list_item for list_item in list(self.board.legal_moves) if str(list_item).endswith(coord)]
+        if len(list_items_end) == 1:
+            chosen_move = list_items_end[0]
+        if not chosen_move:
+
+            if len(list_items_start) == 1:
+                chosen_move = list_items_start[0]
+
+        if not chosen_move and len(list_items_start) > 0:
+            list_items_algebraic = [self.board.san(list_item) for list_item in list_items_start]
+            title_window = "Get move"
+            selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
+            if selected_item:
+                # move is selected by user
+                # now get Move itself
+                index = list_items_algebraic.index(selected_item)
+                chosen_move = list_items_start[index]
+        if chosen_move:
+            self.current_move.add_line(uci_string2_moves(str(chosen_move)))
+            # add previous moves with new_move to board
+            self.redraw_all()
+
     def find_in_db(self):
         """
         locate games in db's (pgn-files) in default_png_dir
