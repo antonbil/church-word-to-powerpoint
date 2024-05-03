@@ -14,6 +14,7 @@ from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
 import json
+from Tools.add_variation import get_and_add_variation
 
 # free pgn's at: https://www.pgnmentor.com/files.html#world
 class PGNViewer:
@@ -184,7 +185,6 @@ class PGNViewer:
                     self.select_game()
 
             if button == 'Alternative':
-                from pgn_editor.pgn_editor import get_and_add_variation
                 get_and_add_variation(self.current_move, self.move_number, self.board, self.callback,
                                       self.window.find_element('comment_k'), self.gui)
                 self.redraw_all()
