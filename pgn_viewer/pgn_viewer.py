@@ -33,8 +33,8 @@ class PGNViewer:
         self.positions = []
         self.gui = gui
         self.previous_move = ""
-        window.find_element('_gamestatus_').Update('Mode     PGN-Viewer')
         self.window = window
+        self.set_mode_display()
         self.moves = []
         self.pgn = ""
         self.game = None
@@ -55,6 +55,10 @@ class PGNViewer:
         turn()→ chess.Color[source] Gets the color to move at this node.
         variations: List[ChildNode] A list of child nodes
         """
+
+    def set_mode_display(self):
+        mode = "PGN-Viewer" if self.mode == "viewer" else "PGN-Move-entry"
+        self.window.find_element('_gamestatus_').Update('Mode     {}'.format(mode))
 
     def load_start_pgn(self):
         game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
@@ -130,6 +134,7 @@ class PGNViewer:
 
             if button == 'Add move':
                 self.mode = "entry"
+                self.set_mode_display()
                 sg.popup("Enter move \nby picking a start/end field on the board",
                          title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
                          font=self.gui.text_font)
@@ -266,6 +271,7 @@ class PGNViewer:
                 coord = col+row
                 if self.mode == "entry":
                     self.mode = "viewer"
+                    self.set_mode_display()
                     self.add_move(coord)
                     continue
 
