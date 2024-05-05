@@ -319,14 +319,6 @@ class PGNViewer:
         self.display_part_pgn(self.move_number, self.current_move)
         self.display_move()
 
-    def callback(self, advice):
-        self.window.Read(timeout=5)
-        window = self.window.find_element('comment_k')
-        window.Update('')
-        window.Update(
-            advice, append=True, disabled=True)
-        self.window.Read(timeout=10)
-
     def add_move(self, coord):
         """
         add move to game, based on pressed coordinate (chess-field)
