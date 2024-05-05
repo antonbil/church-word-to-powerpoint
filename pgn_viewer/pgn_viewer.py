@@ -116,6 +116,7 @@ class PGNViewer:
 
             if button == 'Classify Opening':
                 self.classify_opening()
+                self.redraw_all()
 
             if button == 'Classify db':
                 self.classify_opening_db()
@@ -499,6 +500,8 @@ class PGNViewer:
             pgn_data = pyperclip.paste()
             pgn_data = get_cleaned_string_pgn(pgn_data)
             pgn = StringIO(pgn_data)
+            if len(self.moves) > 0:
+                self.current_move = self.moves[0]
             self.open_pgn_io(pgn, temp_file_name)
 
         pass
@@ -861,7 +864,7 @@ class PGNViewer:
         # see if line number can be retrieved by comparing the first part of the partial moves
         line_number, is_available = self.pgn_display.get_line_number(next_move, self.pgn_lines)
 
-        if line_number > -1:
+        if line_number > -1 and len(self.moves) > 0:
             str1 = "\n".join(self.pgn_lines)+"\n"
             # self.pgn_lines
             part = str(next_move).split(" ")[1]
@@ -870,15 +873,25 @@ class PGNViewer:
             # print("variation", move_variation.move)
             move_str = str(next_move.move)
             fr_col = ord(move_str[0]) - ord('a')
-            fr_row = 8 - int(move_str[1])
+            no_row = False
+            fr_row = 0
+            try:
+                fr_row = 8 - int(move_str[1])
+            except:
+                no_row = True
             self.move_squares=[]
             self.move_squares.append(fr_col)
             self.move_squares.append(fr_row)
 
             fr_col = ord(move_str[2]) - ord('a')
-            fr_row = 8 - int(move_str[3])
+            try:
+                fr_row = 8 - int(move_str[3])
+            except:
+                no_row = True
             self.move_squares.append(fr_col)
             self.move_squares.append(fr_row)
+            if no_row:
+                self.move_squares = [0,0,0,0]
         self.previous_move = move_string
 
     def display_move(self):
