@@ -244,6 +244,7 @@ class PGNViewer:
                 self.game.headers['Black'] = value['_Black_']
 
                 self.analyse_game()
+                self.redraw_all()
 
             if button == "Analyse db":
                 if self.check_edit_single_pgn():
@@ -671,9 +672,39 @@ class PGNViewer:
     def analyse_game_func(self):
         value_white = self.game.headers['White']
         value_black = self.game.headers['Black']
-        analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
+        analysed_game = self.gui.analyse_game(value_white, value_black, self.game, save_file=False)
+        #if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
+        self.merge_into_current_game(analysed_game)
+        #
+        # else:
+        #     pgn = StringIO(analysed_game)
+        #     self.open_pgn_io(pgn, temp_file_name)
+
+    def merge_into_current_game(self, analysed_game):
+        first_game = self.game
         pgn = StringIO(analysed_game)
-        self.open_pgn_io(pgn, temp_file_name)
+        game2 = chess.pgn.read_game(pgn)
+        current_move = first_game.game()
+        current_move_second = game2.game()
+        while len(current_move.variations) > 0:
+            if current_move_second.comment:
+                current_move.comment = current_move_second.comment + " " + current_move.comment
+            variations_first = [l for l in current_move.variations]
+            variations_first.pop(0)
+            variations_second = [l for l in current_move_second.variations]
+            variations_second.pop(0)
+            for variation_second in variations_second:
+                found_move = False
+                move_second = str(variation_second.move)
+                for v1 in variations_first:
+                    if move_second == str(v1.move):
+                        v1.comment = variation_second.comment + " " + v1.comment
+                        found_move = True
+                        break
+                if not found_move:
+                    current_move.variations.append(variation_second)
+            current_move = current_move.variations[0]
+            current_move_second = current_move_second.variations[0]
 
     def callback(self, advice):
         self.window.Read(timeout=5)

@@ -821,7 +821,7 @@ def change_nags(pgn):
     pgn = "\n".join(res)
     return pgn
 
-def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui):
+def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui, save_file = True):
     analyzed_game = ""
     fine_name_file = os.path.join(gui.default_png_dir, fine_name_file)
     with open(pgnfile) as pgn:
@@ -838,6 +838,8 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui):
                     raise e
                 else:
                     print(analyzed_game, '\n')
+                    if not save_file:
+                        return analyzed_game
                     new_filename = pgnfile[:-4] + "-annotated.pgn"
                     if not add_to_library:
                         file1 = open(os.path.join(gui.preferences.preferences["default_png_dir"], new_filename), 'w')
