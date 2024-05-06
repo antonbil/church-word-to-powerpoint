@@ -20,8 +20,8 @@ class ToolBar:
         window.extend_layout(window['button_frame'], [buttons])
         window.Refresh()
 
-    def new_button(self, title):
+    def new_button(self, title, auto_size_button=False):
         self.button_nr = self.button_nr + 1
         id = "_id{}_".format(self.button_nr)
         self.button_ids[id] = title
-        return sg.Button(title, key=id)
+        return sg.Button(title, key=id, auto_size_button=auto_size_button)

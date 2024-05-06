@@ -89,7 +89,10 @@ class PGNViewer:
     def execute_pgn(self):
 
         self.display_move()
-        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next"), self.gui.toolbar.new_button("Crop")]
+        buttons = [self.gui.toolbar.new_button("<--", auto_size_button=True),
+                   self.gui.toolbar.new_button("-->", auto_size_button=True),
+                   self.gui.toolbar.new_button("Add", auto_size_button=True),
+                   self.gui.toolbar.new_button("Line", auto_size_button=True)]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
         while True:
@@ -133,7 +136,7 @@ class PGNViewer:
             if button == 'Find in db':
                 self.find_in_db()
 
-            if button == 'Add move':
+            if button == 'Add move' or self.gui.toolbar.get_button_id(button) == 'Add':
                 self.mode = "entry"
                 self.set_mode_display()
                 sg.popup("Enter move \nby picking a start/end field on the board",
@@ -198,7 +201,7 @@ class PGNViewer:
                     self.my_game = self.game_descriptions[index - 1]
                     self.select_game()
 
-            if button == 'Alternative':
+            if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Line':
                 get_and_add_variation(self.current_move, self.move_number, self.board, self.callback,
                                       self.window.find_element('comment_k'), self.gui)
                 self.redraw_all()
@@ -257,12 +260,12 @@ class PGNViewer:
                         self.my_game = self.game_descriptions[index - 1]
                         self.select_game()
 
-            if self.gui.toolbar.get_button_id(button) == 'Crop':
-                self.variation_bool = not self.variation_bool
-                self.display_part_pgn(self.move_number, self.current_move)
-            if self.gui.toolbar.get_button_id(button) == 'Next':
+            # if self.gui.toolbar.get_button_id(button) == 'Add':
+            #     self.variation_bool = not self.variation_bool
+            #     self.display_part_pgn(self.move_number, self.current_move)
+            if self.gui.toolbar.get_button_id(button) == '-->':
                 self.move_number = self.execute_next_move(self.move_number)
-            if self.gui.toolbar.get_button_id(button) == 'Previous':
+            if self.gui.toolbar.get_button_id(button) == '<--':
                 self.move_number = self.execute_previous_move(self.move_number)
             if type(button) is tuple:
                 # If fr_sq button is pressed
@@ -350,11 +353,11 @@ class PGNViewer:
                 index = list_items_algebraic.index(selected_item)
                 chosen_move = list_items_start[index]
         if chosen_move:
+            if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
+                sg.popup("Move {} is already part of variations of node {}!\nMove not inserted.."
+                         .format(chosen_move, str(self.current_move.move)))
+                return
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
-            # add previous moves with new_move to board
-            # move = self.moves.pop()
-            # self.redraw_all()
-            # self.moves.append(move)
             self.redraw_all()
 
     def find_in_db(self):
