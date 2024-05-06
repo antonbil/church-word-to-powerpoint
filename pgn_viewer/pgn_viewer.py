@@ -92,7 +92,9 @@ class PGNViewer:
         buttons = [self.gui.toolbar.new_button("<--", auto_size_button=True),
                    self.gui.toolbar.new_button("-->", auto_size_button=True),
                    self.gui.toolbar.new_button("Add", auto_size_button=True),
-                   self.gui.toolbar.new_button("Line", auto_size_button=True)]
+                   self.gui.toolbar.new_button("Line", auto_size_button=True),
+                   self.gui.toolbar.new_button("|-->", auto_size_button=True),
+                   self.gui.toolbar.new_button("<--|", auto_size_button=True)]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
         while True:
@@ -232,7 +234,7 @@ class PGNViewer:
                     if new_pos >=1:
                         self.set_new_position(new_pos)
 
-            if button == 'Next Game':
+            if button == 'Next Game' or self.gui.toolbar.get_button_id(button) == '|-->':
                 if self.check_edit_single_pgn():
                     index = self.game_descriptions.index(self.my_game)
                     if index < len(self.game_descriptions) - 1:
@@ -253,7 +255,7 @@ class PGNViewer:
                 if self.check_edit_single_pgn():
                     self.analyse_db()
 
-            if button == 'Previous Game':
+            if button == 'Previous Game' or self.gui.toolbar.get_button_id(button) == '<--|>':
                 if self.check_edit_single_pgn():
                     index = self.game_descriptions.index(self.my_game)
                     if index > 0:
@@ -805,9 +807,9 @@ class PGNViewer:
         event = game.headers['Event'] if "Event" in game.headers else ""
         round = game.headers['Round'] if "Round" in game.headers else ""
         if len(event) > 0:
-            site = site + " " + event
+            site = (site + " ").strip() + event
         if len(round) > 0:
-            site = site + " " + round
+            site = (site + " ").strip() + round
         if len(site) > 0:
             site = site + " "
         info = "{} ({})".format(
