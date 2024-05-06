@@ -93,8 +93,8 @@ class PGNViewer:
                    self.gui.toolbar.new_button("-->", auto_size_button=True),
                    self.gui.toolbar.new_button("Add", auto_size_button=True),
                    self.gui.toolbar.new_button("Line", auto_size_button=True),
-                   self.gui.toolbar.new_button("|-->", auto_size_button=True),
-                   self.gui.toolbar.new_button("<--|", auto_size_button=True)]
+                   self.gui.toolbar.new_button("<--|", auto_size_button=True),
+                   self.gui.toolbar.new_button("|-->", auto_size_button=True)]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
         while True:
@@ -807,9 +807,9 @@ class PGNViewer:
         event = game.headers['Event'] if "Event" in game.headers else ""
         round = game.headers['Round'] if "Round" in game.headers else ""
         if len(event) > 0:
-            site = (site + " ").strip() + event
+            site = (site + " " + event).strip()
         if len(round) > 0:
-            site = (site + " ").strip() + round
+            site = (site + " " + round).strip()
         if len(site) > 0:
             site = site + " "
         info = "{} ({})".format(
