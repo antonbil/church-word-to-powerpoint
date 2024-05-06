@@ -801,14 +801,20 @@ class PGNViewer:
         self.current_move = game.game()
         self.moves.append(self.current_move)
         self.set_players(game)
-        site = game.headers['Site'].replace('?', "")
+        site = game.headers['Site'].replace('?', "") if "Site" in game.headers else ""
+        event = game.headers['Event'] if "Event" in game.headers else ""
+        round = game.headers['Round'] if "Round" in game.headers else ""
+        if len(event) > 0:
+            site = site + " " + event
+        if len(round) > 0:
+            site = site + " " + round
         if len(site) > 0:
             site = site + " "
         info = "{} ({})".format(
             (site + game.headers['Date'].replace('?', "").replace('..', "")
              .replace('//', "")).strip(),
             game.headers['Result'])
-        self.window.find_element('overall_game_info').Update(info) # previously: advise_info_k
+        self.window.find_element('overall_game_info').Update(info)
         move_list_gui_element = self.window.find_element('_movelist_')
         move_list_gui_element.Update(self.pgn_lines)
         self.move_number = 0

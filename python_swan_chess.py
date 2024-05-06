@@ -2968,7 +2968,7 @@ class EasyChessGui:
                      size=(38, 1), relief='sunken')
              ],
             [sg.Text('', font=self.text_font, key='overall_game_info', relief='sunken',
-                     size=(46, 1))],
+                     size=(72, 1))],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
             [sg.Listbox('', size=(70, 18), expand_y=True, enable_events=True,
                         font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width,
