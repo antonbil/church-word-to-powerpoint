@@ -34,7 +34,6 @@ class PGNViewer:
         self.gui = gui
         self.previous_move = ""
         self.window = window
-        self.set_mode_display()
         self.moves = []
         self.pgn = ""
         self.game = None
@@ -49,6 +48,7 @@ class PGNViewer:
 
         except:
             pass
+        self.set_mode_display()
         self.execute_pgn()
         """
         end()→ GameNode[source] Follows the main variation to the end and returns the last node
@@ -58,7 +58,8 @@ class PGNViewer:
 
     def set_mode_display(self):
         mode = "PGN-Viewer" if self.mode == "viewer" else "PGN-Move-entry"
-        self.window.find_element('_gamestatus_').Update('Mode     {}'.format(mode))
+        file_name = self.pgn.split("/")[-1].replace(".pgn", "")
+        self.window.find_element('_gamestatus_').Update('Mode     {} ({})'.format(mode, file_name))
 
     def load_start_pgn(self):
         game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
@@ -191,6 +192,15 @@ class PGNViewer:
                         f.write('\n\n{}'.format(self.game))
                     sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
 
+            if button == 'Add to current db':
+
+                if not self.pgn == temp_file_name:
+                    with open(self.pgn, 'a') as f:
+                        f.write('\n\n{}'.format(self.game))
+                    sg.Popup('PGN added to {}'.format(self.pgn.split("/")[-1]), title='PGN added')
+                else:
+                    sg.Popup('PGN cannot be added to temporary file {}'.format(self.pgn.split("/")[-1]),
+                             title='PGN NOT added')
             if button == 'Remove from db':
                 index, file_name = self.do_action_with_pgn_db("remove")
 

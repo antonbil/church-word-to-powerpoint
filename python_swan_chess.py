@@ -2956,7 +2956,7 @@ class EasyChessGui:
 
     def get_png_layout(self):
         board_controls = [
-            [sg.Text('Mode     PGN-Viewer', size=(36, 1), font=self.text_font, key='_gamestatus_')],
+            [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_')],
             [sg.Text('White', size=(7, 1), font=self.text_font),
              sg.InputText('Human', font=self.text_font, key='_White_',
                           size=(24, 1)), sg.Frame('', [[]], key="button_frame")
