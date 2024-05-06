@@ -14,12 +14,12 @@ menu_def_annotate = [
 menu_def_pgnviewer = [
         ['&Mode', ['Neutral', "Play", 'PGN-Editor']],
         ['Move', ['Comment', 'Alternative', '---', "Add move"]],
-        ['&Game', ['Read', "Select", 'From clipboard', 'Clipboard to current db', '---', "Replace in db", "Remove from db", "Add to db"
+        ['&Game', ['Read', "Select", 'From clipboard', '---', "Replace in db", "Remove from db", "Add to db"
                 , "Add to current db", '---'
                 , "Next Game",
                    "Previous Game", '---', "Switch Sides", '---', "Classify Opening"]],
         ['Tools', ['Analyse move', 'Analyse game', 'Analyse db', '---', 'Play from here', '---', 'Select games', '---'
-                ,'Find in db', 'Classify db']]
+                ,'Find in db', 'Classify db', 'Clipboard to current db']]
 ]
 
 temp_file_name = 'tempsave.pgn'
