@@ -120,6 +120,11 @@ class PGNViewer:
             if button == 'From clipboard':
                 self.from_clipboard()
 
+            if button == 'Clipboard to current db':
+                self.always_to_clipboard()
+                self.classify_opening()
+                self.add_to_current_db()
+
             if button == 'Classify Opening':
                 self.classify_opening()
                 self.redraw_all()
@@ -193,14 +198,8 @@ class PGNViewer:
                     sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
 
             if button == 'Add to current db':
+                self.add_to_current_db()
 
-                if not self.pgn == temp_file_name:
-                    with open(self.pgn, 'a') as f:
-                        f.write('\n\n{}'.format(self.game))
-                    sg.Popup('PGN added to {}'.format(self.pgn.split("/")[-1]), title='PGN added')
-                else:
-                    sg.Popup('PGN cannot be added to temporary file {}'.format(self.pgn.split("/")[-1]),
-                             title='PGN NOT added')
             if button == 'Remove from db':
                 index, file_name = self.do_action_with_pgn_db("remove")
 
@@ -326,6 +325,15 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def add_to_current_db(self):
+        if not self.pgn == temp_file_name:
+            with open(self.pgn, 'a') as f:
+                f.write('\n\n{}'.format(self.game))
+            sg.Popup('PGN added to {}'.format(self.pgn.split("/")[-1]), title='PGN added')
+        else:
+            sg.Popup('PGN cannot be added to temporary file {}'.format(self.pgn.split("/")[-1]),
+                     title='PGN NOT added')
 
     def redraw_all(self):
         string = str(self.game.game())
@@ -505,14 +513,16 @@ class PGNViewer:
 
     def from_clipboard(self):
         if sg.popup_yes_no('Put pgn in clipboard, and press Yes', title="PGN from clipboard") == 'Yes':
-            pgn_data = pyperclip.paste()
-            pgn_data = get_cleaned_string_pgn(pgn_data)
-            pgn = StringIO(pgn_data)
-            if len(self.moves) > 0:
-                self.current_move = self.moves[0]
-            self.open_pgn_io(pgn, temp_file_name)
+            self.always_to_clipboard()
 
-        pass
+    def always_to_clipboard(self):
+        pgn_data = pyperclip.paste()
+        pgn_data = get_cleaned_string_pgn(pgn_data)
+        pgn = StringIO(pgn_data)
+        if len(self.moves) > 0:
+            self.current_move = self.moves[0]
+        self.open_pgn_io(pgn, temp_file_name)
+
     def select_games(self):
         players = []
         pgn = open(self.pgn)
@@ -805,6 +815,7 @@ class PGNViewer:
             # print(self.game_descriptions)
         self.init_game(game)
         self.display_move()
+        self.set_mode_display()
 
     def init_game(self, game):
         self.go_up = True
