@@ -712,7 +712,7 @@ class PGNViewer:
         self.window.Read(timeout=10)
 
     def analyse_move(self):
-        advice, score, pv = self.gui.get_advice(self.board, self.callback)
+        advice, score, pv, pv_original, alternatives = self.gui.get_advice(self.board, self.callback)
         is_black = not self.board.turn == chess.WHITE
         move_number = self.move_number // 2
         moves = advice.split(" ")
@@ -733,11 +733,15 @@ class PGNViewer:
             is_black = not is_black
         if previous:
             res_moves.append(previous)
+        if sg.popup_yes_no("{} ({})\nAdd variation?".format(" ".join(res_moves), score),
+                           title="Advice") == "Yes":
+            print("add:", pv)
+            pass
 
-        window = self.window.find_element('comment_k')
-        window.Update('')
-        window.Update(
-            "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
+        # window = self.window.find_element('comment_k')
+        # window.Update('')
+        # window.Update(
+        #     "{} ({})".format(" ".join(res_moves), score), append=True, disabled=True)
 
     def select_game(self):
         print("open pgn:", self.pgn)
