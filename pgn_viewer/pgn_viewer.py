@@ -733,10 +733,8 @@ class PGNViewer:
             is_black = not is_black
         if previous:
             res_moves.append(previous)
-        if sg.popup_yes_no("{} ({})\nAdd variation?".format(" ".join(res_moves), score),
-                           title="Advice") == "Yes":
-            print("add:", pv)
-            pass
+        sg.popup("{} ({})".format(" ".join(res_moves), score), title="Advice")
+        #print("add:", pv_original)
 
         # window = self.window.find_element('comment_k')
         # window.Update('')
