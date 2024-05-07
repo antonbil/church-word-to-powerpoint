@@ -408,6 +408,12 @@ class PGNViewer:
         locate games in db's (pgn-files) in default_png_dir
         :return:
         """
+        keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM"]
+        chars = ''.join(keys)
+        lines = list(map(list, keys))
+        lines[0] += ["\u232B", "Esc"]
+        col = [[sg.Push()] + [sg.Button(key) for key in line] + [sg.Push()] for line in lines]
+
         layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
          sg.InputText('', font=self.gui.text_font, key='_Player_',
                       size=(24, 1))],
@@ -420,7 +426,8 @@ class PGNViewer:
                   [sg.Text('Date', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Date_',
                                 size=(24, 1))],
-                  [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font)]
+                  [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font),sg.Push(), sg.Button("Keyboard")],
+    [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
         ]
         window = sg.Window("Search db", layout, font=self.gui.text_font, size=(600, 450),
                            finalize=True, modal=True, keep_on_top=True)
@@ -429,14 +436,35 @@ class PGNViewer:
             if event in ("Cancel", sg.WIN_CLOSED):
                 window.close()
                 break
+            if event == "Keyboard":
+                visible = window["Column"].metadata = not window["Column"].metadata
+                window["Column"].update(visible=visible)
+            elif event in chars:
+                element = window.find_element_with_focus()
+                if isinstance(element, sg.Input):
+                    if element.widget.select_present():
+                        element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+                    element.widget.insert(sg.tk.INSERT, event)
+            elif event == "\u232B":
+                element = window.find_element_with_focus()
+                if element.widget.select_present():
+                    element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+                else:
+                    insert = element.widget.index(sg.tk.INSERT)
+                    if insert > 0:
+                        element.widget.delete(insert - 1, insert)
             if event == "Search":
                 # search button invokes action
                 window.close()
                 db_analyse = AnalyseDb(self.gui.default_png_dir)
                 temp_file_name2 = os.path.join(self.gui.default_png_dir, "found_files.pgn")
                 db_analyse.name_file = temp_file_name2
-                num_games = db_analyse.search(player=values['_Player_'], opening=values['_Opening_'],
-                                              event=values['_Event_'], date=values['_Date_'])
+                player__ = values['_Player_'].lower()
+                opening__ = values['_Opening_'].lower()
+                event__ = values['_Event_'].lower()
+                date__ = values['_Date_'].lower()
+                num_games = db_analyse.search(player=player__, opening=opening__,
+                                              event=event__, date=date__)
                 if num_games > 0:
                     self.pgn = temp_file_name2
                     self.open_pgn_file(temp_file_name2)
