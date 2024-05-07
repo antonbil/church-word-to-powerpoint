@@ -424,9 +424,6 @@ class PGNViewer:
         ]
         window = sg.Window("Search db", layout, font=self.gui.text_font, size=(600, 450),
                            finalize=True, modal=True, keep_on_top=True)
-        window.bind('<FocusOut>', '+FOCUS OUT+')
-        window['_Opening_'].bind('<FocusIn>', '+INPUT FOCUS+')
-
         while True:
             event, values = window.read()
             if event in ("Cancel", sg.WIN_CLOSED):
