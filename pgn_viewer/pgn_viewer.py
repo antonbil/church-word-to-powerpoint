@@ -416,16 +416,16 @@ class PGNViewer:
 
         layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
          sg.InputText('', font=self.gui.text_font, key='_Player_',
-                      size=(24, 1))],
+                      size=(50, 1))],
                   [sg.Text('Opening', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Opening_',
-                                size=(24, 1))],
+                                size=(50, 1))],
                   [sg.Text('Event', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Event_',
-                                size=(24, 1))],
+                                size=(50, 1))],
                   [sg.Text('Date', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Date_',
-                                size=(24, 1))],
+                                size=(50, 1))],
                   [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font),sg.Push(), sg.Button("Keyboard")],
     [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
         ]
