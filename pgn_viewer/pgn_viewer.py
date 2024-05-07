@@ -227,10 +227,15 @@ class PGNViewer:
             if button == 'Read':
                 self.gui.file_dialog.read_file()
                 if self.gui.file_dialog.filename:
+                    temp_pgn = self.pgn
                     self.pgn = self.gui.file_dialog.filename
-                    self.gui.save_pgn_file_in_preferences(self.pgn)
                     pgn_file = self.pgn
-                    self.open_pgn_file(pgn_file)
+                    if not self.open_pgn_file(pgn_file):
+                        sg.popup_error("Error reading game from {}".format(pgn_file), title="Error reading db",
+                                       font=self.gui.text_font)
+                        self.pgn = temp_pgn
+                    else:
+                        self.gui.save_pgn_file_in_preferences(self.pgn)
 
             if button == '_movelist_':
                 selection = value[button]
@@ -252,6 +257,24 @@ class PGNViewer:
 
             if button == 'Analyse move':
                 self.analyse_move()
+
+            if button == 'New db':
+                text = sg.popup_get_text('name for new db:', title="Create db",
+                                         font=self.gui.text_font)
+                if text:
+                    if not text.endswith(".pgn"):
+                        text += ".pgn"
+                    file_name = os.path.join(self.gui.default_png_dir, text)
+                    open(file_name, 'a').close()
+
+            if button == 'Remove db':
+                self.gui.file_dialog.read_file()
+                if self.gui.file_dialog.filename:
+                    read_file = self.gui.file_dialog.filename
+                    # ask for confirmation
+                    file_name = read_file.split('/')[-1]
+                    if sg.popup_yes_no('Remove db {}?'.format(file_name) , title="Remove db") == 'Yes':
+                        os.remove(read_file)
 
             if button == "Analyse game":
                 self.game.headers['White'] = value['_White_']
@@ -796,10 +819,12 @@ class PGNViewer:
     def open_pgn_file(self, pgn_file):
         pgn = open(pgn_file)
         # Reading the game
-        self.open_pgn_io(pgn, pgn_file)
+        return self.open_pgn_io(pgn, pgn_file)
 
     def open_pgn_io(self, pgn, pgn_file):
         game = chess.pgn.read_game(pgn)
+        if not game:
+            return False
         self.game = game
         self.game_descriptions = []
         self.game_descriptions.append(self.get_description_pgn(game))
@@ -816,6 +841,7 @@ class PGNViewer:
         self.init_game(game)
         self.display_move()
         self.set_mode_display()
+        return True
 
     def init_game(self, game):
         self.go_up = True

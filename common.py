@@ -15,11 +15,12 @@ menu_def_pgnviewer = [
         ['&Mode', ['Neutral', "Play", 'PGN-Editor']],
         ['Move', ['Comment', 'Alternative', '---', "Add move"]],
         ['&Game', ['Read', "Select", 'From clipboard', '---', "Replace in db", "Remove from db", "Add to db"
-                , "Add to current db", '---'
+                , "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
+        ['Database', ['Find in db', 'Classify db', 'Clipboard to current db', '---'
                 , "Next Game",
-                   "Previous Game", '---', "Switch Sides", '---', "Classify Opening"]],
+                   "Previous Game", '---', 'New db', 'Remove db']],
         ['Tools', ['Analyse move', 'Analyse game', 'Analyse db', '---', 'Play from here', '---', 'Select games', '---'
-                ,'Find in db', 'Classify db', 'Clipboard to current db']]
+                ,]]
 ]
 
 temp_file_name = 'tempsave.pgn'
