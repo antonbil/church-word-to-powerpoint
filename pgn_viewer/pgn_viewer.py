@@ -429,7 +429,7 @@ class PGNViewer:
                   [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font),sg.Push(), sg.Button("Keyboard")],
     [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
         ]
-        window = sg.Window("Search db", layout, font=self.gui.text_font, size=(600, 450),
+        window = sg.Window("Search db", layout, font=self.gui.text_font, size=(800, 450),
                            finalize=True, modal=True, keep_on_top=True)
         while True:
             event, values = window.read()
