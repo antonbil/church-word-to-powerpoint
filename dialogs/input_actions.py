@@ -108,14 +108,15 @@ class InputDialog:
         return fnames
 
     def get_keyboard_keys(self, sg, gui):
-        keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM", " "]
-        self.chars = ''.join(keys) + "\u2386"
+        keys = ["QWERTYUIOP", "ASDFGHJKL,\n", "ZXCVBNM", " "]
+        self.chars = ''.join(keys)
         lines = list(map(list, keys))
-        # U+21E7 shift
-        lines[1].insert(0, "\u21E7")
-        lines[1] += ["\u2386"]
-        lines[0] += ["\u232B", "Esc"]
-        col = [[sg.Push()] + [sg.Button("          " if key == " " else key,
+        # two keys which have specific behaviour
+        lines[1].insert(0, "\u21E7")  # U+21E7 shift
+        lines[0] += ["\u232B", "Esc"]  # backspace
+        # space and return are visualized different on the visual keys itself
+        visual_keys = {" ": "          ", "\n": "\u2386"}
+        col = [[sg.Push()] + [sg.Button(visual_keys[key] if key in visual_keys else key,
                                         key=key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
         return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
 
@@ -123,10 +124,10 @@ class InputDialog:
         return sg.Button("Keyboard", font=gui.text_font)
 
     def select_present(self, widget):
-        try:
+        if hasattr(widget, 'select_present'):
             # multi-line has no method: select_present
             return widget.select_present()
-        except:
+        else:
             return False
 
     def check_keyboard_input(self, window, event):
@@ -135,8 +136,6 @@ class InputDialog:
             visible = keyboard.metadata = not keyboard.metadata
             keyboard.update(visible=visible)
         elif event in self.chars:
-            if event == "\u2386":
-                event = "\n"
             element = window.find_element_with_focus()
             key = event
             if not self.shift:
