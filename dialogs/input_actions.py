@@ -115,7 +115,8 @@ class InputDialog:
         lines[1].insert(0, "\u21E7")
         lines[1] += ["\u2386"]
         lines[0] += ["\u232B", "Esc"]
-        col = [[sg.Push()] + [sg.Button(key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
+        col = [[sg.Push()] + [sg.Button("          " if key == " " else key,
+                                        key=key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
         return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
 
     def get_keyboard_button(self, sg, gui):
