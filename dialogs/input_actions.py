@@ -4,6 +4,7 @@ import os.path
 
 class InputDialog:
     def __init__(self, gui, default_png_dir):
+        self.keyboard_visible = False
         self.shift = False
         self.chars = []
         self.filename = ""
@@ -121,6 +122,7 @@ class InputDialog:
         return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
 
     def get_keyboard_button(self, sg, gui):
+        self.keyboard_visible = False
         return sg.Button("Keyboard", font=gui.text_font)
 
     def select_present(self, widget):
@@ -133,8 +135,8 @@ class InputDialog:
     def check_keyboard_input(self, window, event):
         if event == "Keyboard":
             keyboard = window.find_element("Column")
-            visible = keyboard.metadata = not keyboard.metadata
-            keyboard.update(visible=visible)
+            self.keyboard_visible = not self.keyboard_visible
+            keyboard.update(visible=self.keyboard_visible)
         elif event in self.chars:
             element = window.find_element_with_focus()
             key = event
