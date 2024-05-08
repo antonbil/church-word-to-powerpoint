@@ -826,7 +826,8 @@ class EasyChessGui:
         # on startup the layout-options are changed if default-window is not 'neutral'
         self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer",
                                                                              "pgneditor"] else self.get_neutral_layout()
-        self.input_dialog = InputDialog(self, self.default_png_dir)
+        keyboard_visible_at_start = my_preferences["keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
+        self.input_dialog = InputDialog(self, self.default_png_dir, keyboard_visible_at_start)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.

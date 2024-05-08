@@ -3,7 +3,7 @@ import os.path
 
 
 class InputDialog:
-    def __init__(self, gui, default_png_dir):
+    def __init__(self, gui, default_png_dir, keyboard_visible_at_start):
         self.keyboard_visible = False
         self.shift = False
         self.chars = []

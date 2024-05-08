@@ -16,6 +16,7 @@ class Preferences:
             except:
                 #print("error in loading preferences")
                 preferences = {'is_save_time_left': False, 'sites_list': ["OostKapelle", "Middelburg"],
+                               'keyboard_visible_at_start':False,
                                'events_list':["Interne competitie Oostkapelle", "Zeeuwse competitie"],
                                'players':["Anton Bil"], "start_mode": "", "menu_font_size": 12,
                                "gui_theme": "Reddit"
