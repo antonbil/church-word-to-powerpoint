@@ -209,7 +209,7 @@ class InputDialog:
                   [sg.Button('OK', font=gui.text_font), sg.Cancel(font=gui.text_font), sg.Push(),
                    self.get_keyboard_button(sg, gui)], self.get_keyboard_keys(sg, gui)
                   ]
-        window = sg.Window('Enter comment', layout, finalize=True, modal=True, keep_on_top=True)
+        window = sg.Window('Enter comment', layout, finalize=True)
         ok = False
         while True:
             event, values = window.read()
