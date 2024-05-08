@@ -195,7 +195,7 @@ class PgnEditor:
                 self.execute_previous_move(self.move_number)
 
             if button == 'Comment' and self.mode == "annotate":
-                ok = self.gui.file_dialog.get_comment(self.moves[-1], self.gui)
+                ok = self.gui.input_dialog.get_comment(self.moves[-1], self.gui)
                 if ok:
                     self.update_pgn_display()
 
@@ -496,8 +496,8 @@ class PgnEditor:
             # add all moves as coordinates in one line with spaces inbetween
             str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
         # ask user if he/she wants to add this new variation
-        text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
-                                 font=self.gui.text_font)
+        text = self.gui.input_dialog.popup_get_text(sg, self.gui, 'variation to be added:',
+                                                    title="Add variation?", default_text=advice)
         # add new variation if user agrees
         if text:
             current_move = self.moves[-1]

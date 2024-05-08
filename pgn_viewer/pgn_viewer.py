@@ -190,9 +190,9 @@ class PGNViewer:
                     sg.Popup('PGN not in database in {}\nPGN is not saved'.format(file_name), title='PGN NOT saved')
 
             if button == 'Add to db':
-                self.gui.file_dialog.read_file()
-                if self.gui.file_dialog.filename:
-                    filename = self.gui.file_dialog.filename
+                self.gui.input_dialog.read_file()
+                if self.gui.input_dialog.filename:
+                    filename = self.gui.input_dialog.filename
                     with open(filename, 'a') as f:
                         f.write('\n\n{}'.format(self.game))
                     sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
@@ -220,15 +220,15 @@ class PGNViewer:
             if button == 'Comment':
                 #<Cmd+Return> = return in comment
                 current_move = self.current_move
-                ok = self.gui.file_dialog.get_comment(current_move, self.gui)
+                ok = self.gui.input_dialog.get_comment(current_move, self.gui)
                 if ok:
                     self.redraw_all()
 
             if button == 'Read':
-                self.gui.file_dialog.read_file()
-                if self.gui.file_dialog.filename:
+                self.gui.input_dialog.read_file()
+                if self.gui.input_dialog.filename:
                     temp_pgn = self.pgn
-                    self.pgn = self.gui.file_dialog.filename
+                    self.pgn = self.gui.input_dialog.filename
                     pgn_file = self.pgn
                     if not self.open_pgn_file(pgn_file):
                         sg.popup_error("Error reading game from {}".format(pgn_file), title="Error reading db",
@@ -259,8 +259,7 @@ class PGNViewer:
                 self.analyse_move()
 
             if button == 'New db':
-                text = sg.popup_get_text('name for new db:', title="Create db",
-                                         font=self.gui.text_font)
+                text = self.gui.input_dialog.popup_get_text(sg, self.gui, 'name for new db:', title="Create db")
                 if text:
                     if not text.endswith(".pgn"):
                         text += ".pgn"
@@ -268,9 +267,9 @@ class PGNViewer:
                     open(file_name, 'a').close()
 
             if button == 'Remove db':
-                self.gui.file_dialog.read_file()
-                if self.gui.file_dialog.filename:
-                    read_file = self.gui.file_dialog.filename
+                self.gui.input_dialog.read_file()
+                if self.gui.input_dialog.filename:
+                    read_file = self.gui.input_dialog.filename
                     # ask for confirmation
                     file_name = read_file.split('/')[-1]
                     if sg.popup_yes_no('Remove db {}?'.format(file_name) , title="Remove db") == 'Yes':
@@ -408,11 +407,6 @@ class PGNViewer:
         locate games in db's (pgn-files) in default_png_dir
         :return:
         """
-        keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM"]
-        chars = ''.join(keys)
-        lines = list(map(list, keys))
-        lines[0] += ["\u232B", "Esc"]
-        col = [[sg.Push()] + [sg.Button(key) for key in line] + [sg.Push()] for line in lines]
 
         layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
          sg.InputText('', font=self.gui.text_font, key='_Player_',
@@ -426,33 +420,19 @@ class PGNViewer:
                   [sg.Text('Date', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Date_',
                                 size=(50, 1))],
-                  [sg.Button("Search", font=self.gui.text_font), sg.Button("Cancel", font=self.gui.text_font),sg.Push(), sg.Button("Keyboard")],
-    [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
+                  [sg.Button("Search", font=self.gui.text_font),
+                   sg.Button("Cancel", font=self.gui.text_font),sg.Push(), self.gui.input_dialog.get_keyboard_button(sg)],
+                  self.gui.input_dialog.get_keyboard_keys(sg)
         ]
-        window = sg.Window("Search db", layout, font=self.gui.text_font, size=(800, 450),
+        window = sg.Window("Search db", layout, font=self.gui.text_font,  # size=(800, 450),
                            finalize=True, modal=True, keep_on_top=True)
         while True:
             event, values = window.read()
             if event in ("Cancel", sg.WIN_CLOSED):
                 window.close()
                 break
-            if event == "Keyboard":
-                visible = window["Column"].metadata = not window["Column"].metadata
-                window["Column"].update(visible=visible)
-            elif event in chars:
-                element = window.find_element_with_focus()
-                if isinstance(element, sg.Input):
-                    if element.widget.select_present():
-                        element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
-                    element.widget.insert(sg.tk.INSERT, event)
-            elif event == "\u232B":
-                element = window.find_element_with_focus()
-                if element.widget.select_present():
-                    element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
-                else:
-                    insert = element.widget.index(sg.tk.INSERT)
-                    if insert > 0:
-                        element.widget.delete(insert - 1, insert)
+            self.gui.input_dialog.check_keyboard_input(window, event)
+
             if event == "Search":
                 # search button invokes action
                 window.close()
@@ -489,9 +469,9 @@ class PGNViewer:
         :return:
         """
         # get file from user-input
-        self.gui.file_dialog.read_file()
-        if self.gui.file_dialog.filename:
-            read_file = self.gui.file_dialog.filename
+        self.gui.input_dialog.read_file()
+        if self.gui.input_dialog.filename:
+            read_file = self.gui.input_dialog.filename
             # copy file to backup
             file_name = read_file.split('/')[-1]
             new_file = file_name + ".bak"

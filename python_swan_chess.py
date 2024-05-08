@@ -64,7 +64,7 @@ from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import menu_def_pgnviewer, menu_def_entry, temp_file_name
 from toolbar import ToolBar
-from dialogs.file_actions import FileDialog
+from dialogs.input_actions import InputDialog
 
 log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :: %(message)s'
 logging.basicConfig(
@@ -826,7 +826,7 @@ class EasyChessGui:
         # on startup the layout-options are changed if default-window is not 'neutral'
         self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer",
                                                                              "pgneditor"] else self.get_neutral_layout()
-        self.file_dialog = FileDialog(self, self.default_png_dir)
+        self.input_dialog = InputDialog(self, self.default_png_dir)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.
@@ -2716,15 +2716,15 @@ class EasyChessGui:
     def save_game_pgn(self, value_white, value_black, pgn_game):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         if header_dialog.ok:
-            self.file_dialog.save_file(name_file)
-            if self.file_dialog.filename:
-                with open(self.file_dialog.filename, mode='w') as f:
+            self.input_dialog.save_file(name_file)
+            if self.input_dialog.filename:
+                with open(self.input_dialog.filename, mode='w') as f:
                     f.write('{}\n\n'.format(pgn_game))
                 if header_dialog.add_to_library:
                     with open(os.path.join(gui.default_png_dir, "library.pgn"), 'a') as file1:
                         file1.write('{}\n\n'.format(pgn_game))
 
-                sg.popup_ok("PGN is saved as:{}".format(self.file_dialog.filename), title="Save PGN")
+                sg.popup_ok("PGN is saved as:{}".format(self.input_dialog.filename), title="Save PGN")
 
     def analyse_game(self, value_white, value_black, pgn_game, save_file = True):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)

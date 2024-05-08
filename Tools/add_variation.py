@@ -30,8 +30,7 @@ def get_and_add_variation(current_move, ply_number, board, callback, comment_ele
         print("alternatives", [[list_item[0], list_item[1][0]] for list_item in alt_1])
         print("alternatives2", [[list_item[0], list_item[1][0]] for list_item in alt_2])
     str_line3 = " ".join([str(m) for m in pv_original])
-    text = sg.popup_get_text('variation to be added:', default_text=advice, title="Add variation?",
-                             font=gui.text_font)
+    text = gui.input_dialog.popup_get_text(sg, gui, 'variation to be added:', title="Add variation?", default_text=advice)
     if text:
         first_move = str_line3.split(" ")[0].strip()
         check_for_variation_replace(current_move, first_move)

@@ -2,8 +2,10 @@ import PySimpleGUI as sg
 import os.path
 
 
-class FileDialog:
+class InputDialog:
     def __init__(self, gui, default_png_dir):
+        self.shift = False
+        self.chars = []
         self.filename = ""
         self.gui = gui
         self.default_png_dir = default_png_dir
@@ -105,10 +107,75 @@ class FileDialog:
         fnames.sort()
         return fnames
 
+    def get_keyboard_keys(self, sg):
+        keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM"]
+        self.chars = ''.join(keys)
+        lines = list(map(list, keys))
+        # U+21E7 shift
+        lines[1].insert(0, "\u21E7")
+        lines[0] += ["\u232B", "Esc"]
+        col = [[sg.Push()] + [sg.Button(key) for key in line] + [sg.Push()] for line in lines]
+        return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
+
+    def get_keyboard_button(self, sg):
+        return sg.Button("Keyboard")
+
+    def check_keyboard_input(self, window, event):
+        if event == "Keyboard":
+            visible = window["Column"].metadata = not window["Column"].metadata
+            window["Column"].update(visible=visible)
+        elif event in self.chars:
+            element = window.find_element_with_focus()
+            if isinstance(element, sg.Input):
+                key = event
+                if not self.shift:
+                    key = key.lower()
+                if element.widget.select_present():
+                    element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+                element.widget.insert(sg.tk.INSERT, key)
+                self.shift = False
+        elif event == "\u232B":
+            element = window.find_element_with_focus()
+            if element.widget.select_present():
+                element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+            else:
+                insert = element.widget.index(sg.tk.INSERT)
+                if insert > 0:
+                    element.widget.delete(insert - 1, insert)
+        elif event == "\u21E7":
+            self.shift = True
+
+    def popup_get_text(self, sg,gui,message, title="", default_text=""):
+        my_key = '_InputValue_'
+
+        layout = [[sg.Text(message, size=(len(message), 1), font=gui.text_font),
+               sg.InputText(default_text, font=gui.text_font, key=my_key,
+                            size=(50, 1))],
+              [sg.Button("OK", font=gui.text_font),
+               sg.Button("Cancel", font=gui.text_font), sg.Push(), self.get_keyboard_button(sg)],
+              self.get_keyboard_keys(sg)
+              ]
+        window = sg.Window(title, layout, font=gui.text_font,
+                           finalize=True, modal=True, keep_on_top=True)
+        ret_value = ""
+        while True:
+            event, values = window.read()
+            if event in ("Cancel", sg.WIN_CLOSED):
+                break
+            self.check_keyboard_input(window, event)
+
+            if event == "OK":
+                ret_value = values[my_key]
+                break
+            if event == "Cancel":
+                break
+        window.close()
+        return ret_value
+
+
     def get_comment(self, current_move, gui):
         """
         get comment for current move
-        should be in other file; temporary stored in fiel_actions for convenience
         :param current_move:
         :param gui:
         :return:
