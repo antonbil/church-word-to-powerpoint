@@ -130,8 +130,9 @@ class InputDialog:
 
     def check_keyboard_input(self, window, event):
         if event == "Keyboard":
-            visible = window["Column"].metadata = not window["Column"].metadata
-            window["Column"].update(visible=visible)
+            keyboard = window.find_element("Column")
+            visible = keyboard.metadata = not keyboard.metadata
+            keyboard.update(visible=visible)
         elif event in self.chars:
             if event == "\u2386":
                 event = "\n"
