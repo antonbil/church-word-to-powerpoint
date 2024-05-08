@@ -108,7 +108,7 @@ class InputDialog:
         return fnames
 
     def get_keyboard_keys(self, sg, gui):
-        keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM"]
+        keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM", " "]
         self.chars = ''.join(keys) + "\u2386"
         lines = list(map(list, keys))
         # U+21E7 shift
