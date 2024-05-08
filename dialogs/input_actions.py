@@ -119,7 +119,7 @@ class InputDialog:
         visual_keys = {" ": "          ", "\n": "\u2386"}
         col = [[sg.Push()] + [sg.Button(visual_keys[key] if key in visual_keys else key,
                                         key=key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
-        return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
+        return [sg.pin(sg.Column(col, visible=True, expand_x=True, key='Column', metadata=False), expand_x=True)]
 
     def get_keyboard_button(self, sg, gui):
         self.keyboard_visible = False
