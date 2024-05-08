@@ -107,18 +107,18 @@ class InputDialog:
         fnames.sort()
         return fnames
 
-    def get_keyboard_keys(self, sg):
+    def get_keyboard_keys(self, sg, gui):
         keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM"]
         self.chars = ''.join(keys)
         lines = list(map(list, keys))
         # U+21E7 shift
         lines[1].insert(0, "\u21E7")
         lines[0] += ["\u232B", "Esc"]
-        col = [[sg.Push()] + [sg.Button(key) for key in line] + [sg.Push()] for line in lines]
+        col = [[sg.Push()] + [sg.Button(key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
         return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
 
-    def get_keyboard_button(self, sg):
-        return sg.Button("Keyboard")
+    def get_keyboard_button(self, sg, gui):
+        return sg.Button("Keyboard", font=gui.text_font)
 
     def check_keyboard_input(self, window, event):
         if event == "Keyboard":
@@ -126,12 +126,16 @@ class InputDialog:
             window["Column"].update(visible=visible)
         elif event in self.chars:
             element = window.find_element_with_focus()
-            if isinstance(element, sg.Input):
+            if isinstance(element, sg.Input) or isinstance(element, sg.Multiline):
                 key = event
                 if not self.shift:
                     key = key.lower()
-                if element.widget.select_present():
-                    element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+                try:
+                    # multi-line has no method: select_present
+                    if element.widget.select_present():
+                        element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+                except:
+                    pass
                 element.widget.insert(sg.tk.INSERT, key)
                 self.shift = False
         elif event == "\u232B":
@@ -152,8 +156,8 @@ class InputDialog:
                sg.InputText(default_text, font=gui.text_font, key=my_key,
                             size=(50, 1))],
               [sg.Button("OK", font=gui.text_font),
-               sg.Button("Cancel", font=gui.text_font), sg.Push(), self.get_keyboard_button(sg)],
-              self.get_keyboard_keys(sg)
+               sg.Button("Cancel", font=gui.text_font), sg.Push(), self.get_keyboard_button(sg, gui)],
+              self.get_keyboard_keys(sg, gui)
               ]
         window = sg.Window(title, layout, font=gui.text_font,
                            finalize=True, modal=True, keep_on_top=True)
@@ -172,7 +176,6 @@ class InputDialog:
         window.close()
         return ret_value
 
-
     def get_comment(self, current_move, gui):
         """
         get comment for current move
@@ -182,7 +185,8 @@ class InputDialog:
         """
         layout = [[sg.Multiline(current_move.comment, key='Comment', font=gui.text_font
                                 , size=(60, 10))],
-                  [sg.Button('OK', font=gui.text_font), sg.Cancel(font=gui.text_font)]
+                  [sg.Button('OK', font=gui.text_font), sg.Cancel(font=gui.text_font), sg.Push(),
+                   self.get_keyboard_button(sg, gui)], self.get_keyboard_keys(sg, gui)
                   ]
         window = sg.Window('Enter comment', layout, finalize=True)
         ok = False
@@ -190,6 +194,7 @@ class InputDialog:
             event, values = window.read()
             if event == "Cancel" or event == sg.WIN_CLOSED or event == 'Exit':
                 break
+            self.check_keyboard_input(window, event)
             if event == "OK":
                 comment = values['Comment']
                 ok = True

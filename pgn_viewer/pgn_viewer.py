@@ -421,8 +421,8 @@ class PGNViewer:
                    sg.InputText('', font=self.gui.text_font, key='_Date_',
                                 size=(50, 1))],
                   [sg.Button("Search", font=self.gui.text_font),
-                   sg.Button("Cancel", font=self.gui.text_font),sg.Push(), self.gui.input_dialog.get_keyboard_button(sg)],
-                  self.gui.input_dialog.get_keyboard_keys(sg)
+                   sg.Button("Cancel", font=self.gui.text_font),sg.Push(), self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
+                  self.gui.input_dialog.get_keyboard_keys(sg, self.gui)
         ]
         window = sg.Window("Search db", layout, font=self.gui.text_font,  # size=(800, 450),
                            finalize=True, modal=True, keep_on_top=True)
