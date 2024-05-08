@@ -109,10 +109,11 @@ class InputDialog:
 
     def get_keyboard_keys(self, sg, gui):
         keys = ["QWERTYUIOP", "ASDFGHJKL,", "ZXCVBNM"]
-        self.chars = ''.join(keys)
+        self.chars = ''.join(keys) + "\u2386"
         lines = list(map(list, keys))
         # U+21E7 shift
         lines[1].insert(0, "\u21E7")
+        lines[1] += ["\u2386"]
         lines[0] += ["\u232B", "Esc"]
         col = [[sg.Push()] + [sg.Button(key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
         return [sg.pin(sg.Column(col, visible=False, expand_x=True, key='Column', metadata=False), expand_x=True)]
@@ -132,6 +133,8 @@ class InputDialog:
             visible = window["Column"].metadata = not window["Column"].metadata
             window["Column"].update(visible=visible)
         elif event in self.chars:
+            if event == "\u2386":
+                event = "\n"
             element = window.find_element_with_focus()
             key = event
             if not self.shift:
