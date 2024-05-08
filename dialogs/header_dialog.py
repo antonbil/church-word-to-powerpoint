@@ -70,10 +70,13 @@ class HeaderDialog:
             [
               sg.CBox('Add to library', key='add_to_library',
                       default=False, font=self.gui.text_font)],
-                    [sg.Button("Save", font=self.gui.text_font), sg.Button("Close", font=self.gui.text_font)]
+                    [sg.Button("Save", font=self.gui.text_font),
+                     sg.Button("Close", font=self.gui.text_font),sg.Push(),
+                     self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
+                        self.gui.input_dialog.get_keyboard_keys(sg, self.gui)
                     ]
 
-        window = sg.Window("Game data", self.layout, font=self.gui.text_font, size=(600, 450),
+        window = sg.Window("Game data", self.layout, font=self.gui.text_font,  # size=(600, 450),
                         finalize=True, modal=True, keep_on_top=True)
 
         sg.fill_form_with_values(window=window, values_dict=PREF)
@@ -93,6 +96,7 @@ class HeaderDialog:
                 self.add_to_library = values['add_to_library']
                 self.ok = True
                 break
+            self.gui.input_dialog.check_keyboard_input(window, event)
 
         window.close()
 

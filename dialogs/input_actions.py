@@ -120,32 +120,47 @@ class InputDialog:
     def get_keyboard_button(self, sg, gui):
         return sg.Button("Keyboard", font=gui.text_font)
 
+    def select_present(self, widget):
+        try:
+            # multi-line has no method: select_present
+            return widget.select_present()
+        except:
+            return False
+
     def check_keyboard_input(self, window, event):
         if event == "Keyboard":
             visible = window["Column"].metadata = not window["Column"].metadata
             window["Column"].update(visible=visible)
         elif event in self.chars:
             element = window.find_element_with_focus()
+            key = event
+            if not self.shift:
+                key = key.lower()
             if isinstance(element, sg.Input) or isinstance(element, sg.Multiline):
-                key = event
-                if not self.shift:
-                    key = key.lower()
-                try:
-                    # multi-line has no method: select_present
-                    if element.widget.select_present():
-                        element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
-                except:
-                    pass
-                element.widget.insert(sg.tk.INSERT, key)
-                self.shift = False
+                if self.select_present(element.widget):
+                    element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
+            element.widget.insert(sg.tk.INSERT, key)
+            self.shift = False
         elif event == "\u232B":
             element = window.find_element_with_focus()
-            if element.widget.select_present():
+            if self.select_present(element.widget):
                 element.widget.delete(sg.tk.SEL_FIRST, sg.tk.SEL_LAST)
             else:
                 insert = element.widget.index(sg.tk.INSERT)
-                if insert > 0:
-                    element.widget.delete(insert - 1, insert)
+                # in multiline widget this can be: 1.49 (line 1, char 49)
+                print("insert", insert)
+                try:
+                    if insert > 0:
+                        element.widget.delete(insert - 1, insert)
+                except:
+                    # multiline?
+                    try:
+                        splits = insert.split(".")
+                        pos = int(splits[1])
+                        if pos > 0:
+                            element.widget.delete("{}.{}".format(splits[0], pos - 1), insert)
+                    except:
+                        pass
         elif event == "\u21E7":
             self.shift = True
 
