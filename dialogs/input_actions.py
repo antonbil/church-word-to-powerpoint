@@ -4,6 +4,7 @@ import os.path
 
 class InputDialog:
     def __init__(self, gui, default_png_dir, keyboard_visible_at_start):
+        self.keyboard_visible_at_start = keyboard_visible_at_start
         self.keyboard_visible = False
         self.shift = False
         self.chars = []
@@ -119,10 +120,10 @@ class InputDialog:
         visual_keys = {" ": "          ", "\n": "\u2386"}
         col = [[sg.Push()] + [sg.Button(visual_keys[key] if key in visual_keys else key,
                                         key=key, font=gui.text_font) for key in line] + [sg.Push()] for line in lines]
-        return [sg.pin(sg.Column(col, visible=True, expand_x=True, key='Column', metadata=False), expand_x=True)]
+        return [sg.pin(sg.Column(col, visible=keyboard_visible_at_start, expand_x=True, key='Column', metadata=False), expand_x=True)]
 
     def get_keyboard_button(self, sg, gui):
-        self.keyboard_visible = False
+        self.keyboard_visible = keyboard_visible_at_start
         return sg.Button("Keyboard", font=gui.text_font)
 
     def select_present(self, widget):
