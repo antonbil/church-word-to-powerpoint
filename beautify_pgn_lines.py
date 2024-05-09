@@ -118,7 +118,7 @@ class PgnDisplay:
                     number = i
                 elif not parts_end and line_to_search in line_plus_1 :
                     number = i
-                    if not is_black:
+                    if not is_black and line_to_search not in line:
                         number = i + 1
                     part_found = True
                 if part_found:
