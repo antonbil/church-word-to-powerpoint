@@ -80,11 +80,14 @@ class PgnDisplay:
             parts = part_top_line.split(" ")
             is_black = False
             black_search = "rubbish"
-            black_search2 = "rubbish"
+            black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
             if len(parts) > 0 and parts[0].endswith("..."):
                 black_search = parts[0] + " " + parts[1]
-                black_search2 = " ".join(str(next_move.parent).split(" ")[:2]) + " " + parts[1]
+                # black_move_with_white_before has the black move preceded by the white move
+                # it is a black move, so there has to be a parent. No checking for parent-existence is needed
+                white_move = " ".join(str(next_move.parent).split(" ")[:2])
+                black_move_with_white_before = white_move + " " + parts[1]
                 # print("black_search",black_search2)
                 parts = parts[1:]
                 is_black = True
@@ -114,7 +117,7 @@ class PgnDisplay:
                     number = i
                     numbers.append(i)
                     times = times + 1
-                    if line.startswith(black_search) or black_search2 in line_plus_1:
+                    if line.startswith(black_search) or black_move_with_white_before in line_plus_1:
                         break
                 i = i + 1
             # if there is one hit, this line is used for the line_number
