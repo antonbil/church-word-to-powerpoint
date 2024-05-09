@@ -112,12 +112,14 @@ class PgnDisplay:
                     if st_sp_1 == st_sp_2:
                         line_plus_1 = line.strip() + " " + second_line.strip()
 
-                if line.startswith(black_search) or parts_end and line.endswith(line_to_search) or not parts_end and line_to_search in line_plus_1:
+                if (line.startswith(black_search) or parts_end and line.endswith(line_to_search) or
+                        not parts_end and line_to_search in line_plus_1 or
+                            black_move_with_white_before in line):
                     part_found = True
                     number = i
-                    numbers.append(i)
+                    numbers.append(number)
                     times = times + 1
-                    if line.startswith(black_search) or black_move_with_white_before in line_plus_1:
+                    if line.startswith(black_search) or black_move_with_white_before in line:
                         break
                 i = i + 1
             # if there is one hit, this line is used for the line_number
