@@ -113,14 +113,13 @@ class PgnDisplay:
                         line_plus_1 = line.strip() + " " + second_line.strip()
 
                 if (line.startswith(black_search) or parts_end and line.endswith(line_to_search) or
-                        not parts_end and line_to_search in line_plus_1 or
                             black_move_with_white_before in line):
                     part_found = True
                     number = i
-                    if not (line.startswith(black_search) or parts_end and line.endswith(line_to_search) or
-                        not parts_end and line_to_search in line or
-                            black_move_with_white_before in line):
-                        number += 1
+                elif not parts_end and line_to_search in line_plus_1 :
+                    number = i + 1
+                    part_found = True
+                if part_found:
                     numbers.append(number)
                     times = times + 1
                     if line.startswith(black_search) or black_move_with_white_before in line:
