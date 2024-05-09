@@ -541,7 +541,7 @@ class PgnEditor:
     def display_move_and_line_number(self):
         move_list_gui_element = self.window.find_element('_movelist_')
         if len(self.moves) > 0:
-            line_number, is_available = self.pgn_display.get_line_number(self.moves[-1], self.pgn_lines)
+            line_number, is_available = self.pgn_display.get_line_number(self.moves[-1], self.pgn_lines, self.board)
             # print("line-number", line_number, is_available)
             move_list_gui_element.Update(
                 self.pgn_lines, set_to_index=line_number, scroll_to_index=line_number - 3 if line_number > 2 else 0)

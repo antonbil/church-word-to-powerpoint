@@ -953,7 +953,7 @@ class PGNViewer:
             return
 
         # see if line number can be retrieved by comparing the first part of the partial moves
-        line_number, is_available = self.pgn_display.get_line_number(next_move, self.pgn_lines)
+        line_number, is_available = self.pgn_display.get_line_number(next_move, self.pgn_lines, self.board)
 
         if line_number > -1 and len(self.moves) > 0:
             str1 = "\n".join(self.pgn_lines)+"\n"
