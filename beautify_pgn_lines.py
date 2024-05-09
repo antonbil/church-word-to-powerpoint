@@ -92,6 +92,7 @@ class PgnDisplay:
                 parts = parts[1:]
                 is_black = True
             parts_end = len(parts) == 1
+            white_move = " ".join(str(next_move).split(" ")[:2])
             # create the significant first line of the partial moves
             line_to_search = " ".join(parts).strip()
             if is_black:
@@ -113,19 +114,13 @@ class PgnDisplay:
                         line_plus_1 = line.strip() + " " + second_line.strip()
 
                 if (line.startswith(black_search) or parts_end and line.endswith(line_to_search) or
-                            black_move_with_white_before in line or line_to_search in line):
+                        not parts_end and line_to_search in line_plus_1):
                     part_found = True
                     number = i
-                elif not parts_end and line_to_search in line_plus_1 :
-                    number = i
-                    if not is_black and line_to_search not in line:
-                        number = i + 1
-                    part_found = True
-                if part_found:
                     numbers.append(number)
                     times = times + 1
-                    if line.startswith(black_search) or black_move_with_white_before in line:
-                        numbers = [i]
+                    if line.startswith(black_search) or black_move_with_white_before in line or white_move in line:
+                        numbers=[i]
                         break
                 i = i + 1
             # if there is one hit, this line is used for the line_number
