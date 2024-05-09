@@ -117,7 +117,7 @@ class PgnDisplay:
                     part_found = True
                     number = i
                 elif not parts_end and line_to_search in line_plus_1 :
-                    number = i + 1
+                    number = i
                     part_found = True
                 if part_found:
                     numbers.append(number)
