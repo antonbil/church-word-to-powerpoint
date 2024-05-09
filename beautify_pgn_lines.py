@@ -113,7 +113,7 @@ class PgnDisplay:
                         line_plus_1 = line.strip() + " " + second_line.strip()
 
                 if (line.startswith(black_search) or parts_end and line.endswith(line_to_search) or
-                            black_move_with_white_before in line):
+                            black_move_with_white_before in line or line_to_search in line):
                     part_found = True
                     number = i
                 elif not parts_end and line_to_search in line_plus_1 :
