@@ -117,6 +117,9 @@ class PgnDisplay:
                             black_move_with_white_before in line):
                     part_found = True
                     number = i
+                    if not (line.startswith(black_search) or parts_end and line.endswith(line_to_search)  or
+                            black_move_with_white_before in line):
+                        number += 1
                     numbers.append(number)
                     times = times + 1
                     if line.startswith(black_search) or black_move_with_white_before in line:
