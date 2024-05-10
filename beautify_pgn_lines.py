@@ -119,7 +119,7 @@ class PgnDisplay:
                     number = i
                     numbers.append(number)
                     times = times + 1
-                    if line.startswith(black_search) or black_move_with_white_before in line:  # or white_move in line:
+                    if line.startswith(black_search) or black_move_with_white_before in line or white_move in line:
                         numbers=[i]
                         break
                 i = i + 1
