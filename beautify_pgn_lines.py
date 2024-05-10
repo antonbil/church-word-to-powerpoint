@@ -107,6 +107,9 @@ class PgnDisplay:
                 if line.startswith(" ") and next_move.is_mainline():
                     i = i + 1
                     continue
+                elif not line.startswith(" ") and not next_move.is_mainline():
+                    i = i + 1
+                    continue
                 line_plus_1 = line
 
                 if i + 1 < len(pgn_lines):
