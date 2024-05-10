@@ -105,6 +105,7 @@ class PgnDisplay:
             times = 0
             for line in pgn_lines:
                 if line.startswith(" ") and next_move.is_mainline():
+                    i = i + 1
                     continue
                 line_plus_1 = line
 
