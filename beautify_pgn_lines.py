@@ -84,16 +84,19 @@ class PgnDisplay:
             black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
             if len(parts) > 1 and parts[0].endswith("..."):
+                # black_search is(example): 4... Na5
                 black_search = parts[0] + " " + parts[1]
                 # black_move_with_white_before has the black move preceded by the white move
                 # it is a black move, so there has to be a parent. No checking for parent-existence is needed
                 white_before_move = " ".join(str(next_move.parent).split(" ")[:2])
+                # black_move_with_white_before contains move-number and algebraic notation for white and black
                 black_move_with_white_before = white_before_move + " " + parts[1]
                 # print("black_search",black_search2)
                 parts = parts[1:]
                 is_black = True
             parts_end = len(parts) == 1
             if len(parts) > 1:
+                # white_move contains move-number and algebraic notation
                 white_move = " ".join(str(next_move).split(" ")[:2])
             # create the significant first line of the partial moves
             line_to_search = " ".join(parts).strip()
