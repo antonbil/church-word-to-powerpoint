@@ -80,19 +80,21 @@ class PgnDisplay:
             parts = part_top_line.split(" ")
             is_black = False
             black_search = "rubbish"
+            white_move = "rubbish"
             black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
-            if len(parts) > 0 and parts[0].endswith("..."):
+            if len(parts) > 1 and parts[0].endswith("..."):
                 black_search = parts[0] + " " + parts[1]
                 # black_move_with_white_before has the black move preceded by the white move
                 # it is a black move, so there has to be a parent. No checking for parent-existence is needed
-                white_move = " ".join(str(next_move.parent).split(" ")[:2])
-                black_move_with_white_before = white_move + " " + parts[1]
+                white_before_move = " ".join(str(next_move.parent).split(" ")[:2])
+                black_move_with_white_before = white_before_move + " " + parts[1]
                 # print("black_search",black_search2)
                 parts = parts[1:]
                 is_black = True
             parts_end = len(parts) == 1
-            white_move = " ".join(str(next_move).split(" ")[:2])
+            if len(parts) > 1:
+                white_move = " ".join(str(next_move).split(" ")[:2])
             # create the significant first line of the partial moves
             line_to_search = " ".join(parts).strip()
             if is_black:
@@ -104,10 +106,9 @@ class PgnDisplay:
             i = 0
             times = 0
             for line in pgn_lines:
-                if line.startswith(" ") and next_move.is_mainline():
-                    i = i + 1
-                    continue
-                elif not line.startswith(" ") and not next_move.is_mainline():
+                if (line.startswith(" ") and next_move.is_mainline()  # annotation-line and mainline-move
+                        # not annotation-line and annotation-move
+                        or not line.startswith(" ") and not next_move.is_mainline()):
                     i = i + 1
                     continue
                 line_plus_1 = line
@@ -130,7 +131,7 @@ class PgnDisplay:
                         break
                 i = i + 1
             # if there is one hit, this line is used for the line_number
-            # > 1: ambiguous->use the last one; the first occurrence must be an analysis?
+            # > 1: ambiguous->use the first one; the second occurrence must be an annotation?
             if times > 0:
                 line_number = numbers[0]
             else:
