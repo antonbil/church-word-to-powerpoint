@@ -45,7 +45,11 @@ def get_cleaned_string_pgn(data):
     lines = [splits.pop(0)]
     for line in splits:
         line1 = line.split(';true]')
-        lines.append(line1[1])
+        if len(line1) > 1:
+            lines.append(line1[1])
+        line1 = line.split(';false]')
+        if len(line1) > 1:
+            lines.append(line1[1])
     res = " ".join(lines)
     """
             {[%evp }"""
