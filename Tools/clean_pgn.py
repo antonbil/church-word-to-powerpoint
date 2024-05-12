@@ -56,6 +56,7 @@ def get_cleaned_string_pgn(data):
     fp = '{'
     sp = '}'
     # [%cal
+    res = replace_remove(res, '[%clk', ']')
     res = replace_remove(res, '[%c_arrow', ']')
     res = replace_remove(res, '{[%evp', ']}')
     res = replace_between(res, fp, sp)
