@@ -13,6 +13,11 @@ class PgnDisplay:
         inside_comment = False
         for index, item in enumerate(string):
 
+            if item == "\n":
+                if not inside_comment:
+                    string[index] = "\n" + ("_" * indent)
+                else:
+                    string[index] = " "
             if item == "(" and not inside_comment:
                 indent = indent + 1
                 string[index] = "\n" + ("_" * indent)

@@ -41,26 +41,15 @@ def main():
 
 
 def get_cleaned_string_pgn(data):
-    splits = data.split('[%c_effect')
-    lines = [splits.pop(0)]
-    for line in splits:
-        line1 = line.split(';true]')
-        if len(line1) > 1:
-            lines.append(line1[1])
-        line1 = line.split(';false]')
-        if len(line1) > 1:
-            lines.append(line1[1])
-    res = " ".join(lines)
-    """
-            {[%evp }"""
-    fp = '{'
-    sp = '}'
-    # [%cal
-    res = replace_remove(res, '[%clk', ']')
-    res = replace_remove(res, '[%c_arrow', ']')
-    res = replace_remove(res, '{[%evp', ']}')
-    res = replace_between(res, fp, sp)
-    res = res.replace('{ }', '').replace('{  ', '{').replace('  ', ' ').replace('\n\n', '\n').replace('\n\n', '\n')
+    res = data
+
+    for term in ["c_effect", "evp", "clk", "c_highlight", "cal", "c_arrow", "emt", "timestamp"]:
+        res = replace_remove(res, '[%' + term, ']')
+
+    res = (res.replace('{  ', '{').replace('  ', ' ').replace('\n\n', '\n')
+           .replace('\n\n', '\n')
+           .replace('{}', '').replace('{ }', ''))
+
     return res
 
 
@@ -89,7 +78,7 @@ def replace_remove(res, fp, sp):
         line1 = line.split(sp)
         first = line1.pop(0)
         if len(line1) > 1:
-            second = " ".join(line1)
+            second = sp.join(line1)
         elif len(line1) == 1:
             second = line1[0]
         else:
