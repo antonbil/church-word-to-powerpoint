@@ -44,12 +44,11 @@ class PgnDisplay:
 
     def color_lines(self, move_list, move_list_gui_element):
         for index in range(0, len(move_list)):
-            # print("index", index)
-            fg = 'black'
-            if HARD_SPACE in move_list[index]:
+            fg = 'black'  # default color
+            if HARD_SPACE in move_list[index]:  # comment
                 fg = 'red'
-            elif move_list[index].startswith(" "):
-                fg = "#666666"
+            elif move_list[index].startswith(" "):  # alternative line
+                fg = "#666666"  # dark-grey
             move_list_gui_element.Widget.itemconfig(index, fg=fg)
 
 
