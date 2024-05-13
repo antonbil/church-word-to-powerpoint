@@ -545,6 +545,7 @@ class PgnEditor:
             # print("line-number", line_number, is_available)
             move_list_gui_element.Update(
                 self.pgn_lines, set_to_index=line_number, scroll_to_index=line_number - 3 if line_number > 2 else 0)
+            self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
             self.define_moves_squares()
         else:
             move_list_gui_element.Update(
@@ -633,12 +634,13 @@ class PgnEditor:
         self.move_squares.append(fr_row)
 
     def update_pgn_display(self):
-        window = self.window.find_element('_movelist_')
+        move_list_gui_element = self.window.find_element('_movelist_')
         exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
         pgn_string = str(self.game.game())#accept(exporter)
         lines = self.pgn_display.beautify_lines(pgn_string)
         self.pgn_lines = lines
-        window.Update(lines)
+        move_list_gui_element.Update(lines)
+        self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
 
     def split_line(self, line):
         max_len_line = 58
