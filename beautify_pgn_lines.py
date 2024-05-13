@@ -46,9 +46,9 @@ class PgnDisplay:
         for index in range(0, len(move_list)):
             fg = 'black'  # default color
             if HARD_SPACE in move_list[index]:  # comment
-                fg = 'red'
+                fg = '#a91d3a'
             elif move_list[index].startswith(" "):  # alternative line
-                fg = "#666666"  # dark-grey
+                fg = "#226622"  # dark-grey
             move_list_gui_element.Widget.itemconfig(index, fg=fg)
 
 
