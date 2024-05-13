@@ -1,3 +1,6 @@
+HARD_SPACE = u"\u00A0"
+
+
 class PgnDisplay:
     def __init__(self, line_len = 69):
         self.line_len = line_len
@@ -23,7 +26,7 @@ class PgnDisplay:
                 string[index] = "\n" + ("_" * indent)
             if item == "{":
                 indent = indent + 1
-                string[index] = "\n" + ("_" * indent)
+                string[index] = "\n" + ("|" * indent)
                 inside_comment = True
             if item == ")" and not inside_comment:
                 indent = indent - 1
@@ -39,11 +42,25 @@ class PgnDisplay:
         lines = "\n".join(lines).split("\n")
         return lines
 
+    def color_lines(self, move_list, move_list_gui_element):
+        for index in range(0, len(move_list)):
+            # print("index", index)
+            fg = 'black'
+            if HARD_SPACE in move_list[index]:
+                fg = 'red'
+            elif move_list[index].startswith(" "):
+                fg = "#666666"
+            move_list_gui_element.Widget.itemconfig(index, fg=fg)
+
+
     def split_line(self, line):
+        comment_line = "|" in line
+        line = line.replace("|", "_")
+        comment_char = HARD_SPACE if comment_line else ""
         max_len_line = self.line_len
         line = line.strip().replace("_ ", "_")
         if len(line) <= max_len_line:
-            return line
+            return line + comment_char
         line = line.replace(".  ", ".H")
         words = line.split(" ")
         prefix_number = words[0].count("_")
@@ -52,14 +69,14 @@ class PgnDisplay:
         words.pop(0)
         for word in words:
             if len_line + len(word) > max_len_line:
-                line = line + "\n" + ("_" * prefix_number)
+                line = line + comment_char + "\n" + ("_" * prefix_number)
                 len_line = len(word)
             else:
                 len_line = len_line + 1
                 line = line + " "
             len_line = len_line + len(word)
             line = line + word
-        line = line.replace(".H", ".  ")
+        line = line.replace(".H", ".  ") + comment_char
         return line
 
     def change_nag(self, line):

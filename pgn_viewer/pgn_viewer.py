@@ -876,6 +876,7 @@ class PGNViewer:
         self.window.find_element('overall_game_info').Update(info)
         move_list_gui_element = self.window.find_element('_movelist_')
         move_list_gui_element.Update(self.pgn_lines)
+        self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
 
     def set_players(self, game):
@@ -888,10 +889,13 @@ class PGNViewer:
         if len(move_list) < number+2:
             move_list_gui_element.Update(
                 move_list)
+            self.pgn_display.color_lines(move_list, move_list_gui_element)
             return
 
         move_list_gui_element.Update(
             move_list, set_to_index=number, scroll_to_index=number - 3 if number > 2 else 0)
+
+        self.pgn_display.color_lines(move_list, move_list_gui_element)
 
     def execute_previous_move(self, move_number):
         if move_number > 0:
