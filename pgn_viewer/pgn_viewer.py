@@ -973,6 +973,10 @@ class PGNViewer:
 
         # see if line number can be retrieved by comparing the first part of the partial moves
         line_number, is_available = self.pgn_display.get_line_number(next_move, self.pgn_lines, self.board)
+        # self.current_line is set if clicked on '_movelist_'
+        if self.current_line > -1:
+            line_number = self.current_line
+            self.current_line = -1
 
         if line_number > -1 and len(self.moves) > 0:
             str1 = "\n".join(self.pgn_lines)+"\n"

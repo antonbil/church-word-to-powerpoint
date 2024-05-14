@@ -199,24 +199,36 @@ class PgnDisplay:
         #     print(algebraics[node])
         res = []
         first_is_black = "..." in parts[0]
+        move_num_exists = False
+        for elem in parts:
+            try:
+                move_number = int(elem.replace(".", ""))
+                move_num_exists = True
+            except:
+                pass
+        if not move_num_exists:
+            for node in nodes:
+                if algebraics[node] in parts:
+                    res.append(node)
+            return res
+
         num = 0
         for elem in parts:
-            if num>1:
+            if num > 1:
                 first_is_black = False
             try:
                 move_number = int(elem.replace(".", ""))
-                last_black = num <= len(parts) - 2
                 # print("lastblack", last_black,num,len(parts))
                 for node in nodes:
-                  if algebraics[node] in parts:
-                    # print(algebraics[node], node.ply(), 2*move_number-1, 2*move_number)
-                    if node.ply() in [2*move_number-1, 2*move_number] and algebraics[node] in parts:
-                        if node.turn() == chess.BLACK and first_is_black:
-                            continue
-                        if node.turn() == chess.WHITE and len(res) >= len(parts)/2:
-                            continue
-                        # print("node added:", node.move, move_number, node.ply())
-                        res.append(node)
+                    if algebraics[node] in parts:
+                        # print(algebraics[node], node.ply(), 2*move_number-1, 2*move_number)
+                        if node.ply() in [2 * move_number - 1, 2 * move_number] and algebraics[node] in parts:
+                            if node.turn() == chess.BLACK and first_is_black:
+                                continue
+                            if node.turn() == chess.WHITE and len(res) >= len(parts) / 2:
+                                continue
+                            # print("node added:", node.move, move_number, node.ply())
+                            res.append(node)
             except:
                 pass
             num += 1
