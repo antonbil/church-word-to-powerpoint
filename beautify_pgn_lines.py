@@ -180,6 +180,7 @@ class PgnDisplay:
         if len(variations) > 0:
             if in_variation:
                 last_variation.append(variations[0])
+                self.get_variations(variations[0], all_variations, True)
             variations.pop(0)
             for variation in variations:
                 all_variations.append([variation])

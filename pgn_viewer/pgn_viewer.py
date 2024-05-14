@@ -245,7 +245,7 @@ class PGNViewer:
                     self.current_line = index
                     self.go_up = True
                     positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
-                    print("positions:{}".format(len(positions)))
+                    #print("positions:{}".format(len(positions)))
                     if new_pos >=1 or len(positions) > 0:
                         self.set_new_position(new_pos, positions)
 
