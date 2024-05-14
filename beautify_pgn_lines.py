@@ -207,6 +207,7 @@ class PgnDisplay:
             except:
                 pass
         if not move_num_exists:
+            # no move numbers available. Do a guess based on the move-descriptions themselves
             for node in nodes:
                 if algebraics[node] in parts:
                     res.append(node)
@@ -214,7 +215,9 @@ class PgnDisplay:
 
         num = 0
         for elem in parts:
+            # only check first move if it starts with 34...
             if num > 1:
+                # rest of the moves can be white and black
                 first_is_black = False
             try:
                 move_number = int(elem.replace(".", ""))
@@ -224,8 +227,10 @@ class PgnDisplay:
                         # print(algebraics[node], node.ply(), 2*move_number-1, 2*move_number)
                         if node.ply() in [2 * move_number - 1, 2 * move_number] and algebraics[node] in parts:
                             if node.turn() == chess.BLACK and first_is_black:
+                                # white move, and the starting move for this line is a black move
                                 continue
                             if node.turn() == chess.WHITE and len(res) >= len(parts) / 2:
+                                # it is a black move, and is not printed on this line
                                 continue
                             # print("node added:", node.move, move_number, node.ply())
                             res.append(node)
