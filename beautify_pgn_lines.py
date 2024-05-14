@@ -1,3 +1,5 @@
+import chess
+
 HARD_SPACE = u"\u00A0"
 
 
@@ -170,7 +172,80 @@ class PgnDisplay:
             i = i + 1
         return i
 
-    def get_position_move_from_pgn_line(self, item):
+    def get_variations(self, node, all_variations, in_variation = False):
+        variations = [v for v in node.variations]
+        last_variation = []
+        if len(all_variations) > 0:
+            last_variation = all_variations[-1]
+        if len(variations) > 0:
+            if not variations[0].is_mainline():
+                last_variation.append(variations[0])
+            variations.pop(0)
+            for variation in variations:
+                all_variations.append([variation])
+                # print("add variation", variation.move)
+                self.get_variations(variation, all_variations, True)
+        else:
+            if in_variation:
+                last_variation.append(node)
+
+    def get_nodes(self, parts, nodes):
+        algebraics = {}
+        for node in nodes:
+            s = str(node).split(" ")[1]
+            algebraics[node] = s
+        res = []
+        first_is_black = "..." in parts[0]
+        num = 0
+        for elem in parts:
+            if num>1:
+                first_is_black = False
+            try:
+                move_number = int(elem.replace(".", ""))
+                last_black = num <= len(parts) - 2
+                # print("lastblack", last_black,num,len(parts))
+                for node in nodes:
+                    if node.ply() in [2*move_number-1, 2*move_number] and algebraics[node] in parts:
+                        if node.turn() == chess.BLACK and first_is_black:
+                            continue
+                        if node.turn() == chess.WHITE and len(res) >= len(parts)/2:
+                            continue
+                        # print("node added:", node.move, move_number, node.ply())
+                        res.append(node)
+            except:
+                pass
+            num += 1
+        return res
+
+    def get_position_move_from_pgn_line(self, game, item):
+        found_nodes = []
+        if not (game is None or HARD_SPACE in item):
+            parts = item.split(" ")
+            print("get nodes")
+            if item.startswith(" "):
+                print("variation")
+                all_variations = []
+                node = game.game()
+
+                while len(node.variations) > 0:
+                    self.get_variations(node, all_variations)
+                    node = node.variations[0]
+                max_found = 0
+                found_variation = []
+                for variation in all_variations:
+                    nodes = self.get_nodes(parts, variation)
+                    if len(nodes) > max_found:
+                        max_found = len(nodes)
+                        found_variation = nodes
+                found_nodes = found_variation
+            else:
+                # get all items from mainline
+                node = game.game()
+                nodes_main_line = [node]
+                while len(node.variations) > 0:
+                    node = node.variations[0]
+                    nodes_main_line.append(node)
+                found_nodes = self.get_nodes(parts, nodes_main_line)
         items = item.split(" ")
         # if line starts with a " ", it is a comment or a variation
         is_variation = item.startswith(" ")
@@ -196,7 +271,7 @@ class PgnDisplay:
 
             except ValueError:
                 pass
-        return new_pos
+        return found_nodes, new_pos
 
     def get_move_string(self, move):
         move_string = str(move)

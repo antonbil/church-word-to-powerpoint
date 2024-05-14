@@ -300,7 +300,7 @@ class PgnEditor:
                     index = self.pgn_lines.index(item)
                     self.current_line = index
                     self.go_up = True
-                    new_pos = self.pgn_display.get_position_move_from_pgn_line(item)
+                    _, new_pos = self.pgn_display.get_position_move_from_pgn_line(None, item)
                     if new_pos >=1:
                         self.set_position_move(new_pos)
 
