@@ -178,7 +178,7 @@ class PgnDisplay:
         if len(all_variations) > 0:
             last_variation = all_variations[-1]
         if len(variations) > 0:
-            if not variations[0].is_mainline():
+            if in_variation:
                 last_variation.append(variations[0])
             variations.pop(0)
             for variation in variations:
@@ -192,8 +192,10 @@ class PgnDisplay:
     def get_nodes(self, parts, nodes):
         algebraics = {}
         for node in nodes:
-            s = str(node).split(" ")[1]
+            s = str(node).split(" ")[1].replace("+", "")
             algebraics[node] = s
+        # for node in algebraics:
+        #     print(algebraics[node])
         res = []
         first_is_black = "..." in parts[0]
         num = 0
@@ -205,6 +207,8 @@ class PgnDisplay:
                 last_black = num <= len(parts) - 2
                 # print("lastblack", last_black,num,len(parts))
                 for node in nodes:
+                  if algebraics[node] in parts:
+                    # print(algebraics[node], node.ply(), 2*move_number-1, 2*move_number)
                     if node.ply() in [2*move_number-1, 2*move_number] and algebraics[node] in parts:
                         if node.turn() == chess.BLACK and first_is_black:
                             continue
@@ -219,8 +223,11 @@ class PgnDisplay:
 
     def get_position_move_from_pgn_line(self, game, item):
         found_nodes = []
+        for gone in ["!", "!?", "?", "?!", "+", "#"]:
+            item = item.replace(gone, "")
+        #print("check for:", item)
         if not (game is None or HARD_SPACE in item):
-            parts = item.split(" ")
+            parts = [p for p in item.split(" ") if len(p) > 0]
             #print("get nodes")
             if item.startswith(" "):
                 #print("variation")
