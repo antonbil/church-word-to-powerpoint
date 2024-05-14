@@ -985,6 +985,7 @@ class PGNViewer:
             self.display_move_list(str1, line_number, part)
             #print("move nmber:", move_number, part)
             # print("variation", move_variation.move)
+        if len(self.moves) > 0:
             move_str = str(next_move.move)
             fr_col = ord(move_str[0]) - ord('a')
             no_row = False
@@ -1048,7 +1049,7 @@ class PGNViewer:
                 self.gui.change_square_color(self.window, fr_row, fr_col)
                 self.gui.change_square_color_border(self.window, fr_row, fr_col, color)
                 self.gui.change_square_color_border(self.window, to_row, to_col, color)
-        if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] >0:
+        if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] > 0:
             self.gui.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
             self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
             # print("from coords:", self.gui.get_square_color_pos(self.window, self.move_squares[1], self.move_squares[0]))
