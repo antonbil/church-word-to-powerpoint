@@ -246,8 +246,8 @@ class PGNViewer:
                     self.go_up = True
                     positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
                     print("positions",positions)
-                    if new_pos >=1:
-                        self.set_new_position(new_pos)
+                    if new_pos >=1 or len(positions) > 0:
+                        self.set_new_position(new_pos, positions)
 
             if button == 'Next Game' or self.gui.toolbar.get_button_id(button) == '|-->':
                 if self.check_edit_single_pgn():
@@ -658,7 +658,21 @@ class PGNViewer:
             self.gui.is_user_white = not self.is_black
         self.gui.start_mode_used = "play"
 
-    def set_new_position(self, new_pos):
+    def set_new_position(self, new_pos, base_moves=[]):
+        if len(base_moves) > 0:
+            self.current_move = base_moves[0]
+            all_moves = [self.current_move]
+            node = self.current_move
+            while node.parent:
+                all_moves.append(node.parent)
+                node = node.parent
+            all_moves.reverse()
+            self.moves = all_moves
+            self.move_number = max(len(self.moves) - 1, 0)
+            self.display_part_pgn(self.move_number, self.current_move)
+            self.display_move()
+
+            return
         all_moves = self.get_all_moves(self.game)
         if new_pos >= len(all_moves):
             new_pos = len(all_moves) - 1

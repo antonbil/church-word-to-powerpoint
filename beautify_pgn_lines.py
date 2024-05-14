@@ -221,9 +221,9 @@ class PgnDisplay:
         found_nodes = []
         if not (game is None or HARD_SPACE in item):
             parts = item.split(" ")
-            print("get nodes")
+            #print("get nodes")
             if item.startswith(" "):
-                print("variation")
+                #print("variation")
                 all_variations = []
                 node = game.game()
 
@@ -238,6 +238,8 @@ class PgnDisplay:
                         max_found = len(nodes)
                         found_variation = nodes
                 found_nodes = found_variation
+                if len(found_nodes) > 0:
+                    found_nodes = [found_nodes[0]]
             else:
                 # get all items from mainline
                 node = game.game()
@@ -246,6 +248,9 @@ class PgnDisplay:
                     node = node.variations[0]
                     nodes_main_line.append(node)
                 found_nodes = self.get_nodes(parts, nodes_main_line)
+                if len(found_nodes) > 0:
+                    found_nodes = [found_nodes[-1]]
+
         items = item.split(" ")
         # if line starts with a " ", it is a comment or a variation
         is_variation = item.startswith(" ")
