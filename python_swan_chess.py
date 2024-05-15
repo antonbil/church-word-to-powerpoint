@@ -62,7 +62,7 @@ from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
-from common import menu_def_pgnviewer, menu_def_entry, temp_file_name
+from common import menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -2957,7 +2957,7 @@ class EasyChessGui:
 
     def get_png_layout(self):
         variation_buttons = []
-        for i in range(1,5):
+        for i in range(1, MAX_ALTERNATIVES):
             button = sg.Button('....', size=(5, 1), key="variation"+str(i))
             variation_buttons.append(button)
         board_controls = [
@@ -2968,14 +2968,14 @@ class EasyChessGui:
              ],
             [sg.Text('Black', size=(7, 1), font=self.text_font),
              sg.InputText('Computer', font=self.text_font, key='_Black_',
-                          size=(24, 1)),
-             sg.Text('', font=self.text_font, key='_currentmove_',
-                     size=(11, 1), relief='sunken'),
-            sg.Frame('', [variation_buttons], key="variation_frame", visible = False)
+                          size=(24, 1))
              ],
             [sg.Text('', font=self.text_font, key='overall_game_info', relief='sunken',
                      size=(71, 1))],
-            [sg.Text('Move list', size=(16, 1), font=self.text_font)],
+            [sg.Text('Moves:', size=(7, 1), font=self.text_font),
+             sg.Text('', font=self.text_font, key='_currentmove_',
+                     size=(13, 1), relief='sunken'),
+            sg.Frame('', [variation_buttons], key="variation_frame", visible = False)],
             [sg.Listbox('', size=(70, 18), expand_y=True, enable_events=True,
                         font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width,
                         sbar_arrow_width=self.scrollbar_width)],

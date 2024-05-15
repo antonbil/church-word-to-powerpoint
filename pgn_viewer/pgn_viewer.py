@@ -9,7 +9,7 @@ from io import StringIO
 import datetime
 from time import perf_counter as pc
 from annotator import annotator
-from common import menu_def_entry, temp_file_name, menu_def_pgnviewer
+from common import menu_def_entry, temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
@@ -131,7 +131,7 @@ class PGNViewer:
                 self.redraw_all()
 
 
-            for i in range(1, 5):
+            for i in range(1, MAX_ALTERNATIVES):
                 possible_button = "variation" + str(i)
                 if possible_button == button:
                     self.set_new_position(0, [self.move_alternatives[i-1]])
@@ -969,11 +969,11 @@ class PGNViewer:
             next_move.comment, append=True, disabled=True)
 
         move_string = self.pgn_display.get_move_string(next_move)
-        alternative_moves = [a for a in next_move.variations]
+        alternative_moves = [a for a in next_move.variations][:MAX_ALTERNATIVES]
         # if len(alternative_moves) > 0:
         #     alternative_moves.pop(0)
         self.move_alternatives = []
-        for i in range(1,5):
+        for i in range(1,MAX_ALTERNATIVES):
             button = self.window.find_element("variation" + str(i))
             button.Update(visible=False)
         i = 1

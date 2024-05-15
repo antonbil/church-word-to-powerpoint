@@ -24,3 +24,4 @@ menu_def_pgnviewer = [
 ]
 
 temp_file_name = 'tempsave.pgn'
+MAX_ALTERNATIVES = 7
