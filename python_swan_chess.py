@@ -2970,7 +2970,7 @@ class EasyChessGui:
              sg.InputText('Computer', font=self.text_font, key='_Black_',
                           size=(24, 1))
              ],
-            [sg.Text('', font=self.text_font, key='overall_game_info', relief='sunken',
+            [sg.Button('', font=self.text_font, key='overall_game_info',
                      size=(71, 1))],
             [sg.Text('Moves:', size=(7, 1), font=self.text_font),
              sg.Text('', font=self.text_font, key='_currentmove_',

@@ -121,6 +121,9 @@ class PGNViewer:
             if button == 'From clipboard':
                 self.from_clipboard()
 
+            if button == 'overall_game_info':
+                self.overall_game_info()
+
             if button == 'Clipboard to current db':
                 self.always_to_clipboard()
                 self.classify_opening()
@@ -355,6 +358,12 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def overall_game_info(self):
+        text = ""
+        for item in self.game.headers:
+            text += '\n{}: {}\n'.format(item, self.game.headers[item])
+        sg.popup(text)
 
     def add_to_current_db(self):
         if not self.pgn == temp_file_name:
