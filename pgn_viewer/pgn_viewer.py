@@ -20,6 +20,7 @@ from Tools.add_variation import get_and_add_variation, uci_string2_moves
 class PGNViewer:
     """pgn viewer class"""
     def __init__(self, gui, window):
+        self.move_alternatives = []
         self.mode = "viewer"
         self.move_description = ""
         self.restart = False
@@ -128,6 +129,12 @@ class PGNViewer:
             if button == 'Classify Opening':
                 self.classify_opening()
                 self.redraw_all()
+
+
+            for i in range(1, 5):
+                possible_button = "variation" + str(i)
+                if possible_button == button:
+                    self.set_new_position(0, [self.move_alternatives[i-1]])
 
             if button == 'Classify db':
                 self.classify_opening_db()
@@ -961,8 +968,27 @@ class PGNViewer:
         window.Update(
             next_move.comment, append=True, disabled=True)
 
-        alternatives, move_string = self.pgn_display.get_nice_move_string(next_move)
-        self.move_description = move_string + alternatives
+        move_string = self.pgn_display.get_move_string(next_move)
+        alternative_moves = [a for a in next_move.variations]
+        # if len(alternative_moves) > 0:
+        #     alternative_moves.pop(0)
+        self.move_alternatives = []
+        for i in range(1,5):
+            button = self.window.find_element("variation" + str(i))
+            button.Update(visible=False)
+        i = 1
+        if len(alternative_moves) > 1:
+            for alternative in alternative_moves:
+                self.move_alternatives.append(alternative)
+                button = self.window.find_element("variation"+str(i))
+                s = self.pgn_display.get_move_string(alternative).split(" ")[1]
+                button.Update(
+                    s, visible = True)
+                i += 1
+        visible_alternatives = not i == 1
+        self.window.find_element("variation_frame").Update(visible=visible_alternatives)
+
+        self.move_description = move_string + ("->" if visible_alternatives else "")
         self.window.find_element('_currentmove_').Update(self.move_description)
         # get formatted partial moves: rest of moves from current-move on
         part_text = self.pgn_display.beautify_lines(str(next_move))

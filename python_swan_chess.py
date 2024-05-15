@@ -2956,6 +2956,10 @@ class EasyChessGui:
         return board_controls
 
     def get_png_layout(self):
+        variation_buttons = []
+        for i in range(1,5):
+            button = sg.Button('....', size=(5, 1), key="variation"+str(i))
+            variation_buttons.append(button)
         board_controls = [
             [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_')],
             [sg.Text('White', size=(7, 1), font=self.text_font),
@@ -2966,7 +2970,8 @@ class EasyChessGui:
              sg.InputText('Computer', font=self.text_font, key='_Black_',
                           size=(24, 1)),
              sg.Text('', font=self.text_font, key='_currentmove_',
-                     size=(38, 1), relief='sunken')
+                     size=(11, 1), relief='sunken'),
+            sg.Frame('', [variation_buttons], key="variation_frame", visible = False)
              ],
             [sg.Text('', font=self.text_font, key='overall_game_info', relief='sunken',
                      size=(71, 1))],
