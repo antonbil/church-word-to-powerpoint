@@ -93,6 +93,13 @@ class PgnDisplay:
             else:
                 return line
 
+    def is_comment_line(self, line):
+        for gone in ["!", "!?", "??", "!!", "?", "?!", "+", "#"]:
+            line = line.replace(gone, "")
+        # get all words
+        words = [l for l in line.split(" ") if sum(c.isdigit() for c in line) == 0]
+        return len(words) > 0
+
     def get_line_number(self, next_move, pgn_lines, board):
         part_text = self.beautify_lines(str(next_move))
         endswith_enter = len(next_move.comment) > 0
@@ -117,6 +124,7 @@ class PgnDisplay:
                             and not len(parent.variations) > 1:
                         # add the white-move after this black-move, to make it more specific
                         start_move += " " + " ".join(str(next_move.variations[0]).split(" ")[:2])
+                    # print("start-move:", start_move)
 
             black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
@@ -145,7 +153,7 @@ class PgnDisplay:
             for line in pgn_lines:
                 if (line.startswith(" ") and next_move.is_mainline()  # annotation-line and mainline-move
                         # not annotation-line and annotation-move
-                        or not line.startswith(" ") and not next_move.is_mainline()):
+                        or not line.startswith(" ") and not next_move.is_mainline()) or self.is_comment_line(line):
                     i = i + 1
                     continue
                 line_plus_1 = line
