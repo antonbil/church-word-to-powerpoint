@@ -95,28 +95,36 @@ class PgnDisplay:
 
     def get_line_number(self, next_move, pgn_lines, board):
         part_text = self.beautify_lines(str(next_move))
+        endswith_enter = len(next_move.comment) > 0
         line_number = -1
         # see if line number can be retrieved by comparing the first part of the partial moves
         part_found = False
         if len(part_text) > 0:
             part_top_line = part_text[0]
             parts = part_top_line.split(" ")
-            is_black = False
-            black_search = "rubbish"
             white_move = "rubbish"
+            new_variation = False
+            start_move = "rubbish"
+            parent = next_move.parent
+            if parent is not None:
+                new_variation = not str(parent.variations[0].move) == str(next_move.move) or len(parent.comment) > 0 \
+                                or str(parent.variations[0].move) == str(next_move.move) and len(parent.variations) > 1
+                if new_variation:
+                    # move is start-move of new variation/line
+                    start_move = parts[0] + " " + parts[1]
+
             black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
-            if len(parts) > 1 and parts[0].endswith("..."):
-                # black_search is(example): 4... Na5
-                black_search = parts[0] + " " + parts[1]
+            is_black = next_move.turn() == chess.WHITE
+            if is_black and not new_variation:
                 # black_move_with_white_before has the black move preceded by the white move
                 # it is a black move, so there has to be a parent. No checking for parent-existence is needed
-                white_before_move = " ".join(str(next_move.parent).split(" ")[:2])
+                white_before_move = " ".join(str(parent).split(" ")[:2])
                 # black_move_with_white_before contains move-number and algebraic notation for white and black
                 black_move_with_white_before = white_before_move + " " + parts[1]
-                # print("black_search",black_search2)
+                # print("black_move_with_white_before",black_move_with_white_before)
                 parts = parts[1:]
-                is_black = True
+
             parts_end = len(parts) == 1
             if len(parts) > 1:
                 # white_move contains move-number and algebraic notation
@@ -146,13 +154,19 @@ class PgnDisplay:
                     if st_sp_1 == st_sp_2:
                         line_plus_1 = line.strip() + " " + second_line.strip()
 
-                if (line.startswith(black_search) or parts_end and line.endswith(line_to_search) or
+                if (#line.strip().startswith(black_search) or
+                        # start move of new variation
+                        new_variation and line.strip().startswith(start_move)
+                        or parts_end and line.endswith(line_to_search) or
                         not parts_end and line_to_search in line_plus_1):
                     part_found = True
                     number = i
                     numbers.append(number)
                     times = times + 1
-                    if line.startswith(black_search) or black_move_with_white_before in line or white_move in line:
+                    if (#line.startswith(black_search) or
+                            not endswith_enter and black_move_with_white_before in line
+                            or endswith_enter and line.endswith(black_move_with_white_before) or
+                            not endswith_enter and white_move in line or endswith_enter and line.endswith(white_move)):
                         numbers=[i]
                         break
                 i = i + 1
