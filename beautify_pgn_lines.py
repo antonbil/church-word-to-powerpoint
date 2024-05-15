@@ -98,7 +98,7 @@ class PgnDisplay:
             line = line.replace(gone, "")
         # get all words
         words = [l for l in line.split(" ") if sum(c.isdigit() for c in line) == 0]
-        return len(words) > 0
+        return len(words) > 0 or HARD_SPACE in line
 
     def get_line_number(self, next_move, pgn_lines, board):
         part_text = self.beautify_lines(str(next_move))
