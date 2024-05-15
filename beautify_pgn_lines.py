@@ -105,6 +105,7 @@ class PgnDisplay:
             white_move = "rubbish"
             new_variation = False
             start_move = "rubbish"
+            is_black = next_move.turn() == chess.WHITE
             parent = next_move.parent
             if parent is not None:
                 new_variation = not str(parent.variations[0].move) == str(next_move.move) or len(parent.comment) > 0 \
@@ -112,10 +113,13 @@ class PgnDisplay:
                 if new_variation:
                     # move is start-move of new variation/line
                     start_move = parts[0] + " " + parts[1]
+                    if is_black and len(next_move.variations) == 1 and len(next_move.comment) == 0 \
+                            and not len(parent.variations) > 1:
+                        # add the white-move after this black-move, to make it more specific
+                        start_move += " " + " ".join(str(next_move.variations[0]).split(" ")[:2])
 
             black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
-            is_black = next_move.turn() == chess.WHITE
             if is_black and not new_variation:
                 # black_move_with_white_before has the black move preceded by the white move
                 # it is a black move, so there has to be a parent. No checking for parent-existence is needed
@@ -135,7 +139,6 @@ class PgnDisplay:
                 line_to_search = " " + line_to_search
             #print("search line:"+line_to_search+":", is_black, parts_end)
             # loop through the pgn_lines to see if there is exactly one line that contains it
-            number = -1
             numbers=[]
             i = 0
             times = 0
@@ -176,7 +179,7 @@ class PgnDisplay:
                 line_number = numbers[0]
             else:
                 part_found = False
-        return (line_number, part_found)
+        return line_number, part_found
 
     def start_spaces(self, line):
         if len(line.strip()) == 0:
