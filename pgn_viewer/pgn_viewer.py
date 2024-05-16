@@ -91,14 +91,16 @@ class PGNViewer:
     def execute_pgn(self):
 
         self.display_move()
-        buttons = [self.gui.toolbar.new_button("<--", auto_size_button=True),
-                   self.gui.toolbar.new_button("-->", auto_size_button=True),
+        buttons = [self.gui.toolbar.new_button("<--|", auto_size_button=True),
+                   self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
                    self.gui.toolbar.new_button("Add", auto_size_button=True),
                    self.gui.toolbar.new_button("Line", auto_size_button=True),
                    sg.VerticalSeparator(),
-                   self.gui.toolbar.new_button("<--|", auto_size_button=True),
-                   self.gui.toolbar.new_button("|-->", auto_size_button=True)]
+
+                   self.gui.toolbar.new_button("<--", auto_size_button=True),
+                   self.gui.toolbar.new_button("-->", auto_size_button=True),
+                   ]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
         while True:
