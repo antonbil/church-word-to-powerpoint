@@ -906,6 +906,7 @@ class PGNViewer:
             (site + game.headers['Date'].replace('?', "").replace('..', "")
              .replace('//', "")).strip(),
             game.headers['Result'])
+        info = (info[:70]) if len(info) > 70 else info
         self.window.find_element('overall_game_info').Update(info)
         move_list_gui_element = self.window.find_element('_movelist_')
         move_list_gui_element.Update(self.pgn_lines)

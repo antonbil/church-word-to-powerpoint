@@ -45,6 +45,8 @@ def get_cleaned_string_pgn(data):
 
     for term in ["c_effect", "evp", "clk", "c_highlight", "cal", "c_arrow", "emt", "timestamp"]:
         res = replace_remove(res, '[%' + term, ']')
+    # not working yet, so coment out
+    # res = replace_remove_number_between_brackets(res)
 
     res = (res.replace('{  ', '{').replace('  ', ' ').replace('\n\n', '\n')
            .replace('\n\n', '\n')
@@ -87,6 +89,29 @@ def replace_remove(res, fp, sp):
         line1 = second
         lines.append(line1)
     res = " ".join(lines)
+    return res
+
+def replace_remove_number_between_brackets(res):
+    splits = res.split("{")
+    lines = [splits.pop(0)]
+    for line in splits:
+        line1 = line.split("}")
+        first = line1.pop(0)
+        if len(line1) > 1:
+            second = "}".join(line1)
+        elif len(line1) == 1:
+            second = line1[0]
+        else:
+            second = ""
+        first = first.strip()
+        try:
+            my_int = int(first)
+            # do not add; it is only a number between brackets
+        except:
+            lines.append(first+"}")
+        line1 = second
+        lines.append(line1)
+    res = "{".join(lines)
     return res
 
 
