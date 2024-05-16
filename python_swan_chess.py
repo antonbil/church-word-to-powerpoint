@@ -749,7 +749,6 @@ class EasyChessGui:
         self.move_state = None
         self.returning_from_playing = False
         self.game = None
-        self.toolbar = ToolBar()
         self.theme = theme
         self.engine = engine
         self.user_config_file = user_config_file
@@ -824,6 +823,7 @@ class EasyChessGui:
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
+        self.toolbar = ToolBar(self.text_font)
         self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer",
                                                                              "pgneditor"] else self.get_neutral_layout()
         keyboard_visible_at_start = my_preferences["keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
@@ -2964,7 +2964,7 @@ class EasyChessGui:
             [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_')],
             [sg.Text('White', size=(7, 1), font=self.text_font),
              sg.InputText('Human', font=self.text_font, key='_White_',
-                          size=(24, 1)), sg.Frame('', [[]], key="button_frame")
+                          size=(24, 1)),
              ],
             [sg.Text('Black', size=(7, 1), font=self.text_font),
              sg.InputText('Computer', font=self.text_font, key='_Black_',
@@ -2979,11 +2979,10 @@ class EasyChessGui:
             [sg.Listbox('', size=(70, 18), expand_y=True, enable_events=True,
                         font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width,
                         sbar_arrow_width=self.scrollbar_width)],
+            [sg.Frame('', [[]], key="button_frame")],
+            [sg.Frame('',[[sg.Text('Info', size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
+                          font=self.text_font, key='comment_k')]], key="info_frame", visible = False)],
 
-            [sg.Text('Comment', size=(7, 1), font=self.text_font)],
-            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(70, 3),
-                          font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
-                          sbar_arrow_width=self.scrollbar_width)],
         ]
         return board_controls
 

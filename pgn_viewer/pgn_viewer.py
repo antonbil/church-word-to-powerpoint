@@ -223,9 +223,11 @@ class PGNViewer:
                     self.select_game()
 
             if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Line':
+                self.window.find_element('info_frame').Update(visible=True)
                 get_and_add_variation(self.current_move, self.move_number, self.board, self.callback,
                                       self.window.find_element('comment_k'), self.gui)
                 self.redraw_all()
+                self.window.find_element('info_frame').Update(visible=False)
 
             if button == 'Comment':
                 #<Cmd+Return> = return in comment
@@ -362,7 +364,7 @@ class PGNViewer:
     def overall_game_info(self):
         text = ""
         for item in self.game.headers:
-            text += '\n{}: {}\n'.format(item, self.game.headers[item])
+            text += '{}: {}\n'.format(item, self.game.headers[item])
         sg.popup(text)
 
     def add_to_current_db(self):
@@ -790,7 +792,7 @@ class PGNViewer:
         window = self.window.find_element('comment_k')
         window.Update('')
         window.Update(
-            advice, append=True, disabled=True)
+            advice)
         self.window.Read(timeout=10)
 
     def analyse_move(self):
@@ -972,10 +974,10 @@ class PGNViewer:
         return move_number
 
     def display_part_pgn(self, move_number, next_move):
-        window = self.window.find_element('comment_k')
-        window.Update('')
-        window.Update(
-            next_move.comment, append=True, disabled=True)
+        # window = self.window.find_element('comment_k')
+        # window.Update('')
+        # window.Update(
+        #     next_move.comment, append=True, disabled=True)
 
         move_string = self.pgn_display.get_move_string(next_move)
         alternative_moves = [a for a in next_move.variations][:MAX_ALTERNATIVES]

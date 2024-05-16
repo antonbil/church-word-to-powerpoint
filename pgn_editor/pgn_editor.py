@@ -156,7 +156,7 @@ class PgnEditor:
                     self.start_empty_game()
                     self.update_pgn_display()
                     self.display_move_and_line_number()
-                    self.window.find_element('comment_k').Update('')
+                    # self.window.find_element('comment_k').Update('')
 
             if button == 'PGN-Viewer':
                 name_file = temp_file_name
@@ -558,7 +558,7 @@ class PgnEditor:
         window = self.window.find_element('comment_k')
         window.Update('')
         window.Update(
-            advice, append=True, disabled=True)
+            advice)
         self.window.Read(timeout=10)
 
     def analyse_move(self):
@@ -571,7 +571,9 @@ class PgnEditor:
         gui = self.gui
         comment_element = self.window.find_element('comment_k')
         callback = self.callback
+        self.window.find_element('info_frame').Update(visible=True)
         get_and_add_variation(current_move, ply_number, board, callback, comment_element, gui)
+        self.window.find_element('info_frame').Update(visible=False)
 
     def execute_move(self, fr_col, fr_row, to_col, to_row):
         legal_move, user_move = self.get_algebraic_move_from_coordinates(fr_col, fr_row, to_col, to_row)
@@ -688,4 +690,4 @@ class PgnEditor:
         if len(self.moves) > 0:
             alternatives, move_string = self.pgn_display.get_nice_move_string(self.moves[-1])
             self.window.find_element('_currentmove_').Update(move_string + alternatives)
-            self.window.find_element('comment_k').Update(self.moves[-1].comment)
+            # self.window.find_element('comment_k').Update(self.moves[-1].comment)

@@ -2,9 +2,10 @@ import PySimpleGUI as sg
 
 class ToolBar:
     """header dialog class"""
-    def __init__(self):
+    def __init__(self, text_font):
         self.button_nr = 0
         self.button_ids = {}
+        self.text_font = text_font
 
     def get_button_id(self, button):
         if button in self.button_ids:
@@ -24,4 +25,4 @@ class ToolBar:
         self.button_nr = self.button_nr + 1
         id = "_id{}_".format(self.button_nr)
         self.button_ids[id] = title
-        return sg.Button(title, key=id, auto_size_button=auto_size_button)
+        return sg.Button(title, key=id, auto_size_button=auto_size_button, font=self.text_font)
