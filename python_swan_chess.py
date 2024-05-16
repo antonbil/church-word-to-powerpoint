@@ -2979,7 +2979,7 @@ class EasyChessGui:
              sg.Text('', font=self.text_font, key='_currentmove_',
                      size=(13, 1), relief='sunken'),
             sg.Frame('', [variation_buttons], key="variation_frame", visible = False)],
-            [sg.Frame('', [[]], key="button_frame")],
+            [sg.Push(),sg.Frame('', [[]], key="button_frame")],
             [sg.Frame('',[[sg.Text('Info', size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
                           font=self.text_font, key='comment_k')]], key="info_frame", visible = False)],
 
