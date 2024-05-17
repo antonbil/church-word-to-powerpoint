@@ -91,17 +91,7 @@ class PGNViewer:
     def execute_pgn(self):
 
         self.display_move()
-        buttons = [self.gui.toolbar.new_button("<--|", auto_size_button=True),
-                   self.gui.toolbar.new_button("|-->", auto_size_button=True),
-                   sg.VerticalSeparator(),
-                   self.gui.toolbar.new_button("Add", auto_size_button=True),
-                   self.gui.toolbar.new_button("Line", auto_size_button=True),
-                   sg.VerticalSeparator(),
-
-                   self.gui.toolbar.new_button("<--", auto_size_button=True),
-                   self.gui.toolbar.new_button("-->", auto_size_button=True),
-                   ]
-        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
+        self.display_button_bar()
 
         while True:
             button, value = self.window.Read(timeout=50)
@@ -177,6 +167,7 @@ class PGNViewer:
                 previous_move_number = self.move_number
                 data_entry = PgnEditor(self.gui, self.window, name_file,from_pgn_viewer=True, pgn_viewer_move=previous_move_number)
                 #return from entry
+                self.display_button_bar()
                 self.game = data_entry.game
 
                 string = str(self.game.game())
@@ -364,6 +355,19 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def display_button_bar(self):
+        buttons = [self.gui.toolbar.new_button("<--|", auto_size_button=True),
+                   self.gui.toolbar.new_button("|-->", auto_size_button=True),
+                   sg.VerticalSeparator(),
+                   self.gui.toolbar.new_button("Add", auto_size_button=True),
+                   self.gui.toolbar.new_button("Line", auto_size_button=True),
+                   sg.VerticalSeparator(),
+
+                   self.gui.toolbar.new_button("<--", auto_size_button=True),
+                   self.gui.toolbar.new_button("-->", auto_size_button=True),
+                   ]
+        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def overall_game_info(self):
         text = ""

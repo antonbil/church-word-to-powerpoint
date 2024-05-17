@@ -58,7 +58,7 @@ def get_and_add_variation(current_move, ply_number, board, callback, comment_ele
 
         comment_element.Update('')
         comment_element.Update(
-            "{} {}".format(" ".join(res_moves), score), append=True, disabled=True)
+            "{} {}".format(" ".join(res_moves), score))
 
 def check_for_variation_replace(current_move, first_move):
     """
