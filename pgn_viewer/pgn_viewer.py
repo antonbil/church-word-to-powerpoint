@@ -16,9 +16,11 @@ from Tools.clean_pgn import get_cleaned_string_pgn
 import json
 from Tools.add_variation import get_and_add_variation, uci_string2_moves
 
+
 # free pgn's at: https://www.pgnmentor.com/files.html#world
 class PGNViewer:
     """pgn viewer class"""
+
     def __init__(self, gui, window):
         self.move_alternatives = []
         self.mode = "viewer"
@@ -41,7 +43,7 @@ class PGNViewer:
         self.my_game = ""
         self.game_descriptions = []
         self.move_number = 0
-        self.move_squares = [0,0,0,0]
+        self.move_squares = [0, 0, 0, 0]
         self.current_move = None
         self.pgn_display = PgnDisplay()
         try:
@@ -81,8 +83,8 @@ class PGNViewer:
             black_ = game.headers['Black'] if 'Black' in game.headers else ""
             max_title = 50
             filler_width = 0
-            if len(white_)+len(black_) + 1 <= max_title:
-                filler_width = max_title - (len(white_)+len(black_) + 1)
+            if len(white_) + len(black_) + 1 <= max_title:
+                filler_width = max_title - (len(white_) + len(black_) + 1)
             filler = " " * filler_width
             return "{}-{}{} {} ({}){}".format(white_, black_, filler, date, result_, opening)
         except:
@@ -127,11 +129,10 @@ class PGNViewer:
                 self.classify_opening()
                 self.redraw_all()
 
-
             for i in range(1, MAX_ALTERNATIVES):
                 possible_button = "variation" + str(i)
                 if possible_button == button:
-                    self.set_new_position(0, [self.move_alternatives[i-1]])
+                    self.set_new_position(0, [self.move_alternatives[i - 1]])
 
             if button == 'Classify db':
                 self.classify_opening_db()
@@ -165,19 +166,20 @@ class PGNViewer:
                         f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_entry)
                 previous_move_number = self.move_number
-                data_entry = PgnEditor(self.gui, self.window, name_file,from_pgn_viewer=True, pgn_viewer_move=previous_move_number)
-                #return from entry
+                data_entry = PgnEditor(self.gui, self.window, name_file, from_pgn_viewer=True,
+                                       pgn_viewer_move=previous_move_number)
+                # return from entry
                 self.display_button_bar()
                 self.game = data_entry.game
 
                 string = str(self.game.game())
-                self.set_new_position(min(previous_move_number, len(self.get_all_moves(self.game))-1))
+                self.set_new_position(min(previous_move_number, len(self.get_all_moves(self.game)) - 1))
                 lines = self.pgn_display.beautify_lines(string)
                 self.pgn_lines = lines
                 self.display_part_pgn(self.move_number, self.current_move)
 
-                #self.is_win_closed = data_entry.is_win_closed
-                #break
+                # self.is_win_closed = data_entry.is_win_closed
+                # break
 
             if button == "Select":
                 if self.check_edit_single_pgn():
@@ -213,9 +215,9 @@ class PGNViewer:
                 if index < len(self.game_descriptions) - 1:
                     self.my_game = self.game_descriptions[index + 1]
                     self.select_game()
-                elif index > 0:
-                    self.my_game = self.game_descriptions[index - 1]
-                    self.select_game()
+                elif index > 0 and index - 1 < len(self.game_descriptions) and index - 1 >= 0:
+                        self.my_game = self.game_descriptions[index - 1]
+                        self.select_game()
 
             if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Line':
                 self.window.find_element('info_frame').Update(visible=True)
@@ -225,7 +227,7 @@ class PGNViewer:
                 self.window.find_element('info_frame').Update(visible=False)
 
             if button == 'Comment':
-                #<Cmd+Return> = return in comment
+                # <Cmd+Return> = return in comment
                 current_move = self.current_move
                 ok = self.gui.input_dialog.get_comment(current_move, self.gui)
                 if ok:
@@ -252,8 +254,8 @@ class PGNViewer:
                     self.current_line = index
                     self.go_up = True
                     positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
-                    #print("positions:{}".format(len(positions)))
-                    if new_pos >=1 or len(positions) > 0:
+                    # print("positions:{}".format(len(positions)))
+                    if new_pos >= 1 or len(positions) > 0:
                         self.set_new_position(new_pos, positions)
 
             if button == 'Next Game' or self.gui.toolbar.get_button_id(button) == '|-->':
@@ -280,7 +282,7 @@ class PGNViewer:
                     read_file = self.gui.input_dialog.filename
                     # ask for confirmation
                     file_name = read_file.split('/')[-1]
-                    if sg.popup_yes_no('Remove db {}?'.format(file_name) , title="Remove db") == 'Yes':
+                    if sg.popup_yes_no('Remove db {}?'.format(file_name), title="Remove db") == 'Yes':
                         os.remove(read_file)
 
             if button == "Analyse game":
@@ -314,7 +316,7 @@ class PGNViewer:
                 fr_row, fr_col = move_from
                 col = chr(fr_col + ord('a'))
                 row = str(7 - fr_row + 1)
-                coord = col+row
+                coord = col + row
                 if self.mode == "entry":
                     self.mode = "viewer"
                     self.set_mode_display()
@@ -324,18 +326,18 @@ class PGNViewer:
                 # first check if a square representing a variation is pressed
                 my_variation = False
                 for variation in self.current_move.variations:
-                    #print("str(variation.move):",str(variation.move))
+                    # print("str(variation.move):",str(variation.move))
                     move = str(variation.move)
 
-                    if move.startswith(coord) or coord == move[2]+move[3]:
+                    if move.startswith(coord) or coord == move[2] + move[3]:
                         self.moves.append(variation)
                         self.current_move = variation
                         self.move_number = self.move_number + 1
                         my_variation = True
                     if my_variation:
                         self.display_part_pgn(self.move_number, self.current_move)
-                        #print("self.current_move.fen", variation.move.fen())
-                        #print("self.current_move", self.current_move)
+                        # print("self.current_move.fen", variation.move.fen())
+                        # print("self.current_move", self.current_move)
                         self.display_move()
 
                 if not my_variation:
@@ -436,8 +438,8 @@ class PGNViewer:
         """
 
         layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
-         sg.InputText('', font=self.gui.text_font, key='_Player_',
-                      size=(50, 1))],
+                   sg.InputText('', font=self.gui.text_font, key='_Player_',
+                                size=(50, 1))],
                   [sg.Text('Opening', size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Opening_',
                                 size=(50, 1))],
@@ -448,9 +450,10 @@ class PGNViewer:
                    sg.InputText('', font=self.gui.text_font, key='_Date_',
                                 size=(50, 1))],
                   [sg.Button("Search", font=self.gui.text_font),
-                   sg.Button("Cancel", font=self.gui.text_font),sg.Push(), self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
+                   sg.Button("Cancel", font=self.gui.text_font), sg.Push(),
+                   self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
                   self.gui.input_dialog.get_keyboard_keys(sg, self.gui)
-        ]
+                  ]
         window = sg.Window("Search db", layout, font=self.gui.text_font,  # size=(800, 450),
                            finalize=True, modal=True, keep_on_top=True)
         while True:
@@ -503,7 +506,7 @@ class PGNViewer:
             file_name = read_file.split('/')[-1]
             new_file = file_name + ".bak"
             new_file = os.path.join(self.gui.default_png_dir, new_file)
-            #os.rename(read_file, new_file)
+            # os.rename(read_file, new_file)
             try:
                 os.remove(new_file)
             except:
@@ -528,11 +531,28 @@ class PGNViewer:
             sg.popup("DB with name {} openings are classified".format(file_name))
 
     def do_action_with_pgn_db(self, action):
+        # get index of current game inside current db
+        current_description = self.get_description_pgn(self.game)
+        pgn = open(self.pgn)
+        # Reading the games from the db
+        game1 = chess.pgn.read_game(pgn)
+        index = -1
+        i = 0
+        while game1:
+            description = self.get_description_pgn(game1)
+            if description == current_description:
+                index = i
+            game1 = chess.pgn.read_game(pgn)
+            i += 1
+
+        if i == -1:
+            sg.popup("The description: {} is not in current database".format(current_description))
+            return
         old_file = self.pgn
         file_name = self.pgn.split('/')[-1]
         new_file = file_name + ".bak"
         new_file = os.path.join(self.gui.default_png_dir, new_file)
-        #os.rename(old_file, new_file)
+        # os.rename(old_file, new_file)
         try:
             os.remove(new_file)
         except:
@@ -544,27 +564,19 @@ class PGNViewer:
 
         pgn = open(new_file)
         game1 = chess.pgn.read_game(pgn)
-        if self.my_game not in self.game_descriptions:
-            sg.popup("The description: {} is not in current games-list".format(self.my_game))
-            return
-        index = self.game_descriptions.index(self.my_game)
+        #index = self.game_descriptions.index(self.my_game)
         games_index = 0
         while game1:
-            # if index == games_index:
-            #     game1 = self.game
-            # with open(old_file, 'a') as f:
-            #         f.write('{}\n\n'.format(game1))
             if action == "remove":
                 if not index == games_index:
                     with open(old_file, 'a') as f:
                         f.write('{}\n\n'.format(game1))
-            elif action=="replace":
+            elif action == "replace":
                 if index == games_index:
                     game1 = self.game
                 with open(old_file, 'a') as f:
                     f.write('{}\n\n'.format(game1))
 
-            # action(old_file, index, games_index, game1)
             game1 = chess.pgn.read_game(pgn)
             games_index = games_index + 1
         return index, file_name
@@ -597,22 +609,22 @@ class PGNViewer:
             game1 = chess.pgn.read_game(pgn)
         column_players = []
         for index, player in enumerate(players):
-            column_players.append([sg.Checkbox(player, key='player'+str(index), enable_events=True)])
-        layout = [[[sg.Column([[sg.Checkbox("Skip draws", default = True, key='skip_draws',
+            column_players.append([sg.Checkbox(player, key='player' + str(index), enable_events=True)])
+        layout = [[[sg.Column([[sg.Checkbox("Skip draws", default=True, key='skip_draws',
                                             enable_events=True)]], size=(170, 300)),
                     sg.Column(column_players, size=(300, 400), vertical_scroll_only=True, scrollable=True)]],
-                    [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font),
-                     sg.Button('Select all', font=self.gui.text_font),
-                     sg.Button('Select none', font=self.gui.text_font)
-                     ]
-                ]
+                  [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font),
+                   sg.Button('Select all', font=self.gui.text_font),
+                   sg.Button('Select none', font=self.gui.text_font)
+                   ]
+                  ]
 
-        form = sg.Window('Select players',layout)
+        form = sg.Window('Select players', layout)
         selected_players = []
         while True:
             event, values = form.read()
             for index, player in enumerate(players):
-                if 'player'+str(index) == event:
+                if 'player' + str(index) == event:
                     print("player selected:", player)
                     if player in selected_players:
                         selected_players.remove(player)
@@ -644,9 +656,9 @@ class PGNViewer:
                     player_white = game1.headers['White']
                     player_black = game1.headers['Black']
                     result = game1.headers['Result']
-                    if (player_white in selected_players or player_black in selected_players)\
+                    if (player_white in selected_players or player_black in selected_players) \
                             and (not skip_draws or result in ["1-0", "0-1"]):
-                        #print("player white", player_white)
+                        # print("player white", player_white)
                         nr_copied_games = nr_copied_games + 1
                         with open(temp_file_name2, 'a') as f:
                             f.write('{}\n\n'.format(game1))
@@ -654,8 +666,8 @@ class PGNViewer:
                     game1 = chess.pgn.read_game(pgn)
                 if nr_copied_games > 0:
                     if sg.popup_yes_no('{} Selected games stored in {}\nOpen this file?'
-                                           .format(nr_copied_games, temp_file_name2.split("/")[-1]) +
-                                   '', "Open created file?") == 'Yes':
+                                               .format(nr_copied_games, temp_file_name2.split("/")[-1]) +
+                                       '', "Open created file?") == 'Yes':
                         self.open_pgn_file(temp_file_name2)
                 else:
                     sg.popup("No games selected")
@@ -717,7 +729,8 @@ class PGNViewer:
     def analyse_db(self):
         number_games = len(self.game_descriptions)
         layout = [
-            [sg.Text("Analyse pgn's in file: {}".format(self.pgn.split("/")[-1]), font=self.gui.text_font, size=(40, 1))],
+            [sg.Text("Analyse pgn's in file: {}".format(self.pgn.split("/")[-1]), font=self.gui.text_font,
+                     size=(40, 1))],
             [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(70, 8),
                           font=self.gui.text_font, key='result_list', disabled=True)]
         ]
@@ -756,13 +769,13 @@ class PGNViewer:
             'White'].replace(" ", "_") \
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
         analysed_game = annotator.start_analise(pgn_file,
-                                self.gui.engine, name_file, store_in_db, self.gui)
+                                                self.gui.engine, name_file, store_in_db, self.gui)
 
     def analyse_game_func(self):
         value_white = self.game.headers['White']
         value_black = self.game.headers['Black']
         analysed_game = self.gui.analyse_game(value_white, value_black, self.game, save_file=False)
-        #if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
+        # if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
         self.merge_into_current_game(analysed_game)
         #
         # else:
@@ -826,7 +839,7 @@ class PGNViewer:
         if previous:
             res_moves.append(previous)
         sg.popup("{} ({})".format(" ".join(res_moves), score), title="Advice")
-        #print("add:", pv_original)
+        # print("add:", pv_original)
 
         # window = self.window.find_element('comment_k')
         # window.Update('')
@@ -853,7 +866,7 @@ class PGNViewer:
     def check_edit_single_pgn(self):
         file_name = self.gui.preferences.preferences["pgn_file"]
         if file_name == temp_file_name:
-            if sg.popup_yes_no('Currently not available because you are editing a pgn'+
+            if sg.popup_yes_no('Currently not available because you are editing a pgn' +
                                '\nReread pgn?\n(changes on this pgn will be lost!!)') == 'Yes':
                 self.gui.preferences.preferences = self.gui.preferences.load_preferences()
                 self.load_start_pgn()
@@ -925,10 +938,10 @@ class PGNViewer:
         self.window.find_element('_Black_').Update(game.headers['Black'])
         self.window.find_element('_White_').Update(game.headers['White'])
 
-    def display_move_list(self, moves, number = 5, move_str = "Nothing"):
+    def display_move_list(self, moves, number=5, move_str="Nothing"):
         move_list = moves.split("\n")
         move_list_gui_element = self.window.find_element('_movelist_')
-        if len(move_list) < number+2:
+        if len(move_list) < number + 2:
             move_list_gui_element.Update(
                 move_list)
             self.pgn_display.color_lines(move_list, move_list_gui_element)
@@ -951,7 +964,7 @@ class PGNViewer:
 
     def get_all_moves(self, game):
         current_move = game.game()
-        moves=[current_move]
+        moves = [current_move]
         while len(current_move.variations) > 0:
             current_move = current_move.variations[0]
             moves.append(current_move)
@@ -962,7 +975,7 @@ class PGNViewer:
         lines = self.pgn_display.beautify_lines(string)
         self.pgn_lines = lines
         string = "\n".join(lines)
-        #print(string)
+        # print(string)
         moves = self.get_all_moves(game)
         previous = ""
         self.positions = []
@@ -993,17 +1006,17 @@ class PGNViewer:
         # if len(alternative_moves) > 0:
         #     alternative_moves.pop(0)
         self.move_alternatives = []
-        for i in range(1,MAX_ALTERNATIVES):
+        for i in range(1, MAX_ALTERNATIVES):
             button = self.window.find_element("variation" + str(i))
             button.Update(visible=False)
         i = 1
         if len(alternative_moves) > 1:
             for alternative in alternative_moves:
                 self.move_alternatives.append(alternative)
-                button = self.window.find_element("variation"+str(i))
+                button = self.window.find_element("variation" + str(i))
                 s = self.pgn_display.get_move_string(alternative).split(" ")[1]
                 button.Update(
-                    s, visible = True)
+                    s, visible=True)
                 i += 1
         visible_alternatives = not i == 1
         self.window.find_element("variation_frame").Update(visible=visible_alternatives)
@@ -1025,11 +1038,11 @@ class PGNViewer:
             self.current_line = -1
 
         if line_number > -1 and len(self.moves) > 0:
-            str1 = "\n".join(self.pgn_lines)+"\n"
+            str1 = "\n".join(self.pgn_lines) + "\n"
             # self.pgn_lines
             part = str(next_move).split(" ")[1]
             self.display_move_list(str1, line_number, part)
-            #print("move nmber:", move_number, part)
+            # print("move nmber:", move_number, part)
             # print("variation", move_variation.move)
         if len(self.moves) > 0:
             move_str = str(next_move.move)
@@ -1040,7 +1053,7 @@ class PGNViewer:
                 fr_row = 8 - int(move_str[1])
             except:
                 no_row = True
-            self.move_squares=[]
+            self.move_squares = []
             self.move_squares.append(fr_col)
             self.move_squares.append(fr_row)
 
@@ -1052,7 +1065,7 @@ class PGNViewer:
             self.move_squares.append(fr_col)
             self.move_squares.append(fr_row)
             if no_row:
-                self.move_squares = [0,0,0,0]
+                self.move_squares = [0, 0, 0, 0]
         self.previous_move = move_string
 
     def display_move(self):
@@ -1067,7 +1080,7 @@ class PGNViewer:
             # It copies the move played by each
             # player on the virtual board
             try:
-                #print("move", move)
+                # print("move", move)
                 board.push(move)
                 last_variation = main_move.variations
             except:
@@ -1084,7 +1097,7 @@ class PGNViewer:
                     color = "#0000ff"
                 else:
                     color = "#00ffff"
-                #print("variation", move_variation.move)
+                # print("variation", move_variation.move)
                 move_str = str(move_variation.move)
                 fr_col = ord(move_str[0]) - ord('a')
                 fr_row = 8 - int(move_str[1])
@@ -1095,7 +1108,7 @@ class PGNViewer:
                 self.gui.change_square_color(self.window, fr_row, fr_col)
                 self.gui.change_square_color_border(self.window, fr_row, fr_col, color)
                 self.gui.change_square_color_border(self.window, to_row, to_col, color)
-        if self.move_squares[1]+ self.move_squares[0] + self.move_squares[2]+ self.move_squares[3] > 0:
+        if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:
             self.gui.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
             self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
             # print("from coords:", self.gui.get_square_color_pos(self.window, self.move_squares[1], self.move_squares[0]))
