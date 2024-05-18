@@ -215,9 +215,9 @@ class PGNViewer:
                 if index < len(self.game_descriptions) - 1:
                     self.my_game = self.game_descriptions[index + 1]
                     self.select_game()
-                elif index > 0 and index - 1 < len(self.game_descriptions) and index - 1 >= 0:
-                        self.my_game = self.game_descriptions[index - 1]
-                        self.select_game()
+                elif index > 0 and index - 1 < len(self.game_descriptions):
+                    self.my_game = self.game_descriptions[index - 1]
+                    self.select_game()
 
             if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Line':
                 self.window.find_element('info_frame').Update(visible=True)
