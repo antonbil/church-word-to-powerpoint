@@ -60,6 +60,7 @@ Do not forget to Restore the original order of the variations ("Restore alternat
 (B4) Add a Manual variation
 - add the specific move on the board.
 - the sub-mode is automatically changed to PGN Move entry mode so you can add the rest of the variation-moves manually
+
 (C) Pgn-viewer mode
 This allows for replaying any pgn-game.
 (C1) Read game
@@ -74,6 +75,38 @@ If this pgn contains only one game, this game can be re-selected
 (C3) Replace in DB
 Replaces the current displayed game in the database (currently opened PGN)
 If this game is modified the changes are saved inside the currently opened PGN 
+(C4) Add to DB (alternative: Add to current DB)
+Adds the current PGN to a PGN-file (DB) on file.
+You have to provide the pgn-file on disk first (unless you select: Add to current DB)
+"Add to current DB" is a shortcut to add the current displayed game to the currently opened DB.
+
+Several tools are available to add information to the currently displayed game:
+(C5a)Classify opening
+finds the opening closest to the opening moves, and stores the information in the headers (tags: ECO and Opening)
+and also in the comments of the game itself (as comment of the last move that is found to be in the opening)
+(C5b)Simple analysis of moves is provided in this mode so you will not have to change the mode to "Pgn-editor"
+- Analyse move
+Uses the engine to (re-)analyse the move selected.
+You are given the opportunity to replace the current move-analysis with the newly found analysis
+("Analyse game" and "Analyse DB" are convenience-shortcuts to anlyse the entire game or DB so you can do batch-processing)
+- Comment
+changes the current comment of a move; if the comment is empty it is created.
+- Alternative
+an alternative is searched for a particular move.
+you can add the provided analysis yes/no 
+(example: if the move provided is already in the analysis you will likely say: no)
+- Add move
+You can add manually an alternative for a move.
+This is an easy way to create an entirely new variation:
+first add the move manually, then select this alternative and afterwards: "Analyse move"
+(C6) Selecting moves inside PGN-Viewer
+- the button-bar at the bottom provides two buttons at the right: Previous and next
+- clicking on the left- or right side of the board has the same effects
+- the top row of the board displayed provides a crude and fast way to navigate inside the game
+- clicking on the move-list will select the move or variation that was clicked on
+- the board itself will indicate with yellow squares if alternatives are available
+Clicking on such a yellow square will start the variation
+- alternatives are also display as buttons after the move-description itself
 """
 
 APP_NAME = 'Python Swan Chess'
