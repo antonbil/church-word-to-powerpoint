@@ -724,6 +724,14 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine='/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
                  max_depth=MAX_DEPTH, start_mode="neutral"):
+        self.window = None
+        self.node = None
+        self.move_cnt = None
+        self.is_engine_ready = None
+        self.is_exit_app = None
+        self.is_user_resigns = None
+        self.is_user_wins = None
+        self.is_user_draws = None
         self.fen_from_here = None
         self.is_exit_game = None
         self.is_new_game = None
@@ -826,7 +834,8 @@ class EasyChessGui:
         self.toolbar = ToolBar(self.text_font)
         self.main_layout = self.get_png_layout() if self.start_mode_used in ["pgnviewer",
                                                                              "pgneditor"] else self.get_neutral_layout()
-        keyboard_visible_at_start = my_preferences["keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
+        keyboard_visible_at_start = my_preferences[
+            "keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
         self.input_dialog = InputDialog(self, self.default_png_dir, keyboard_visible_at_start)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
@@ -1604,7 +1613,7 @@ class EasyChessGui:
         Change the color of a square based on square row and col.
         """
         btn_sq = window.find_element(key=(row, col + 64))
-        #btn_sq.Update(border_width=4)
+        # btn_sq.Update(border_width=4)
         btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
 
     def change_square_color(self, window, row, col):
@@ -1845,7 +1854,7 @@ class EasyChessGui:
 
         return timer
 
-    def get_item_from_list(self, list_items, title_window, width = 30):
+    def get_item_from_list(self, list_items, title_window, width=30):
         """
         display items from list, and return selected item if ok is rpessed
         :param width:
@@ -2325,7 +2334,7 @@ class EasyChessGui:
                     self.fr_row, self.fr_col = move_from
                     self.piece = self.psg_board[self.fr_row][self.fr_col]  # get the move-from piece
 
-                    # Change the color of the "fr" board square
+                    # Change the color of the "from" board square
                     self.change_square_color(window, self.fr_row, self.fr_col)
 
                     self.move_state = 1
@@ -2342,7 +2351,7 @@ class EasyChessGui:
                         # Restore the color of the pressed board square
                         color = self.sq_dark_color if (self.to_row + self.to_col) % 2 else self.sq_light_color
 
-                        # Restore the color of the fr square
+                        # Restore the color of the from-square
                         button_square.Update(button_color=('white', color))
                         self.move_state = 0
                         continue
@@ -2352,7 +2361,7 @@ class EasyChessGui:
                         color = self.sq_dark_color \
                             if (move_from[0] + move_from[1]) % 2 else self.sq_light_color
 
-                        # Restore the color of the fr square
+                        # Restore the color of the from-square
                         button_square.Update(button_color=('white', color))
                         continue
         return board
@@ -2497,7 +2506,7 @@ class EasyChessGui:
             do_break = True
         else:
             # Update board with computer move
-             self.update_board_with_computer_move(best_move, is_book_from_gui, is_promote, board, window)
+            self.update_board_with_computer_move(best_move, is_book_from_gui, is_promote, board, window)
         return do_break
 
     def update_board_with_computer_move(self, best_move, is_book_from_gui, is_promote, board, window):
@@ -2543,7 +2552,7 @@ class EasyChessGui:
         window.find_element('_movelist_').Update('')
         window.find_element('_movelist_').Update(
             self.game.variations[0], append=True, disabled=True)
-        # Change the color of the "fr" and "to" board squares
+        # Change the color of the "from" and "to" board squares
         self.change_square_color(window, self.fr_row, self.fr_col)
         self.change_square_color(window, self.to_row, self.to_col)
         self.is_human_stm = not self.is_human_stm
@@ -2684,7 +2693,7 @@ class EasyChessGui:
             window.find_element('comment_k').Update('')
             window.Element('search_info_all_k').Update('')
 
-            # Change the color of the "fr" and "to" board squares
+            # Change the color of the "from" and "to" board squares
             self.change_square_color(window, self.fr_row, self.fr_col)
             self.change_square_color(window, self.to_row, self.to_col)
 
@@ -2727,7 +2736,7 @@ class EasyChessGui:
 
                 sg.popup_ok("PGN is saved as:{}".format(self.input_dialog.filename), title="Save PGN")
 
-    def analyse_game(self, value_white, value_black, pgn_game, save_file = True):
+    def analyse_game(self, value_white, value_black, pgn_game, save_file=True):
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         if header_dialog.ok:
             layout = [
@@ -2741,8 +2750,7 @@ class EasyChessGui:
             with open(pgn_file, mode='w') as f:
                 f.write('{}\n\n'.format(pgn_game))
             analysed_game = annotator.start_analise(pgn_file,
-                                                    self.engine, name_file, header_dialog.add_to_library, self
-                                                    , save_file)
+                                                    self.engine, name_file, header_dialog.add_to_library, self, save_file)
             window.close()
             message = "PGN is annotated"
             if save_file:
@@ -2909,14 +2917,13 @@ class EasyChessGui:
                      relief='sunken')
              ],
             [sg.Button('Adviser', size=(7, 1),
-                           font=self.text_font, key='adviser_k', ),
+                       font=self.text_font, key='adviser_k', ),
              sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
             [sg.Frame(visible=False, font=self.text_font, key='pgn_row',
                       layout=[
                           [sg.Button("previous", font=self.text_font, key='Previous'),
-                           sg.Button("next", font=self.text_font, key='Next')
-                              , sg.Button("b1")]
+                           sg.Button("next", font=self.text_font, key='Next'), sg.Button("b1")]
                       ],
                       title="Cool subpanel",
                       relief=sg.RELIEF_GROOVE,
@@ -2947,8 +2954,8 @@ class EasyChessGui:
                           sbar_arrow_width=self.scrollbar_width)],
 
             [sg.Button('Opponent Search Info',
-                           size=(21, 1),
-                           font=self.text_font, key='search_info_k', )],
+                       size=(21, 1),
+                       font=self.text_font, key='search_info_k', )],
 
             [sg.Text('', key='search_info_all_k', size=(55, 1),
                      font=self.text_font, relief='sunken')],
@@ -2958,7 +2965,7 @@ class EasyChessGui:
     def get_png_layout(self):
         variation_buttons = []
         for i in range(1, MAX_ALTERNATIVES):
-            button = sg.Button('....', size=(5, 1), key="variation"+str(i))
+            button = sg.Button('....', size=(5, 1), key="variation" + str(i))
             variation_buttons.append(button)
         board_controls = [
             [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_')],
@@ -2971,17 +2978,19 @@ class EasyChessGui:
                           size=(24, 1))
              ],
             [sg.Button('', font=self.text_font, key='overall_game_info',
-                     size=(71, 1))],
+                       size=(71, 1))],
             [sg.Listbox('', size=(70, 18), expand_y=True, enable_events=True,
                         font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width,
                         sbar_arrow_width=self.scrollbar_width)],
             [sg.Text('Move:', size=(7, 1), font=self.text_font),
              sg.Text('', font=self.text_font, key='_currentmove_',
                      size=(13, 1), relief='sunken'),
-            sg.Frame('', [variation_buttons], key="variation_frame", visible = False)],
-            [sg.Push(background_color=None),sg.Frame('', [[]], key="button_frame")],
-            [sg.Frame('',[[sg.Text('Info', size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
-                          font=self.text_font, key='comment_k')]], key="info_frame", visible = False)],
+             sg.Frame('', [variation_buttons], key="variation_frame", visible=False)],
+            [sg.Push(background_color=None), sg.Frame('', [[]], key="button_frame")],
+            [sg.Frame('', [[sg.Text('Info', size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
+                                                                                       font=self.text_font,
+                                                                                       key='comment_k')]],
+                      key="info_frame", visible=False)],
 
         ]
         return board_controls
@@ -3087,7 +3096,7 @@ class EasyChessGui:
 
         # Initialize White and black boxes
         while True:
-            button, value = window.Read(timeout=50)
+            _, value = window.Read(timeout=50)
             self.update_labels_and_game_tags(window, human=self.username)
             break
 
@@ -3109,7 +3118,7 @@ class EasyChessGui:
                 pgn_viewer = PGNViewer(self, window)
                 while pgn_viewer.restart:
                     self.main_layout = self.get_png_layout()
-                    #must be improved; now only called if flip = True
+                    # must be improved; now only called if flip = True
                     window = self.create_new_window(window, False)
                     self.menu_elem.Update(menu_def_pgnviewer)
                     pgn_viewer = PGNViewer(self, window)
@@ -3186,7 +3195,7 @@ class EasyChessGui:
                         t.start()
                         msg = None
                         while True:
-                            e1, v1 = w.Read(timeout=100)
+                            e1, _ = w.Read(timeout=100)
                             w.Element('status_k').Update(
                                 'Display Players: processing ...')
                             try:
@@ -3227,7 +3236,7 @@ class EasyChessGui:
                         t.start()
                         msg = None
                         while True:
-                            e1, v1 = w.Read(timeout=100)
+                            e1, _ = w.Read(timeout=100)
                             w.Element('status_k').Update(
                                 'Status: Delete: processing ...')
                             try:
@@ -4128,7 +4137,7 @@ class EasyChessGui:
                 board = chess.Board()
 
                 while True:
-                    button, value = window.Read(timeout=100)
+                    _, value = window.Read(timeout=100)
                     self.mode_indicator = 'Mode     Play'
 
                     window.find_element('_gamestatus_').Update(self.mode_indicator)
