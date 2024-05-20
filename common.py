@@ -58,9 +58,22 @@ If a variation as selected in the way, moves can be added using the PGN Move Ent
 Do not forget to Restore the original order of the variations ("Restore alternative" option in both sub-modes)
 - remove an alternative variation
 (B4) Add a Manual variation
-- add the spefific move on the board.
+- add the specific move on the board.
 - the sub-mode is automatically changed to PGN Move entry mode so you can add the rest of the variation-moves manually
-
+(C) Pgn-viewer mode
+This allows for replaying any pgn-game.
+(C1) Read game
+this option reads a game from a PGN.
+If this pgn contains more than one game, the first is selected and presented as the current game
+The program starts automatically with the last game displayed. 
+based on the pgn Read and Select-ed in the previous session
+In this manual the PGN with the games and the term Database (DB) are used as synonym
+(C2) Select game
+Select a game in the pgn currently read and displayed.
+If this pgn contains only one game, this game can be re-selected
+(C3) Replace in DB
+Replaces the current displayed game in the database (currently opened PGN)
+If this game is modified the changes are saved inside the currently opened PGN 
 """
 
 APP_NAME = 'Python Swan Chess'
