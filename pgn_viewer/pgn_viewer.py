@@ -169,6 +169,9 @@ class PGNViewer:
                 data_entry = PgnEditor(self.gui, self.window, name_file, from_pgn_viewer=True,
                                        pgn_viewer_move=previous_move_number)
                 # return from entry
+                if data_entry.is_win_closed:
+                    self.is_win_closed = True
+                    break
                 self.display_button_bar()
                 self.game = data_entry.game
 

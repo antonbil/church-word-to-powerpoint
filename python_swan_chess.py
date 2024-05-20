@@ -3116,7 +3116,7 @@ class EasyChessGui:
                     self.menu_elem.Update(menu_def_pgnviewer)
                     self.returning_from_playing = False
                 pgn_viewer = PGNViewer(self, window)
-                while pgn_viewer.restart:
+                while pgn_viewer.restart and not pgn_viewer.is_win_closed:
                     self.main_layout = self.get_png_layout()
                     # must be improved; now only called if flip = True
                     window = self.create_new_window(window, False)
