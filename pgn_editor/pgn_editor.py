@@ -9,7 +9,7 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-from common import menu_def_entry, menu_def_annotate, temp_file_name
+from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help
 from beautify_pgn_lines import PgnDisplay
 from Tools.add_variation import get_and_add_variation, check_for_variation_replace, remove_variation, uci_string2_moves
 
@@ -132,6 +132,11 @@ class PgnEditor:
             if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
                 self.is_win_closed = True
                 break
+
+            if button == 'Gui':
+                display_help(sg)
+                continue
+
             if button == 'Neutral':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False

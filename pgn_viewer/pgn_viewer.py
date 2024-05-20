@@ -9,7 +9,7 @@ from io import StringIO
 import datetime
 from time import perf_counter as pc
 from annotator import annotator
-from common import menu_def_entry, temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES
+from common import menu_def_entry, temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
@@ -155,6 +155,10 @@ class PGNViewer:
                 sg.popup("Enter move \nby picking a start/end field on the board",
                          title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
                          font=self.gui.text_font)
+                continue
+
+            if button == 'Gui':
+                display_help(sg)
                 continue
 
             if button == 'PGN-Editor':

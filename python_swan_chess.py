@@ -62,7 +62,8 @@ from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
-from common import menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES
+from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
+                    BOX_TITLE)
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -74,9 +75,6 @@ logging.basicConfig(
     format=log_format
 )
 
-APP_NAME = 'Python Swan Chess'
-APP_VERSION = 'v0.1'
-BOX_TITLE = f'{APP_NAME} {APP_VERSION}'
 MAX_ADVISER_DEPTH = 50
 
 platform = sys.platform
@@ -136,8 +134,12 @@ white_init_promote_board = [[QUEENW, ROOKW, BISHOPW, KNIGHTW]]
 
 black_init_promote_board = [[QUEENB, ROOKB, BISHOPB, KNIGHTB]]
 
-HELP_MSG = """The GUI has 2 modes, Play and Neutral. After startup
-you are in Neutral mode. You can go to mode Play through Mode menu.
+HELP_MSG = """The GUI has 4 modes, Play and Neutral, Pgn-viewer and Pgn-editor. 
+By default you are in Neutral mode, but you can select another startup-mode 
+using the startmode in the command-line-options.
+
+This part of the help-menu describes the Play, and Neutral mode.
+You can go from mode Neutral to mode Play through Mode menu.
 
 All games are auto-saved in pecg_auto_save_games.pgn.
 Visit Game menu in Play mode to see other options to save the game.
