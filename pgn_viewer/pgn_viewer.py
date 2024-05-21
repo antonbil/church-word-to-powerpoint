@@ -120,6 +120,12 @@ class PGNViewer:
                 self.redraw_all()
                 continue
 
+            theme_changed, self.window = self.gui.change_theme(button, self.window)
+            if theme_changed:
+                self.redraw_all()
+                self.display_button_bar()
+                continue
+
             if button == 'From clipboard':
                 self.from_clipboard()
 

@@ -162,6 +162,13 @@ class PgnEditor:
                 self.display_move_and_line_number()
                 continue
 
+            theme_changed, self.window = self.gui.change_theme(button, self.window)
+            if theme_changed:
+                self.update_pgn_display()
+                self.display_move_and_line_number()
+                self.display_button_bar()
+                continue
+
             if button == 'Clear':
                 if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
                     self.board = chess.Board()
@@ -391,12 +398,15 @@ class PgnEditor:
 
     def set_mode_to_annotate(self):
         self.mode = "annotate"
-        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
-            , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
-        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
+        self.display_button_bar()
         self.gui.menu_elem.Update(menu_def_annotate)
         self.move_number = len(self.all_moves) - 1
         self.set_status()
+
+    def display_button_bar(self):
+        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
+            , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
+        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def display_new_situation(self):
         window = self.window.find_element('_movelist_')

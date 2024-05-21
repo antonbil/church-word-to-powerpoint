@@ -4084,15 +4084,8 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral, Change theme
-            if button in GUI_THEME:
-                self.gui_theme = button
-                self.preferences.preferences["gui_theme"] = self.gui_theme
-                self.preferences.save_preferences()
-                if self.is_png_layout():
-                    self.main_layout = self.get_png_layout()
-                else:
-                    self.main_layout = self.get_neutral_layout()
-                window = self.create_new_window(window)
+            theme_changed, window = self.change_theme(button, window)
+            if theme_changed:
                 continue
 
             # Mode: Neutral, Change board to ['Brown', "Gray", "Green", "Blue"], default
@@ -4154,6 +4147,20 @@ class EasyChessGui:
                 continue
 
         window.Close()
+
+    def change_theme(self, button, window):
+        if button in GUI_THEME:
+            self.gui_theme = button
+            self.preferences.preferences["gui_theme"] = self.gui_theme
+            self.preferences.save_preferences()
+            if self.is_png_layout():
+                self.main_layout = self.get_png_layout()
+            else:
+                self.main_layout = self.get_neutral_layout()
+            window = self.create_new_window(window)
+            theme_changed = True
+            return theme_changed, window
+        return False, window
 
     def check_color_button(self, button, window):
         for color in ['Brown', "Gray", "Green", "Blue"]:
