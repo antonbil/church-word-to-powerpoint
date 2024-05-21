@@ -4095,34 +4095,8 @@ class EasyChessGui:
                 window = self.create_new_window(window)
                 continue
 
-            # Mode: Neutral, Change board to gray
-            if button == 'Gray::board_color_k':
-                self.set_color_board(button, True)
-                self.redraw_board(window)
-                continue
-
-            # Mode: Neutral, Change board to green
-            if button == 'Green::board_color_k':
-                self.set_color_board(button, True)
-                self.redraw_board(window)
-                # self.main_layout = self.get_neutral_layout()
-                # window = self.create_new_window(window)
-                continue
-
-            # Mode: Neutral, Change board to blue
-            if button == 'Blue::board_color_k':
-                self.set_color_board(button, True)
-                self.redraw_board(window)
-                # self.main_layout = self.get_neutral_layout()
-                # window = self.create_new_window(window)
-                continue
-
-            # Mode: Neutral, Change board to brown, default
-            if button == 'Brown::board_color_k':
-                self.set_color_board(button, True)
-                self.redraw_board(window)
-                # self.main_layout = self.get_neutral_layout()
-                # window = self.create_new_window(window)
+            # Mode: Neutral, Change board to ['Brown', "Gray", "Green", "Blue"], default
+            if self.check_color_button(button, window):
                 continue
 
             # Mode: Neutral
@@ -4180,6 +4154,14 @@ class EasyChessGui:
                 continue
 
         window.Close()
+
+    def check_color_button(self, button, window):
+        for color in ['Brown', "Gray", "Green", "Blue"]:
+            if button == color + '::board_color_k':
+                self.set_color_board(button, True)
+                self.redraw_board(window)
+                return True
+        return False
 
     def is_png_layout(self):
         """

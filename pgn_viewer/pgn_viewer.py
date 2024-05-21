@@ -116,6 +116,9 @@ class PGNViewer:
             if button == 'Select games':
                 self.select_games()
 
+            if self.gui.check_color_button(button, self.window):
+                continue
+
             if button == 'From clipboard':
                 self.from_clipboard()
 

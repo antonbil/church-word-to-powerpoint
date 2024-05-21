@@ -1,8 +1,20 @@
+GUI_THEME = [
+    'Green', 'GreenTan', 'LightGreen', 'BluePurple', 'Purple', 'BlueMono', 'GreenMono', 'BrownBlue',
+    'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
+]
+
+settings_menu = ['Settings mode',
+                 'Color', ['Brown::board_color_k',
+                               'Blue::board_color_k',
+                               'Green::board_color_k',
+                               'Gray::board_color_k'],
+                     'Theme', GUI_THEME]
+
 menu_def_entry = [
         ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
         ['&Move', ["Back", '---', "Restore alternative"]],
         ['&Game', ['Save', 'Clear', 'Analyse game']],
-        ['Settings', ['Settings mode', ]],
+        ['Settings', settings_menu],
          ['Help', ["Gui"]],
 ]
 menu_def_annotate = [
@@ -11,7 +23,7 @@ menu_def_annotate = [
                    , '---', 'Remove from this move onward']],
         ['&Annotate', ['Comment', '---', 'Alternative', "Alternative manual", '---', 'Manual variation']],
         ['&Game', ['Save', 'Clear', 'Analyse game']],
-        ['Settings', ['Settings mode', ]],
+        ['Settings', settings_menu],
          ['Help', ["Gui"]],
 ]
 
@@ -25,13 +37,8 @@ menu_def_pgnviewer = [
                    "Previous Game", '---', 'New db', 'Remove db']],
         ['Tools', ['Analyse move', 'Analyse game', 'Analyse db', '---', 'Play from here', '---', 'Select games', '---'
                 ,]],
-        ['Settings', ['Settings mode', ]],
+        ['Settings', settings_menu],
          ['Help', ["Gui"]]
-]
-
-GUI_THEME = [
-    'Green', 'GreenTan', 'LightGreen', 'BluePurple', 'Purple', 'BlueMono', 'GreenMono', 'BrownBlue',
-    'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
 ]
 
 menu_def_neutral_simple = [
