@@ -157,6 +157,11 @@ class PgnEditor:
                 self.gui.start_mode_used = "play"
                 break
 
+            if self.gui.check_color_button(button, self.window):
+                self.update_pgn_display()
+                self.display_move_and_line_number()
+                continue
+
             if button == 'Clear':
                 if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
                     self.board = chess.Board()
