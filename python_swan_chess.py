@@ -63,7 +63,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE)
+                    BOX_TITLE, GUI_THEME, menu_def_neutral_simple)
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -89,10 +89,6 @@ ico_path = {
 MIN_DEPTH = 1
 MAX_DEPTH = 1000
 MANAGED_UCI_OPTIONS = ['ponder', 'uci_chess960', 'multipv', 'uci_analysemode', 'ownbook']
-GUI_THEME = [
-    'Green', 'GreenTan', 'LightGreen', 'BluePurple', 'Purple', 'BlueMono', 'GreenMono', 'BrownBlue',
-    'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
-]
 
 IMAGE_PATH = 'Images/60'  # path to the chess pieces
 
@@ -272,7 +268,7 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-    ['&Mode', ['Play', 'PGN-Viewer', 'PGN-Editor']],
+    ['&Mode', ['Play']],
     ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                   'Blue::board_color_k',
                                   'Green::board_color_k',
@@ -1454,6 +1450,8 @@ class EasyChessGui:
         self.game.headers['Black'] = old_black
 
     def clear_elements(self, window):
+        if self.is_png_layout():
+            return
         """ Clear movelist, score, pv, time, depth and nps boxes """
         window.find_element('search_info_all_k').Update('')
         window.find_element('_movelist_').Update(disabled=False)
@@ -2145,7 +2143,11 @@ class EasyChessGui:
             button, value = window.Read(timeout=100)
             if button == sg.WIN_CLOSED:
                 logging.warning('User closes the window while the engine is thinking.')
-                search.stop()
+                try:
+                    search.stop()
+                except:
+                    logging.exception('search is not defined')
+                    pass
                 sys.exit(0)  # the engine is run on daemon threads so it will quit as well
 
             # Update elapse box in m:s format
@@ -3113,39 +3115,51 @@ class EasyChessGui:
             if button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
                 # if default-window is not 'neutral', layout and menu are already changed
                 if button == 'PGN-Viewer' or self.returning_from_playing:
-                    self.main_layout = self.get_png_layout()
-                    window = self.create_new_window(window)
+                    if not self.is_png_layout():
+                        self.main_layout = self.get_png_layout()
+                        window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_pgnviewer)
                     self.returning_from_playing = False
                 pgn_viewer = PGNViewer(self, window)
                 while pgn_viewer.restart and not pgn_viewer.is_win_closed:
-                    self.main_layout = self.get_png_layout()
-                    # must be improved; now only called if flip = True
-                    window = self.create_new_window(window, False)
+                    if not self.is_png_layout():
+                        self.main_layout = self.get_png_layout()
+                        # must be improved; now only called if flip = True
+                        window = self.create_new_window(window, False)
                     self.menu_elem.Update(menu_def_pgnviewer)
                     pgn_viewer = PGNViewer(self, window)
 
                 # 'neutral' is selected in PGNViewer-menu
-                self.main_layout = self.get_neutral_layout()
-                self.start_mode_used = self.start_mode_used.replace("pgnviewer", "")
                 # check if window is forced close
                 if not pgn_viewer.is_win_closed:
-                    window = self.create_new_window(window, False)
-                    self.menu_elem.Update(menu_def_neutral)
+                    self.start_mode_used = self.start_mode_used.replace("pgnviewer", "")
+                    # check if the play-layout is chosen for further playing
+                    if pgn_viewer.start_play_mode:
+                        self.main_layout = self.get_neutral_layout()
+                        window = self.create_new_window(window, False)
+                        pgn_viewer.start_play_mode = False
+                    if self.is_png_layout():
+                        self.menu_elem.Update(menu_def_neutral_simple)
+                    else:
+                        self.menu_elem.Update(menu_def_neutral)
             if button == 'PGN-Editor' or self.start_mode_used == "pgneditor":
                 # if default-window is not 'neutral', layout and menu are already changed
                 if button == 'PGN-Editor' or self.returning_from_playing:
-                    self.main_layout = self.get_png_layout()
-                    window = self.create_new_window(window)
+                    if not self.is_png_layout():
+                        self.main_layout = self.get_png_layout()
+                        window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_entry)
                     self.returning_from_playing = False
                 data_entry = PgnEditor(self, window)
                 # 'neutral' is selected in DataEntry-menu
-                self.main_layout = self.get_neutral_layout()
+
                 self.start_mode_used = self.start_mode_used.replace("pgneditor", "")
                 # check if window is forced close
                 if not data_entry.is_win_closed:
-                    window = self.create_new_window(window)
+                    if self.is_png_layout() or data_entry.start_play_mode:
+                        data_entry.start_play_mode = False
+                        self.main_layout = self.get_neutral_layout()
+                        window = self.create_new_window(window)
                     self.menu_elem.Update(menu_def_neutral)
 
             if button == 'Next':
@@ -4074,7 +4088,10 @@ class EasyChessGui:
                 self.gui_theme = button
                 self.preferences.preferences["gui_theme"] = self.gui_theme
                 self.preferences.save_preferences()
-                self.main_layout = self.get_neutral_layout()
+                if self.is_png_layout():
+                    self.main_layout = self.get_png_layout()
+                else:
+                    self.main_layout = self.get_neutral_layout()
                 window = self.create_new_window(window)
                 continue
 
@@ -4082,39 +4099,37 @@ class EasyChessGui:
             if button == 'Gray::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
-                self.main_layout = self.get_neutral_layout()
-                window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to green
             if button == 'Green::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
-                self.main_layout = self.get_neutral_layout()
-                window = self.create_new_window(window)
+                # self.main_layout = self.get_neutral_layout()
+                # window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to blue
             if button == 'Blue::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
-                self.main_layout = self.get_neutral_layout()
-                window = self.create_new_window(window)
+                # self.main_layout = self.get_neutral_layout()
+                # window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral, Change board to brown, default
             if button == 'Brown::board_color_k':
                 self.set_color_board(button, True)
                 self.redraw_board(window)
-                self.main_layout = self.get_neutral_layout()
-                window = self.create_new_window(window)
+                # self.main_layout = self.get_neutral_layout()
+                # window = self.create_new_window(window)
                 continue
 
             # Mode: Neutral
             if button == 'Flip':
                 window.find_element('_gamestatus_').Update('Mode     Neutral')
                 self.clear_elements(window)
-                self.main_layout = self.get_neutral_layout()
+                #self.main_layout = self.get_neutral_layout()
                 self.window = self.create_new_window(window, True)
                 continue
 
@@ -4165,6 +4180,16 @@ class EasyChessGui:
                 continue
 
         window.Close()
+
+    def is_png_layout(self):
+        """
+        check if current defined layout is png_layout
+        :return: boolean
+        """
+        try:
+            return self.main_layout[3][0].key == "overall_game_info"
+        except:
+            return False
 
 
 def main(engine, start_mode):

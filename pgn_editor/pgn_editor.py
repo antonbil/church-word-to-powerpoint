@@ -19,6 +19,7 @@ class PgnEditor:
     """
 
     def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0):
+        self.start_play_mode = False
         self.from_pgn_viewer = from_pgn_viewer
         self.pgn_viewer_move = pgn_viewer_move
         self.current_line = None
@@ -137,7 +138,7 @@ class PgnEditor:
                 display_help(sg)
                 continue
 
-            if button == 'Neutral':
+            if button == 'Settings mode':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
@@ -152,6 +153,7 @@ class PgnEditor:
             if button == 'Play':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
+                self.start_play_mode = True
                 self.gui.start_mode_used = "play"
                 break
 

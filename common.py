@@ -1,20 +1,22 @@
 menu_def_entry = [
-        ['&Mode', ['Neutral', "Play", "PGN-Viewer", 'Variations Edit']],
+        ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
         ['&Move', ["Back", '---', "Restore alternative"]],
         ['&Game', ['Save', 'Clear', 'Analyse game']],
+        ['Settings', ['Settings mode', ]],
          ['Help', ["Gui"]],
 ]
 menu_def_annotate = [
-        ['&Mode', ['Neutral', "Play", "PGN-Viewer", 'PGN Move entry']],
+        ['&Mode', ["Play", "PGN-Viewer", 'PGN Move entry']],
         ['&Move', ['Previous', "Next", '---', "Promote alternative", "Restore alternative", "Remove alternative"
                    , '---', 'Remove from this move onward']],
         ['&Annotate', ['Comment', '---', 'Alternative', "Alternative manual", '---', 'Manual variation']],
         ['&Game', ['Save', 'Clear', 'Analyse game']],
+        ['Settings', ['Settings mode', ]],
          ['Help', ["Gui"]],
 ]
 
 menu_def_pgnviewer = [
-        ['&Mode', ['Neutral', "Play", 'PGN-Editor']],
+        ['&Mode', ["Play", 'PGN-Editor']],
         ['Move', ['Comment', 'Alternative', '---', "Add move"]],
         ['&Game', ['Read', "Select", 'From clipboard', '---', "Replace in db", "Remove from db", "Add to db"
                 , "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
@@ -23,7 +25,26 @@ menu_def_pgnviewer = [
                    "Previous Game", '---', 'New db', 'Remove db']],
         ['Tools', ['Analyse move', 'Analyse game', 'Analyse db', '---', 'Play from here', '---', 'Select games', '---'
                 ,]],
+        ['Settings', ['Settings mode', ]],
          ['Help', ["Gui"]]
+]
+
+GUI_THEME = [
+    'Green', 'GreenTan', 'LightGreen', 'BluePurple', 'Purple', 'BlueMono', 'GreenMono', 'BrownBlue',
+    'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
+]
+
+menu_def_neutral_simple = [
+    ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
+    ['Boar&d', ['Color', ['Brown::board_color_k',
+                                  'Blue::board_color_k',
+                                  'Green::board_color_k',
+                                  'Gray::board_color_k'],
+                'Theme', GUI_THEME]],
+    ['&Engine', ['Set Engine Opponent', 'Set Depth',
+                 'Manage', ['Install', 'Edit', 'Delete']]],
+    ['&Settings', ['Game::settings_game_k']],
+    ['&Help', ['GUI']],
 ]
 
 temp_file_name = 'tempsave.pgn'

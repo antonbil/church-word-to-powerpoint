@@ -22,6 +22,7 @@ class PGNViewer:
     """pgn viewer class"""
 
     def __init__(self, gui, window):
+        self.start_play_mode = False
         self.move_alternatives = []
         self.mode = "viewer"
         self.move_description = ""
@@ -100,7 +101,7 @@ class PGNViewer:
             if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
                 self.is_win_closed = True
                 break
-            if button == 'Neutral':
+            if button == 'Settings mode':
                 is_exit_game = True
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
@@ -108,6 +109,7 @@ class PGNViewer:
             if button == 'Play':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
+                self.start_play_mode = True
                 self.gui.start_mode_used = "play"
                 break
 
@@ -176,6 +178,9 @@ class PGNViewer:
                 if data_entry.is_win_closed:
                     self.is_win_closed = True
                     break
+                if data_entry.start_play_mode:
+                    self.start_play_mode = True
+                    break
                 self.display_button_bar()
                 self.game = data_entry.game
 
@@ -184,9 +189,6 @@ class PGNViewer:
                 lines = self.pgn_display.beautify_lines(string)
                 self.pgn_lines = lines
                 self.display_part_pgn(self.move_number, self.current_move)
-
-                # self.is_win_closed = data_entry.is_win_closed
-                # break
 
             if button == "Select":
                 if self.check_edit_single_pgn():
@@ -702,6 +704,7 @@ class PGNViewer:
             self.is_black = board.turn == chess.BLACK
             self.gui.is_user_white = not self.is_black
         self.gui.start_mode_used = "play"
+        self.start_play_mode = True
 
     def set_new_position(self, new_pos, base_moves=[]):
         if len(base_moves) > 0:
