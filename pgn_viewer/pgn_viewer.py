@@ -117,6 +117,7 @@ class PGNViewer:
                 self.select_games()
 
             if self.gui.check_color_button(button, self.window):
+                self.redraw_all()
                 continue
 
             if button == 'From clipboard':
