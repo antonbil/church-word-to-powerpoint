@@ -63,7 +63,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, menu_def_neutral_simple)
+                    BOX_TITLE, GUI_THEME)
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -3138,10 +3138,7 @@ class EasyChessGui:
                         self.main_layout = self.get_neutral_layout()
                         window = self.create_new_window(window, False)
                         pgn_viewer.start_play_mode = False
-                    if self.is_png_layout():
-                        self.menu_elem.Update(menu_def_neutral_simple)
-                    else:
-                        self.menu_elem.Update(menu_def_neutral)
+                    self.menu_elem.Update(menu_def_neutral)
             if button == 'PGN-Editor' or self.start_mode_used == "pgneditor":
                 # if default-window is not 'neutral', layout and menu are already changed
                 if button == 'PGN-Editor' or self.returning_from_playing:
@@ -3415,534 +3412,17 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Install':
-                button_title = 'Engine/Manage/' + button
-                new_engine_path_file, new_engine_id_name = None, None
-
-                install_layout = [
-                    [sg.Text('Current configured engine names', font=self.text_font)],
-                    [sg.Listbox(values=self.engine_id_name_list,
-                                size=(48, 10), font=self.text_font, disabled=True)],
-                    [sg.Button('Add', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
-                ]
-
-                window.Hide()
-                install_win = sg.Window(title=button_title,
-                                        layout=install_layout,
-                                        icon=ico_path[platform]['pecg'])
-
-                while True:
-                    e, v = install_win.Read(timeout=100)
-                    if e is None or e == 'Cancel':
-                        break
-                    if e == 'Add':
-                        button_title += '/' + e
-
-                        add_layout = [
-                            [sg.Text('Engine', font=self.text_font, size=(6, 1)), sg.Input(key='engine_path_file_k'),
-                             sg.FileBrowse()],
-                            [
-                                sg.Text('Name', font=self.text_font, size=(6, 1)),
-                                sg.Input(key='engine_id_name_k', font=self.text_font, tooltip='Input name'),
-                                sg.Button('Get Id Name', font=self.text_font)
-                            ],
-                            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
-                        ]
-
-                        install_win.Hide()
-                        add_win = sg.Window(button_title, add_layout)
-                        is_cancel_add_win = False
-                        while True:
-                            e1, v1 = add_win.Read(timeout=100)
-                            if e1 is None:
-                                is_cancel_add_win = True
-                                break
-                            if e1 == 'Cancel':
-                                is_cancel_add_win = True
-                                break
-                            if e1 == 'Get Id Name':
-                                new_engine_path_file = v1['engine_path_file_k']
-
-                                # We can only get the engine id name if the engine is defined.
-                                if new_engine_path_file:
-                                    que = queue.Queue()
-                                    t = threading.Thread(
-                                        target=self.get_engine_id_name,
-                                        args=(new_engine_path_file, que,),
-                                        daemon=True
-                                    )
-                                    t.start()
-                                    is_update_list = False
-                                    while True:
-                                        try:
-                                            msg = que.get_nowait()
-                                            break
-                                        except Exception:
-                                            pass
-                                    t.join()
-
-                                    if msg[0] == 'Done' and msg[1] is not None:
-                                        is_update_list = True
-                                        new_engine_id_name = msg[1]
-                                    else:
-                                        is_cancel_add_win = True
-                                        sg.Popup(
-                                            'This engine cannot be '
-                                            'installed. Please select '
-                                            'another engine. It should be uci '
-                                            'engine.',
-                                            title=button_title + '/Get Id name')
-
-                                    if is_update_list:
-                                        add_win.Element('engine_id_name_k').Update(
-                                            new_engine_id_name)
-
-                                    # If we fail to install the engine, we exit
-                                    # the install window
-                                    if is_cancel_add_win:
-                                        break
-
-                                else:
-                                    sg.Popup(
-                                        'Please define the engine or browse to the location of the engine file first.',
-                                        title=button_title + '/Get Id name'
-                                    )
-
-                            if e1 == 'OK':
-                                try:
-                                    new_engine_path_file = v1[
-                                        'engine_path_file_k']
-                                    new_engine_id_name = v1['engine_id_name_k']
-                                    if new_engine_id_name != '':
-                                        # Check if new_engine_id_name is already existing
-                                        if self.is_name_exists(new_engine_id_name):
-                                            sg.Popup(
-                                                f'{new_engine_id_name} is existing. Please modify the name! \
-                                                You can modify the config later thru Engine->Manage->Edit',
-                                                title=button_title,
-                                                icon=ico_path[platform]['pecg']
-                                            )
-                                            continue
-                                        break
-                                    else:
-                                        sg.Popup(
-                                            'Please input engine id name, or press Get Id Name button.',
-                                            title=button_title,
-                                            icon=ico_path[platform]['pecg']
-                                        )
-                                except Exception:
-                                    logging.exception('Failed to get engine '
-                                                      'path and file')
-
-                        # Outside add window while loop
-                        add_win.Close()
-                        install_win.UnHide()
-
-                        # Save the new configured engine to pecg_engines.json.
-                        if not is_cancel_add_win:
-                            que = queue.Queue()
-                            t = threading.Thread(
-                                target=self.add_engine_to_config_file,
-                                args=(new_engine_path_file,
-                                      new_engine_id_name, que,), daemon=True)
-                            t.start()
-                            while True:
-                                try:
-                                    msg = que.get_nowait()
-                                    break
-                                except Exception:
-                                    continue
-                            t.join()
-
-                            if msg == 'Failure':
-                                sg.Popup(
-                                    f'Failed to add {new_engine_id_name} in config file!',
-                                    title=button_title,
-                                    icon=ico_path[platform]['pecg']
-                                )
-
-                            self.engine_id_name_list = \
-                                self.get_engine_id_name_list()
-                        break
-
-                install_win.Close()
-                window.UnHide()
-
-                # Define default engine opponent and adviser
-                if engine_id_name is None:
-                    engine_id_name = self.get_default_engine_opponent()
-                if self.adviser_id_name is None:
-                    self.set_default_adviser_engine()
-
-                self.update_labels_and_game_tags(window, human=self.username)
-
+            engine_id_name, is_engine_action = self.manage_engine(button, window, engine_id_name)
+            if is_engine_action:
                 continue
-
-            # Mode: Neutral
-            if button == 'Edit':
-                button_title = 'Engine/Manage/' + button
-                opt_name = []
-                ret_opt_name = []
-                engine_path_file, engine_id_name = None, None
-
-                edit_layout = [
-                    [sg.Text('Current configured engine names', font=self.text_font)],
-                    [
-                        sg.Listbox(
-                            values=self.engine_id_name_list, font=self.text_font,
-                            size=(48, 10),
-                            key='engine_id_name_k'
-                        )
-                    ],
-                    [sg.Button('Modify', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
-                ]
-
-                window.Hide()
-                edit_win = sg.Window(
-                    button_title,
-                    layout=edit_layout,
-                    icon=ico_path[platform]['pecg']
-                )
-                is_cancel_edit_win = False
-                while True:
-                    e, v = edit_win.Read(timeout=100)
-                    if e is None or e == 'Cancel':
-                        is_cancel_edit_win = True
-                        break
-                    if e == 'Modify':
-                        option_layout, option_layout2 = [], []
-                        button_title += '/' + e
-
-                        try:
-                            orig_idname = engine_id_name = v['engine_id_name_k'][0]
-                        except Exception:
-                            sg.Popup('Please select an engine to modify.',
-                                     title='/Edit/Modify',
-                                     icon=ico_path[platform]['pecg'])
-                            continue
-
-                        # Read engine config file
-                        with open(self.engine_config_file, 'r') as json_file:
-                            data = json.load(json_file)
-
-                        # First option that can be set is the config name
-                        option_layout.append(
-                            [sg.Text('name', size=(4, 1)),
-                             sg.Input(engine_id_name, size=(38, 1),
-                                      key='string_name_k')])
-                        opt_name.append(['name', 'string_name_k'])
-
-                        for p in data:
-                            name = p['name']
-                            path = p['workingDirectory']
-                            file = p['command']
-                            engine_path_file = Path(path, file)
-                            option = p['options']
-
-                            if name == engine_id_name:
-                                num_opt = len(option)
-                                opt_cnt = 0
-                                for o in option:
-                                    opt_cnt += 1
-                                    name = o['name']
-                                    value = o['value']
-                                    type_ = o['type']
-
-                                    if type_ == 'spin':
-                                        min_ = o['min']
-                                        max_ = o['max']
-
-                                        key_name = type_ + '_' + name.lower() + '_k'
-                                        opt_name.append([name, key_name])
-
-                                        ttip = 'min {} max {}'.format(min_, max_)
-                                        spin_layout = \
-                                            [sg.Text(name, size=(16, 1)),
-                                             sg.Input(value, size=(8, 1),
-                                                      key=key_name,
-                                                      tooltip=ttip)]
-                                        if num_opt > 10 and opt_cnt > num_opt // 2:
-                                            option_layout2.append(spin_layout)
-                                        else:
-                                            option_layout.append(spin_layout)
-
-                                    elif type_ == 'check':
-                                        key_name = type_ + '_' + name.lower() + '_k'
-                                        opt_name.append([name, key_name])
-
-                                        check_layout = \
-                                            [sg.Text(name, size=(16, 1)),
-                                             sg.Checkbox('', key=key_name,
-                                                         default=value)]
-                                        if num_opt > 10 and opt_cnt > num_opt // 2:
-                                            option_layout2.append(check_layout)
-                                        else:
-                                            option_layout.append(check_layout)
-
-                                    elif type_ == 'string':
-                                        key_name = type_ + '_' + name + '_k'
-                                        opt_name.append([name, key_name])
-
-                                        # Use FolderBrowse()
-                                        if 'syzygypath' in name.lower():
-                                            sy_layout = \
-                                                [sg.Text(name, size=(16, 1)),
-                                                 sg.Input(value,
-                                                          size=(12, 1),
-                                                          key=key_name),
-                                                 sg.FolderBrowse()]
-
-                                            if num_opt > 10 and opt_cnt > num_opt // 2:
-                                                option_layout2.append(sy_layout)
-                                            else:
-                                                option_layout.append(sy_layout)
-
-                                        # Use FileBrowse()
-                                        elif 'weightsfile' in name.lower():
-                                            weight_layout = \
-                                                [sg.Text(name, size=(16, 1)),
-                                                 sg.Input(value,
-                                                          size=(12, 1),
-                                                          key=key_name),
-                                                 sg.FileBrowse()]
-
-                                            if num_opt > 10 and opt_cnt > num_opt // 2:
-                                                option_layout2.append(
-                                                    weight_layout)
-                                            else:
-                                                option_layout.append(
-                                                    weight_layout)
-                                        else:
-                                            str_layout = \
-                                                [sg.Text(name, size=(16, 1)),
-                                                 sg.Input(value, size=(16, 1),
-                                                          key=key_name)]
-
-                                            if num_opt > 10 and opt_cnt > num_opt // 2:
-                                                option_layout2.append(
-                                                    str_layout)
-                                            else:
-                                                option_layout.append(
-                                                    str_layout)
-
-                                    elif type_ == 'combo':
-                                        key_name = type_ + '_' + name + '_k'
-                                        opt_name.append([name, key_name])
-                                        var = o['choices']
-                                        combo_layout = [
-                                            sg.Text(name, size=(16, 1)),
-                                            sg.Combo(var, default_value=value,
-                                                     size=(12, 1),
-                                                     key=key_name)]
-                                        if num_opt > 10 and opt_cnt > num_opt // 2:
-                                            option_layout2.append(combo_layout)
-                                        else:
-                                            option_layout.append(combo_layout)
-                                break
-
-                        option_layout.append([sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)])
-
-                        if len(option_layout2) > 1:
-                            tab1 = [[sg.Column(option_layout)]]
-                            tab2 = [[sg.Column(option_layout2)]]
-                            modify_layout = [[sg.Column(tab1), sg.Column(tab2)]]
-                        else:
-                            modify_layout = option_layout
-
-                        edit_win.Hide()
-                        modify_win = sg.Window(button_title,
-                                               layout=modify_layout,
-                                               icon=ico_path[platform]['pecg'])
-                        is_cancel_modify_win = False
-                        while True:
-                            e1, v1 = modify_win.Read(timeout=100)
-                            if e1 is None or e1 == 'Cancel':
-                                is_cancel_modify_win = True
-                                break
-                            if e1 == 'OK':
-                                engine_id_name = v1['string_name_k']
-                                for o in opt_name:
-                                    d = {o[0]: v1[o[1]]}
-                                    ret_opt_name.append(d)
-                                break
-
-                        edit_win.UnHide()
-                        modify_win.Close()
-                        break  # Get out of edit_win loop
-
-                # Outside edit_win while loop
-
-                # Save the new configured engine to pecg_engines.json file
-                if not is_cancel_edit_win and not is_cancel_modify_win:
-                    self.update_engine_to_config_file(
-                        engine_path_file, engine_id_name,
-                        orig_idname, ret_opt_name)
-                    self.engine_id_name_list = self.get_engine_id_name_list()
-
-                edit_win.Close()
-                window.UnHide()
-                continue
-
-            # Mode: Neutral
-            if button == 'Delete':
-                button_title = 'Engine/Manage/' + button
-                delete_layout = [
-                    [sg.Text('Current configured engine names', font=self.text_font)],
-                    [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
-                                key='engine_id_name_k')],
-                    [sg.Button('Delete', font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-                window.Hide()
-                delete_win = sg.Window(
-                    button_title,
-                    layout=delete_layout,
-                    icon=ico_path[platform]['pecg']
-                )
-                is_cancel = False
-                while True:
-                    e, v = delete_win.Read(timeout=100)
-                    if e is None or e == 'Cancel':
-                        is_cancel = True
-                        break
-                    if e == 'Delete':
-                        try:
-                            engine_id_name = v['engine_id_name_k'][0]
-                        except Exception:
-                            sg.Popup('Please select an engine to delete.',
-                                     title=button_title,
-                                     icon=ico_path[platform]['pecg'])
-                            continue
-                        with open(self.engine_config_file, 'r') as json_file:
-                            data = json.load(json_file)
-
-                        for i in range(len(data)):
-                            if data[i]['name'] == engine_id_name:
-                                logging.info('{} is found for deletion.'.format(
-                                    engine_id_name))
-                                data.pop(i)
-                                break
-
-                        # Save data to pecg_engines.json
-                        with open(self.engine_config_file, 'w') as h:
-                            json.dump(data, h, indent=4)
-
-                        break
-
-                # Save the new configured engine to pecg_engines.json file
-                if not is_cancel:
-                    self.engine_id_name_list = self.get_engine_id_name_list()
-
-                delete_win.Close()
-                window.UnHide()
-
-                continue
-
             # Mode: Neutral, Allow user to change opponent engine settings
             if button == 'Set Engine Opponent':
-                current_engine_file = self.opp_file
-                current_engine_id_name = self.opp_id_name
-
-                logging.info('Backup current engine list and file.')
-                logging.info('Current engine file: {}'.format(
-                    current_engine_file))
-
-                layout = [
-                    [sg.T('Current Opponent: {}'.format(self.opp_id_name), size=(40, 1))],
-                    [sg.Listbox(values=self.engine_id_name_list, size=(48, 10), key='engine_id_k')],
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-
-                # Create new window and disable the main window
-                w = sg.Window(BOX_TITLE + '/Select opponent', layout,
-                              icon=ico_path[platform]['enemy'])
-                window.Hide()
-
-                while True:
-                    e, v = w.Read(timeout=10)
-
-                    if e is None or e == 'Cancel':
-                        # Restore current engine list and file
-                        logging.info('User cancels engine selection. ' +
-                                     'We restore the current engine data.')
-                        self.opp_file = current_engine_file
-                        logging.info('Current engine data were restored.')
-                        logging.info('current engine file: {}'.format(
-                            self.opp_file))
-                        break
-
-                    if e == 'OK':
-                        # We use try/except because user can press OK without
-                        # selecting an engine
-                        try:
-                            engine_id_name = self.opp_id_name = v['engine_id_k'][0]
-                            self.opp_file, self.opp_path_and_file = self.get_engine_file(
-                                engine_id_name)
-
-                        except IndexError:
-                            logging.info('User presses OK but did not select '
-                                         'an engine.')
-                        except Exception:
-                            logging.exception('Failed to set engine.')
-                        finally:
-                            if current_engine_id_name != self.opp_id_name:
-                                logging.info('User selected a new opponent {'
-                                             '}.'.format(self.opp_id_name))
-                        break
-
-                window.UnHide()
-                w.Close()
-
-                # Update the player box in main window
-                self.update_labels_and_game_tags(window, human=self.username)
+                engine_id_name, is_engine_set = self.define_engine(engine_id_name, window)
                 continue
 
             # Mode: Neutral, Set Adviser engine
             if button == 'Set Engine Adviser':
-                current_adviser_engine_file = self.adviser_file
-                current_adviser_path_and_file = self.adviser_path_and_file
-
-                layout = [
-                    [sg.T('Current Adviser: {}'.format(self.adviser_id_name), font=self.text_font,
-                          size=(40, 1))],
-                    [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
-                                key='adviser_id_name_k')],
-                    [sg.T('Movetime (sec)', font=self.text_font, size=(14, 1)),
-                     sg.Spin([t for t in range(1, 3600, 1)], font=self.text_font,
-                             initial_value=self.adviser_movetime_sec,
-                             size=(8, 1), key='adviser_movetime_k')],
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-
-                # Create new window and disable the main window
-                w = sg.Window(BOX_TITLE + '/Select Adviser', layout,
-                              icon=ico_path[platform]['adviser'])
-                window.Hide()
-
-                while True:
-                    e, v = w.Read(timeout=10)
-
-                    if e is None or e == 'Cancel':
-                        self.adviser_file = current_adviser_engine_file
-                        self.adviser_path_and_file = current_adviser_path_and_file
-                        break
-
-                    if e == 'OK':
-                        movetime_sec = int(v['adviser_movetime_k'])
-                        self.adviser_movetime_sec = min(3600, max(1, movetime_sec))
-
-                        # We use try/except because user can press OK without selecting an engine
-                        try:
-                            adviser_eng_id_name = self.adviser_id_name = v['adviser_id_name_k'][0]
-                            self.adviser_file, self.adviser_path_and_file = self.get_engine_file(
-                                adviser_eng_id_name)
-                        except IndexError:
-                            logging.info('User presses OK but did not select an engine')
-                        except Exception:
-                            logging.exception('Failed to set engine.')
-                        break
-
-                window.UnHide()
-                w.Close()
+                self.get_adviser_engine(window)
                 continue
 
             # Mode: Neutral
@@ -4010,77 +3490,7 @@ class EasyChessGui:
 
             # Mode: Neutral, Settings menu
             if button == 'Game::settings_game_k':
-                font_sizes = ['10', '12', '20', '32']
-                font_ui_sizes = ['10', '12', '20', '32']
-                field_sizes = ['60', '70', '80', '90', '100', '105']
-                win_title = 'Settings/Game'
-                layout = [
-
-                    [sg.CBox('Save time left in game notation', font=self.text_font,
-                             key='save_time_left_k',
-                             default=self.is_save_time_left,
-                             tooltip='[%clk h:mm:ss] will appear as\n' +
-                                     'move comment and is shown in move\n' +
-                                     'list and saved in pgn file.')],
-                    [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
-                      sg.Combo(["", "pgnviewer", "pgneditor"], font=self.text_font, expand_x=True,
-                               enable_events=True,
-                               readonly=False, default_value=str(self.start_mode), key='start_mode')]],
-                    # [sg.CBox('Start in game-entry-mode', font=self.text_font,
-                    #          key='start_mode',
-                    #          default=self.preferences.preferences['start_mode'])],
-                    [[sg.Text("Menu-font-size:", size=(16, 1), font=self.text_font),
-                      sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
-                               readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
-                    [[sg.Text("Font-size UI:", size=(16, 1), font=self.text_font),
-                      sg.Combo(font_ui_sizes, font=self.text_font, expand_x=True, enable_events=True,
-                               readonly=False, default_value=self.font_size_ui, key='font_size_ui')]],
-                    [[sg.Text("Chess-field-size:", size=(16, 1), font=self.text_font),
-                      sg.Combo(field_sizes, font=self.text_font, expand_x=True, enable_events=True,
-                               readonly=False, default_value=str(self.FIELD_SIZE), key='field_size')]],
-                    [sg.Text('Sites', size=(7, 1), font=self.text_font),
-                     sg.InputText(",".join(self.sites_list), font=self.text_font, key='sites_list_k',
-                                  size=(60, 1))],
-                    [sg.Text('Events', size=(7, 1), font=self.text_font),
-                     sg.InputText(",".join(self.events_list), font=self.text_font, key='events_list_k',
-                                  size=(60, 1))],
-                    [sg.Text('Players', size=(7, 1), font=self.text_font),
-                     sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
-                                  size=(60, 1))],
-
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
-                ]
-
-                w = sg.Window(win_title, layout,
-                              icon=ico_path[platform]['pecg'])
-                window.Hide()
-
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None or e == 'Cancel':
-                        break
-                    if e == 'OK':
-                        self.menu_font_size = v['menu_font_size']
-                        self.font_size_ui = int(v['font_size_ui'])
-                        self.FIELD_SIZE = int(v['field_size'])
-                        self.is_save_time_left = v['save_time_left_k']
-                        self.start_mode = v['start_mode']
-                        self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
-                        self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
-                        self.players = [s.strip() for s in v['players_k'].split(",")]
-                        self.preferences.preferences["menu_font_size"] = self.menu_font_size
-                        self.preferences.preferences["font_size_ui"] = self.font_size_ui
-                        self.preferences.preferences["sites_list"] = self.sites_list
-                        self.preferences.preferences["events_list"] = self.events_list
-                        self.preferences.preferences["players"] = self.players
-                        self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
-                        self.preferences.preferences["start_mode"] = self.start_mode
-                        self.preferences.preferences["field_size"] = self.FIELD_SIZE
-                        self.preferences.save_preferences()
-                        break
-
-                window.UnHide()
-                w.Close()
+                self.get_settings_pgn(window)
                 continue
 
             # Mode: Neutral, Change theme
@@ -4147,6 +3557,595 @@ class EasyChessGui:
                 continue
 
         window.Close()
+
+    def get_settings_pgn(self, window):
+        font_sizes = ['10', '12', '20', '32']
+        font_ui_sizes = ['10', '12', '20', '32']
+        field_sizes = ['60', '70', '80', '90', '100', '105']
+        win_title = 'Settings/Game'
+        layout = [
+
+            [sg.CBox('Save time left in game notation', font=self.text_font,
+                     key='save_time_left_k',
+                     default=self.is_save_time_left,
+                     tooltip='[%clk h:mm:ss] will appear as\n' +
+                             'move comment and is shown in move\n' +
+                             'list and saved in pgn file.')],
+            [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
+              sg.Combo(["", "pgnviewer", "pgneditor"], font=self.text_font, expand_x=True,
+                       enable_events=True,
+                       readonly=False, default_value=str(self.start_mode), key='start_mode')]],
+            # [sg.CBox('Start in game-entry-mode', font=self.text_font,
+            #          key='start_mode',
+            #          default=self.preferences.preferences['start_mode'])],
+            [[sg.Text("Menu-font-size:", size=(16, 1), font=self.text_font),
+              sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
+                       readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
+            [[sg.Text("Font-size UI:", size=(16, 1), font=self.text_font),
+              sg.Combo(font_ui_sizes, font=self.text_font, expand_x=True, enable_events=True,
+                       readonly=False, default_value=self.font_size_ui, key='font_size_ui')]],
+            [[sg.Text("Chess-field-size:", size=(16, 1), font=self.text_font),
+              sg.Combo(field_sizes, font=self.text_font, expand_x=True, enable_events=True,
+                       readonly=False, default_value=str(self.FIELD_SIZE), key='field_size')]],
+            [sg.Text('Sites', size=(7, 1), font=self.text_font),
+             sg.InputText(",".join(self.sites_list), font=self.text_font, key='sites_list_k',
+                          size=(60, 1))],
+            [sg.Text('Events', size=(7, 1), font=self.text_font),
+             sg.InputText(",".join(self.events_list), font=self.text_font, key='events_list_k',
+                          size=(60, 1))],
+            [sg.Text('Players', size=(7, 1), font=self.text_font),
+             sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
+                          size=(60, 1))],
+
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
+        ]
+        w = sg.Window(win_title, layout,
+                      icon=ico_path[platform]['pecg'])
+        window.Hide()
+        while True:
+            e, v = w.Read(timeout=10)
+            if e is None or e == 'Cancel':
+                break
+            if e == 'OK':
+                self.menu_font_size = v['menu_font_size']
+                self.font_size_ui = int(v['font_size_ui'])
+                self.FIELD_SIZE = int(v['field_size'])
+                self.is_save_time_left = v['save_time_left_k']
+                self.start_mode = v['start_mode']
+                self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
+                self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
+                self.players = [s.strip() for s in v['players_k'].split(",")]
+                self.preferences.preferences["menu_font_size"] = self.menu_font_size
+                self.preferences.preferences["font_size_ui"] = self.font_size_ui
+                self.preferences.preferences["sites_list"] = self.sites_list
+                self.preferences.preferences["events_list"] = self.events_list
+                self.preferences.preferences["players"] = self.players
+                self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
+                self.preferences.preferences["start_mode"] = self.start_mode
+                self.preferences.preferences["field_size"] = self.FIELD_SIZE
+                self.preferences.save_preferences()
+                break
+        window.UnHide()
+        w.Close()
+
+    def manage_engine(self, button, window, engine_id_name):
+        msg = None
+        if button == 'Install':
+            button_title = 'Engine/Manage/' + button
+            new_engine_path_file, new_engine_id_name = None, None
+
+            install_layout = [
+                [sg.Text('Current configured engine names', font=self.text_font)],
+                [sg.Listbox(values=self.engine_id_name_list,
+                            size=(48, 10), font=self.text_font, disabled=True)],
+                [sg.Button('Add', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
+            ]
+
+            window.Hide()
+            install_win = sg.Window(title=button_title,
+                                    layout=install_layout,
+                                    icon=ico_path[platform]['pecg'])
+
+            while True:
+                e, v = install_win.Read(timeout=100)
+                if e is None or e == 'Cancel':
+                    break
+                if e == 'Add':
+                    button_title += '/' + e
+
+                    add_layout = [
+                        [sg.Text('Engine', font=self.text_font, size=(6, 1)), sg.Input(key='engine_path_file_k'),
+                         sg.FileBrowse()],
+                        [
+                            sg.Text('Name', font=self.text_font, size=(6, 1)),
+                            sg.Input(key='engine_id_name_k', font=self.text_font, tooltip='Input name'),
+                            sg.Button('Get Id Name', font=self.text_font)
+                        ],
+                        [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
+                    ]
+
+                    install_win.Hide()
+                    add_win = sg.Window(button_title, add_layout)
+                    is_cancel_add_win = False
+                    while True:
+                        e1, v1 = add_win.Read(timeout=100)
+                        if e1 is None:
+                            is_cancel_add_win = True
+                            break
+                        if e1 == 'Cancel':
+                            is_cancel_add_win = True
+                            break
+                        if e1 == 'Get Id Name':
+                            new_engine_path_file = v1['engine_path_file_k']
+
+                            # We can only get the engine id name if the engine is defined.
+                            if new_engine_path_file:
+                                que = queue.Queue()
+                                t = threading.Thread(
+                                    target=self.get_engine_id_name,
+                                    args=(new_engine_path_file, que,),
+                                    daemon=True
+                                )
+                                t.start()
+                                is_update_list = False
+                                while True:
+                                    try:
+                                        msg = que.get_nowait()
+                                        break
+                                    except Exception:
+                                        pass
+                                t.join()
+
+                                if msg[0] == 'Done' and msg[1] is not None:
+                                    is_update_list = True
+                                    new_engine_id_name = msg[1]
+                                else:
+                                    is_cancel_add_win = True
+                                    sg.Popup(
+                                        'This engine cannot be '
+                                        'installed. Please select '
+                                        'another engine. It should be uci '
+                                        'engine.',
+                                        title=button_title + '/Get Id name')
+
+                                if is_update_list:
+                                    add_win.Element('engine_id_name_k').Update(
+                                        new_engine_id_name)
+
+                                # If we fail to install the engine, we exit
+                                # the install window
+                                if is_cancel_add_win:
+                                    break
+
+                            else:
+                                sg.Popup(
+                                    'Please define the engine or browse to the location of the engine file first.',
+                                    title=button_title + '/Get Id name'
+                                )
+
+                        if e1 == 'OK':
+                            try:
+                                new_engine_path_file = v1[
+                                    'engine_path_file_k']
+                                new_engine_id_name = v1['engine_id_name_k']
+                                if new_engine_id_name != '':
+                                    # Check if new_engine_id_name is already existing
+                                    if self.is_name_exists(new_engine_id_name):
+                                        sg.Popup(
+                                            f'{new_engine_id_name} is existing. Please modify the name! \
+                                                You can modify the config later thru Engine->Manage->Edit',
+                                            title=button_title,
+                                            icon=ico_path[platform]['pecg']
+                                        )
+                                        continue
+                                    break
+                                else:
+                                    sg.Popup(
+                                        'Please input engine id name, or press Get Id Name button.',
+                                        title=button_title,
+                                        icon=ico_path[platform]['pecg']
+                                    )
+                            except Exception:
+                                logging.exception('Failed to get engine '
+                                                  'path and file')
+
+                    # Outside add window while loop
+                    add_win.Close()
+                    install_win.UnHide()
+
+                    # Save the new configured engine to pecg_engines.json.
+                    if not is_cancel_add_win:
+                        que = queue.Queue()
+                        t = threading.Thread(
+                            target=self.add_engine_to_config_file,
+                            args=(new_engine_path_file,
+                                  new_engine_id_name, que,), daemon=True)
+                        t.start()
+                        while True:
+                            try:
+                                msg = que.get_nowait()
+                                break
+                            except Exception:
+                                continue
+                        t.join()
+
+                        if msg == 'Failure':
+                            sg.Popup(
+                                f'Failed to add {new_engine_id_name} in config file!',
+                                title=button_title,
+                                icon=ico_path[platform]['pecg']
+                            )
+
+                        self.engine_id_name_list = \
+                            self.get_engine_id_name_list()
+                    break
+
+            install_win.Close()
+            window.UnHide()
+
+            # Define default engine opponent and adviser
+            if engine_id_name is None:
+                engine_id_name = self.get_default_engine_opponent()
+            if self.adviser_id_name is None:
+                self.set_default_adviser_engine()
+
+            self.update_labels_and_game_tags(window, human=self.username)
+
+            return engine_id_name, True
+        # Mode: Neutral
+        if button == 'Edit':
+            button_title = 'Engine/Manage/' + button
+            opt_name = []
+            ret_opt_name = []
+            engine_path_file, engine_id_name = None, None
+
+            edit_layout = [
+                [sg.Text('Current configured engine names', font=self.text_font)],
+                [
+                    sg.Listbox(
+                        values=self.engine_id_name_list, font=self.text_font,
+                        size=(48, 10),
+                        key='engine_id_name_k'
+                    )
+                ],
+                [sg.Button('Modify', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
+            ]
+
+            window.Hide()
+            edit_win = sg.Window(
+                button_title,
+                layout=edit_layout,
+                icon=ico_path[platform]['pecg']
+            )
+            is_cancel_edit_win = False
+            while True:
+                e, v = edit_win.Read(timeout=100)
+                if e is None or e == 'Cancel':
+                    is_cancel_edit_win = True
+                    break
+                if e == 'Modify':
+                    option_layout, option_layout2 = [], []
+                    button_title += '/' + e
+
+                    try:
+                        orig_idname = engine_id_name = v['engine_id_name_k'][0]
+                    except Exception:
+                        sg.Popup('Please select an engine to modify.',
+                                 title='/Edit/Modify',
+                                 icon=ico_path[platform]['pecg'])
+                        continue
+
+                    # Read engine config file
+                    with open(self.engine_config_file, 'r') as json_file:
+                        data = json.load(json_file)
+
+                    # First option that can be set is the config name
+                    option_layout.append(
+                        [sg.Text('name', size=(4, 1)),
+                         sg.Input(engine_id_name, size=(38, 1),
+                                  key='string_name_k')])
+                    opt_name.append(['name', 'string_name_k'])
+
+                    for p in data:
+                        name = p['name']
+                        path = p['workingDirectory']
+                        file = p['command']
+                        engine_path_file = Path(path, file)
+                        option = p['options']
+
+                        if name == engine_id_name:
+                            num_opt = len(option)
+                            opt_cnt = 0
+                            for o in option:
+                                opt_cnt += 1
+                                name = o['name']
+                                value = o['value']
+                                type_ = o['type']
+
+                                if type_ == 'spin':
+                                    min_ = o['min']
+                                    max_ = o['max']
+
+                                    key_name = type_ + '_' + name.lower() + '_k'
+                                    opt_name.append([name, key_name])
+
+                                    ttip = 'min {} max {}'.format(min_, max_)
+                                    spin_layout = \
+                                        [sg.Text(name, size=(16, 1)),
+                                         sg.Input(value, size=(8, 1),
+                                                  key=key_name,
+                                                  tooltip=ttip)]
+                                    if num_opt > 10 and opt_cnt > num_opt // 2:
+                                        option_layout2.append(spin_layout)
+                                    else:
+                                        option_layout.append(spin_layout)
+
+                                elif type_ == 'check':
+                                    key_name = type_ + '_' + name.lower() + '_k'
+                                    opt_name.append([name, key_name])
+
+                                    check_layout = \
+                                        [sg.Text(name, size=(16, 1)),
+                                         sg.Checkbox('', key=key_name,
+                                                     default=value)]
+                                    if num_opt > 10 and opt_cnt > num_opt // 2:
+                                        option_layout2.append(check_layout)
+                                    else:
+                                        option_layout.append(check_layout)
+
+                                elif type_ == 'string':
+                                    key_name = type_ + '_' + name + '_k'
+                                    opt_name.append([name, key_name])
+
+                                    # Use FolderBrowse()
+                                    if 'syzygypath' in name.lower():
+                                        sy_layout = \
+                                            [sg.Text(name, size=(16, 1)),
+                                             sg.Input(value,
+                                                      size=(12, 1),
+                                                      key=key_name),
+                                             sg.FolderBrowse()]
+
+                                        if num_opt > 10 and opt_cnt > num_opt // 2:
+                                            option_layout2.append(sy_layout)
+                                        else:
+                                            option_layout.append(sy_layout)
+
+                                    # Use FileBrowse()
+                                    elif 'weightsfile' in name.lower():
+                                        weight_layout = \
+                                            [sg.Text(name, size=(16, 1)),
+                                             sg.Input(value,
+                                                      size=(12, 1),
+                                                      key=key_name),
+                                             sg.FileBrowse()]
+
+                                        if num_opt > 10 and opt_cnt > num_opt // 2:
+                                            option_layout2.append(
+                                                weight_layout)
+                                        else:
+                                            option_layout.append(
+                                                weight_layout)
+                                    else:
+                                        str_layout = \
+                                            [sg.Text(name, size=(16, 1)),
+                                             sg.Input(value, size=(16, 1),
+                                                      key=key_name)]
+
+                                        if num_opt > 10 and opt_cnt > num_opt // 2:
+                                            option_layout2.append(
+                                                str_layout)
+                                        else:
+                                            option_layout.append(
+                                                str_layout)
+
+                                elif type_ == 'combo':
+                                    key_name = type_ + '_' + name + '_k'
+                                    opt_name.append([name, key_name])
+                                    var = o['choices']
+                                    combo_layout = [
+                                        sg.Text(name, size=(16, 1)),
+                                        sg.Combo(var, default_value=value,
+                                                 size=(12, 1),
+                                                 key=key_name)]
+                                    if num_opt > 10 and opt_cnt > num_opt // 2:
+                                        option_layout2.append(combo_layout)
+                                    else:
+                                        option_layout.append(combo_layout)
+                            break
+
+                    option_layout.append([sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)])
+
+                    if len(option_layout2) > 1:
+                        tab1 = [[sg.Column(option_layout)]]
+                        tab2 = [[sg.Column(option_layout2)]]
+                        modify_layout = [[sg.Column(tab1), sg.Column(tab2)]]
+                    else:
+                        modify_layout = option_layout
+
+                    edit_win.Hide()
+                    modify_win = sg.Window(button_title,
+                                           layout=modify_layout,
+                                           icon=ico_path[platform]['pecg'])
+                    is_cancel_modify_win = False
+                    while True:
+                        e1, v1 = modify_win.Read(timeout=100)
+                        if e1 is None or e1 == 'Cancel':
+                            is_cancel_modify_win = True
+                            break
+                        if e1 == 'OK':
+                            engine_id_name = v1['string_name_k']
+                            for o in opt_name:
+                                d = {o[0]: v1[o[1]]}
+                                ret_opt_name.append(d)
+                            break
+
+                    edit_win.UnHide()
+                    modify_win.Close()
+                    break  # Get out of edit_win loop
+
+            # Outside edit_win while loop
+
+            # Save the new configured engine to pecg_engines.json file
+            if not is_cancel_edit_win and not is_cancel_modify_win:
+                self.update_engine_to_config_file(
+                    engine_path_file, engine_id_name,
+                    orig_idname, ret_opt_name)
+                self.engine_id_name_list = self.get_engine_id_name_list()
+
+            edit_win.Close()
+            window.UnHide()
+            return engine_id_name, True
+        # Mode: Neutral
+        if button == 'Delete':
+            button_title = 'Engine/Manage/' + button
+            delete_layout = [
+                [sg.Text('Current configured engine names', font=self.text_font)],
+                [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
+                            key='engine_id_name_k')],
+                [sg.Button('Delete', font=self.text_font), sg.Cancel(font=self.text_font)]
+            ]
+            window.Hide()
+            delete_win = sg.Window(
+                button_title,
+                layout=delete_layout,
+                icon=ico_path[platform]['pecg']
+            )
+            is_cancel = False
+            while True:
+                e, v = delete_win.Read(timeout=100)
+                if e is None or e == 'Cancel':
+                    is_cancel = True
+                    break
+                if e == 'Delete':
+                    try:
+                        engine_id_name = v['engine_id_name_k'][0]
+                    except Exception:
+                        sg.Popup('Please select an engine to delete.',
+                                 title=button_title,
+                                 icon=ico_path[platform]['pecg'])
+                        continue
+                    with open(self.engine_config_file, 'r') as json_file:
+                        data = json.load(json_file)
+
+                    for i in range(len(data)):
+                        if data[i]['name'] == engine_id_name:
+                            logging.info('{} is found for deletion.'.format(
+                                engine_id_name))
+                            data.pop(i)
+                            break
+
+                    # Save data to pecg_engines.json
+                    with open(self.engine_config_file, 'w') as h:
+                        json.dump(data, h, indent=4)
+
+                    break
+
+            # Save the new configured engine to pecg_engines.json file
+            if not is_cancel:
+                self.engine_id_name_list = self.get_engine_id_name_list()
+
+            delete_win.Close()
+            window.UnHide()
+
+            return engine_id_name, True
+        return engine_id_name, False
+
+    def get_adviser_engine(self, window):
+        current_adviser_engine_file = self.adviser_file
+        current_adviser_path_and_file = self.adviser_path_and_file
+        layout = [
+            [sg.T('Current Adviser: {}'.format(self.adviser_id_name), font=self.text_font,
+                  size=(40, 1))],
+            [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
+                        key='adviser_id_name_k')],
+            [sg.T('Movetime (sec)', font=self.text_font, size=(14, 1)),
+             sg.Spin([t for t in range(1, 3600, 1)], font=self.text_font,
+                     initial_value=self.adviser_movetime_sec,
+                     size=(8, 1), key='adviser_movetime_k')],
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
+        ]
+        # Create new window and disable the main window
+        w = sg.Window(BOX_TITLE + '/Select Adviser', layout,
+                      icon=ico_path[platform]['adviser'])
+        window.Hide()
+        while True:
+            e, v = w.Read(timeout=10)
+
+            if e is None or e == 'Cancel':
+                self.adviser_file = current_adviser_engine_file
+                self.adviser_path_and_file = current_adviser_path_and_file
+                break
+
+            if e == 'OK':
+                movetime_sec = int(v['adviser_movetime_k'])
+                self.adviser_movetime_sec = min(3600, max(1, movetime_sec))
+
+                # We use try/except because user can press OK without selecting an engine
+                try:
+                    adviser_eng_id_name = self.adviser_id_name = v['adviser_id_name_k'][0]
+                    self.adviser_file, self.adviser_path_and_file = self.get_engine_file(
+                        adviser_eng_id_name)
+                except IndexError:
+                    logging.info('User presses OK but did not select an engine')
+                except Exception:
+                    logging.exception('Failed to set engine.')
+                break
+        window.UnHide()
+        w.Close()
+
+    def define_engine(self, engine_id_name, window):
+        current_engine_file = self.opp_file
+        current_engine_id_name = self.opp_id_name
+        logging.info('Backup current engine list and file.')
+        logging.info('Current engine file: {}'.format(
+            current_engine_file))
+        layout = [
+            [sg.T('Current Opponent: {}'.format(self.opp_id_name), size=(40, 1))],
+            [sg.Listbox(values=self.engine_id_name_list, size=(48, 10), key='engine_id_k')],
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
+        ]
+        # Create new window and disable the main window
+        w = sg.Window(BOX_TITLE + '/Select opponent', layout,
+                      icon=ico_path[platform]['enemy'])
+        window.Hide()
+        while True:
+            e, v = w.Read(timeout=10)
+
+            if e is None or e == 'Cancel':
+                # Restore current engine list and file
+                logging.info('User cancels engine selection. ' +
+                             'We restore the current engine data.')
+                self.opp_file = current_engine_file
+                logging.info('Current engine data were restored.')
+                logging.info('current engine file: {}'.format(
+                    self.opp_file))
+                break
+
+            if e == 'OK':
+                # We use try/except because user can press OK without
+                # selecting an engine
+                try:
+                    engine_id_name = self.opp_id_name = v['engine_id_k'][0]
+                    self.opp_file, self.opp_path_and_file = self.get_engine_file(
+                        engine_id_name)
+
+                except IndexError:
+                    logging.info('User presses OK but did not select '
+                                 'an engine.')
+                except Exception:
+                    logging.exception('Failed to set engine.')
+                finally:
+                    if current_engine_id_name != self.opp_id_name:
+                        logging.info('User selected a new opponent {'
+                                     '}.'.format(self.opp_id_name))
+                break
+        window.UnHide()
+        w.Close()
+        # Update the player box in main window
+        self.update_labels_and_game_tags(window, human=self.username)
+        is_engine_set = True
+        return engine_id_name, is_engine_set
 
     def change_theme(self, button, window):
         if button in GUI_THEME:

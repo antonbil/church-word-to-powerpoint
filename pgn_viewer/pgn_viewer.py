@@ -126,6 +126,18 @@ class PGNViewer:
                 self.display_button_bar()
                 continue
 
+            if button == 'Adviser engine':
+                self.gui.get_adviser_engine(self.window)
+                continue
+
+            if button == "Other Settings":
+                self.gui.get_settings_pgn(self.window)
+                continue
+
+            _, is_engine_action = self.gui.manage_engine(button, self.window, "")
+            if is_engine_action:
+                continue
+
             if button == 'From clipboard':
                 self.from_clipboard()
 

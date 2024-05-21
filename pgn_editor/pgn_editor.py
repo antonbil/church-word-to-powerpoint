@@ -169,6 +169,18 @@ class PgnEditor:
                 self.display_button_bar()
                 continue
 
+            _, is_engine_action = self.gui.manage_engine(button, self.window, "")
+            if is_engine_action:
+                continue
+
+            if button == "Other Settings":
+                self.gui.get_settings_pgn(self.window)
+                continue
+
+            if button == 'Adviser engine':
+                self.gui.get_adviser_engine(self.window)
+                continue
+
             if button == 'Clear':
                 if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
                     self.board = chess.Board()

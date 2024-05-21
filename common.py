@@ -3,12 +3,13 @@ GUI_THEME = [
     'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
 ]
 
-settings_menu = ['Settings mode',
-                 'Color', ['Brown::board_color_k',
+settings_menu = ['Color', ['Brown::board_color_k',
                                'Blue::board_color_k',
                                'Green::board_color_k',
                                'Gray::board_color_k'],
-                     'Theme', GUI_THEME]
+                     'Theme', GUI_THEME,
+                 'Engine',['Adviser engine','Manage', ['Install', 'Edit', 'Delete']],
+                 "Other Settings"]
 
 menu_def_entry = [
         ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
@@ -39,19 +40,6 @@ menu_def_pgnviewer = [
                 ,]],
         ['Settings', settings_menu],
          ['Help', ["Gui"]]
-]
-
-menu_def_neutral_simple = [
-    ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
-    ['Boar&d', ['Color', ['Brown::board_color_k',
-                                  'Blue::board_color_k',
-                                  'Green::board_color_k',
-                                  'Gray::board_color_k'],
-                'Theme', GUI_THEME]],
-    ['&Engine', ['Set Engine Opponent', 'Set Depth',
-                 'Manage', ['Install', 'Edit', 'Delete']]],
-    ['&Settings', ['Game::settings_game_k']],
-    ['&Help', ['GUI']],
 ]
 
 temp_file_name = 'tempsave.pgn'
