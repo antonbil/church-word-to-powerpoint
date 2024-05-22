@@ -826,6 +826,7 @@ class EasyChessGui:
         self.board_color = my_preferences["board_color"] if "board_color" in my_preferences else "Brown::board_color_k"
         self.pgn_file = my_preferences["pgn_file"] if "pgn_file" in my_preferences else ""
         self.default_png_dir = my_preferences["default_png_dir"] if "default_png_dir" in my_preferences else "./"
+        self.adviser_engine = my_preferences["adviser_engine"] if "adviser_engine" in my_preferences else ""
         self.is_save_user_comment = True
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
@@ -2763,6 +2764,7 @@ class EasyChessGui:
                 message = message + " and saved"
             sg.popup_ok(message, title="Analyse PGN")
             return analysed_game
+        return None
 
     def get_adviser_engine_path(self):
         if self.engine:
@@ -3009,7 +3011,8 @@ class EasyChessGui:
 
     def set_default_adviser_engine(self):
         try:
-            self.adviser_id_name = self.engine_id_name_list[1] \
+            self.adviser_id_name = self.adviser_engine if len(self.adviser_engine) > 0 else \
+                self.engine_id_name_list[1] \
                 if len(self.engine_id_name_list) >= 2 \
                 else self.engine_id_name_list[0]
             self.adviser_file, self.adviser_path_and_file = \
@@ -4038,6 +4041,11 @@ class EasyChessGui:
 
                     for i in range(len(data)):
                         if data[i]['name'] == engine_id_name:
+                            if engine_id_name == self.adviser_engine:
+                                self.adviser_engine = ""
+                                self.preferences.preferences["adviser_engine"] = ""
+                                self.preferences.save_preferences()
+
                             logging.info('{} is found for deletion.'.format(
                                 engine_id_name))
                             data.pop(i)
@@ -4094,6 +4102,9 @@ class EasyChessGui:
                     adviser_eng_id_name = self.adviser_id_name = v['adviser_id_name_k'][0]
                     self.adviser_file, self.adviser_path_and_file = self.get_engine_file(
                         adviser_eng_id_name)
+                    self.adviser_engine = adviser_eng_id_name
+                    self.preferences.preferences["adviser_engine"] = adviser_eng_id_name
+                    self.preferences.save_preferences()
                     # set the engine-name passed by the command-line to None
                     self.engine = None
                 except IndexError:

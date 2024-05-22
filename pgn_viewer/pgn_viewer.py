@@ -808,7 +808,8 @@ class PGNViewer:
         value_black = self.game.headers['Black']
         analysed_game = self.gui.analyse_game(value_white, value_black, self.game, save_file=False)
         # if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
-        self.merge_into_current_game(analysed_game)
+        if not analysed_game is None:
+            self.merge_into_current_game(analysed_game)
         #
         # else:
         #     pgn = StringIO(analysed_game)
