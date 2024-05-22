@@ -700,7 +700,7 @@ def parse_args():
         description='play chess, or annotate game')
     parser.add_argument("--engine", "-e",
                         help="analysis engine (default: %(default)s)",
-                        default="stockfish")
+                        default="no_engine")
     parser.add_argument("--startmode", "-s",
                         help="startmode program (default: %(default)s)",
                         default="neutral")
@@ -720,7 +720,7 @@ class EasyChessGui:
     def __init__(self, theme, engine_config_file, user_config_file,
                  gui_book_file, computer_book_file, human_book_file,
                  is_use_gui_book, is_random_book, max_book_ply,
-                 engine='/home/user/Schaken/stockfish-python/python-chess-annotator/stockfish-ubuntu-x86-64-bmi2',
+                 engine='',
                  max_depth=MAX_DEPTH, start_mode="neutral"):
         self.window = None
         self.node = None
@@ -757,7 +757,7 @@ class EasyChessGui:
         self.game = None
         self.theme = theme
         # the engine-name passed by the command-line
-        self.engine = engine
+        self.engine = engine.replace("no_engine", "")
         self.user_config_file = user_config_file
         self.engine_config_file = engine_config_file
         self.gui_book_file = gui_book_file
@@ -2767,7 +2767,7 @@ class EasyChessGui:
         return None
 
     def get_adviser_engine_path(self):
-        if self.engine:
+        if self.engine and len(self.engine) > 0:
             return self.engine
         else:
             return self.adviser_path_and_file

@@ -281,7 +281,10 @@ class PGNViewer:
                 selection = value[button]
                 if selection:
                     item = selection[0]
-                    index = self.pgn_lines.index(item)
+                    index = self.pgn_lines.index(item) if item in self.pgn_lines else -1
+                    if index == -1:
+                        self.redraw_all()
+                        continue
                     self.current_line = index
                     self.go_up = True
                     positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
