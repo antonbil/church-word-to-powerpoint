@@ -828,6 +828,8 @@ class EasyChessGui:
         self.default_png_dir = my_preferences["default_png_dir"] if "default_png_dir" in my_preferences else "./"
         self.adviser_engine = my_preferences["adviser_engine"] if "adviser_engine" in my_preferences else ""
         self.is_save_user_comment = True
+        #
+        self.opponent_engine = my_preferences["opponent_engine"] if "opponent_engine" in my_preferences else ""
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
@@ -3069,6 +3071,8 @@ class EasyChessGui:
         engine_id_name = None
         try:
             engine_id_name = self.opp_id_name = self.engine_id_name_list[0]
+            if len(self.opponent_engine)>0:
+                engine_id_name = self.opp_id_name = self.opponent_engine
             self.opp_file, self.opp_path_and_file = self.get_engine_file(
                 engine_id_name)
         except IndexError as e:
@@ -4150,6 +4154,9 @@ class EasyChessGui:
                     engine_id_name = self.opp_id_name = v['engine_id_k'][0]
                     self.opp_file, self.opp_path_and_file = self.get_engine_file(
                         engine_id_name)
+                    self.opponent_engine = engine_id_name
+                    self.preferences.preferences["opponent_engine"] = engine_id_name
+                    self.preferences.save_preferences()
 
                 except IndexError:
                     logging.info('User presses OK but did not select '
