@@ -71,7 +71,7 @@ log_format = '%(asctime)s :: %(funcName)s :: line: %(lineno)d :: %(levelname)s :
 logging.basicConfig(
     filename='pecg_log.txt',
     filemode='w',
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format=log_format
 )
 
