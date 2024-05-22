@@ -812,7 +812,9 @@ class PGNViewer:
         analysed_game = self.gui.analyse_game(value_white, value_black, self.game, save_file=False)
         # if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
         if not analysed_game is None:
-            self.merge_into_current_game(analysed_game)
+            new_game = self.merge_into_current_game(analysed_game)
+            self.init_game(new_game)
+
         #
         # else:
         #     pgn = StringIO(analysed_game)
@@ -843,6 +845,7 @@ class PGNViewer:
                     current_move.variations.append(variation_second)
             current_move = current_move.variations[0]
             current_move_second = current_move_second.variations[0]
+        return first_game
 
     def callback(self, advice):
         self.window.Read(timeout=5)
