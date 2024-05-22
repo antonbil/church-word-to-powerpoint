@@ -130,12 +130,12 @@ class PGNViewer:
                 self.gui.get_adviser_engine(self.window)
                 continue
 
-            if button == "Other Settings":
-                self.gui.get_settings_pgn(self.window)
-                continue
-
             _, is_engine_action = self.gui.manage_engine(button, self.window, "")
             if is_engine_action:
+                continue
+
+            if button == "Other Settings":
+                self.gui.get_settings_pgn(self.window)
                 continue
 
             if button == 'From clipboard':
@@ -801,7 +801,7 @@ class PGNViewer:
             'White'].replace(" ", "_") \
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
         analysed_game = annotator.start_analise(pgn_file,
-                                                self.gui.engine, name_file, store_in_db, self.gui)
+                                                self.gui.get_adviser_engine_path(), name_file, store_in_db, self.gui)
 
     def analyse_game_func(self):
         value_white = self.game.headers['White']

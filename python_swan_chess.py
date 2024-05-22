@@ -756,6 +756,7 @@ class EasyChessGui:
         self.returning_from_playing = False
         self.game = None
         self.theme = theme
+        # the engine-name passed by the command-line
         self.engine = engine
         self.user_config_file = user_config_file
         self.engine_config_file = engine_config_file
@@ -2753,14 +2754,21 @@ class EasyChessGui:
             pgn_file = temp_file_name
             with open(pgn_file, mode='w') as f:
                 f.write('{}\n\n'.format(pgn_game))
+                print("engine used:", self.get_adviser_engine_path())
             analysed_game = annotator.start_analise(pgn_file,
-                                                    self.engine, name_file, header_dialog.add_to_library, self, save_file)
+                                                    self.get_adviser_engine_path(), name_file, header_dialog.add_to_library, self, save_file)
             window.close()
             message = "PGN is annotated"
             if save_file:
                 message = message + " and saved"
             sg.popup_ok(message, title="Analyse PGN")
             return analysed_game
+
+    def get_adviser_engine_path(self):
+        if self.engine:
+            return self.engine
+        else:
+            return self.adviser_path_and_file
 
     def get_game_data(self, value_white, value_black, pgn_game):
         header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
@@ -4086,6 +4094,8 @@ class EasyChessGui:
                     adviser_eng_id_name = self.adviser_id_name = v['adviser_id_name_k'][0]
                     self.adviser_file, self.adviser_path_and_file = self.get_engine_file(
                         adviser_eng_id_name)
+                    # set the engine-name passed by the command-line to None
+                    self.engine = None
                 except IndexError:
                     logging.info('User presses OK but did not select an engine')
                 except Exception:
