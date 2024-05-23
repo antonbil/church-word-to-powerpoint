@@ -886,6 +886,24 @@ class EasyChessGui:
                 rem_time = self.get_time_h_mm_ss(time_left, False)
                 self.node.comment = '[%clk {}]'.format(rem_time)
 
+    def swap_visible_columns_window(self, window):
+        # on startup the menu-options are changed if default-window is not 'neutral'
+        menu_def = menu_def_neutral
+        pgn = False
+        if self.start_mode_used == "pgnviewer":
+            menu_def = menu_def_pgnviewer
+            pgn = True
+        if self.start_mode_used == "pgneditor":
+            menu_def = menu_def_entry
+            pgn = True
+
+        self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''))#"_pgn_tab_", visible=pgn
+        window.find_element("_pgn_tab_").Update(visible=pgn)
+        window.find_element("_play_tab_").Update(visible=not pgn)
+        window.find_element("_main_menu_").Update(menu_def)
+        self.menu_elem = window.find_element("_main_menu_")
+        return window
+
     def create_new_window(self, window, flip=False):
         """Hide current window and creates a new window."""
         loc = window.CurrentLocation()
@@ -1473,6 +1491,9 @@ class EasyChessGui:
     def update_labels_and_game_tags(self, window, human='Human'):
         """ Update player names """
         engine_id = self.opp_id_name
+        element_exists = '_White_' in window.AllKeysDict
+        if not element_exists:
+            return
         if self.is_user_white:
             window.find_element('_White_').Update(human)
             window.find_element('_Black_').Update(engine_id)
@@ -2898,17 +2919,22 @@ class EasyChessGui:
 
         # on startup the menu-options are changed if default-window is not 'neutral'
         menu_def = menu_def_neutral
+        pgn = False
         if self.start_mode_used == "pgnviewer":
             menu_def = menu_def_pgnviewer
+            pgn = True
         if self.start_mode_used == "pgneditor":
             menu_def = menu_def_entry
+            pgn = True
 
-        self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''))
+        self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''), key="_main_menu_")
 
         # White board layout, mode: Neutral
         layout = [
             [self.menu_elem],
-            [sg.Column(board_tab), sg.Column(board_controls)]
+#            [sg.Column(board_tab), sg.Column(board_controls)]
+            [sg.Column(board_tab), sg.Column(self.get_png_layout(), key="_pgn_tab_", visible=pgn),
+             sg.Column(self.get_neutral_layout(), key="_play_tab_", visible=not pgn)]
         ]
 
         return layout
@@ -2984,19 +3010,19 @@ class EasyChessGui:
             button = sg.Button('....', size=(5, 1), key="variation" + str(i))
             variation_buttons.append(button)
         board_controls = [
-            [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_')],
+            [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_2')],
             [sg.Text('White', size=(7, 1), font=self.text_font),
-             sg.InputText('Human', font=self.text_font, key='_White_',
+             sg.InputText('Human', font=self.text_font, key='_White_2',
                           size=(24, 1)),
              ],
             [sg.Text('Black', size=(7, 1), font=self.text_font),
-             sg.InputText('Computer', font=self.text_font, key='_Black_',
+             sg.InputText('Computer', font=self.text_font, key='_Black_2',
                           size=(24, 1))
              ],
             [sg.Button('', font=self.text_font, key='overall_game_info',
                        size=(71, 1))],
             [sg.Listbox('', size=(70, 18), expand_y=True, enable_events=True,
-                        font=self.text_font, key='_movelist_', sbar_width=self.scrollbar_width,
+                        font=self.text_font, key='_movelist_2', sbar_width=self.scrollbar_width,
                         sbar_arrow_width=self.scrollbar_width)],
             [sg.Text('Move:', size=(7, 1), font=self.text_font),
              sg.Text('', font=self.text_font, key='_currentmove_',
@@ -3005,7 +3031,7 @@ class EasyChessGui:
             [sg.Push(background_color=None), sg.Frame('', [[]], key="button_frame")],
             [sg.Frame('', [[sg.Text('Info', size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
                                                                                        font=self.text_font,
-                                                                                       key='comment_k')]],
+                                                                                       key='comment_k_2')]],
                       key="info_frame", visible=False)],
 
         ]
@@ -3132,16 +3158,16 @@ class EasyChessGui:
                 if button == 'PGN-Viewer' or self.returning_from_playing:
                     if not self.is_png_layout():
                         self.main_layout = self.get_png_layout()
-                        window = self.create_new_window(window)
-                    self.menu_elem.Update(menu_def_pgnviewer)
+                        window = self.swap_visible_columns_window(window)
+
                     self.returning_from_playing = False
                 pgn_viewer = PGNViewer(self, window)
                 while pgn_viewer.restart and not pgn_viewer.is_win_closed:
                     if not self.is_png_layout():
                         self.main_layout = self.get_png_layout()
                         # must be improved; now only called if flip = True
-                        window = self.create_new_window(window, False)
-                    self.menu_elem.Update(menu_def_pgnviewer)
+                        window = self.swap_visible_columns_window(window)
+                    #self.menu_elem.Update(menu_def_pgnviewer)
                     pgn_viewer = PGNViewer(self, window)
 
                 # 'neutral' is selected in PGNViewer-menu
@@ -3151,7 +3177,7 @@ class EasyChessGui:
                     # check if the play-layout is chosen for further playing
                     if pgn_viewer.start_play_mode:
                         self.main_layout = self.get_neutral_layout()
-                        window = self.create_new_window(window, False)
+                        window = self.swap_visible_columns_window(window)
                         pgn_viewer.start_play_mode = False
                     self.menu_elem.Update(menu_def_neutral)
             if button == 'PGN-Editor' or self.start_mode_used == "pgneditor":
@@ -3159,8 +3185,8 @@ class EasyChessGui:
                 if button == 'PGN-Editor' or self.returning_from_playing:
                     if not self.is_png_layout():
                         self.main_layout = self.get_png_layout()
-                        window = self.create_new_window(window)
-                    self.menu_elem.Update(menu_def_entry)
+                        window = self.swap_visible_columns_window(window)
+                    #self.menu_elem.Update(menu_def_entry)
                     self.returning_from_playing = False
                 data_entry = PgnEditor(self, window)
                 # 'neutral' is selected in DataEntry-menu
@@ -3171,7 +3197,7 @@ class EasyChessGui:
                     if self.is_png_layout() or data_entry.start_play_mode:
                         data_entry.start_play_mode = False
                         self.main_layout = self.get_neutral_layout()
-                        window = self.create_new_window(window)
+                        window = self.swap_visible_columns_window(window)
                     self.menu_elem.Update(menu_def_neutral)
 
             if button == 'Next':

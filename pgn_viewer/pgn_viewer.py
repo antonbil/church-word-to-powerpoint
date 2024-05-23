@@ -63,7 +63,7 @@ class PGNViewer:
     def set_mode_display(self):
         mode = "PGN-Viewer" if self.mode == "viewer" else "PGN-Move-entry"
         file_name = self.pgn.split("/")[-1].replace(".pgn", "")
-        self.window.find_element('_gamestatus_').Update('Mode     {} ({})'.format(mode, file_name))
+        self.window.find_element('_gamestatus_2').Update('Mode     {} ({})'.format(mode, file_name))
 
     def load_start_pgn(self):
         game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
@@ -253,7 +253,7 @@ class PGNViewer:
             if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Line':
                 self.window.find_element('info_frame').Update(visible=True)
                 get_and_add_variation(self.current_move, self.move_number, self.board, self.callback,
-                                      self.window.find_element('comment_k'), self.gui)
+                                      self.window.find_element('comment_k_2'), self.gui)
                 self.redraw_all()
                 self.window.find_element('info_frame').Update(visible=False)
 
@@ -277,7 +277,7 @@ class PGNViewer:
                     else:
                         self.gui.save_pgn_file_in_preferences(self.pgn)
 
-            if button == '_movelist_':
+            if button == '_movelist_2':
                 selection = value[button]
                 if selection:
                     item = selection[0]
@@ -320,8 +320,8 @@ class PGNViewer:
                         os.remove(read_file)
 
             if button == "Analyse game":
-                self.game.headers['White'] = value['_White_']
-                self.game.headers['Black'] = value['_Black_']
+                self.game.headers['White'] = value['_White_2']
+                self.game.headers['Black'] = value['_Black_2']
 
                 self.analyse_game()
                 self.redraw_all()
@@ -849,7 +849,7 @@ class PGNViewer:
 
     def callback(self, advice):
         self.window.Read(timeout=5)
-        window = self.window.find_element('comment_k')
+        window = self.window.find_element('comment_k_2')
         window.Update('')
         window.Update(
             advice)
@@ -968,18 +968,18 @@ class PGNViewer:
             game.headers['Result'])
         info = (info[:70]) if len(info) > 70 else info
         self.window.find_element('overall_game_info').Update(info)
-        move_list_gui_element = self.window.find_element('_movelist_')
+        move_list_gui_element = self.window.find_element('_movelist_2')
         move_list_gui_element.Update(self.pgn_lines)
         self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
 
     def set_players(self, game):
-        self.window.find_element('_Black_').Update(game.headers['Black'])
-        self.window.find_element('_White_').Update(game.headers['White'])
+        self.window.find_element('_Black_2').Update(game.headers['Black'])
+        self.window.find_element('_White_2').Update(game.headers['White'])
 
     def display_move_list(self, moves, number=5, move_str="Nothing"):
         move_list = moves.split("\n")
-        move_list_gui_element = self.window.find_element('_movelist_')
+        move_list_gui_element = self.window.find_element('_movelist_2')
         if len(move_list) < number + 2:
             move_list_gui_element.Update(
                 move_list)
@@ -1065,13 +1065,13 @@ class PGNViewer:
         # get formatted partial moves: rest of moves from current-move on
         part_text = self.pgn_display.beautify_lines(str(next_move))
         if self.variation_bool:
-            window = self.window.find_element('_movelist_')
+            window = self.window.find_element('_movelist_2')
             window.Update(part_text)
             return
 
         # see if line number can be retrieved by comparing the first part of the partial moves
         line_number, is_available = self.pgn_display.get_line_number(next_move, self.pgn_lines, self.board)
-        # self.current_line is set if clicked on '_movelist_'
+        # self.current_line is set if clicked on '_movelist_2'
         if self.current_line > -1:
             line_number = self.current_line
             self.current_line = -1

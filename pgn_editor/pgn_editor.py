@@ -191,8 +191,8 @@ class PgnEditor:
 
             if button == 'PGN-Viewer':
                 name_file = temp_file_name
-                self.game.headers['White'] = value['_White_']
-                self.game.headers['Black'] = value['_Black_']
+                self.game.headers['White'] = value['_White_2']
+                self.game.headers['Black'] = value['_Black_2']
                 with open(name_file, mode='w') as f:
                     f.write('{}\n\n'.format(self.game))
                 self.gui.menu_elem.Update(menu_def_pgnviewer)
@@ -245,15 +245,15 @@ class PgnEditor:
                 self.display_new_situation()
 
             if button == 'Analyse game':
-                value_white = value['_White_']
-                value_black = value['_Black_']
+                value_white = value['_White_2']
+                value_black = value['_Black_2']
                 analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
                 pgn = StringIO(analysed_game)
                 self.read_file_from_io(pgn)
 
             if button == 'Save':
-                value_white = value['_White_']
-                value_black = value['_Black_']
+                value_white = value['_White_2']
+                value_black = value['_Black_2']
                 self.gui.save_game_pgn(value_white, value_black, self.game)
                 self.update_player_data()
             #
@@ -324,7 +324,7 @@ class PgnEditor:
                     if index > 0:
                         self.promote_variation_to_mainline(current_move, index)
 
-            if button == '_movelist_' and self.mode == "annotate":
+            if button == '_movelist_2' and self.mode == "annotate":
                 selection = value[button]
                 if selection:
                     item = selection[0]
@@ -421,7 +421,7 @@ class PgnEditor:
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def display_new_situation(self):
-        window = self.window.find_element('_movelist_')
+        window = self.window.find_element('_movelist_2')
         exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
         pgn_string = self.game.accept(exporter)
         # window.Update('')
@@ -432,8 +432,8 @@ class PgnEditor:
         self.display_move()
 
     def update_player_data(self):
-        self.window.find_element('_White_').Update(self.game.headers['White'])
-        self.window.find_element('_Black_').Update(self.game.headers['Black'])
+        self.window.find_element('_White_2').Update(self.game.headers['White'])
+        self.window.find_element('_Black_2').Update(self.game.headers['Black'])
 
 
     def move_add_manual(self, new_mode):
@@ -573,7 +573,7 @@ class PgnEditor:
             sg.popup_error("Already at the last move", title="Error next move", font=self.gui.text_font)
 
     def display_move_and_line_number(self):
-        move_list_gui_element = self.window.find_element('_movelist_')
+        move_list_gui_element = self.window.find_element('_movelist_2')
         if len(self.moves) > 0:
             line_number, is_available = self.pgn_display.get_line_number(self.moves[-1], self.pgn_lines, self.board)
             # print("line-number", line_number, is_available)
@@ -589,7 +589,7 @@ class PgnEditor:
 
     def callback(self, advice):
         self.window.Read(timeout=5)
-        window = self.window.find_element('comment_k')
+        window = self.window.find_element('comment_k_2')
         window.Update('')
         window.Update(
             advice)
@@ -603,7 +603,7 @@ class PgnEditor:
         board = self.board
         ply_number = self.move_number
         gui = self.gui
-        comment_element = self.window.find_element('comment_k')
+        comment_element = self.window.find_element('comment_k_2')
         callback = self.callback
         self.window.find_element('info_frame').Update(visible=True)
         get_and_add_variation(current_move, ply_number, board, callback, comment_element, gui)
@@ -670,7 +670,7 @@ class PgnEditor:
         self.move_squares.append(fr_row)
 
     def update_pgn_display(self):
-        move_list_gui_element = self.window.find_element('_movelist_')
+        move_list_gui_element = self.window.find_element('_movelist_2')
         exporter = chess.pgn.StringExporter(headers=False, variations=True, comments=True)
         pgn_string = str(self.game.game())#accept(exporter)
         lines = self.pgn_display.beautify_lines(pgn_string)
