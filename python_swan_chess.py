@@ -2072,7 +2072,9 @@ class EasyChessGui:
                                                         str(inc_e)
             elif self.engine_tc_type == 'timepermove':
                 self.game.headers['WhiteTimeControl'] = str(1) + '/' + str(base_e)
-        self.save_game()
+        # if game is transferred to pgn-viewer/pgn-editor, do not auto-save it
+        if self.start_mode_used not in ["pgneditor", "pgnviewer"]:
+            self.save_game()
 
         if board.is_game_over(claim_draw=True):
             sg.Popup('Game is over.', title=BOX_TITLE,
