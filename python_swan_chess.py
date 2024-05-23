@@ -918,7 +918,7 @@ class EasyChessGui:
             '{} {}'.format(APP_NAME, APP_VERSION),
             layout,
             default_button_element_size=(12, 1),
-            auto_size_buttons=False,
+            auto_size_buttons=False, resizable=True,
             location=(loc[0], loc[1]), size=(self.window_width, self.window_height),
             icon=ico_path[platform]['pecg']
         )
@@ -3136,7 +3136,7 @@ class EasyChessGui:
         # Use white layout as default window
         window = sg.Window('{} {}'.format(APP_NAME, APP_VERSION),
                            layout, default_button_element_size=(12, 1),
-                           auto_size_buttons=False,
+                           auto_size_buttons=False,resizable=True,
                            icon=ico_path[platform]['pecg'], size=(self.window_width, self.window_height))
         self.window = window
 
