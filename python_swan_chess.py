@@ -2076,6 +2076,7 @@ class EasyChessGui:
         if self.start_mode_used not in ["pgneditor", "pgnviewer"]:
             self.save_game()
         else:
+            # store the headers and the game-data in the move_string to use it in pgn-mode
             self.move_string = '{}\n\n'.format(self.game)
 
         if board.is_game_over(claim_draw=True):
