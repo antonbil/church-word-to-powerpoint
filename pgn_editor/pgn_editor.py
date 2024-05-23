@@ -18,8 +18,9 @@ class PgnEditor:
     class for data-entry of new pgn-file
     """
 
-    def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0):
+    def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0, play_move_string=""):
         self.start_play_mode = False
+        self.play_move_string = play_move_string
         self.from_pgn_viewer = from_pgn_viewer
         self.pgn_viewer_move = pgn_viewer_move
         self.current_line = None
@@ -41,8 +42,9 @@ class PgnEditor:
         self.window = window
         self.start_empty_game()
         self.pgn_display = PgnDisplay(69)
-
-        if file_name:
+        if len (self.play_move_string) > 0:
+            self.read_file_from_io(StringIO(self.play_move_string))
+        elif file_name:
             pgn = open(file_name)
             self.read_file_from_io(pgn)
 

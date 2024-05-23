@@ -21,7 +21,8 @@ from Tools.add_variation import get_and_add_variation, uci_string2_moves
 class PGNViewer:
     """pgn viewer class"""
 
-    def __init__(self, gui, window):
+    def __init__(self, gui, window, play_move_string=""):
+        self.play_move_string = play_move_string.strip()
         self.start_play_mode = False
         self.move_alternatives = []
         self.mode = "viewer"
@@ -66,6 +67,9 @@ class PGNViewer:
         self.window.find_element('_gamestatus_2').Update('Mode     {} ({})'.format(mode, file_name))
 
     def load_start_pgn(self):
+        if len(self.play_move_string) > 0:
+            self.open_pgn_io(StringIO(self.play_move_string), temp_file_name)
+            return
         game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
             else ""
         file_name = self.gui.preferences.preferences["pgn_file"]

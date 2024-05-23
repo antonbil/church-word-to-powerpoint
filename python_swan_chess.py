@@ -722,6 +722,7 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine='',
                  max_depth=MAX_DEPTH, start_mode="neutral"):
+        self.move_string = ""
         self.window = None
         self.node = None
         self.move_cnt = None
@@ -2017,7 +2018,7 @@ class EasyChessGui:
             elif not self.is_human_stm and self.is_engine_ready:
                 no_best_move = (
                     self.do_computer_move(board, window)
-                )
+                ) or self.is_exit_game or self.is_exit_app
                 if no_best_move:
                     break
 
@@ -2099,17 +2100,18 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: Computer first move
-            if button == 'Neutral' or button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer":
+            if button == 'Neutral' or self.start_mode_used == "pgnviewer":
                 self.is_exit_game = True
                 self.start_mode_used = ""
                 break
 
             if button == 'PGN-Editor':
-                self.start_mode_used = "pgneditor"
+                self.play_to_pgn_editor(window)
+                # do something with current game
                 break
 
             if button == 'PGN-Viewer':
-                self.start_mode_used = "pgnviewer"
+                self.play_to_pgn_viewer(window)
                 break
 
             if button == 'GUI':
@@ -2161,6 +2163,21 @@ class EasyChessGui:
                 break
         return board
 
+    def play_to_pgn_viewer(self, window):
+        self.start_mode_used = "pgnviewer"
+        self.store_current_game_for_pgn(window)
+
+    def store_current_game_for_pgn(self, window):
+        _, values2 = window.read(1)
+        # get content of current game
+        self.move_string = values2['_movelist_']
+        self.is_exit_game = True
+        self.swap_visible_columns_window(window)
+
+    def play_to_pgn_editor(self, window):
+        self.start_mode_used = "pgneditor"
+        self.store_current_game_for_pgn(window)
+
     def do_human_move(self, move_from, moved_piece, board, window):
         self.move_state = 0
         while True:
@@ -2186,10 +2203,10 @@ class EasyChessGui:
                 break
 
             if button == 'PGN-Editor':
-                self.start_mode_used = "pgneditor"
+                self.play_to_pgn_editor(window)
                 break
             if button == 'PGN-Viewer':
-                self.start_mode_used = "pgnviewer"
+                self.play_to_pgn_viewer(window)
                 break
             # Mode: Play, Stm: User, Run adviser engine
             if button == 'adviser_k':
@@ -2497,9 +2514,9 @@ class EasyChessGui:
                 if button in ['Neutral', 'PGN-Viewer', 'PGN-Editor']:
                     search.stop()
                     if button == 'PGN-Viewer':
-                        self.start_mode_used = "pgnviewer"
+                        self.play_to_pgn_viewer(window)
                     if button == 'PGN-Editor':
-                        self.start_mode_used = "pgneditor"
+                        self.play_to_pgn_editor(window)
                     self.is_search_stop_for_neutral = True
 
                 if button == 'Resign::resign_game_k':
@@ -3157,13 +3174,14 @@ class EasyChessGui:
                         window = self.swap_visible_columns_window(window)
 
                     self.returning_from_playing = False
-                pgn_viewer = PGNViewer(self, window)
+                pgn_viewer = PGNViewer(self, window, play_move_string=self.move_string)
                 while pgn_viewer.restart and not pgn_viewer.is_win_closed:
                     if not self.is_png_layout():
                         # must be improved; now only called if flip = True
                         window = self.swap_visible_columns_window(window)
                     #self.menu_elem.Update(menu_def_pgnviewer)
-                    pgn_viewer = PGNViewer(self, window)
+                    pgn_viewer = PGNViewer(self, window, play_move_string=self.move_string)
+                    self.move_string = ""
 
                 # 'neutral' is selected in PGNViewer-menu
                 # check if window is forced close
@@ -3174,14 +3192,17 @@ class EasyChessGui:
                         window = self.swap_visible_columns_window(window)
                         pgn_viewer.start_play_mode = False
                     self.menu_elem.Update(menu_def_neutral)
+                continue
+
             if button == 'PGN-Editor' or self.start_mode_used == "pgneditor":
                 # if default-window is not 'neutral', layout and menu are already changed
                 if button == 'PGN-Editor' or self.returning_from_playing:
                     if not self.is_png_layout():
                         window = self.swap_visible_columns_window(window)
-                    #self.menu_elem.Update(menu_def_entry)
+
                     self.returning_from_playing = False
-                data_entry = PgnEditor(self, window)
+                self.menu_elem.Update(menu_def_entry)
+                data_entry = PgnEditor(self, window, play_move_string=self.move_string)
                 # 'neutral' is selected in DataEntry-menu
 
                 self.start_mode_used = self.start_mode_used.replace("pgneditor", "")
@@ -3191,6 +3212,7 @@ class EasyChessGui:
                         data_entry.start_play_mode = False
                         window = self.swap_visible_columns_window(window)
                     self.menu_elem.Update(menu_def_neutral)
+                continue
 
             if button == 'Next':
                 print("next")
