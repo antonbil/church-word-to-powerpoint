@@ -2989,7 +2989,7 @@ class EasyChessGui:
 
              sg.Text('Invisible', size=(16, 1), visible=False, font=self.text_font, key='pgn_row')],
             [sg.Text('Move list', size=(16, 1), font=self.text_font)],
-            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 12),
+            [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 8),
                           font=self.text_font, key='_movelist_', disabled=True, sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
 
