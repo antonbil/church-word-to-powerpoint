@@ -823,6 +823,8 @@ class EasyChessGui:
         self.FIELD_SIZE = my_preferences["field_size"] if "field_size" in my_preferences else 60
         self.gui_theme = my_preferences["gui_theme"] if "gui_theme" in my_preferences else 'Reddit'
         self.font_size_ui = my_preferences["font_size_ui"] if "font_size_ui" in my_preferences else 10
+        self.window_width = my_preferences["window_width"] if "window_width" in my_preferences else 1500
+        self.window_height = my_preferences["window_height"] if "window_height" in my_preferences else 800
         self.scrollbar_width = int(int(self.menu_font_size) * 16 / 12)
         self.board_color = my_preferences["board_color"] if "board_color" in my_preferences else "Brown::board_color_k"
         self.pgn_file = my_preferences["pgn_file"] if "pgn_file" in my_preferences else ""
@@ -917,7 +919,7 @@ class EasyChessGui:
             layout,
             default_button_element_size=(12, 1),
             auto_size_buttons=False,
-            location=(loc[0], loc[1]),
+            location=(loc[0], loc[1]), size=(self.window_width, self.window_height),
             icon=ico_path[platform]['pecg']
         )
 
@@ -3135,7 +3137,7 @@ class EasyChessGui:
         window = sg.Window('{} {}'.format(APP_NAME, APP_VERSION),
                            layout, default_button_element_size=(12, 1),
                            auto_size_buttons=False,
-                           icon=ico_path[platform]['pecg'])
+                           icon=ico_path[platform]['pecg'], size=(self.window_width, self.window_height))
         self.window = window
 
         # Read user config file, if missing create and new one

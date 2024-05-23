@@ -21,7 +21,8 @@ class Preferences:
                                'players':["Anton Bil"], "start_mode": "", "menu_font_size": 12,
                                "gui_theme": "Reddit"
                     , "field_size": 60, "font_size_ui": 10, "board_color": "Brown::board_color_k",
-                               "pgn_file": "", "adviser_engine":"", "opponent_engine":""}
+                               "pgn_file": "", "adviser_engine":"", "opponent_engine":"", "window_width":1500,
+                               "window_height":1500}
             return preferences
 
     def save_preferences(self):
