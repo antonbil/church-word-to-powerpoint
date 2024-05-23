@@ -115,6 +115,7 @@ class PGNViewer:
                 self.gui.start_entry_mode = False
                 self.start_play_mode = True
                 self.gui.start_mode_used = "play"
+                self.gui.board_start_position(self.window)
                 break
 
             if button == 'Select games':

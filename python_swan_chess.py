@@ -3124,6 +3124,13 @@ class EasyChessGui:
 
         return engine_id_name
 
+    def board_start_position(self, window):
+        board = chess.Board()
+        fen = board.fen()
+        self.fen = fen
+        self.fen_to_psg_board(window)
+        self.default_board_borders(window)
+
     def main_loop(self):
         """
         Build GUI, read user and engine config files and take user inputs.
