@@ -2783,7 +2783,7 @@ class EasyChessGui:
                 with open(self.input_dialog.filename, mode='w') as f:
                     f.write('{}\n\n'.format(pgn_game))
                 if header_dialog.add_to_library:
-                    with open(os.path.join(gui.default_png_dir, "library.pgn"), 'a') as file1:
+                    with open(os.path.join(self.default_png_dir, "library.pgn"), 'a') as file1:
                         file1.write('{}\n\n'.format(pgn_game))
 
                 sg.popup_ok("PGN is saved as:{}".format(self.input_dialog.filename), title="Save PGN")
@@ -2844,7 +2844,8 @@ class EasyChessGui:
 
     def save_game(self):
         """ Save game in append mode """
-        with open(self.pecg_auto_save_game, mode='a+') as f:
+        # store in game-directory
+        with open(os.path.join(self.default_png_dir, self.pecg_auto_save_game), mode='a+') as f:
             f.write('{}\n\n'.format(self.game))
 
     def get_engines(self):
