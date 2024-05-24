@@ -709,6 +709,11 @@ def parse_args():
                             (default: %(default)s)",
                         type=int,
                         default=1)
+    parser.add_argument("--maxdepth", "-d",
+                        help="max depth for use by the engine \
+                            (default: %(default)s)",
+                        type=int,
+                        default=32)
 
     return parser.parse_args()
 
@@ -721,7 +726,7 @@ class EasyChessGui:
                  gui_book_file, computer_book_file, human_book_file,
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine='',
-                 max_depth=MAX_DEPTH, start_mode="neutral"):
+                 max_depth=MAX_DEPTH, start_mode="neutral", num_threads=128):
         self.move_string = ""
         self.window = None
         self.node = None
@@ -736,6 +741,7 @@ class EasyChessGui:
         self.is_new_game = None
         self.engine_timer = None
         self.human_timer = None
+        self.num_threads = num_threads
         self.mode_indicator = None
         self.piece = None
         self.is_search_stop_for_user_draws = None
@@ -1584,6 +1590,7 @@ class EasyChessGui:
     def get_advice(self, board, callback):
         self.adviser_threads = self.get_engine_threads(
             self.adviser_id_name)
+        self.adviser_threads = self.adviser_threads if self.num_threads > self.adviser_threads else self.num_threads
         self.adviser_hash = self.get_engine_hash(
             self.adviser_id_name)
         adviser_base_ms = self.adviser_movetime_sec * 1000
@@ -2625,6 +2632,7 @@ class EasyChessGui:
     def give_advice(self, board, window):
         self.adviser_threads = self.get_engine_threads(
             self.adviser_id_name)
+        self.adviser_threads = self.adviser_threads if self.num_threads > self.adviser_threads else self.num_threads
         self.adviser_hash = self.get_engine_hash(
             self.adviser_id_name)
         adviser_base_ms = self.adviser_movetime_sec * 1000
@@ -4259,7 +4267,7 @@ class EasyChessGui:
         return self.window.find_element("_pgn_tab_").visible
 
 
-def main(engine, start_mode):
+def main(engine, start_mode, max_depth, threads):
     engine_config_file = 'pecg_engines.json'
     user_config_file = 'pecg_user.json'
 
@@ -4275,7 +4283,7 @@ def main(engine, start_mode):
     pecg = EasyChessGui(theme, engine_config_file, user_config_file,
                         pecg_book, book_from_computer_games,
                         book_from_human_games, is_use_gui_book, is_random_book,
-                        max_book_ply, engine, 32, start_mode)
+                        max_book_ply, engine, max_depth, start_mode, num_threads=threads)
 
     pecg.main_loop()
 
@@ -4284,4 +4292,6 @@ if __name__ == "__main__":
     args = parse_args()
     engine = args.engine.split()[0]
     start_mode = args.startmode.split()[0]
-    main(engine, start_mode)
+    max_depth = args.maxdepth
+    threads = args.threads
+    main(engine, start_mode, max_depth, threads)
