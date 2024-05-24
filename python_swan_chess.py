@@ -2818,9 +2818,9 @@ class EasyChessGui:
         else:
             return self.adviser_path_and_file
 
-    def get_game_data(self, value_white, value_black, pgn_game):
+    def get_game_data(self, value_white, value_black, pgn_game, display_library=True):
         header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
-                                     self.players, pgn_game, self)
+                                     self.players, pgn_game, self, display_library)
         if header_dialog.ok:
             logging.info('Saving game manually')
             pgn_game.headers['Event'] = header_dialog.event

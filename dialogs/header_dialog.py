@@ -21,7 +21,7 @@ PREF = {}
 
 class HeaderDialog:
     """header dialog class"""
-    def __init__(self, white, black, sites_list, events_list, players, pgn_game, gui):
+    def __init__(self, white, black, sites_list, events_list, players, pgn_game, gui, display_library=True):
         self.ok = False
         self.gui = gui
         self.pgn_game = pgn_game
@@ -69,7 +69,7 @@ class HeaderDialog:
                        readonly=False, key='result', default_value=self.default_value("Result"))]],
             [
               sg.CBox('Add to library', key='add_to_library',
-                      default=False, font=self.gui.text_font)],
+                      default=False, font=self.gui.text_font)] if display_library else [],
                     [sg.Button("Save", font=self.gui.text_font),
                      sg.Button("Close", font=self.gui.text_font),sg.Push(),
                      self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
@@ -93,7 +93,7 @@ class HeaderDialog:
                 self.site = values['site']
                 self.date = str(values['date'])
                 self.round = values['round']
-                self.add_to_library = values['add_to_library']
+                self.add_to_library = values['add_to_library'] if display_library else False
                 self.ok = True
                 break
             self.gui.input_dialog.check_keyboard_input(window, event)

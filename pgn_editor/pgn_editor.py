@@ -101,6 +101,8 @@ class PgnEditor:
         :return:
         """
         parent = self.current_move.parent
+        if not parent:
+            return
         parent.variations.remove(self.current_move)
         self.moves.pop()
         self.all_moves.pop()
@@ -266,8 +268,9 @@ class PgnEditor:
                 value_white = value['_White_2']
                 value_black = value['_Black_2']
                 analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
-                pgn = StringIO(analysed_game)
-                self.read_file_from_io(pgn)
+                if analysed_game:
+                    pgn = StringIO(analysed_game)
+                    self.read_file_from_io(pgn)
 
             if button == 'Save':
                 value_white = value['_White_2']
@@ -437,7 +440,7 @@ class PgnEditor:
         _, value2 = self.window.Read(timeout=1)
         value_white = value2['_White_2']
         value_black = value2['_Black_2']
-        header_dialog, name_file = self.gui.get_game_data(value_white, value_black, self.game)
+        header_dialog, name_file = self.gui.get_game_data(value_white, value_black, self.game, display_library=False)
 
         if header_dialog.ok:
             self.game.headers['Event'] = header_dialog.event
