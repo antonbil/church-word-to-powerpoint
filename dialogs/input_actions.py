@@ -226,4 +226,27 @@ class InputDialog:
         window.close()
         return ok
 
+    def overall_game_info(self,game):
+        text = ""
+        for item in game.headers:
+            text += '{}: {}\n'.format(item, game.headers[item])
+        sg.popup(text)
+
+    def get_game_info(self, game):
+        site = game.headers['Site'].replace('?', "") if "Site" in game.headers else ""
+        event = game.headers['Event'] if "Event" in game.headers else ""
+        round = game.headers['Round'] if "Round" in game.headers else ""
+        if len(event) > 0:
+            site = (site + " " + event).strip()
+        if len(round) > 0:
+            site = (site + " " + round).strip()
+        if len(site) > 0:
+            site = site + " "
+        info = "{} ({})".format(
+            (site + game.headers['Date'].replace('?', "").replace('..', "")
+             .replace('//', "")).strip(),
+            game.headers['Result'])
+        info = (info[:70]) if len(info) > 70 else info
+        return info
+
 

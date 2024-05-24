@@ -38,7 +38,7 @@ class PgnEditor:
         self.move_number = 0
 
         self.mode = "editor-entry"
-        window.find_element('_gamestatus_').Update('Mode     PGN-Editor Entry')
+        window.find_element('_gamestatus_2').Update('Mode     PGN-Editor Entry')
         self.window = window
         self.start_empty_game()
         self.pgn_display = PgnDisplay(69)
@@ -47,6 +47,8 @@ class PgnEditor:
         elif file_name:
             pgn = open(file_name)
             self.read_file_from_io(pgn)
+        self.set_game_info(self.game)
+        self.update_player_data()
 
         self.execute_data_entry()
 
@@ -57,6 +59,14 @@ class PgnEditor:
         self.game.setup(self.board)
         self.current_move = self.game.game()
         self.move_squares = [0, 0, 0, 0]
+        # clear titles
+        self.update_player_data()
+        self.set_game_info(self.game)
+        self.window.find_element('_currentmove_').Update('')
+
+    def set_game_info(self, game):
+        info = self.gui.input_dialog.get_game_info(game)
+        self.window.find_element('overall_game_info').Update(info)
 
     def read_file_from_io(self, pgn):
         self.game = chess.pgn.read_game(pgn)
@@ -160,6 +170,9 @@ class PgnEditor:
                 self.gui.board_start_position(self.window)
                 break
 
+            if button == 'Set Headers':
+                self.set_headers()
+
             if self.gui.check_color_button(button, self.window):
                 self.update_pgn_display()
                 self.display_move_and_line_number()
@@ -190,7 +203,6 @@ class PgnEditor:
                     self.start_empty_game()
                     self.update_pgn_display()
                     self.display_move_and_line_number()
-                    # self.window.find_element('comment_k').Update('')
 
             if button == 'PGN-Viewer':
                 name_file = temp_file_name
@@ -227,6 +239,9 @@ class PgnEditor:
 
             if self.gui.toolbar.get_button_id(button) == 'Previous' and self.mode == "annotate":
                 self.execute_previous_move(self.move_number)
+
+            if button == 'overall_game_info':
+                self.overall_game_info()
 
             if button == 'Comment' and self.mode == "annotate":
                 ok = self.gui.input_dialog.get_comment(self.moves[-1], self.gui)
@@ -418,6 +433,25 @@ class PgnEditor:
         self.move_number = len(self.all_moves) - 1
         self.set_status()
 
+    def set_headers(self):
+        _, value2 = self.window.Read(timeout=1)
+        value_white = value2['_White_2']
+        value_black = value2['_Black_2']
+        header_dialog, name_file = self.gui.get_game_data(value_white, value_black, self.game)
+
+        if header_dialog.ok:
+            self.game.headers['Event'] = header_dialog.event
+            self.game.headers['White'] = header_dialog.white
+            self.game.headers['Black'] = header_dialog.black
+            self.game.headers['Site'] = header_dialog.site
+            self.game.headers['Date'] = header_dialog.date
+            self.game.headers['Round'] = header_dialog.round
+            self.set_game_info(self.game)
+            self.update_player_data()
+
+    def overall_game_info(self):
+        self.gui.input_dialog.overall_game_info(self.game)
+
     def display_button_bar(self):
         buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
             , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
@@ -449,7 +483,7 @@ class PgnEditor:
         return move_state
 
     def set_status(self):
-        window_element = self.window.find_element('_gamestatus_')
+        window_element = self.window.find_element('_gamestatus_2')
         if self.mode == "annotate":
             window_element.Update('Mode     PGN-Variations Edit')
         elif self.mode == "editor-entry":

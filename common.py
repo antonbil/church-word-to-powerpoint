@@ -14,7 +14,7 @@ settings_menu = ['Color', ['Brown::board_color_k',
 menu_def_entry = [
         ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
         ['&Move', ["Back", '---', "Restore alternative"]],
-        ['&Game', ['Save', 'Clear', 'Analyse game']],
+        ['&Game', ['Save', 'Clear', 'Set Headers', 'Analyse game']],
         ['Settings', settings_menu],
          ['Help', ["Gui"]],
 ]

@@ -209,6 +209,7 @@ class PGNViewer:
                     self.start_play_mode = True
                     break
                 self.display_button_bar()
+                self.set_mode_display()
                 self.game = data_entry.game
 
                 string = str(self.game.game())
@@ -411,10 +412,7 @@ class PGNViewer:
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def overall_game_info(self):
-        text = ""
-        for item in self.game.headers:
-            text += '{}: {}\n'.format(item, self.game.headers[item])
-        sg.popup(text)
+        self.gui.input_dialog.overall_game_info(self.game)
 
     def add_to_current_db(self):
         if not self.pgn == temp_file_name:
@@ -958,20 +956,7 @@ class PGNViewer:
         self.current_move = game.game()
         self.moves.append(self.current_move)
         self.set_players(game)
-        site = game.headers['Site'].replace('?', "") if "Site" in game.headers else ""
-        event = game.headers['Event'] if "Event" in game.headers else ""
-        round = game.headers['Round'] if "Round" in game.headers else ""
-        if len(event) > 0:
-            site = (site + " " + event).strip()
-        if len(round) > 0:
-            site = (site + " " + round).strip()
-        if len(site) > 0:
-            site = site + " "
-        info = "{} ({})".format(
-            (site + game.headers['Date'].replace('?', "").replace('..', "")
-             .replace('//', "")).strip(),
-            game.headers['Result'])
-        info = (info[:70]) if len(info) > 70 else info
+        info = self.gui.input_dialog.get_game_info(game)
         self.window.find_element('overall_game_info').Update(info)
         move_list_gui_element = self.window.find_element('_movelist_2')
         move_list_gui_element.Update(self.pgn_lines)

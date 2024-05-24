@@ -2821,16 +2821,19 @@ class EasyChessGui:
     def get_game_data(self, value_white, value_black, pgn_game):
         header_dialog = HeaderDialog(value_white, value_black, self.sites_list, self.events_list,
                                      self.players, pgn_game, self)
-        logging.info('Saving game manually')
-        pgn_game.headers['Event'] = header_dialog.event
-        pgn_game.headers['White'] = header_dialog.white
-        pgn_game.headers['Black'] = header_dialog.black
-        pgn_game.headers['Site'] = header_dialog.site
-        pgn_game.headers['Date'] = header_dialog.date
-        pgn_game.headers['Round'] = header_dialog.round
+        if header_dialog.ok:
+            logging.info('Saving game manually')
+            pgn_game.headers['Event'] = header_dialog.event
+            pgn_game.headers['White'] = header_dialog.white
+            pgn_game.headers['Black'] = header_dialog.black
+            pgn_game.headers['Site'] = header_dialog.site
+            pgn_game.headers['Date'] = header_dialog.date
+            pgn_game.headers['Round'] = header_dialog.round
 
-        name_file = header_dialog.date.replace("/", "-") + "-" + header_dialog.white.replace(" ", "_") \
-                    + "-" + header_dialog.black.replace(" ", "_") + ".pgn"
+            name_file = header_dialog.date.replace("/", "-") + "-" + header_dialog.white.replace(" ", "_") \
+                        + "-" + header_dialog.black.replace(" ", "_") + ".pgn"
+        else:
+            name_file = None
         return header_dialog, name_file
 
     def check_depth_button(self, button):
