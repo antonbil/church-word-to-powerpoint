@@ -708,7 +708,7 @@ def parse_args():
                         help="threads for use by the engine \
                             (default: %(default)s)",
                         type=int,
-                        default=1)
+                        default=2)
     parser.add_argument("--maxdepth", "-d",
                         help="max depth for use by the engine \
                             (default: %(default)s)",
