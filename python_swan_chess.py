@@ -2286,14 +2286,14 @@ class EasyChessGui:
 
             # Mode: Play, Stm: user
             if button == 'Save to White Repertoire':
-                with open(self.repertoire_file['white'], mode='a+') as f:
+                with open(os.path.join(self.default_png_dir, self.repertoire_file['white']), mode='a+') as f:
                     self.game.headers['Event'] = 'White Repertoire'
                     f.write('{}\n\n'.format(self.game))
                 break
 
             # Mode: Play, Stm: user
             if button == 'Save to Black Repertoire':
-                with open(self.repertoire_file['black'], mode='a+') as f:
+                with open(os.path.join(self.default_png_dir,self.repertoire_file['black']), mode='a+') as f:
                     self.game.headers['Event'] = 'Black Repertoire'
                     f.write('{}\n\n'.format(self.game))
                 break
