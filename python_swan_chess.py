@@ -2809,7 +2809,7 @@ class EasyChessGui:
             pgn_file = temp_file_name
             with open(pgn_file, mode='w') as f:
                 f.write('{}\n\n'.format(pgn_game))
-                print("engine used:", self.get_adviser_engine_path())
+                #print("engine used:", self.get_adviser_engine_path())
             analysed_game = annotator.start_analise(pgn_file,
                                                     self.get_adviser_engine_path(), name_file,
                                                     header_dialog.add_to_library, self,

@@ -268,7 +268,7 @@ class PgnEditor:
             if button == 'Analyse game':
                 value_white = value['_White_2']
                 value_black = value['_Black_2']
-                analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
+                analysed_game = self.gui.analyse_game(value_white, value_black, self.game, save_file=False)
                 if analysed_game:
                     new_game = merge_into_current_game(self.game, analysed_game)
                     pgn = StringIO(str(new_game))
