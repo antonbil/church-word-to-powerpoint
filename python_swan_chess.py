@@ -2811,7 +2811,10 @@ class EasyChessGui:
                 f.write('{}\n\n'.format(pgn_game))
                 print("engine used:", self.get_adviser_engine_path())
             analysed_game = annotator.start_analise(pgn_file,
-                                                    self.get_adviser_engine_path(), name_file, header_dialog.add_to_library, self, save_file)
+                                                    self.get_adviser_engine_path(), name_file,
+                                                    header_dialog.add_to_library, self,
+                                                    save_file=save_file,
+                                                    num_threads=self.num_threads)
             window.close()
             message = "PGN is annotated"
             if save_file:

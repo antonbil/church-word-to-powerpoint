@@ -11,7 +11,8 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
 from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help
 from beautify_pgn_lines import PgnDisplay
-from Tools.add_variation import get_and_add_variation, check_for_variation_replace, remove_variation, uci_string2_moves
+from Tools.add_variation import (get_and_add_variation, check_for_variation_replace, remove_variation,
+                                 uci_string2_moves, merge_into_current_game)
 
 class PgnEditor:
     """
@@ -269,7 +270,8 @@ class PgnEditor:
                 value_black = value['_Black_2']
                 analysed_game = self.gui.analyse_game(value_white, value_black, self.game)
                 if analysed_game:
-                    pgn = StringIO(analysed_game)
+                    new_game = merge_into_current_game(self.game, analysed_game)
+                    pgn = StringIO(str(new_game))
                     self.read_file_from_io(pgn)
 
             if button == 'Save':

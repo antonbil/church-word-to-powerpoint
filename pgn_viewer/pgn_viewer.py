@@ -14,7 +14,7 @@ from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
 import json
-from Tools.add_variation import get_and_add_variation, uci_string2_moves
+from Tools.add_variation import get_and_add_variation, uci_string2_moves, merge_into_current_game
 
 
 # free pgn's at: https://www.pgnmentor.com/files.html#world
@@ -807,7 +807,8 @@ class PGNViewer:
             'White'].replace(" ", "_") \
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
         analysed_game = annotator.start_analise(pgn_file,
-                                                self.gui.get_adviser_engine_path(), name_file, store_in_db, self.gui)
+                                                self.gui.get_adviser_engine_path(), name_file, store_in_db, self.gui,
+                                                num_threads=gui.num_threads)
 
     def analyse_game_func(self):
         value_white = self.game.headers['White']
@@ -815,7 +816,7 @@ class PGNViewer:
         analysed_game = self.gui.analyse_game(value_white, value_black, self.game, save_file=False)
         # if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
         if not analysed_game is None:
-            new_game = self.merge_into_current_game(analysed_game)
+            new_game = merge_into_current_game(self.game, analysed_game)
             self.init_game(new_game)
 
         #
@@ -823,32 +824,6 @@ class PGNViewer:
         #     pgn = StringIO(analysed_game)
         #     self.open_pgn_io(pgn, temp_file_name)
 
-    def merge_into_current_game(self, analysed_game):
-        first_game = self.game
-        pgn = StringIO(analysed_game)
-        game2 = chess.pgn.read_game(pgn)
-        current_move = first_game.game()
-        current_move_second = game2.game()
-        while len(current_move.variations) > 0:
-            if current_move_second.comment:
-                current_move.comment = current_move_second.comment + " " + current_move.comment
-            variations_first = [l for l in current_move.variations]
-            variations_first.pop(0)
-            variations_second = [l for l in current_move_second.variations]
-            variations_second.pop(0)
-            for variation_second in variations_second:
-                found_move = False
-                move_second = str(variation_second.move)
-                for v1 in variations_first:
-                    if move_second == str(v1.move):
-                        v1.comment = variation_second.comment + " " + v1.comment
-                        found_move = True
-                        break
-                if not found_move:
-                    current_move.variations.append(variation_second)
-            current_move = current_move.variations[0]
-            current_move_second = current_move_second.variations[0]
-        return first_game
 
     def callback(self, advice):
         self.window.Read(timeout=5)

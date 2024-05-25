@@ -1,5 +1,6 @@
 import chess
 import PySimpleGUI as sg
+from io import StringIO
 
 # tool-library for pgn_editor and pgn_viewer
 def get_and_add_variation(current_move, ply_number, board, callback, comment_element, gui):
@@ -90,3 +91,29 @@ def uci_string2_moves(str_moves):
     :return: uci-representation of list of moves
     """
     return [chess.Move.from_uci(move) for move in str_moves.split()]
+
+def merge_into_current_game(first_game, analysed_game):
+    pgn = StringIO(analysed_game)
+    game2 = chess.pgn.read_game(pgn)
+    current_move = first_game.game()
+    current_move_second = game2.game()
+    while len(current_move.variations) > 0:
+        if current_move_second.comment:
+            current_move.comment = current_move_second.comment + " " + current_move.comment
+        variations_first = [l for l in current_move.variations]
+        variations_first.pop(0)
+        variations_second = [l for l in current_move_second.variations]
+        variations_second.pop(0)
+        for variation_second in variations_second:
+            found_move = False
+            move_second = str(variation_second.move)
+            for v1 in variations_first:
+                if move_second == str(v1.move):
+                    v1.comment = variation_second.comment + " " + v1.comment
+                    found_move = True
+                    break
+            if not found_move:
+                current_move.variations.append(variation_second)
+        current_move = current_move.variations[0]
+        current_move_second = current_move_second.variations[0]
+    return first_game

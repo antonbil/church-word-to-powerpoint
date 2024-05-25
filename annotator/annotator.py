@@ -821,14 +821,15 @@ def change_nags(pgn):
     pgn = "\n".join(res)
     return pgn
 
-def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui, save_file = True):
+def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui, save_file=True, num_threads=2):
     analyzed_game = ""
     fine_name_file = os.path.join(gui.default_png_dir, fine_name_file)
     with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
+                    # hier
                     analyzed_game = change_nags(analyze_game(game, 1,
-                                                 engine, 2))
+                                                 engine, num_threads))
                 except KeyboardInterrupt:
                     logger.critical("\nReceived KeyboardInterrupt.")
                     raise
