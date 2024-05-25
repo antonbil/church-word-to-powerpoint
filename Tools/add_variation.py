@@ -109,7 +109,22 @@ def merge_into_current_game(first_game, analysed_game):
             move_second = str(variation_second.move)
             for v1 in variations_first:
                 if move_second == str(v1.move):
-                    v1.comment = variation_second.comment + " " + v1.comment
+                    # get comment from variation-second
+                    comments_second = []
+                    vs = variation_second
+                    while len(vs.variations) > 0:
+                        if vs.comment:
+                            comments_second.append(vs.comment)
+                        vs = vs.variations[0]
+                    if vs.comment:
+                        comments_second.append(vs.comment)
+
+                    # add comments to last node in v1-variation
+                    vf = v1
+                    while len(vf.variations) > 0:
+                        vf = vf.variations[0]
+                    vf.comment = (vf.comment + " " + " ".join(comments_second)).strip()
+                    # v1.comment = variation_second.comment + " " + v1.comment
                     found_move = True
                     break
             if not found_move:
