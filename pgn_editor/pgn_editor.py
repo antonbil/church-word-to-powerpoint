@@ -200,7 +200,7 @@ class PgnEditor:
                 self.gui.get_adviser_engine(self.window)
                 continue
 
-            if button == 'Clear':
+            if button == 'New':
                 if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
                     self.board = chess.Board()
                     self.start_empty_game()

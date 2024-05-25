@@ -12,32 +12,32 @@ settings_menu = ['Color', ['Brown::board_color_k',
                  "Other Settings"]
 
 menu_def_entry = [
-        ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
+        ['&Game', ['Save', 'New', 'Set Headers', 'Analyse game']],
         ['&Move', ["Back", '---', "Restore alternative"]],
-        ['&Game', ['Save', 'Clear', 'Set Headers', 'Analyse game']],
+        ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
         ['Settings', settings_menu],
          ['Help', ["Gui"]],
 ]
 menu_def_annotate = [
-        ['&Mode', ["Play", "PGN-Viewer", 'PGN Move entry']],
+        ['&Game', ['Save', 'New', 'Analyse game']],
         ['&Move', ['Previous', "Next", '---', "Promote alternative", "Restore alternative", "Remove alternative"
                    , '---', 'Remove from this move onward']],
         ['&Annotate', ['Comment', '---', 'Alternative', "Alternative manual", '---', 'Manual variation']],
-        ['&Game', ['Save', 'Clear', 'Analyse game']],
-        ['Settings', settings_menu],
+        ['&Mode', ["Play", "PGN-Viewer", 'PGN Move entry']],
+       ['Settings', settings_menu],
          ['Help', ["Gui"]],
 ]
 
 menu_def_pgnviewer = [
-        ['&Mode', ["Play", 'PGN-Editor']],
-        ['Move', ['Comment', 'Alternative', '---', "Add move"]],
         ['&Game', ['Read', "Select", 'From clipboard', '---', "Replace in db", "Remove from db", "Add to db"
                 , "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
+        ['Move', ['Comment', 'Alternative', '---', "Add move"]],
         ['Database', ['Find in db', 'Classify db', 'Clipboard to current db', '---'
                 , "Next Game",
                    "Previous Game", '---', 'New db', 'Remove db']],
         ['Tools', ['Analyse move', 'Analyse game', 'Analyse db', '---', 'Play from here', '---', 'Select games', '---'
                 ,]],
+        ['&Mode', ["Play", 'PGN-Editor']],
         ['Settings', settings_menu],
          ['Help', ["Gui"]]
 ]
