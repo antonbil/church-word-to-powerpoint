@@ -165,6 +165,8 @@ def needs_annotation(judgment):
     Returns a boolean indicating whether a node with the given evaluations
     should have an annotation added
     """
+    if not judgment:
+        return False
     best = winning_chances(int(judgment["besteval"]))
     played = winning_chances(int(judgment["playedeval"]))
     delta = abs(best - played)
@@ -519,12 +521,13 @@ def add_acpl(game, root_node):
         prev_node = node.parent
 
         judgment = node.comment
-        delta = judgment["besteval"] - judgment["playedeval"]
+        if judgment:
+            delta = judgment["besteval"] - judgment["playedeval"]
 
-        if node.board().turn:
-            black_cpl.append(cpl(delta))
-        else:
-            white_cpl.append(cpl(delta))
+            if node.board().turn:
+                black_cpl.append(cpl(delta))
+            else:
+                white_cpl.append(cpl(delta))
 
         node = prev_node
 
@@ -681,18 +684,23 @@ def analyze_game(game, arg_gametime, enginepath, threads):
         prev_node = node.parent
 
         # Get the engine judgment of the played move in this position
-        judgment = judge_move(prev_node.board(), node.move, engine,
-                              info_handler, time_per_move)
+        # sometimes an engine gives an empty judgment (example: caissa concerning mate in 1)
+        # so deal with empty judgment by use of try/catch
+        try:
+            judgment = judge_move(prev_node.board(), node.move, engine,
+                                  info_handler, time_per_move)
 
-        # Record the delta, to be referenced in the second pass
-        node.comment = judgment
+            # Record the delta, to be referenced in the second pass
+            node.comment = judgment
 
-        # Count the number of mistakes that will have to be annotated later
-        if needs_annotation(judgment):
-            error_count += 1
+            # Count the number of mistakes that will have to be annotated later
+            if needs_annotation(judgment):
+                error_count += 1
 
-        # Print some debugging info
-        debug_print(node, judgment)
+            # Print some debugging info
+            debug_print(node, judgment)
+        except:
+            pass
 
         node = prev_node
 
