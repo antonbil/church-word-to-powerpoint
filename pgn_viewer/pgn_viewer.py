@@ -276,12 +276,14 @@ class PGNViewer:
                     temp_pgn = self.pgn
                     self.pgn = self.gui.input_dialog.filename
                     pgn_file = self.pgn
+                    # clear current move
                     if not self.open_pgn_file(pgn_file):
                         sg.popup_error("Error reading game from {}".format(pgn_file), title="Error reading db",
                                        font=self.gui.text_font)
                         self.pgn = temp_pgn
                     else:
                         self.gui.save_pgn_file_in_preferences(self.pgn)
+                continue
 
             if button == '_movelist_2':
                 selection = value[button]
@@ -901,6 +903,8 @@ class PGNViewer:
         return self.open_pgn_io(pgn, pgn_file)
 
     def open_pgn_io(self, pgn, pgn_file):
+        self.window.find_element('_currentmove_').Update('')
+        self.window.find_element('variation_frame').Update(visible=False)
         game = chess.pgn.read_game(pgn)
         if not game:
             return False
