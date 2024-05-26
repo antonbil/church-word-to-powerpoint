@@ -200,6 +200,12 @@ class PgnEditor:
                 self.gui.get_adviser_engine(self.window)
                 continue
 
+            if button == 'Strip':
+                self.strip_game()
+                self.update_pgn_display()
+                self.display_move_and_line_number()
+                continue
+
             if button == 'New':
                 if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
                     self.board = chess.Board()
@@ -437,6 +443,23 @@ class PgnEditor:
         self.gui.menu_elem.Update(menu_def_annotate)
         self.move_number = len(self.all_moves) - 1
         self.set_status()
+
+    def strip_game(self):
+        node = self.game.end()
+
+        while True:
+            prev_node = node.parent
+
+            node.comment = ''
+            node.nags = []
+            for variation in reversed(node.variations):
+                if not variation.is_main_variation():
+                    node.remove_variation(variation)
+
+            if node == self.game.root():
+                break
+
+            node = prev_node
 
     def set_headers(self):
         _, value2 = self.window.Read(timeout=1)

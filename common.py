@@ -12,7 +12,7 @@ settings_menu = ['Color', ['Brown::board_color_k',
                  "Other Settings"]
 
 menu_def_entry = [
-        ['&Game', ['Save', 'New', 'Set Headers', 'Analyse game']],
+        ['&Game', ['Save', 'New', 'Set Headers', 'Strip', 'Analyse game']],
         ['&Move', ["Back", '---', "Restore alternative"]],
         ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
         ['Settings', settings_menu],
