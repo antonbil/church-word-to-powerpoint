@@ -408,7 +408,8 @@ class RunEngine(threading.Thread):
     def __init__(self, eng_queue, engine_config_file, engine_path_and_file,
                  engine_id_name, max_depth=MAX_DEPTH,
                  base_ms=300000, inc_ms=1000, tc_type='fischer',
-                 period_moves=0, is_stream_search_info=True, is_computer_move=False):
+                 period_moves=0, is_stream_search_info=True, is_computer_move=False,
+                 skill_level=1):
         """
         Run engine as opponent or as adviser.
 
@@ -444,6 +445,8 @@ class RunEngine(threading.Thread):
         self.is_ownbook = False
         self.is_move_delay = True
         self.is_computer_move = is_computer_move
+        self.skill_level = skill_level
+
 
     def stop(self):
         """Interrupt engine search."""
@@ -472,7 +475,9 @@ class RunEngine(threading.Thread):
         However if default_value and user_value are the same, we will not send
         commands to set the option value because the value is default already.
         """
+        #print("try to open", self.engine_config_file)
         with open(self.engine_config_file, 'r') as json_file:
+            #print("opened",self.engine_config_file)
             data = json.load(json_file)
             for p in data:
                 if p['name'] == self.engine_id_name:
@@ -487,10 +492,13 @@ class RunEngine(threading.Thread):
 
                         if n['type'] == 'spin':
                             user_value = int(n['value'])
+                            user_value = self.set_skill_option(n, user_value)
                             default_value = int(n['default'])
                         else:
                             user_value = n['value']
+                            user_value = self.set_skill_option(n, user_value)
                             default_value = n['default']
+                        # print("option", n['name'], user_value, default_value)
 
                         if user_value != default_value:
                             try:
@@ -498,6 +506,39 @@ class RunEngine(threading.Thread):
                                 logging.info('Set ' + n['name'] + ' to ' + str(user_value))
                             except Exception:
                                 logging.exception('Failed to configure engine.')
+
+    def set_skill_option(self, n, user_value):
+        skill_options = [{"skill Level":2,#level 1
+                          "skill":2,
+                          "uci_limitstrength":True,
+                          "uci_elo":1340},
+                         {"skill Level": 5,#level 2
+                          "skill": 5,
+                          "uci_limitstrength": True,
+                          "uci_elo": 1450},
+                         {"skill Level": 8,#level 3
+                          "skill": 10,
+                          "uci_limitstrength": True,
+                          "uci_elo": 1600},
+                         {"skill Level": 12,#level 4
+                          "skill": 15,
+                          "uci_limitstrength": True,
+                          "uci_elo": 1700},
+                         {"skill Level": 16,#level 5
+                          "skill": 20,
+                          "uci_limitstrength": True,
+                          "uci_elo": 2000},
+                         {"skill Level": 20,#level 6
+                          "skill": 25,
+                          "uci_limitstrength": True,
+                          "uci_elo": 2500}
+                         ]
+
+        for option in skill_options[self.skill_level - 1]:
+            if n['name'].lower() == option:
+                user_value = skill_options[self.skill_level - 1][option]
+
+        return user_value
 
     def run(self):
         """Run engine to get search info and bestmove.
@@ -527,8 +568,10 @@ class RunEngine(threading.Thread):
 
         # Set engine option values
         try:
+            #print("configure engine")
             self.configure_engine()
-        except Exception:
+        except e as Exception:
+            print(e)
             logging.exception('Failed to configure engine.')
 
         # Set search limits
@@ -671,7 +714,7 @@ class RunEngine(threading.Thread):
     def get_computer_limit(self):
         return chess.engine.Limit(
             depth=self.max_depth if self.max_depth != MAX_DEPTH else None,
-            time=10)
+            time=self.skill_level)
 
     def get_pv_original(self):
         try:
@@ -853,6 +896,7 @@ class EasyChessGui:
         self.is_save_user_comment = True
         #
         self.opponent_engine = my_preferences["opponent_engine"] if "opponent_engine" in my_preferences else ""
+        self.skill_level = my_preferences["skill_level"] if "skill_level" in my_preferences else 1
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
@@ -2461,7 +2505,7 @@ class EasyChessGui:
                 self.queue, self.engine_config_file, self.opp_path_and_file,
                 self.opp_id_name, self.max_depth, self.engine_timer.base,
                 self.engine_timer.inc, tc_type=self.engine_timer.tc_type,
-                period_moves=board.fullmove_number, is_computer_move=True
+                period_moves=board.fullmove_number, is_computer_move=True, skill_level=self.skill_level
             )
             search.get_board(board)
             search.daemon = True
@@ -3657,6 +3701,7 @@ class EasyChessGui:
 
     def get_settings_pgn(self, window):
         font_sizes = ['10', '12', '20', '32']
+        skill_levels = ['1','2','3','4','5','6']
         font_ui_sizes = ['10', '12', '20', '32']
         field_sizes = ['60', '70', '80', '90', '100', '105']
         win_title = 'Settings/Game'
@@ -3694,7 +3739,11 @@ class EasyChessGui:
              sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
                           size=(60, 1))],
 
+            [[sg.Text("Skill opponent:", size=(16, 1), font=self.text_font),
+              sg.Combo(skill_levels, font=self.text_font, expand_x=True, enable_events=True,
+                       readonly=False, default_value=skill_levels[self.skill_level - 1], key='skill_level')]],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
+
         ]
         w = sg.Window(win_title, layout,
                       icon=ico_path[platform]['pecg'])
@@ -3709,6 +3758,7 @@ class EasyChessGui:
                 self.FIELD_SIZE = int(v['field_size'])
                 self.is_save_time_left = v['save_time_left_k']
                 self.start_mode = v['start_mode']
+                self.skill_level = int(v['skill_level'])
                 self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                 self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                 self.players = [s.strip() for s in v['players_k'].split(",")]
@@ -3718,6 +3768,7 @@ class EasyChessGui:
                 self.preferences.preferences["events_list"] = self.events_list
                 self.preferences.preferences["players"] = self.players
                 self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
+                self.preferences.preferences["skill_level"] = self.skill_level
                 self.preferences.preferences["start_mode"] = self.start_mode
                 self.preferences.preferences["field_size"] = self.FIELD_SIZE
                 self.preferences.save_preferences()
