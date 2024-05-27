@@ -408,7 +408,7 @@ class RunEngine(threading.Thread):
     def __init__(self, eng_queue, engine_config_file, engine_path_and_file,
                  engine_id_name, max_depth=MAX_DEPTH,
                  base_ms=300000, inc_ms=1000, tc_type='fischer',
-                 period_moves=0, is_stream_search_info=True):
+                 period_moves=0, is_stream_search_info=True, is_computer_move=False):
         """
         Run engine as opponent or as adviser.
 
@@ -443,6 +443,7 @@ class RunEngine(threading.Thread):
         self.period_moves = period_moves
         self.is_ownbook = False
         self.is_move_delay = True
+        self.is_computer_move = is_computer_move
 
     def stop(self):
         """Interrupt engine search."""
@@ -531,7 +532,9 @@ class RunEngine(threading.Thread):
             logging.exception('Failed to configure engine.')
 
         # Set search limits
-        if self.tc_type == 'delay':
+        if self.is_computer_move:
+            limit = self.get_computer_limit()
+        elif self.tc_type == 'delay':
             limit = chess.engine.Limit(
                 depth=self.max_depth if self.max_depth != MAX_DEPTH else None,
                 white_clock=self.base_ms / 1000,
@@ -664,6 +667,11 @@ class RunEngine(threading.Thread):
                 logging.exception('Failed to get engine bestmove.')
         self.eng_queue.put(f'bestmove {self.bm}')
         logging.info(f'bestmove {self.bm}')
+
+    def get_computer_limit(self):
+        return chess.engine.Limit(
+            depth=self.max_depth if self.max_depth != MAX_DEPTH else None,
+            time=10)
 
     def get_pv_original(self):
         try:
@@ -2453,7 +2461,7 @@ class EasyChessGui:
                 self.queue, self.engine_config_file, self.opp_path_and_file,
                 self.opp_id_name, self.max_depth, self.engine_timer.base,
                 self.engine_timer.inc, tc_type=self.engine_timer.tc_type,
-                period_moves=board.fullmove_number
+                period_moves=board.fullmove_number, is_computer_move=True
             )
             search.get_board(board)
             search.daemon = True
