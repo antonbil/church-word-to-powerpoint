@@ -576,7 +576,7 @@ class RunEngine(threading.Thread):
                                 spv = self.short_variation_san()
                                 self.pv = spv
                             else:
-                                self.pv_original = [m for m in self.pv]
+                                self.pv_original = self.get_pv_original()
                                 self.pv = self.board.variation_san(self.pv)
 
                             self.eng_queue.put('{} pv'.format(self.pv))
@@ -634,7 +634,7 @@ class RunEngine(threading.Thread):
                     spv = self.short_variation_san()
                     self.pv = spv
                 else:
-                    self.pv_original = [m for m in self.pv]
+                    self.pv_original = self.get_pv_original()
                     self.pv = self.board.variation_san(self.pv)
             except Exception:
                 self.pv = None
@@ -665,6 +665,12 @@ class RunEngine(threading.Thread):
         self.eng_queue.put(f'bestmove {self.bm}')
         logging.info(f'bestmove {self.bm}')
 
+    def get_pv_original(self):
+        try:
+            return [m for m in self.pv]
+        except:
+            return []
+
     def quit_engine(self):
         """Quit engine."""
         logging.info('quit engine')
@@ -679,7 +685,7 @@ class RunEngine(threading.Thread):
         """Returns variation in san but without move numbers."""
         if self.pv is None:
             return None
-        self.pv_original = [m for m in self.pv]
+        self.pv_original = self.get_pv_original()
 
         short_san_pv = []
         tmp_board = self.board.copy()
