@@ -3695,7 +3695,7 @@ class EasyChessGui:
 
             # Mode: Neutral
             if button == 'Flip':
-                window.find_element('_gamestatus_').Update('Mode     Play Settings')
+                window.find_element('_gamestatus_').Update('Play Settings')
                 self.clear_elements(window)
                 self.window = self.create_new_window(window, True)
                 continue
@@ -3744,7 +3744,7 @@ class EasyChessGui:
                 # Restore Neutral menu
                 self.menu_elem.Update(menu_def_neutral)
                 self.psg_board = copy.deepcopy(initial_board)
-                window.find_element('_gamestatus_').Update('Mode     Play Settings')
+                window.find_element('_gamestatus_').Update('Play Settings')
                 board = chess.Board()
                 self.set_new_game()
                 continue
