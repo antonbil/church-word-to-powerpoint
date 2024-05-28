@@ -297,7 +297,7 @@ menu_def_play = [
     ['FEN', ['Paste']],
     ['&Engine', ['Go', 'Move Now', 'Set Depth']],
     ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
-    ['Settings', 'Neutral'],
+    ['Settings', 'Play Settings'],
     ['&Help', ['GUI']],
 ]
 
@@ -2192,7 +2192,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: Computer first move
-            if button == 'Neutral' or self.start_mode_used == "pgnviewer":
+            if button == 'Play Settings' or self.start_mode_used == "pgnviewer":
                 self.is_exit_game = True
                 self.start_mode_used = ""
                 break
@@ -2412,7 +2412,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: User
-            if button == 'Neutral' or self.is_search_stop_for_neutral:
+            if button == 'Play Settings' or self.is_search_stop_for_neutral:
                 self.is_exit_game = True
                 self.start_mode_used = ""
                 self.clear_elements(window)
@@ -2623,7 +2623,7 @@ class EasyChessGui:
                 self.check_depth_button(button)
 
                 # Mode: Play, Computer is thinking
-                if button in ['Neutral', 'PGN-Viewer', 'PGN-Editor']:
+                if button in ['Play Settings', 'PGN-Viewer', 'PGN-Editor']:
                     search.stop()
                     if button == 'PGN-Viewer':
                         self.play_to_pgn_viewer(window)
