@@ -893,7 +893,7 @@ class EasyChessGui:
         self.players = my_preferences["players"] if "players" in my_preferences else []
         self.menu_font_size = my_preferences["menu_font_size"] if "menu_font_size" in my_preferences else 12
         self.FIELD_SIZE = my_preferences["field_size"] if "field_size" in my_preferences else 60
-        self.gui_theme = my_preferences["gui_theme"] if "gui_theme" in my_preferences else 'Reddit'
+        self.gui_theme = my_preferences["gui_theme"] if "gui_theme" in my_preferences else "SandyBeach"
         self.font_size_ui = my_preferences["font_size_ui"] if "font_size_ui" in my_preferences else 10
         self.window_width = my_preferences["window_width"] if "window_width" in my_preferences else 1500
         self.window_height = my_preferences["window_height"] if "window_height" in my_preferences else 800
@@ -1574,6 +1574,9 @@ class EasyChessGui:
         window.Element('w_elapse_k').Update('')
         window.Element('b_elapse_k').Update('')
         # set play-button-bar
+        self.set_neutral_button_bar(window)
+
+    def set_neutral_button_bar(self, window):
         buttons = [self.play_toolbar.new_button("Play", auto_size_button=True)]
         self.play_toolbar.buttonbar_add_buttons(window, buttons)
 
@@ -3142,7 +3145,7 @@ class EasyChessGui:
                        font=self.text_font, key='search_info_k', )],
 
             [sg.Text('', key='search_info_all_k', size=(55, 1),
-                     font=self.text_font, relief='sunken')]], key="play_top_frame")],
+                     font=self.text_font, relief='sunken')]], key="play_top_frame", visible=False)],
             [sg.Frame('', [[]], key="play_button_frame")],
         ]
         return board_controls
@@ -3294,6 +3297,7 @@ class EasyChessGui:
             _, value = window.Read(timeout=50)
             self.update_labels_and_game_tags(window, human=self.username)
             break
+        self.set_neutral_button_bar(window)
 
         # Mode: Neutral, main loop starts here
         while True:
