@@ -286,7 +286,6 @@ menu_def_neutral = [
 
 # (2) Mode: Play, info: hide
 menu_def_play = [
-    ['&Mode', ['Neutral', 'PGN-Viewer', 'PGN-Editor']],
     ['&Game', ['&New::new_game_k',
                'Save to My Games::save_game_k',
                'Save to White Repertoire',
@@ -297,6 +296,8 @@ menu_def_play = [
                'Analyse game']],
     ['FEN', ['Paste']],
     ['&Engine', ['Go', 'Move Now', 'Set Depth']],
+    ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
+    ['Settings', 'Neutral'],
     ['&Help', ['GUI']],
 ]
 
@@ -715,6 +716,11 @@ class RunEngine(threading.Thread):
         logging.info(f'bestmove {self.bm}')
 
     def get_computer_limit(self):
+        """
+        define the uci-settings to be used for the computer-opponent while playing.
+        engines are so good nowadays that the time can be very low (a few seconds will do)
+        :return: Limit-object to be used by the uci-engine
+        """
         return chess.engine.Limit(
             depth=self.max_depth if self.max_depth != MAX_DEPTH else None,
             time=self.skill_level if self.use_skill else 6)
@@ -905,6 +911,7 @@ class EasyChessGui:
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
         self.toolbar = ToolBar(self.text_font)
+        self.play_toolbar = ToolBar(self.text_font, bar_id='play_button_frame')
         keyboard_visible_at_start = my_preferences[
             "keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
         self.input_dialog = InputDialog(self, self.default_png_dir, keyboard_visible_at_start)
@@ -954,6 +961,15 @@ class EasyChessGui:
             if self.is_save_time_left:
                 rem_time = self.get_time_h_mm_ss(time_left, False)
                 self.node.comment = '[%clk {}]'.format(rem_time)
+
+    def display_button_bar(self):
+        buttons = [self.play_toolbar.new_button("Engine", auto_size_button=True),
+                   self.play_toolbar.new_button("Skill", auto_size_button=True),
+                   sg.VerticalSeparator(),
+                   self.play_toolbar.new_button("New", auto_size_button=True),
+                   ]
+        self.play_toolbar.buttonbar_add_buttons(self.window, buttons)
+
 
     def swap_visible_columns_window(self, window):
         # on startup the menu-options are changed if default-window is not 'neutral'
@@ -2360,6 +2376,18 @@ class EasyChessGui:
                     f.write('{}\n\n'.format(self.game))
                 break
 
+            if self.play_toolbar.get_button_id(button) == 'Engine':
+                self.opponent_engine, is_engine_set = self.define_engine(self.opponent_engine, window)
+                if is_engine_set:
+                    pass
+
+            if self.play_toolbar.get_button_id(button) == 'Skill':
+                self.get_settings_pgn(window)
+
+            if self.play_toolbar.get_button_id(button) == 'New':
+                self.is_new_game = True
+                break
+
             # Mode: Play, stm: User
             if button == 'Resign::resign_game_k' or self.is_search_stop_for_resign:
                 logging.info('User resigns')
@@ -2371,6 +2399,7 @@ class EasyChessGui:
                                  icon=ico_path[platform]['pecg'])
                 if reply == 'Yes':
                     self.is_user_resigns = True
+                    self.is_new_game = True
                     break
                 else:
                     if self.is_search_stop_for_resign:
@@ -2381,12 +2410,14 @@ class EasyChessGui:
             if button == 'User Wins::user_wins_k' or self.is_search_stop_for_user_wins:
                 logging.info('User wins by adjudication')
                 self.is_user_wins = True
+                self.is_new_game = True
                 break
 
             # Mode: Play, stm: User
             if button == 'User Draws::user_draws_k' or self.is_search_stop_for_user_draws:
                 logging.info('User draws by adjudication')
                 self.is_user_draws = True
+                self.is_new_game = True
                 break
 
             # Mode: Play, Stm: User
@@ -3080,17 +3111,18 @@ class EasyChessGui:
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
                           font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
+            [sg.Frame('', [[]], key="play_button_frame")],
 
-            [sg.Text('BOOK 1, Comp games', size=(26, 1),
+            [sg.Text('BOOK 1, Comp games', visible=False, size=(26, 1),
                      font=self.text_font,
                      right_click_menu=['Right', ['Show::right_book1_k', 'Hide::right_book1_k']]),
-             sg.Text('BOOK 2, Human games',
+             sg.Text('BOOK 2, Human games',visible=False,
                      font=self.text_font,
                      right_click_menu=['Right', ['Show::right_book2_k', 'Hide::right_book2_k']])],
-            [sg.Multiline('', do_not_clear=True, autoscroll=False, size=(23, 4),
+            [sg.Multiline('', visible=False, do_not_clear=True, autoscroll=False, size=(23, 4),
                           font=self.text_font, key='polyglot_book1_k', disabled=True, sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width),
-             sg.Multiline('', do_not_clear=True, autoscroll=False, size=(25, 4),
+             sg.Multiline('', visible=False, do_not_clear=True, autoscroll=False, size=(25, 4),
                           font=self.text_font, key='polyglot_book2_k', disabled=True, sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
 
@@ -3675,6 +3707,7 @@ class EasyChessGui:
                 self.start_mode_used = self.start_mode_used.replace("play", "")
                 self.psg_board = copy.deepcopy(initial_board)
                 board = chess.Board()
+                self.display_button_bar()
 
                 while True:
                     _, value = window.Read(timeout=100)
@@ -3743,11 +3776,11 @@ class EasyChessGui:
             [sg.Text('Players', size=(7, 1), font=self.text_font),
              sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
                           size=(60, 1))],
-            [sg.CBox('Use skill-level', font=self.text_font,
+            [sg.CBox('Use skill-level for opponent', font=self.text_font,
                      key='use_skill',
                      default=self.use_skill,
                      tooltip='Use the skill level while playing against the compute')],
-            [[sg.Text("Skill opponent for opponent:", size=(16, 1), font=self.text_font),
+            [[sg.Text("Skill opponent:", size=(16, 1), font=self.text_font),
               sg.Combo(skill_levels, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=skill_levels[self.skill_level - 1], key='skill_level')]],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
