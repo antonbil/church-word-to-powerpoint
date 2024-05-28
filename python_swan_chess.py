@@ -409,7 +409,7 @@ class RunEngine(threading.Thread):
                  engine_id_name, max_depth=MAX_DEPTH,
                  base_ms=300000, inc_ms=1000, tc_type='fischer',
                  period_moves=0, is_stream_search_info=True, is_computer_move=False,
-                 skill_level=1):
+                 skill_level=1, use_skill = True):
         """
         Run engine as opponent or as adviser.
 
@@ -446,6 +446,7 @@ class RunEngine(threading.Thread):
         self.is_move_delay = True
         self.is_computer_move = is_computer_move
         self.skill_level = skill_level
+        self.use_skill = use_skill
 
 
     def stop(self):
@@ -508,6 +509,8 @@ class RunEngine(threading.Thread):
                                 logging.exception('Failed to configure engine.')
 
     def set_skill_option(self, n, user_value):
+        if not self.use_skill:
+            return user_value
         skill_options = [{"skill Level":2,#level 1
                           "skill":2,
                           "uci_limitstrength":True,
@@ -714,7 +717,7 @@ class RunEngine(threading.Thread):
     def get_computer_limit(self):
         return chess.engine.Limit(
             depth=self.max_depth if self.max_depth != MAX_DEPTH else None,
-            time=self.skill_level)
+            time=self.skill_level if self.use_skill else 6)
 
     def get_pv_original(self):
         try:
@@ -897,6 +900,7 @@ class EasyChessGui:
         #
         self.opponent_engine = my_preferences["opponent_engine"] if "opponent_engine" in my_preferences else ""
         self.skill_level = my_preferences["skill_level"] if "skill_level" in my_preferences else 1
+        self.use_skill = my_preferences["use_skill"] if "use_skill" in my_preferences else True
         self.text_font = ('Consolas', self.font_size_ui)
         self.set_color_board(self.board_color, False)
         # on startup the layout-options are changed if default-window is not 'neutral'
@@ -2505,7 +2509,8 @@ class EasyChessGui:
                 self.queue, self.engine_config_file, self.opp_path_and_file,
                 self.opp_id_name, self.max_depth, self.engine_timer.base,
                 self.engine_timer.inc, tc_type=self.engine_timer.tc_type,
-                period_moves=board.fullmove_number, is_computer_move=True, skill_level=self.skill_level
+                period_moves=board.fullmove_number, is_computer_move=True, skill_level=self.skill_level,
+                use_skill=self.use_skill
             )
             search.get_board(board)
             search.daemon = True
@@ -3738,8 +3743,11 @@ class EasyChessGui:
             [sg.Text('Players', size=(7, 1), font=self.text_font),
              sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
                           size=(60, 1))],
-
-            [[sg.Text("Skill opponent:", size=(16, 1), font=self.text_font),
+            [sg.CBox('Use skill-level', font=self.text_font,
+                     key='use_skill',
+                     default=self.use_skill,
+                     tooltip='Use the skill level while playing against the compute')],
+            [[sg.Text("Skill opponent for opponent:", size=(16, 1), font=self.text_font),
               sg.Combo(skill_levels, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=skill_levels[self.skill_level - 1], key='skill_level')]],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
@@ -3759,6 +3767,7 @@ class EasyChessGui:
                 self.is_save_time_left = v['save_time_left_k']
                 self.start_mode = v['start_mode']
                 self.skill_level = int(v['skill_level'])
+                self.use_skill = v['use_skill']
                 self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                 self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                 self.players = [s.strip() for s in v['players_k'].split(",")]
@@ -3769,6 +3778,7 @@ class EasyChessGui:
                 self.preferences.preferences["players"] = self.players
                 self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
                 self.preferences.preferences["skill_level"] = self.skill_level
+                self.preferences.preferences["use_skill"] = self.use_skill
                 self.preferences.preferences["start_mode"] = self.start_mode
                 self.preferences.preferences["field_size"] = self.FIELD_SIZE
                 self.preferences.save_preferences()
