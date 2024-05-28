@@ -2376,16 +2376,7 @@ class EasyChessGui:
                     f.write('{}\n\n'.format(self.game))
                 break
 
-            if self.play_toolbar.get_button_id(button) == 'Engine':
-                self.opponent_engine, is_engine_set = self.define_engine(self.opponent_engine, window)
-                if is_engine_set:
-                    pass
-
-            if self.play_toolbar.get_button_id(button) == 'Skill':
-                self.get_settings_pgn(window)
-
-            if self.play_toolbar.get_button_id(button) == 'New':
-                self.is_new_game = True
+            if self.check_button_bar_press(button, window):
                 break
 
             # Mode: Play, stm: User
@@ -2518,6 +2509,19 @@ class EasyChessGui:
                         continue
         return board
 
+    def check_button_bar_press(self, button, window):
+        is_break = False
+        if self.play_toolbar.get_button_id(button) == 'Engine':
+            self.opponent_engine, is_engine_set = self.define_engine(self.opponent_engine, window)
+            if is_engine_set:
+                pass
+        if self.play_toolbar.get_button_id(button) == 'Skill':
+            self.get_settings_pgn(window)
+        if self.play_toolbar.get_button_id(button) == 'New':
+            self.is_new_game = True
+            is_break = True
+        return is_break
+
     def do_computer_move(self, board, window):
         is_promote = False
         best_move = None
@@ -2626,6 +2630,10 @@ class EasyChessGui:
                     if button == 'PGN-Editor':
                         self.play_to_pgn_editor(window)
                     self.is_search_stop_for_neutral = True
+
+                if self.check_button_bar_press(button, window):
+                    search.stop()
+                    break
 
                 if button == 'Resign::resign_game_k':
                     search.stop()
