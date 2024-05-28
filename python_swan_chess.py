@@ -515,15 +515,15 @@ class RunEngine(threading.Thread):
         skill_options = [{"skill Level":2,#level 1
                           "skill":2,
                           "uci_limitstrength":True,
-                          "uci_elo":1340},
+                          "uci_elo":800},
                          {"skill Level": 5,#level 2
                           "skill": 5,
                           "uci_limitstrength": True,
-                          "uci_elo": 1450},
+                          "uci_elo": 1100},
                          {"skill Level": 8,#level 3
                           "skill": 10,
                           "uci_limitstrength": True,
-                          "uci_elo": 1600},
+                          "uci_elo": 1400},
                          {"skill Level": 12,#level 4
                           "skill": 15,
                           "uci_limitstrength": True,
