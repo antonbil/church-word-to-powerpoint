@@ -268,7 +268,6 @@ def convert_to_bytes(file_or_bytes, resize=None):
 
 # (1) Mode: Neutral
 menu_def_neutral = [
-    ['&Mode', ['Play']],
     ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
                                   'Blue::board_color_k',
                                   'Green::board_color_k',
@@ -280,6 +279,7 @@ menu_def_neutral = [
     ['&Book', ['Set Book::book_set_k']],
     ['&User', ['Set Name::user_name_k']],
     ['Tools', ['PGN', ['Delete Player::delete_player_k', 'PGN-Viewer']]],
+    ['&Mode', ['Play']],
     ['&Settings', ['Game::settings_game_k']],
     ['&Help', ['GUI']],
 ]
@@ -1573,6 +1573,9 @@ class EasyChessGui:
         window.Element('b_base_time_k').Update('')
         window.Element('w_elapse_k').Update('')
         window.Element('b_elapse_k').Update('')
+        # set play-button-bar
+        buttons = [self.play_toolbar.new_button("Play", auto_size_button=True)]
+        self.play_toolbar.buttonbar_add_buttons(window, buttons)
 
     def update_labels_and_game_tags(self, window, human='Human'):
         """ Update player names """
@@ -2416,6 +2419,7 @@ class EasyChessGui:
                 self.is_exit_game = True
                 self.start_mode_used = ""
                 self.clear_elements(window)
+                window.find_element("play_top_frame").Update(visible=False)
                 break
 
             # Mode: Play, stm: User
@@ -3079,8 +3083,8 @@ class EasyChessGui:
 
     def get_neutral_layout(self):
         board_controls = [
-            [sg.Text('Mode     Neutral', size=(36, 1), font=self.text_font, key='_gamestatus_')],
-            [sg.Text('White', size=(7, 1), font=self.text_font),
+            [sg.Text('Mode     Play Settings', size=(36, 1), font=self.text_font, key='_gamestatus_')],
+            [sg.Frame('', [[sg.Text('White', size=(7, 1), font=self.text_font),
              sg.InputText('Human', font=self.text_font, key='_White_',
                           size=(24, 1)),
              sg.Text('', font=self.text_font, key='w_base_time_k',
@@ -3119,7 +3123,6 @@ class EasyChessGui:
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
                           font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
-            [sg.Frame('', [[]], key="play_button_frame")],
 
             [sg.Text('BOOK 1, Comp games', visible=False, size=(26, 1),
                      font=self.text_font,
@@ -3139,7 +3142,8 @@ class EasyChessGui:
                        font=self.text_font, key='search_info_k', )],
 
             [sg.Text('', key='search_info_all_k', size=(55, 1),
-                     font=self.text_font, relief='sunken')],
+                     font=self.text_font, relief='sunken')]], key="play_top_frame")],
+            [sg.Frame('', [[]], key="play_button_frame")],
         ]
         return board_controls
 
@@ -3691,7 +3695,7 @@ class EasyChessGui:
 
             # Mode: Neutral
             if button == 'Flip':
-                window.find_element('_gamestatus_').Update('Mode     Neutral')
+                window.find_element('_gamestatus_').Update('Mode     Play Settings')
                 self.clear_elements(window)
                 self.window = self.create_new_window(window, True)
                 continue
@@ -3702,7 +3706,7 @@ class EasyChessGui:
                 continue
 
             # Mode: Neutral
-            if button == 'Play' or self.start_mode_used == "play":
+            if button == 'Play' or self.start_mode_used == "play" or self.play_toolbar.get_button_id(button) == 'Play':
 
                 if engine_id_name is None:
                     logging.warning('Install engine first!')
@@ -3716,6 +3720,7 @@ class EasyChessGui:
                 self.psg_board = copy.deepcopy(initial_board)
                 board = chess.Board()
                 self.display_button_bar()
+                window.find_element("play_top_frame").Update(visible=True)
 
                 while True:
                     _, value = window.Read(timeout=100)
@@ -3739,6 +3744,7 @@ class EasyChessGui:
                 # Restore Neutral menu
                 self.menu_elem.Update(menu_def_neutral)
                 self.psg_board = copy.deepcopy(initial_board)
+                window.find_element('_gamestatus_').Update('Mode     Play Settings')
                 board = chess.Board()
                 self.set_new_game()
                 continue
