@@ -3278,10 +3278,10 @@ class EasyChessGui:
     def main_loop(self):
         """
         Build GUI, read user and engine config files and take user inputs.
+        Select play/pgn-editor/pgn-viewer mode (and execute it) if user selects it
 
         :return:
         """
-        engine_id_name = None
         layout = self.build_main_layout(True)
 
         # Use white layout as default window
@@ -3299,7 +3299,7 @@ class EasyChessGui:
         self.engine_id_name_list = self.get_engine_id_name_list()
 
         # Define default opponent engine, user can change this later.
-        engine_id_name = self.get_default_engine_opponent()
+        self.engine_id_name = self.get_default_engine_opponent()
 
         # Define default adviser engine, user can change this later.
         self.set_default_adviser_engine()
@@ -3314,7 +3314,7 @@ class EasyChessGui:
         self.set_neutral_button_bar(window)
 
         # Mode: Neutral, main loop starts here
-        #main loop start
+        # main loop start
         while True:
             button, value = window.Read(timeout=50)
 
@@ -3322,6 +3322,13 @@ class EasyChessGui:
             if button is None:
                 logging.info('Quit app from main loop, X is pressed.')
                 break
+
+            # check for play-settings
+            if self.check_game_setting_button(button, window):
+                window = self.window
+                continue
+
+            # check for pgn-viewer-mode
             if (button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Viewer'):
                 if self.play_toolbar.get_button_id(button) == 'PGN-Viewer' or button == 'PGN-Viewer':
@@ -3353,6 +3360,7 @@ class EasyChessGui:
                     self.menu_elem.Update(menu_def_neutral)
                 continue
 
+            # check for pgn-editor-mode
             if (button == 'PGN-Editor' or self.start_mode_used == "pgneditor"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Editor'):
                 # if default-window is not 'neutral', layout and menu are already changed
@@ -3377,14 +3385,10 @@ class EasyChessGui:
                     self.menu_elem.Update(menu_def_neutral)
                 continue
 
-            if self.check_game_setting_button(button, window, engine_id_name):
-                window = self.window
-                engine_id_name = self.engine_id_name
-                continue
-            # Mode: Neutral
+            # check for play-mode
             if button == 'Play' or self.start_mode_used == "play" or self.play_toolbar.get_button_id(button) == 'Play':
 
-                if engine_id_name is None:
+                if self.engine_id_name is None:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
                              icon=ico_path[platform]['pecg'], title='Mode')
@@ -3403,9 +3407,8 @@ class EasyChessGui:
 
         window.Close()
 
-    def check_game_setting_button(self, button, window, engine_id_name):
+    def check_game_setting_button(self, button, window):
         button_action = False
-        self.engine_id_name = engine_id_name
         # Mode: Neutral, Delete player
         if button == 'Delete Player::delete_player_k':
             self.delete_player_in_neutral_mode(window)
@@ -3423,12 +3426,12 @@ class EasyChessGui:
             self.set_user_name(window)
             button_action = True
         # Mode: Neutral
-        self.engine_id_name, is_engine_action = self.manage_engine(button, window, engine_id_name)
+        self.engine_id_name, is_engine_action = self.manage_engine(button, window, self.engine_id_name)
         if is_engine_action:
             button_action = True
         # Mode: Neutral, Allow user to change opponent engine settings
         if button == 'Set Engine Opponent':
-            self.engine_id_name, is_engine_set = self.define_engine(engine_id_name, window)
+            self.engine_id_name, is_engine_set = self.define_engine(self.engine_id_name, window)
             button_action = True
         # Mode: Neutral, Set Adviser engine
         if button == 'Set Engine Adviser':
