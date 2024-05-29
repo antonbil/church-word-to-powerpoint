@@ -510,6 +510,15 @@ class RunEngine(threading.Thread):
                                 logging.exception('Failed to configure engine.')
 
     def set_skill_option(self, n, user_value):
+        """
+        set skill-level for engine
+        experimental code; only working right now for StockFish, Deuterium and  Dragon
+        StockFish and Deuterium have the "uci_limitstrength" and "uci_elo" properties
+        Dragon only has the "skill"-property
+        :param n:
+        :param user_value:
+        :return:
+        """
         if not self.use_skill:
             return user_value
         skill_options = [{"skill Level":2,#level 1
@@ -793,6 +802,8 @@ class EasyChessGui:
                  is_use_gui_book, is_random_book, max_book_ply,
                  engine='',
                  max_depth=MAX_DEPTH, start_mode="neutral", num_threads=128):
+        # self.engine_id_name used inside "Engine/manage/install etc, and in "Engine/Set engine oponent"
+        self.engine_id_name = None
         self.move_string = ""
         self.window = None
         self.node = None
@@ -3303,6 +3314,7 @@ class EasyChessGui:
         self.set_neutral_button_bar(window)
 
         # Mode: Neutral, main loop starts here
+        #main loop start
         while True:
             button, value = window.Read(timeout=50)
 
@@ -3365,361 +3377,10 @@ class EasyChessGui:
                     self.menu_elem.Update(menu_def_neutral)
                 continue
 
-            if button == 'Next':
-                print("next")
-            if button == 'Previous':
-                print("previous")
-
-            # Mode: Neutral, Delete player
-            if button == 'Delete Player::delete_player_k':
-                win_title = 'Tools/Delete Player'
-                player_list = []
-                sum_games = 0
-                layout = [
-                    [sg.Text('PGN', font=self.text_font, size=(4, 1)),
-                     sg.Input(size=(40, 1), font=self.text_font, key='pgn_k'), sg.FileBrowse()],
-                    [sg.Button('Display Players', font=self.text_font, size=(48, 1))],
-                    [sg.Text('Status:', font=self.text_font, size=(48, 1), key='status_k', relief='sunken')],
-                    [sg.T('Current players in the pgn', font=self.text_font, size=(43, 1))],
-                    [sg.Listbox([], font=self.text_font, size=(53, 10), key='player_k')],
-                    [sg.Button('Delete Player', font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-
-                window.Hide()
-                w = sg.Window(win_title, layout,
-                              icon=ico_path[platform]['pecg'])
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None or e == 'Cancel':
-                        break
-                    if e == 'Display Players':
-                        pgn = v['pgn_k']
-                        if pgn == '':
-                            logging.info('Missing pgn file.')
-                            sg.Popup(
-                                'Please locate your pgn file by pressing \
-                                the Browse button followed by Display Players.',
-                                title=win_title,
-                                icon=ico_path[platform]['pecg']
-                            )
-                            break
-
-                        t1 = time.perf_counter()
-                        que = queue.Queue()
-                        t = threading.Thread(
-                            target=self.get_players,
-                            args=(pgn, que,),
-                            daemon=True
-                        )
-                        t.start()
-                        msg = None
-                        while True:
-                            e1, _ = w.Read(timeout=100)
-                            w.Element('status_k').Update(
-                                'Display Players: processing ...')
-                            try:
-                                msg = que.get_nowait()
-                                elapse = int(time.perf_counter() - t1)
-                                w.Element('status_k').Update(
-                                    'Players are displayed. Done! in ' +
-                                    str(elapse) + 's')
-                                break
-                            except Exception:
-                                continue
-                        t.join()
-                        player_list = msg[0]
-                        sum_games = msg[1]
-                        w.Element('player_k').Update(sorted(player_list))
-
-                    if e == 'Delete Player':
-                        try:
-                            player_name = v['player_k'][0]
-                        except IndexError as e:
-                            logging.info(e)
-                            sg.Popup('Please locate your pgn file by '
-                                     'pressing the Browse button followed by Display Players.',
-                                     title=win_title,
-                                     icon=ico_path[platform]['pecg'])
-                            break
-                        except Exception:
-                            logging.exception('Failed to get player.')
-                            break
-
-                        t1 = time.perf_counter()
-                        que = queue.Queue()
-                        t = threading.Thread(
-                            target=self.delete_player,
-                            args=(player_name, v['pgn_k'], que,),
-                            daemon=True
-                        )
-                        t.start()
-                        msg = None
-                        while True:
-                            e1, _ = w.Read(timeout=100)
-                            w.Element('status_k').Update(
-                                'Status: Delete: processing ...')
-                            try:
-                                msg = que.get_nowait()
-                                if msg == 'Done':
-                                    elapse = int(time.perf_counter() - t1)
-                                    w.Element('status_k').Update(
-                                        player_name + ' was deleted. Done! '
-                                                      'in ' + str(elapse) + 's')
-                                    break
-                                else:
-                                    w.Element('status_k').Update(
-                                        msg + '/' + str(sum_games))
-                            except Exception:
-                                continue
-                        t.join()
-
-                        # Update player list in listbox
-                        player_list.remove(player_name)
-                        w.Element('player_k').Update(sorted(player_list))
-
-                w.Close()
-                window.UnHide()
+            if self.check_game_setting_button(button, window, engine_id_name):
+                window = self.window
+                engine_id_name = self.engine_id_name
                 continue
-
-            # Mode: Neutral, Set User time control
-            if button == 'User::tc_k':
-                win_title = 'Time/User'
-                layout = [
-                    [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
-                     sg.Input(self.human_base_time_ms / 60 / 1000, font=self.text_font,
-                              key='base_time_k', size=(8, 1))],
-                    [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
-                     sg.Input(self.human_inc_time_ms / 1000, font=self.text_font, key='inc_time_k',
-                              size=(8, 1))],
-                    [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
-                     sg.Input(self.human_period_moves, font=self.text_font, key='period_moves_k',
-                              size=(8, 1), visible=False)],
-                    [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
-                              default=True if self.human_tc_type == 'fischer' else False),
-                     sg.Radio('Delay', 'tc_radio', font=self.text_font, key='delay_type_k',
-                              default=True if self.human_tc_type == 'delay' else False)],
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-
-                window.Hide()
-                w = sg.Window(win_title, layout,
-                              icon=ico_path[platform]['pecg'])
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None:
-                        break
-                    if e == 'Cancel':
-                        break
-                    if e == 'OK':
-                        base_time_ms = int(1000 * 60 * float(v['base_time_k']))
-                        inc_time_ms = int(1000 * float(v['inc_time_k']))
-                        period_moves = int(v['period_moves_k'])
-
-                        tc_type = 'fischer'
-                        if v['fischer_type_k']:
-                            tc_type = 'fischer'
-                        elif v['delay_type_k']:
-                            tc_type = 'delay'
-
-                        self.human_base_time_ms = base_time_ms
-                        self.human_inc_time_ms = inc_time_ms
-                        self.human_period_moves = period_moves
-                        self.human_tc_type = tc_type
-                        break
-                w.Close()
-                window.UnHide()
-                continue
-
-            # Mode: Neutral, Set engine time control
-            if button == 'Engine::tc_k':
-                win_title = 'Time/Engine'
-                layout = [
-                    [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
-                     sg.Input(self.engine_base_time_ms / 60 / 1000,
-                              key='base_time_k', font=self.text_font, size=(8, 1))],
-                    [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
-                     sg.Input(self.engine_inc_time_ms / 1000, font=self.text_font,
-                              key='inc_time_k',
-                              size=(8, 1))],
-                    [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
-                     sg.Input(self.engine_period_moves, font=self.text_font,
-                              key='period_moves_k', size=(8, 1),
-                              visible=False)],
-                    [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
-                              default=True if
-                              self.engine_tc_type == 'fischer' else False),
-                     sg.Radio('Time Per Move', 'tc_radio', font=self.text_font, key='timepermove_k',
-                              default=True if
-                              self.engine_tc_type == 'timepermove' else
-                              False, tooltip='Only base time will be used.')
-                     ],
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-
-                window.Hide()
-                w = sg.Window(win_title, layout,
-                              icon=ico_path[platform]['pecg'])
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None:
-                        break
-                    if e == 'Cancel':
-                        break
-                    if e == 'OK':
-                        base_time_ms = int(
-                            1000 * 60 * float(v['base_time_k']))
-                        inc_time_ms = int(1000 * float(v['inc_time_k']))
-                        period_moves = int(v['period_moves_k'])
-
-                        tc_type = 'fischer'
-                        if v['fischer_type_k']:
-                            tc_type = 'fischer'
-                        elif v['timepermove_k']:
-                            tc_type = 'timepermove'
-
-                        self.engine_base_time_ms = base_time_ms
-                        self.engine_inc_time_ms = inc_time_ms
-                        self.engine_period_moves = period_moves
-                        self.engine_tc_type = tc_type
-                        break
-                w.Close()
-                window.UnHide()
-                continue
-
-            # Mode: Neutral, set username
-            if button == 'Set Name::user_name_k':
-                win_title = 'User/username'
-                layout = [
-                    [sg.Text('Current username: {}'.format(
-                        self.username))],
-                    [sg.T('Name', size=(4, 1)), sg.Input(
-                        self.username, key='username_k', size=(32, 1))],
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
-                ]
-                window.Hide()
-                w = sg.Window(win_title, layout,
-                              icon=ico_path[platform]['pecg'])
-                while True:
-                    e, v = w.Read(timeout=10)
-                    if e is None:
-                        break
-                    if e == 'Cancel':
-                        break
-                    if e == 'OK':
-                        backup = self.username
-                        username = self.username = v['username_k']
-                        if username == '':
-                            username = backup
-                        self.update_user_config_file(username)
-                        break
-                w.Close()
-                window.UnHide()
-                self.update_labels_and_game_tags(window, human=self.username)
-                continue
-
-            # Mode: Neutral
-            engine_id_name, is_engine_action = self.manage_engine(button, window, engine_id_name)
-            if is_engine_action:
-                continue
-            # Mode: Neutral, Allow user to change opponent engine settings
-            if button == 'Set Engine Opponent':
-                engine_id_name, is_engine_set = self.define_engine(engine_id_name, window)
-                continue
-
-            # Mode: Neutral, Set Adviser engine
-            if button == 'Set Engine Adviser':
-                self.get_adviser_engine(window)
-                continue
-
-            # Mode: Neutral
-            if self.check_depth_button(button):
-                continue
-
-            # Mode: Neutral, Allow user to change book settings
-            if button == 'Set Book::book_set_k':
-                # Backup current values, we will restore these value in case
-                # the user presses cancel or X button
-                current_is_use_gui_book = self.is_use_gui_book
-                current_is_random_book = self.is_random_book
-                current_max_book_ply = self.max_book_ply
-
-                layout = [
-                    [sg.Text('This is the book used by your engine opponent.', font=self.text_font)],
-                    [sg.T('Book File', font=self.text_font, size=(8, 1)),
-                     sg.T(self.gui_book_file, font=self.text_font, size=(36, 1), relief='sunken')],
-                    [sg.T('Max Ply', font=self.text_font, size=(8, 1)),
-                     sg.Spin([t for t in range(1, 33, 1)], font=self.text_font,
-                             initial_value=self.max_book_ply,
-                             size=(6, 1), key='book_ply_k')],
-                    [sg.CBox('Use book', font=self.text_font, key='use_gui_book_k',
-                             default=self.is_use_gui_book)],
-                    [sg.Radio('Best move', 'Book Radio', font=self.text_font,
-                              default=False if self.is_random_book else True),
-                     sg.Radio('Random move', 'Book Radio', font=self.text_font,
-                              key='random_move_k',
-                              default=True if self.is_random_book else False)],
-                    [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
-                ]
-
-                w = sg.Window(BOX_TITLE + '/Set Book', layout,
-                              icon=ico_path[platform]['pecg'])
-                window.Hide()
-
-                while True:
-                    e, v = w.Read(timeout=10)
-
-                    # If user presses X button
-                    if e is None:
-                        self.is_use_gui_book = current_is_use_gui_book
-                        self.is_random_book = current_is_random_book
-                        self.max_book_ply = current_max_book_ply
-                        logging.info('Book setting is exited.')
-                        break
-
-                    if e == 'Cancel':
-                        self.is_use_gui_book = current_is_use_gui_book
-                        self.is_random_book = current_is_random_book
-                        self.max_book_ply = current_max_book_ply
-                        logging.info('Book setting is cancelled.')
-                        break
-
-                    if e == 'OK':
-                        self.max_book_ply = int(v['book_ply_k'])
-                        self.is_use_gui_book = v['use_gui_book_k']
-                        self.is_random_book = v['random_move_k']
-                        logging.info('Book setting is OK')
-                        break
-
-                window.UnHide()
-                w.Close()
-                continue
-
-            # Mode: Neutral, Settings menu
-            if button == 'Game::settings_game_k':
-                self.get_settings_pgn(window)
-                continue
-
-            # Mode: Neutral, Change theme
-            theme_changed, window = self.change_theme(button, window)
-            if theme_changed:
-                continue
-
-            # Mode: Neutral, Change board to ['Brown', "Gray", "Green", "Blue"], default
-            if self.check_color_button(button, window):
-                continue
-
-            # Mode: Neutral
-            if button == 'Flip':
-                window.find_element('_gamestatus_').Update('Play Settings')
-                self.clear_elements(window)
-                self.window = self.create_new_window(window, True)
-                continue
-
-            # Mode: Neutral
-            if button == 'GUI':
-                sg.PopupScrolled(HELP_MSG, title='Help/GUI')
-                continue
-
             # Mode: Neutral
             if button == 'Play' or self.start_mode_used == "play" or self.play_toolbar.get_button_id(button) == 'Play':
 
@@ -3729,42 +3390,394 @@ class EasyChessGui:
                              icon=ico_path[platform]['pecg'], title='Mode')
                     continue
 
-                # Change menu from Neutral to Play
-                self.menu_elem.Update(menu_def_play)
-                self.start_mode_used = self.start_mode_used.replace("play", "")
-                self.psg_board = copy.deepcopy(initial_board)
-                board = chess.Board()
-                self.display_button_bar()
-                window.find_element("play_top_frame").Update(visible=True)
-
-                while True:
-                    _, value = window.Read(timeout=100)
-                    self.mode_indicator = 'Mode     Play'
-
-                    window.find_element('_gamestatus_').Update(self.mode_indicator)
-                    window.find_element('_movelist_').Update(disabled=False)
-                    window.find_element('_movelist_').Update('', disabled=True)
-
-                    start_new_game = self.play_game(window, board)
-                    window.find_element('_gamestatus_').Update('Mode     Neutral')
-
-                    self.psg_board = copy.deepcopy(initial_board)
-                    self.redraw_board(window)
-                    board = chess.Board()
-                    self.set_new_game()
-
-                    if not start_new_game:
-                        break
+                self.play_human_computer(window)
 
                 # Restore Neutral menu
                 self.menu_elem.Update(menu_def_neutral)
                 self.psg_board = copy.deepcopy(initial_board)
-                window.find_element('_gamestatus_').Update('Play Settings')
+                self.window.find_element('_gamestatus_').Update('Play Settings')
                 board = chess.Board()
                 self.set_new_game()
                 continue
+                # main loop end
 
         window.Close()
+
+    def check_game_setting_button(self, button, window, engine_id_name):
+        button_action = False
+        self.engine_id_name = engine_id_name
+        # Mode: Neutral, Delete player
+        if button == 'Delete Player::delete_player_k':
+            self.delete_player_in_neutral_mode(window)
+            button_action = True
+        # Mode: Neutral, Set User time control
+        if button == 'User::tc_k':
+            self.set_user_time_control(window)
+            button_action = True
+        # Mode: Neutral, Set engine time control
+        if button == 'Engine::tc_k':
+            self.set_engine_time_control(window)
+            button_action = True
+        # Mode: Neutral, set username
+        if button == 'Set Name::user_name_k':
+            self.set_user_name(window)
+            button_action = True
+        # Mode: Neutral
+        self.engine_id_name, is_engine_action = self.manage_engine(button, window, engine_id_name)
+        if is_engine_action:
+            button_action = True
+        # Mode: Neutral, Allow user to change opponent engine settings
+        if button == 'Set Engine Opponent':
+            self.engine_id_name, is_engine_set = self.define_engine(engine_id_name, window)
+            button_action = True
+        # Mode: Neutral, Set Adviser engine
+        if button == 'Set Engine Adviser':
+            self.get_adviser_engine(window)
+            button_action = True
+        # Mode: Neutral
+        if self.check_depth_button(button):
+            button_action = True
+        # Mode: Neutral, Allow user to change book settings
+        if button == 'Set Book::book_set_k':
+            self.change_book_settings(window)
+            button_action = True
+        # Mode: Neutral, Settings menu
+        if button == 'Game::settings_game_k':
+            self.get_settings_pgn(window)
+            button_action = True
+        # Mode: Neutral, Change theme
+        theme_changed, self.window = self.change_theme(button, window)
+        if theme_changed:
+            button_action = True
+        # Mode: Neutral, Change board to ['Brown', "Gray", "Green", "Blue"], default
+        if self.check_color_button(button, window):
+            button_action = True
+        # Mode: Neutral
+        if button == 'Flip':
+            window.find_element('_gamestatus_').Update('Play Settings')
+            self.clear_elements(window)
+            self.window = self.create_new_window(window, True)
+            button_action = True
+        # Mode: Neutral
+        if button == 'GUI':
+            sg.PopupScrolled(HELP_MSG, title='Help/GUI')
+            button_action = True
+        return button_action
+
+    def delete_player_in_neutral_mode(self, window):
+        win_title = 'Tools/Delete Player'
+        player_list = []
+        sum_games = 0
+        layout = [
+            [sg.Text('PGN', font=self.text_font, size=(4, 1)),
+             sg.Input(size=(40, 1), font=self.text_font, key='pgn_k'), sg.FileBrowse()],
+            [sg.Button('Display Players', font=self.text_font, size=(48, 1))],
+            [sg.Text('Status:', font=self.text_font, size=(48, 1), key='status_k', relief='sunken')],
+            [sg.T('Current players in the pgn', font=self.text_font, size=(43, 1))],
+            [sg.Listbox([], font=self.text_font, size=(53, 10), key='player_k')],
+            [sg.Button('Delete Player', font=self.text_font), sg.Cancel(font=self.text_font)]
+        ]
+        window.Hide()
+        w = sg.Window(win_title, layout,
+                      icon=ico_path[platform]['pecg'])
+        while True:
+            e, v = w.Read(timeout=10)
+            if e is None or e == 'Cancel':
+                break
+            if e == 'Display Players':
+                pgn = v['pgn_k']
+                if pgn == '':
+                    logging.info('Missing pgn file.')
+                    sg.Popup(
+                        'Please locate your pgn file by pressing \
+                        the Browse button followed by Display Players.',
+                        title=win_title,
+                        icon=ico_path[platform]['pecg']
+                    )
+                    break
+
+                t1 = time.perf_counter()
+                que = queue.Queue()
+                t = threading.Thread(
+                    target=self.get_players,
+                    args=(pgn, que,),
+                    daemon=True
+                )
+                t.start()
+                msg = None
+                while True:
+                    e1, _ = w.Read(timeout=100)
+                    w.Element('status_k').Update(
+                        'Display Players: processing ...')
+                    try:
+                        msg = que.get_nowait()
+                        elapse = int(time.perf_counter() - t1)
+                        w.Element('status_k').Update(
+                            'Players are displayed. Done! in ' +
+                            str(elapse) + 's')
+                        break
+                    except Exception:
+                        continue
+                t.join()
+                player_list = msg[0]
+                sum_games = msg[1]
+                w.Element('player_k').Update(sorted(player_list))
+
+            if e == 'Delete Player':
+                try:
+                    player_name = v['player_k'][0]
+                except IndexError as e:
+                    logging.info(e)
+                    sg.Popup('Please locate your pgn file by '
+                             'pressing the Browse button followed by Display Players.',
+                             title=win_title,
+                             icon=ico_path[platform]['pecg'])
+                    break
+                except Exception:
+                    logging.exception('Failed to get player.')
+                    break
+
+                t1 = time.perf_counter()
+                que = queue.Queue()
+                t = threading.Thread(
+                    target=self.delete_player,
+                    args=(player_name, v['pgn_k'], que,),
+                    daemon=True
+                )
+                t.start()
+                msg = None
+                while True:
+                    e1, _ = w.Read(timeout=100)
+                    w.Element('status_k').Update(
+                        'Status: Delete: processing ...')
+                    try:
+                        msg = que.get_nowait()
+                        if msg == 'Done':
+                            elapse = int(time.perf_counter() - t1)
+                            w.Element('status_k').Update(
+                                player_name + ' was deleted. Done! '
+                                              'in ' + str(elapse) + 's')
+                            break
+                        else:
+                            w.Element('status_k').Update(
+                                msg + '/' + str(sum_games))
+                    except Exception:
+                        continue
+                t.join()
+
+                # Update player list in listbox
+                player_list.remove(player_name)
+                w.Element('player_k').Update(sorted(player_list))
+        w.Close()
+        window.UnHide()
+
+    def set_user_time_control(self, window):
+        win_title = 'Time/User'
+        layout = [
+            [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
+             sg.Input(self.human_base_time_ms / 60 / 1000, font=self.text_font,
+                      key='base_time_k', size=(8, 1))],
+            [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
+             sg.Input(self.human_inc_time_ms / 1000, font=self.text_font, key='inc_time_k',
+                      size=(8, 1))],
+            [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
+             sg.Input(self.human_period_moves, font=self.text_font, key='period_moves_k',
+                      size=(8, 1), visible=False)],
+            [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
+                      default=True if self.human_tc_type == 'fischer' else False),
+             sg.Radio('Delay', 'tc_radio', font=self.text_font, key='delay_type_k',
+                      default=True if self.human_tc_type == 'delay' else False)],
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
+        ]
+        window.Hide()
+        w = sg.Window(win_title, layout,
+                      icon=ico_path[platform]['pecg'])
+        while True:
+            e, v = w.Read(timeout=10)
+            if e is None:
+                break
+            if e == 'Cancel':
+                break
+            if e == 'OK':
+                base_time_ms = int(1000 * 60 * float(v['base_time_k']))
+                inc_time_ms = int(1000 * float(v['inc_time_k']))
+                period_moves = int(v['period_moves_k'])
+
+                tc_type = 'fischer'
+                if v['fischer_type_k']:
+                    tc_type = 'fischer'
+                elif v['delay_type_k']:
+                    tc_type = 'delay'
+
+                self.human_base_time_ms = base_time_ms
+                self.human_inc_time_ms = inc_time_ms
+                self.human_period_moves = period_moves
+                self.human_tc_type = tc_type
+                break
+        w.Close()
+        window.UnHide()
+
+    def set_engine_time_control(self, window):
+        win_title = 'Time/Engine'
+        layout = [
+            [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
+             sg.Input(self.engine_base_time_ms / 60 / 1000,
+                      key='base_time_k', font=self.text_font, size=(8, 1))],
+            [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
+             sg.Input(self.engine_inc_time_ms / 1000, font=self.text_font,
+                      key='inc_time_k',
+                      size=(8, 1))],
+            [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
+             sg.Input(self.engine_period_moves, font=self.text_font,
+                      key='period_moves_k', size=(8, 1),
+                      visible=False)],
+            [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
+                      default=True if
+                      self.engine_tc_type == 'fischer' else False),
+             sg.Radio('Time Per Move', 'tc_radio', font=self.text_font, key='timepermove_k',
+                      default=True if
+                      self.engine_tc_type == 'timepermove' else
+                      False, tooltip='Only base time will be used.')
+             ],
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
+        ]
+        window.Hide()
+        w = sg.Window(win_title, layout,
+                      icon=ico_path[platform]['pecg'])
+        while True:
+            e, v = w.Read(timeout=10)
+            if e is None:
+                break
+            if e == 'Cancel':
+                break
+            if e == 'OK':
+                base_time_ms = int(
+                    1000 * 60 * float(v['base_time_k']))
+                inc_time_ms = int(1000 * float(v['inc_time_k']))
+                period_moves = int(v['period_moves_k'])
+
+                tc_type = 'fischer'
+                if v['fischer_type_k']:
+                    tc_type = 'fischer'
+                elif v['timepermove_k']:
+                    tc_type = 'timepermove'
+
+                self.engine_base_time_ms = base_time_ms
+                self.engine_inc_time_ms = inc_time_ms
+                self.engine_period_moves = period_moves
+                self.engine_tc_type = tc_type
+                break
+        w.Close()
+        window.UnHide()
+
+    def set_user_name(self, window):
+        win_title = 'User/username'
+        layout = [
+            [sg.Text('Current username: {}'.format(
+                self.username))],
+            [sg.T('Name', size=(4, 1)), sg.Input(
+                self.username, key='username_k', size=(32, 1))],
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
+        ]
+        window.Hide()
+        w = sg.Window(win_title, layout,
+                      icon=ico_path[platform]['pecg'])
+        while True:
+            e, v = w.Read(timeout=10)
+            if e is None:
+                break
+            if e == 'Cancel':
+                break
+            if e == 'OK':
+                backup = self.username
+                username = self.username = v['username_k']
+                if username == '':
+                    username = backup
+                self.update_user_config_file(username)
+                break
+        w.Close()
+        window.UnHide()
+        self.update_labels_and_game_tags(window, human=self.username)
+
+    def change_book_settings(self, window):
+        # Backup current values, we will restore these value in case
+        # the user presses cancel or X button
+        current_is_use_gui_book = self.is_use_gui_book
+        current_is_random_book = self.is_random_book
+        current_max_book_ply = self.max_book_ply
+        layout = [
+            [sg.Text('This is the book used by your engine opponent.', font=self.text_font)],
+            [sg.T('Book File', font=self.text_font, size=(8, 1)),
+             sg.T(self.gui_book_file, font=self.text_font, size=(36, 1), relief='sunken')],
+            [sg.T('Max Ply', font=self.text_font, size=(8, 1)),
+             sg.Spin([t for t in range(1, 33, 1)], font=self.text_font,
+                     initial_value=self.max_book_ply,
+                     size=(6, 1), key='book_ply_k')],
+            [sg.CBox('Use book', font=self.text_font, key='use_gui_book_k',
+                     default=self.is_use_gui_book)],
+            [sg.Radio('Best move', 'Book Radio', font=self.text_font,
+                      default=False if self.is_random_book else True),
+             sg.Radio('Random move', 'Book Radio', font=self.text_font,
+                      key='random_move_k',
+                      default=True if self.is_random_book else False)],
+            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
+        ]
+        w = sg.Window(BOX_TITLE + '/Set Book', layout,
+                      icon=ico_path[platform]['pecg'])
+        window.Hide()
+        while True:
+            e, v = w.Read(timeout=10)
+
+            # If user presses X button
+            if e is None:
+                self.is_use_gui_book = current_is_use_gui_book
+                self.is_random_book = current_is_random_book
+                self.max_book_ply = current_max_book_ply
+                logging.info('Book setting is exited.')
+                break
+
+            if e == 'Cancel':
+                self.is_use_gui_book = current_is_use_gui_book
+                self.is_random_book = current_is_random_book
+                self.max_book_ply = current_max_book_ply
+                logging.info('Book setting is cancelled.')
+                break
+
+            if e == 'OK':
+                self.max_book_ply = int(v['book_ply_k'])
+                self.is_use_gui_book = v['use_gui_book_k']
+                self.is_random_book = v['random_move_k']
+                logging.info('Book setting is OK')
+                break
+        window.UnHide()
+        w.Close()
+
+    def play_human_computer(self, window):
+        # Change menu from Neutral to Play
+        self.menu_elem.Update(menu_def_play)
+        self.start_mode_used = self.start_mode_used.replace("play", "")
+        self.psg_board = copy.deepcopy(initial_board)
+        board = chess.Board()
+        self.display_button_bar()
+        window.find_element("play_top_frame").Update(visible=True)
+        while True:
+            _, value = window.Read(timeout=100)
+            self.mode_indicator = 'Mode     Play'
+
+            window.find_element('_gamestatus_').Update(self.mode_indicator)
+            window.find_element('_movelist_').Update(disabled=False)
+            window.find_element('_movelist_').Update('', disabled=True)
+
+            start_new_game = self.play_game(window, board)
+            window.find_element('_gamestatus_').Update('Mode     Neutral')
+
+            self.psg_board = copy.deepcopy(initial_board)
+            self.redraw_board(window)
+            board = chess.Board()
+            self.set_new_game()
+
+            if not start_new_game:
+                break
 
     def get_settings_pgn(self, window):
         font_sizes = ['10', '12', '20', '32']
