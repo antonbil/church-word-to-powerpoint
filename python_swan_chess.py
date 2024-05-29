@@ -3331,15 +3331,9 @@ class EasyChessGui:
             # check for pgn-viewer-mode
             if (button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Viewer'):
-                if self.play_toolbar.get_button_id(button) == 'PGN-Viewer' or button == 'PGN-Viewer':
-                    # in neutral mode; mode pgn-viewer is selected
-                    self.start_mode_used = "pgnviewer"
-                    self.swap_visible_columns_window(window)
-                # if default-window is not 'neutral', layout and menu are already changed
-                if self.returning_from_playing and not self.is_png_layout():
-                    window = self.swap_visible_columns_window(window)
-                    self.returning_from_playing = False
-
+                # set window-layout and menu-def
+                window = self.set_window_column_and_menu(button, window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
+                # execute pgn-viewer
                 pgn_viewer = PGNViewer(self, window, play_move_string=self.move_string)
                 while pgn_viewer.restart and not pgn_viewer.is_win_closed:
                     if not self.is_png_layout():
@@ -3351,38 +3345,22 @@ class EasyChessGui:
 
                 # 'neutral' is selected in PGNViewer-menu
                 # check if window is forced close
-                if not pgn_viewer.is_win_closed:
-                    self.start_mode_used = self.start_mode_used.replace("pgnviewer", "")
-                    # check if the play-layout is chosen for further playing
-                    if pgn_viewer.start_play_mode:
-                        window = self.swap_visible_columns_window(window)
-                        pgn_viewer.start_play_mode = False
-                    self.menu_elem.Update(menu_def_neutral)
+                window = self.check_if_neutral_layout_must_be_applied(pgn_viewer, window, "pgnviewer")
                 continue
 
             # check for pgn-editor-mode
             if (button == 'PGN-Editor' or self.start_mode_used == "pgneditor"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Editor'):
-                # if default-window is not 'neutral', layout and menu are already changed
-                if self.play_toolbar.get_button_id(button) == 'PGN-Editor' or button == 'PGN-Editor':
-                    # in neutral mode; mode pgn-editor is selected
-                    self.start_mode_used = "pgneditor"
-                    self.swap_visible_columns_window(window)
-                if self.returning_from_playing and not self.is_png_layout():
-                    window = self.swap_visible_columns_window(window)
-                    self.returning_from_playing = False
-
-                self.menu_elem.Update(menu_def_entry)
+                # set window-layout and menu-def
+                window = self.set_window_column_and_menu(button, window, "pgneditor", 'PGN-Editor', menu_def_entry)
+                # execute pgn-editor
                 data_entry = PgnEditor(self, window, play_move_string=self.move_string)
                 # 'neutral' is selected in DataEntry-menu
 
-                self.start_mode_used = self.start_mode_used.replace("pgneditor", "")
+
                 # check if window is forced close
-                if not data_entry.is_win_closed:
-                    if self.is_png_layout() or data_entry.start_play_mode:
-                        data_entry.start_play_mode = False
-                        window = self.swap_visible_columns_window(window)
-                    self.menu_elem.Update(menu_def_neutral)
+                pgn_object = data_entry
+                window = self.check_if_neutral_layout_must_be_applied(pgn_object, window, "pgneditor")
                 continue
 
             # check for play-mode
@@ -3392,6 +3370,10 @@ class EasyChessGui:
                     logging.warning('Install engine first!')
                     sg.Popup('Install engine first! in Engine/Manage/Install',
                              icon=ico_path[platform]['pecg'], title='Mode')
+                    self.start_mode_used = ""
+                    if self.is_png_layout():
+                        window = self.swap_visible_columns_window(window)
+
                     continue
 
                 self.play_human_computer(window)
@@ -3406,6 +3388,28 @@ class EasyChessGui:
                 # main loop end
 
         window.Close()
+
+    def check_if_neutral_layout_must_be_applied(self, pgn_object, window, description):
+        if not pgn_object.is_win_closed:
+            # only replace this description; the start-mode-used can also contain: "play"
+            self.start_mode_used = self.start_mode_used.replace(description, "")
+            if self.is_png_layout() or pgn_object.start_play_mode:
+                pgn_object.start_play_mode = False
+                window = self.swap_visible_columns_window(window)
+            self.menu_elem.Update(menu_def_neutral)
+        return window
+
+    def set_window_column_and_menu(self, button, window, mode_name, viewer_description, menu):
+        if self.play_toolbar.get_button_id(button) == viewer_description or button == 'PGN-Viewer':
+            # in neutral mode; mode pgn-viewer is selected
+            self.start_mode_used = mode_name
+            self.swap_visible_columns_window(window)
+        # if default-window is not 'neutral', layout and menu are already changed
+        if self.returning_from_playing and not self.is_png_layout():
+            window = self.swap_visible_columns_window(window)
+            self.returning_from_playing = False
+        self.menu_elem.Update(menu)
+        return window
 
     def check_game_setting_button(self, button, window):
         button_action = False
