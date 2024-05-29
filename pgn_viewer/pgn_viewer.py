@@ -172,8 +172,8 @@ class PGNViewer:
                 break
 
             if button == 'Switch Sides':
-                # self.gui.is_user_white = not self.gui.is_user_white
-                self.restart = True
+                self.gui.move_string = '{}\n\n'.format(self.game)
+                self.gui.start_mode_used = "pgnviewer"
                 self.flip = True
                 break
 
@@ -193,32 +193,36 @@ class PGNViewer:
                 continue
 
             if button == 'PGN-Editor':
-                # import later, to avoid recursive import
-                from pgn_editor.pgn_editor import PgnEditor
-                name_file = temp_file_name
-                if not name_file == self.pgn:
-                    with open(name_file, mode='w') as f:
-                        f.write('{}\n\n'.format(self.game))
-                self.gui.menu_elem.Update(menu_def_entry)
-                previous_move_number = self.move_number
-                data_entry = PgnEditor(self.gui, self.window, name_file, from_pgn_viewer=True,
-                                       pgn_viewer_move=previous_move_number)
-                # return from entry
-                if data_entry.is_win_closed:
-                    self.is_win_closed = True
-                    break
-                if data_entry.start_play_mode:
-                    self.start_play_mode = True
-                    break
-                self.display_button_bar()
-                self.set_mode_display()
-                self.game = data_entry.game
+                self.gui.move_string = '{}\n\n'.format(self.game)
+                self.gui.start_mode_used = "pgneditor"
+                break
 
-                string = str(self.game.game())
-                self.set_new_position(min(previous_move_number, len(self.get_all_moves(self.game)) - 1))
-                lines = self.pgn_display.beautify_lines(string)
-                self.pgn_lines = lines
-                self.display_part_pgn(self.move_number, self.current_move)
+                # import later, to avoid recursive import
+                # from pgn_editor.pgn_editor import PgnEditor
+                # name_file = temp_file_name
+                # if not name_file == self.pgn:
+                #     with open(name_file, mode='w') as f:
+                #         f.write('{}\n\n'.format(self.game))
+                # self.gui.menu_elem.Update(menu_def_entry)
+                # previous_move_number = self.move_number
+                # data_entry = PgnEditor(self.gui, self.window, name_file, from_pgn_viewer=True,
+                #                        pgn_viewer_move=previous_move_number)
+                # # return from entry
+                # if data_entry.is_win_closed:
+                #     self.is_win_closed = True
+                #     break
+                # if data_entry.start_play_mode:
+                #     self.start_play_mode = True
+                #     break
+                # self.display_button_bar()
+                # self.set_mode_display()
+                # self.game = data_entry.game
+                #
+                # string = str(self.game.game())
+                # self.set_new_position(min(previous_move_number, len(self.get_all_moves(self.game)) - 1))
+                # lines = self.pgn_display.beautify_lines(string)
+                # self.pgn_lines = lines
+                # self.display_part_pgn(self.move_number, self.current_move)
 
             if button == "Select":
                 if self.check_edit_single_pgn():

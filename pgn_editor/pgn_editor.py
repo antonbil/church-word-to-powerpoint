@@ -219,14 +219,8 @@ class PgnEditor:
                 name_file = temp_file_name
                 self.game.headers['White'] = value['_White_2']
                 self.game.headers['Black'] = value['_Black_2']
-                with open(name_file, mode='w') as f:
-                    f.write('{}\n\n'.format(self.game))
-                self.gui.menu_elem.Update(menu_def_pgnviewer)
-                self.gui.preferences.preferences["pgn_file"] = name_file
-                self.gui.preferences.preferences["pgn_game"] = ""
-                if not self.from_pgn_viewer:
-                    pgn_viewer = PGNViewer(self.gui, self.window)
-                    self.is_win_closed = pgn_viewer.is_win_closed
+                self.gui.move_string = '{}\n\n'.format(self.game)
+                self.gui.start_mode_used = "pgnviewer"
                 break
 
             if button == 'PGN Move entry' or button == 'Variations Edit' or self.pgn_viewer_move>0:
@@ -260,7 +254,10 @@ class PgnEditor:
                              font=self.gui.text_font)
                     continue
                 # self.gui.is_user_white = not self.gui.is_user_white
-                self.restart = True
+                self.game.headers['White'] = value['_White_2']
+                self.game.headers['Black'] = value['_Black_2']
+                self.gui.move_string = '{}\n\n'.format(self.game)
+                self.gui.start_mode_used = "pgneditor"
                 self.flip = True
                 break
 
