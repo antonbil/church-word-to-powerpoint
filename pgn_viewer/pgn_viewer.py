@@ -25,6 +25,7 @@ class PGNViewer:
         self.play_move_string = play_move_string.strip()
         self.start_play_mode = False
         self.move_alternatives = []
+        self.flip = False
         self.mode = "viewer"
         self.move_description = ""
         self.restart = False
@@ -171,8 +172,9 @@ class PGNViewer:
                 break
 
             if button == 'Switch Sides':
-                self.gui.is_user_white = not self.gui.is_user_white
+                # self.gui.is_user_white = not self.gui.is_user_white
                 self.restart = True
+                self.flip = True
                 break
 
             if button == 'Find in db':

@@ -20,6 +20,8 @@ class PgnEditor:
     """
 
     def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0, play_move_string=""):
+        self.restart = False
+        self.flip = False
         self.start_play_mode = False
         self.play_move_string = play_move_string
         self.from_pgn_viewer = from_pgn_viewer
@@ -251,6 +253,16 @@ class PgnEditor:
 
             if button == 'overall_game_info':
                 self.overall_game_info()
+
+            if button == 'Switch Sides':
+                if self.from_pgn_viewer:
+                    sg.popup("You cannot switch sides if pgn-editor is called from pgn-viewer",
+                             font=self.gui.text_font)
+                    continue
+                # self.gui.is_user_white = not self.gui.is_user_white
+                self.restart = True
+                self.flip = True
+                break
 
             if button == 'Comment' and self.mode == "annotate":
                 ok = self.gui.input_dialog.get_comment(self.moves[-1], self.gui)

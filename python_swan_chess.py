@@ -3340,7 +3340,10 @@ class EasyChessGui:
                         # must be improved; now only called if flip = True
                         window = self.swap_visible_columns_window(window)
                     #self.menu_elem.Update(menu_def_pgnviewer)
-                    pgn_viewer = PGNViewer(self, window, play_move_string=self.move_string)
+                    if pgn_viewer.flip:
+                        window = self.create_new_window(window, flip=True)
+                    move_string = '{}\n\n'.format(pgn_viewer.game)
+                    pgn_viewer = PGNViewer(self, window, play_move_string=move_string)
                     self.move_string = ""
 
                 # 'neutral' is selected in PGNViewer-menu
@@ -3356,6 +3359,16 @@ class EasyChessGui:
                 # execute pgn-editor
                 data_entry = PgnEditor(self, window, play_move_string=self.move_string)
                 # 'neutral' is selected in DataEntry-menu
+                while data_entry.restart and not data_entry.is_win_closed:
+                    if not self.is_png_layout():
+                        # must be improved; now only called if flip = True
+                        window = self.swap_visible_columns_window(window)
+                    #self.menu_elem.Update(menu_def_pgnviewer)
+                    move_string = '{}\n\n'.format(data_entry.game)
+                    if data_entry.flip:
+                        window = self.create_new_window(window, flip=True)
+                    data_entry = PgnEditor(self, window, play_move_string=move_string)
+                    self.move_string = ""
 
 
                 # check if window is forced close

@@ -12,14 +12,14 @@ settings_menu = ['Color', ['Brown::board_color_k',
                  "Other Settings"]
 
 menu_def_entry = [
-        ['&Game', ['Save', 'New', 'Set Headers', 'Strip', 'Analyse game']],
+        ['&Game', ['Save', 'New', '---', 'Set Headers', 'Strip', 'Analyse game', '---', "Switch Sides"]],
         ['&Move', ["Back", '---', "Restore alternative"]],
         ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
         ['Settings', settings_menu],
          ['Help', ["Gui"]],
 ]
 menu_def_annotate = [
-        ['&Game', ['Save', 'New', 'Analyse game']],
+        ['&Game', ['Save', 'New', '---', 'Analyse game', '---', "Switch Sides"]],
         ['&Move', ['Previous', "Next", '---', "Promote alternative", "Restore alternative", "Remove alternative"
                    , '---', 'Remove from this move onward']],
         ['&Annotate', ['Comment', '---', 'Alternative', "Alternative manual", '---', 'Manual variation']],
