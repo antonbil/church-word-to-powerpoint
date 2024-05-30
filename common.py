@@ -128,6 +128,7 @@ Clicking on such a yellow square will start the variation
 APP_NAME = 'Python Swan Chess'
 APP_VERSION = 'v0.2'
 BOX_TITLE = f'{APP_NAME} {APP_VERSION}'
+GAME_DIVIDER = "--++xxx--"
 
 def display_help(sg):
         sg.PopupScrolled(HELP_MSG_PGN_VIEW, title=BOX_TITLE)

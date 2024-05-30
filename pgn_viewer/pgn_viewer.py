@@ -9,7 +9,7 @@ from io import StringIO
 import datetime
 from time import perf_counter as pc
 from annotator import annotator
-from common import menu_def_entry, temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help
+from common import menu_def_entry, temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
@@ -22,6 +22,13 @@ class PGNViewer:
     """pgn viewer class"""
 
     def __init__(self, gui, window, play_move_string=""):
+        play_move_strings = play_move_string.split(GAME_DIVIDER)
+        self.current_move_string = ""
+        if len(play_move_strings) > 1:
+            play_move_string = play_move_strings[0]
+            current_move_string = play_move_strings[1]
+            if not (current_move_string == "None"):
+                self.current_move_string = current_move_string
         self.play_move_string = play_move_string.strip()
         self.start_play_mode = False
         self.move_alternatives = []
@@ -70,6 +77,15 @@ class PGNViewer:
     def load_start_pgn(self):
         if len(self.play_move_string) > 0:
             self.open_pgn_io(StringIO(self.play_move_string), temp_file_name)
+            found_move = 0
+            if self.current_move_string:
+                move_pos = 1
+                for move in self.get_all_moves(self.game):
+                    if str(move.move) == self.current_move_string:
+                        found_move = move_pos
+                    move_pos += 1
+            if found_move > 0:
+                self.set_new_position(found_move)
             return
         game_name = self.gui.preferences.preferences["pgn_game"] if "pgn_game" in self.gui.preferences.preferences \
             else ""
@@ -172,7 +188,7 @@ class PGNViewer:
                 break
 
             if button == 'Switch Sides':
-                self.gui.move_string = '{}\n\n'.format(self.game)
+                self.gui.move_string = '{}\n\n{}{}'.format(self.game, GAME_DIVIDER, str(self.current_move.move))
                 self.gui.start_mode_used = "pgnviewer"
                 self.flip = True
                 break

@@ -9,7 +9,7 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help
+from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER
 from beautify_pgn_lines import PgnDisplay
 from Tools.add_variation import (get_and_add_variation, check_for_variation_replace, remove_variation,
                                  uci_string2_moves, merge_into_current_game)
@@ -20,6 +20,14 @@ class PgnEditor:
     """
 
     def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0, play_move_string=""):
+        play_move_strings = play_move_string.split(GAME_DIVIDER)
+        self.current_move_string = ""
+        if len(play_move_strings) > 1:
+            play_move_string = play_move_strings[0]
+            current_move_string = play_move_strings[1]
+            if not (current_move_string == "None"):
+                self.current_move_string = current_move_string
+
         self.restart = False
         self.flip = False
         self.start_play_mode = False
@@ -47,6 +55,19 @@ class PgnEditor:
         self.pgn_display = PgnDisplay(69)
         if len (self.play_move_string) > 0:
             self.read_file_from_io(StringIO(self.play_move_string))
+            found_move = 0
+            if self.current_move_string:
+                move_pos = 1
+                print("self.current_move_string", self.current_move_string)
+                self.set_mode_to_annotate()
+
+                for move in self.all_moves:
+                    if str(move.move) == self.current_move_string:
+                        found_move = move_pos
+                    move_pos += 1
+            if found_move > 0:
+                self.set_position_move(found_move)
+
         elif file_name:
             pgn = open(file_name)
             self.read_file_from_io(pgn)
@@ -256,7 +277,10 @@ class PgnEditor:
                 # self.gui.is_user_white = not self.gui.is_user_white
                 self.game.headers['White'] = value['_White_2']
                 self.game.headers['Black'] = value['_Black_2']
-                self.gui.move_string = '{}\n\n'.format(self.game)
+                store_game = '{}\n\n'.format(self.game)
+                if self.mode == "annotate":
+                    store_game += GAME_DIVIDER + str(self.current_move.move)
+                self.gui.move_string = store_game
                 self.gui.start_mode_used = "pgneditor"
                 self.flip = True
                 break
