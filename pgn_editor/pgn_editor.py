@@ -205,6 +205,8 @@ class PgnEditor:
 
             theme_changed, self.window = self.gui.change_theme(button, self.window)
             if theme_changed:
+                self.gui.set_window_column_and_menu('PGN-Editor', self.window, "pgneditor", 'PGN-Editor',
+                                            menu_def_entry if not self.mode == "annotate " else menu_def_annotate)
                 self.update_pgn_display()
                 self.display_move_and_line_number()
                 self.display_button_bar()

@@ -3285,11 +3285,11 @@ class EasyChessGui:
         layout = self.build_main_layout(True)
 
         # Use white layout as default window
-        window = sg.Window('{} {}'.format(APP_NAME, APP_VERSION),
+        self.window = sg.Window('{} {}'.format(APP_NAME, APP_VERSION),
                            layout, default_button_element_size=(12, 1),
                            auto_size_buttons=False,resizable=True,
                            icon=ico_path[platform]['pecg'], size=(self.window_width, self.window_height))
-        self.window = window
+        #self.window = window
 
         # Read user config file, if missing create and new one
         self.check_user_config_file()
@@ -3308,15 +3308,15 @@ class EasyChessGui:
 
         # Initialize White and black boxes
         while True:
-            _, value = window.Read(timeout=50)
-            self.update_labels_and_game_tags(window, human=self.username)
+            _, value = self.window.Read(timeout=50)
+            self.update_labels_and_game_tags(self.window, human=self.username)
             break
-        self.set_neutral_button_bar(window)
+        self.set_neutral_button_bar(self.window)
 
         # Mode: Neutral, main loop starts here
         # main loop start
         while True:
-            button, value = window.Read(timeout=50)
+            button, value = self.window.Read(timeout=50)
 
             # Mode: Neutral
             if button is None:
@@ -3324,7 +3324,7 @@ class EasyChessGui:
                 break
 
             # check for play-settings
-            if self.check_game_setting_button(button, window):
+            if self.check_game_setting_button(button, self.window):
                 window = self.window
                 continue
 
@@ -3332,32 +3332,32 @@ class EasyChessGui:
             if (button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Viewer'):
                 # set window-layout and menu-def
-                window = self.set_window_column_and_menu(button, window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
+                self.window = self.set_window_column_and_menu(button, self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
                 # execute pgn-viewer
-                pgn_viewer = PGNViewer(self, window, play_move_string=self.get_movestring_clear())
+                pgn_viewer = PGNViewer(self, self.window, play_move_string=self.get_movestring_clear())
                 if pgn_viewer.flip:
-                    window = self.create_new_window(window, flip=True)
+                    self.window = self.create_new_window(self.window, flip=True)
 
                 # 'neutral' is selected in PGNViewer-menu
                 # check if window is forced close
-                window = self.check_if_neutral_layout_must_be_applied(pgn_viewer, window)
+                self.window = self.check_if_neutral_layout_must_be_applied(pgn_viewer, self.window)
                 continue
 
             # check for pgn-editor-mode
             if (button == 'PGN-Editor' or self.start_mode_used == "pgneditor"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Editor'):
                 # set window-layout and menu-def
-                window = self.set_window_column_and_menu(button, window, "pgneditor", 'PGN-Editor', menu_def_entry)
+                self.window = self.set_window_column_and_menu(button, self.window, "pgneditor", 'PGN-Editor', menu_def_entry)
                 # execute pgn-editor
 
-                data_entry = PgnEditor(self, window, play_move_string=self.get_movestring_clear())
+                data_entry = PgnEditor(self, self.window, play_move_string=self.get_movestring_clear())
                 # 'neutral' is selected in DataEntry-menu
                 if data_entry.flip:
-                    window = self.create_new_window(window, flip=True)
+                    self.window = self.create_new_window(self.window, flip=True)
 
                 # check if window is forced close
                 pgn_object = data_entry
-                window = self.check_if_neutral_layout_must_be_applied(pgn_object, window)
+                self.window = self.check_if_neutral_layout_must_be_applied(pgn_object, self.window)
                 continue
 
             # check for play-mode
@@ -3369,11 +3369,11 @@ class EasyChessGui:
                              icon=ico_path[platform]['pecg'], title='Mode')
                     self.start_mode_used = ""
                     if self.is_png_layout():
-                        window = self.swap_visible_columns_window(window)
+                        self.window = self.swap_visible_columns_window(self.window)
 
                     continue
 
-                self.play_human_computer(window)
+                self.play_human_computer(self.window)
 
                 # Restore Neutral menu
                 self.menu_elem.Update(menu_def_neutral)
@@ -3384,7 +3384,7 @@ class EasyChessGui:
                 continue
                 # main loop end
 
-        window.Close()
+        self.window.Close()
 
     def get_movestring_clear(self):
         """
@@ -4412,6 +4412,7 @@ class EasyChessGui:
             self.preferences.preferences["gui_theme"] = self.gui_theme
             self.preferences.save_preferences()
             window = self.create_new_window(window)
+            self.window = window
             theme_changed = True
             return theme_changed, window
         return False, window

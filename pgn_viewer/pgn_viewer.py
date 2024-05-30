@@ -144,6 +144,7 @@ class PGNViewer:
 
             theme_changed, self.window = self.gui.change_theme(button, self.window)
             if theme_changed:
+                self.gui.set_window_column_and_menu('PGN-Viewer', self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
                 self.redraw_all()
                 self.display_button_bar()
                 continue
