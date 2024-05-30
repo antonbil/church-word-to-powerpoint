@@ -3334,7 +3334,7 @@ class EasyChessGui:
                 # set window-layout and menu-def
                 window = self.set_window_column_and_menu(button, window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
                 # execute pgn-viewer
-                pgn_viewer = PGNViewer(self, window, play_move_string=self.move_string)
+                pgn_viewer = PGNViewer(self, window, play_move_string=self.get_movestring_clear())
                 if pgn_viewer.flip:
                     window = self.create_new_window(window, flip=True)
 
@@ -3350,7 +3350,7 @@ class EasyChessGui:
                 window = self.set_window_column_and_menu(button, window, "pgneditor", 'PGN-Editor', menu_def_entry)
                 # execute pgn-editor
 
-                data_entry = PgnEditor(self, window, play_move_string=self.move_string)
+                data_entry = PgnEditor(self, window, play_move_string=self.get_movestring_clear())
                 # 'neutral' is selected in DataEntry-menu
                 if data_entry.flip:
                     window = self.create_new_window(window, flip=True)
@@ -3385,6 +3385,15 @@ class EasyChessGui:
                 # main loop end
 
         window.Close()
+
+    def get_movestring_clear(self):
+        """
+        get move-string from object, and clear it afterwards
+        :return: the move-string before it is cleared
+        """
+        move_string = self.move_string
+        self.move_string = ""
+        return move_string
 
     def check_if_neutral_layout_must_be_applied(self, pgn_object, window):
         if not pgn_object.is_win_closed:
