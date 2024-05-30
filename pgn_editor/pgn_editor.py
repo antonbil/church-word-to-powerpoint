@@ -58,7 +58,6 @@ class PgnEditor:
             found_move = 0
             if self.current_move_string:
                 move_pos = 1
-                print("self.current_move_string", self.current_move_string)
                 self.set_mode_to_annotate()
 
                 for move in self.all_moves:
@@ -247,7 +246,7 @@ class PgnEditor:
             if button == 'PGN Move entry' or button == 'Variations Edit' or self.pgn_viewer_move>0:
                 if self.mode == "editor-entry" or self.pgn_viewer_move>0:
                     self.set_mode_to_annotate()
-                else:
+                if button == 'PGN Move entry':
                     self.set_entry_mode()
                     self.gui.menu_elem.Update(menu_def_entry)
                     self.set_status()
