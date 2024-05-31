@@ -1754,14 +1754,14 @@ class EasyChessGui:
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=self.board.convert_element_key(row, col))
+        btn_sq = window.find_element(key=self.board.get_field_id((row, col)))
         return btn_sq.widget.winfo_x(), btn_sq.widget.winfo_y()
 
     def change_square_color_border(self, window, row, col, color):
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=self.board.convert_element_key(row, col + 64))
+        btn_sq = window.find_element(key=self.board.get_field_id((row, col + 64)))
         # btn_sq.Update(border_width=4)
         btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
 
@@ -1769,7 +1769,7 @@ class EasyChessGui:
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=self.board.convert_element_key(row, col))
+        btn_sq = window.find_element(key=self.board.get_field_id((row, col)))
         is_dark_square = True if (row + col) % 2 else False
         bd_sq_color = self.move_sq_dark_color if is_dark_square else self.move_sq_light_color
         btn_sq.Update(button_color=('white', bd_sq_color))
@@ -1814,7 +1814,7 @@ class EasyChessGui:
                 color = self.sq_dark_color if (i + j) % 2 else \
                     self.sq_light_color
                 piece_image = images[self.psg_board[i][j]]
-                elem = window.find_element(key=self.board.convert_element_key(i, j))
+                elem = window.find_element(key=self.board.get_field_id((i, j)))
                 imgbytes = convert_to_bytes(piece_image, (self.FIELD_SIZE, self.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
                             image_data=imgbytes, image_size=(self.FIELD_SIZE, self.FIELD_SIZE))
@@ -2525,7 +2525,7 @@ class EasyChessGui:
                 elif self.move_state == 1:
                     move_to = self.board.get_field_id(button)
                     self.to_row, self.to_col = move_to
-                    button_square = window.find_element(key=self.board.convert_element_key(self.fr_row, self.fr_col))
+                    button_square = window.find_element(key=self.board.get_field_id((self.fr_row, self.fr_col)))
 
                     # If move is cancelled, pressing same button twice
                     if move_to == move_from:
