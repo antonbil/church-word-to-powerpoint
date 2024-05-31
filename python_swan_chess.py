@@ -58,6 +58,7 @@ import chess.polyglot
 import logging
 import platform as sys_plat
 from annotator import annotator
+from board import LeftBoard
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
@@ -803,6 +804,7 @@ class EasyChessGui:
                  engine='',
                  max_depth=MAX_DEPTH, start_mode="neutral", num_threads=128):
         # self.engine_id_name used inside "Engine/manage/install etc, and in "Engine/Set engine oponent"
+        self.board = LeftBoard(self,images)
         self.engine_id_name = None
         self.move_string = ""
         self.window = None
@@ -1004,10 +1006,24 @@ class EasyChessGui:
     def create_new_window(self, window, flip=False):
         """Hide current window and creates a new window."""
         loc = window.CurrentLocation()
-        window.Hide()
         if flip:
             self.is_user_white = not self.is_user_white
+            # previous_keys = []
+            # i = 1
+            # for square in self.squares:
+            #     previous_keys.append(square.Key)
+            #     square.Update(key="square{}".format(i))
+            #     i+=1
+            # i=0
+            # previous_keys.reverse()
+            # for square in self.squares:
+            #     previous_keys.append(square.Key)
+            #     square.Update(key=previous_keys[i])
+            #     i+=1
+            #
+            # return window
 
+        window.Hide()
         layout = self.build_main_layout(self.is_user_white)
 
         w = sg.Window(
@@ -1849,7 +1865,7 @@ class EasyChessGui:
             if button is None:
                 break
             if type(button) is tuple:
-                move_from = button
+                move_from = self.board.get_field_id(button)
                 self.fr_row, self.fr_col = move_from
                 piece = psg_promote_board[self.fr_row][self.fr_col]
                 logging.info(f'promote piece: {piece}')
@@ -2494,7 +2510,7 @@ class EasyChessGui:
             if type(button) is tuple:
                 # If fr_sq button is pressed
                 if self.move_state == 0:
-                    move_from = button
+                    move_from = self.board.get_field_id(button)
                     self.fr_row, self.fr_col = move_from
                     self.piece = self.psg_board[self.fr_row][self.fr_col]  # get the move-from piece
 
@@ -2506,7 +2522,7 @@ class EasyChessGui:
 
                 # Else if to_sq button is pressed
                 elif self.move_state == 1:
-                    move_to = button
+                    move_to = self.board.get_field_id(button)
                     self.to_row, self.to_col = move_to
                     button_square = window.find_element(key=(self.fr_row, self.fr_col))
 
@@ -3010,6 +3026,7 @@ class EasyChessGui:
         """
         file_char_name = 'abcdefgh'
         self.psg_board = copy.deepcopy(initial_board)
+        return self.board.create_board(is_user_white)
 
         board_layout = []
 
@@ -3025,14 +3042,17 @@ class EasyChessGui:
             file_char_name = file_char_name[::-1]
 
         # Loop through the board and create buttons with images
+        self.squares = []
         for i in range(start, end, step):
             # Row numbers at left of board is blank
             row = []
             for j in range(start, end, step):
                 piece_image = images[self.psg_board[i][j]]
-                row.append(self.render_square(piece_image, key=(i, j), location=(i, j)))
+                square = self.render_square(piece_image, key=(i, j), location=(i, j))
+                row.append(square)
             board_layout.append(row)
-
+        for square in self.squares:
+            print("square", square.Key)
         return board_layout
 
     def default_board_borders(self, window):

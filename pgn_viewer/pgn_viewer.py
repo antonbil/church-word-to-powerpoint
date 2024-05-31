@@ -377,7 +377,7 @@ class PGNViewer:
                 self.move_number = self.execute_previous_move(self.move_number)
             if type(button) is tuple:
                 # If fr_sq button is pressed
-                move_from = button
+                move_from = self.gui.board.get_field_id(button)
                 fr_row, fr_col = move_from
                 col = chr(fr_col + ord('a'))
                 row = str(7 - fr_row + 1)

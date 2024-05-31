@@ -399,7 +399,7 @@ class PgnEditor:
                         self.set_position_move(new_pos)
 
             if type(button) is tuple and self.mode == "annotate":
-                move_from = button
+                move_from = self.gui.board.get_field_id(button)
                 fr_row, fr_col = move_from
                 if not self.gui.is_user_white:
                     fr_row = 7 - fr_row
@@ -417,7 +417,7 @@ class PgnEditor:
             if type(button) is tuple and self.mode in ["editor-entry", "manual move", "manual variation"]:
                 if move_state == 0:
                     # If fr_sq button is pressed
-                    move_from = button
+                    move_from = self.gui.board.get_field_id(button)
                     fr_row, fr_col = move_from
 
                     # Change the color of the "from" board square
@@ -425,7 +425,7 @@ class PgnEditor:
 
                     move_state = 1
                 elif move_state == 1:
-                    move_from = button
+                    move_from = self.gui.board.get_field_id(button)
                     to_row, to_col = move_from
                     # remove all colors from squares
                     self.gui.default_board_borders(self.window)
