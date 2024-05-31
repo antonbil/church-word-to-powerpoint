@@ -330,6 +330,10 @@ class PGNViewer:
             if button == 'Analyse move':
                 self.analyse_move()
 
+            if button == 'Save':
+                self.save_current_game()
+                continue
+
             if button == 'New db':
                 text = self.gui.input_dialog.popup_get_text(sg, self.gui, 'name for new db:', title="Create db")
                 if text:
@@ -854,6 +858,11 @@ class PGNViewer:
         window.Update(
             advice)
         self.window.Read(timeout=10)
+
+    def save_current_game(self):
+        value_white = self.game.headers["White"]
+        value_black = self.game.headers["Black"]
+        self.gui.save_game_pgn(value_white, value_black, self.game)
 
     def analyse_move(self):
         advice, score, pv, pv_original, alternatives = self.gui.get_advice(self.board, self.callback)
