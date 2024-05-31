@@ -1,13 +1,32 @@
 import PySimpleGUI as sg
 
+
 class LeftBoard:
     def __init__(self, gui, images):
-        self.squares = []
+        self.button_square_ids = []
+        self.frame_square_ids = []
+        self.button_square_ids_black = []
+        self.frame_square_ids_black = []
         self.gui = gui
         self.images = images
 
     def get_field_id(self, field_tuple):
-        return field_tuple
+        if self.gui.is_user_white:
+            return field_tuple
+        row = field_tuple[0]
+        col = field_tuple[1]
+        if (row, col) in self.frame_square_ids:
+            return self.frame_square_ids_black[self.frame_square_ids.index((row, col))]
+        else:
+            return self.button_square_ids_black[self.button_square_ids.index((row, col))]
+
+    def convert_element_key(self, row, col):
+        if self.gui.is_user_white:
+            return (row, col)
+        if (row, col) in self.frame_square_ids:
+            return self.frame_square_ids_black[self.frame_square_ids.index((row, col))]
+        else:
+            return self.button_square_ids_black[self.button_square_ids.index((row, col))]
 
     def create_board(self, is_user_white=True):
         """
@@ -33,7 +52,10 @@ class LeftBoard:
             file_char_name = file_char_name[::-1]
 
         # Loop through the board and create buttons with images
-        self.squares = []
+        self.frame_square_ids = []
+        self.button_square_ids = []
+        self.frame_square_ids_black = []
+        self.button_square_ids_black = []
         for i in range(start, end, step):
             # Row numbers at left of board is blank
             row = []
@@ -41,7 +63,12 @@ class LeftBoard:
                 piece_image = self.images[self.gui.psg_board[i][j]]
                 square = self.gui.render_square(piece_image, key=(i, j), location=(i, j))
                 row.append(square)
+                self.frame_square_ids.append(square.key)
+                self.frame_square_ids_black.append(square.key)
             board_layout.append(row)
-        for square in self.squares:
-            print("square", square.Key)
+        for square in self.frame_square_ids:
+            self.button_square_ids.append((square[0], square[1] - 64))
+            self.button_square_ids_black.append((square[0], square[1] - 64))
+        self.button_square_ids_black.reverse()
+        self.frame_square_ids_black.reverse()
         return board_layout

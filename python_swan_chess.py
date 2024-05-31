@@ -1021,7 +1021,8 @@ class EasyChessGui:
             #     square.Update(key=previous_keys[i])
             #     i+=1
             #
-            # return window
+            self.redraw_board(window)
+            return window
 
         window.Hide()
         layout = self.build_main_layout(self.is_user_white)
@@ -1753,14 +1754,14 @@ class EasyChessGui:
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=(row, col))
+        btn_sq = window.find_element(key=self.board.convert_element_key(row, col))
         return btn_sq.widget.winfo_x(), btn_sq.widget.winfo_y()
 
     def change_square_color_border(self, window, row, col, color):
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=(row, col + 64))
+        btn_sq = window.find_element(key=self.board.convert_element_key(row, col + 64))
         # btn_sq.Update(border_width=4)
         btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
 
@@ -1768,7 +1769,7 @@ class EasyChessGui:
         """
         Change the color of a square based on square row and col.
         """
-        btn_sq = window.find_element(key=(row, col))
+        btn_sq = window.find_element(key=self.board.convert_element_key(row, col))
         is_dark_square = True if (row + col) % 2 else False
         bd_sq_color = self.move_sq_dark_color if is_dark_square else self.move_sq_light_color
         btn_sq.Update(button_color=('white', bd_sq_color))
@@ -1813,7 +1814,7 @@ class EasyChessGui:
                 color = self.sq_dark_color if (i + j) % 2 else \
                     self.sq_light_color
                 piece_image = images[self.psg_board[i][j]]
-                elem = window.find_element(key=(i, j))
+                elem = window.find_element(key=self.board.convert_element_key(i, j))
                 imgbytes = convert_to_bytes(piece_image, (self.FIELD_SIZE, self.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
                             image_data=imgbytes, image_size=(self.FIELD_SIZE, self.FIELD_SIZE))
@@ -2524,7 +2525,7 @@ class EasyChessGui:
                 elif self.move_state == 1:
                     move_to = self.board.get_field_id(button)
                     self.to_row, self.to_col = move_to
-                    button_square = window.find_element(key=(self.fr_row, self.fr_col))
+                    button_square = window.find_element(key=self.board.convert_element_key(self.fr_row, self.fr_col))
 
                     # If move is cancelled, pressing same button twice
                     if move_to == move_from:
@@ -3027,33 +3028,6 @@ class EasyChessGui:
         file_char_name = 'abcdefgh'
         self.psg_board = copy.deepcopy(initial_board)
         return self.board.create_board(is_user_white)
-
-        board_layout = []
-
-        if is_user_white:
-            # Save the board with black at the top.
-            start = 0
-            end = 8
-            step = 1
-        else:
-            start = 7
-            end = -1
-            step = -1
-            file_char_name = file_char_name[::-1]
-
-        # Loop through the board and create buttons with images
-        self.squares = []
-        for i in range(start, end, step):
-            # Row numbers at left of board is blank
-            row = []
-            for j in range(start, end, step):
-                piece_image = images[self.psg_board[i][j]]
-                square = self.render_square(piece_image, key=(i, j), location=(i, j))
-                row.append(square)
-            board_layout.append(row)
-        for square in self.squares:
-            print("square", square.Key)
-        return board_layout
 
     def default_board_borders(self, window):
         """
