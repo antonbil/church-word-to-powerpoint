@@ -2980,6 +2980,7 @@ class EasyChessGui:
             pgn_game.headers['Site'] = header_dialog.site
             pgn_game.headers['Date'] = header_dialog.date
             pgn_game.headers['Round'] = header_dialog.round
+            pgn_game.headers['Result'] = header_dialog.result
 
             name_file = header_dialog.date.replace("/", "-") + "-" + header_dialog.white.replace(" ", "_") \
                         + "-" + header_dialog.black.replace(" ", "_") + ".pgn"
