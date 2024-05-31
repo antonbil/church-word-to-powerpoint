@@ -29,7 +29,6 @@ class PgnEditor:
                 self.current_move_string = current_move_string
 
         self.restart = False
-        self.flip = False
         self.start_play_mode = False
         self.play_move_string = play_move_string
         self.from_pgn_viewer = from_pgn_viewer
@@ -271,20 +270,8 @@ class PgnEditor:
                 self.overall_game_info()
 
             if button == 'Switch Sides':
-                if self.from_pgn_viewer:
-                    sg.popup("You cannot switch sides if pgn-editor is called from pgn-viewer",
-                             font=self.gui.text_font)
-                    continue
-                # self.gui.is_user_white = not self.gui.is_user_white
-                self.game.headers['White'] = value['_White_2']
-                self.game.headers['Black'] = value['_Black_2']
-                store_game = '{}\n\n'.format(self.game)
-                if self.mode == "annotate":
-                    store_game += GAME_DIVIDER + str(self.current_move.move)
-                self.gui.move_string = store_game
-                self.gui.start_mode_used = "pgneditor"
-                self.flip = True
-                break
+                self.gui.flip_board(self.window)
+                continue
 
             if button == 'Comment' and self.mode == "annotate":
                 ok = self.gui.input_dialog.get_comment(self.moves[-1], self.gui)

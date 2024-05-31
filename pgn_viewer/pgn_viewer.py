@@ -32,7 +32,6 @@ class PGNViewer:
         self.play_move_string = play_move_string.strip()
         self.start_play_mode = False
         self.move_alternatives = []
-        self.flip = False
         self.mode = "viewer"
         self.move_description = ""
         self.restart = False
@@ -189,10 +188,8 @@ class PGNViewer:
                 break
 
             if button == 'Switch Sides':
-                self.gui.move_string = '{}\n\n{}{}'.format(self.game, GAME_DIVIDER, str(self.current_move.move))
-                self.gui.start_mode_used = "pgnviewer"
-                self.flip = True
-                break
+                self.gui.flip_board(self.window)
+                continue
 
             if button == 'Find in db':
                 self.find_in_db()

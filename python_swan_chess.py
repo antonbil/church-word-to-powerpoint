@@ -1007,21 +1007,7 @@ class EasyChessGui:
         """Hide current window and creates a new window."""
         loc = window.CurrentLocation()
         if flip:
-            self.is_user_white = not self.is_user_white
-            # previous_keys = []
-            # i = 1
-            # for square in self.squares:
-            #     previous_keys.append(square.Key)
-            #     square.Update(key="square{}".format(i))
-            #     i+=1
-            # i=0
-            # previous_keys.reverse()
-            # for square in self.squares:
-            #     previous_keys.append(square.Key)
-            #     square.Update(key=previous_keys[i])
-            #     i+=1
-            #
-            self.redraw_board(window)
+            self.flip_board(window)
             return window
 
         window.Hide()
@@ -1045,6 +1031,10 @@ class EasyChessGui:
         window.Close()
         self.window = w
         return w
+
+    def flip_board(self, window):
+        self.is_user_white = not self.is_user_white
+        self.redraw_board(window)
 
     def delete_player(self, name, pgn, que):
         """
@@ -3330,8 +3320,6 @@ class EasyChessGui:
                 self.window = self.set_window_column_and_menu(button, self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
                 # execute pgn-viewer
                 pgn_viewer = PGNViewer(self, self.window, play_move_string=self.get_movestring_clear())
-                if pgn_viewer.flip:
-                    self.window = self.create_new_window(self.window, flip=True)
 
                 # 'neutral' is selected in PGNViewer-menu
                 # check if window is forced close
@@ -3347,8 +3335,6 @@ class EasyChessGui:
 
                 data_entry = PgnEditor(self, self.window, play_move_string=self.get_movestring_clear())
                 # 'neutral' is selected in DataEntry-menu
-                if data_entry.flip:
-                    self.window = self.create_new_window(self.window, flip=True)
 
                 # check if window is forced close
                 pgn_object = data_entry
