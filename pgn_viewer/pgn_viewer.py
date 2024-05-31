@@ -187,7 +187,7 @@ class PGNViewer:
                 self.play_from_here()
                 break
 
-            if button == 'Switch Sides':
+            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == 'Flip':
                 self.gui.flip_board(self.window)
                 continue
 
@@ -425,7 +425,8 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def display_button_bar(self):
-        buttons = [self.gui.toolbar.new_button("<--|", auto_size_button=True),
+        buttons = [self.gui.toolbar.new_button("Flip", auto_size_button=True),
+                   self.gui.toolbar.new_button("<--|", auto_size_button=True),
                    self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
                    self.gui.toolbar.new_button("Add", auto_size_button=True),
