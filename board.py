@@ -40,7 +40,7 @@ class LeftBoard:
 
         board_layout = []
 
-        if is_user_white:
+        if True:  # is_user_white:
             # Save the board with black at the top.
             start = 0
             end = 8
