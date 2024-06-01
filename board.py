@@ -407,3 +407,11 @@ class LeftBoard:
         self.psg_board1[self.get_row(fr)][self.get_col(fr)] = BLANK
         self.psg_board1[self.get_row(to)][self.get_col(to)] = pc
         self.redraw_board(window)
+
+    def get_chess_coordinates(self, button):
+        move_from = self.get_field_id(button)
+        fr_row, fr_col = move_from
+        col = chr(fr_col + ord('a'))
+        row = str(7 - fr_row + 1)
+        coord = col + row
+        return coord, fr_col, fr_row

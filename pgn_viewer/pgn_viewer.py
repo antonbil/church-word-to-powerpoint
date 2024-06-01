@@ -378,11 +378,8 @@ class PGNViewer:
                 self.move_number = self.execute_previous_move(self.move_number)
             if type(button) is tuple:
                 # If fr_sq button is pressed
-                move_from = self.gui.board.get_field_id(button)
-                fr_row, fr_col = move_from
-                col = chr(fr_col + ord('a'))
-                row = str(7 - fr_row + 1)
-                coord = col + row
+                coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
+                print("coord", coord)
                 if self.mode == "entry":
                     self.mode = "viewer"
                     self.set_mode_display()
@@ -467,6 +464,11 @@ class PGNViewer:
         :return:
         """
         chosen_move = None
+        for list_item in list(self.board.legal_moves):
+            print("l", list_item)
+            for list_item in list(self.board.legal_moves):
+                if str(list_item).startswith(coord):
+                    print("selected:", list_item)
         list_items_start = [list_item for list_item in list(self.board.legal_moves) if str(list_item).startswith(coord)]
         list_items_end = [list_item for list_item in list(self.board.legal_moves) if str(list_item).endswith(coord)]
         # if destination-chess-field is unique, the destination-piece-move is chosen
@@ -479,14 +481,11 @@ class PGNViewer:
 
         if not chosen_move and len(list_items_start) > 0:
             # otherwise a selection of destinations is shown, one of which the user can choose
-            list_items_algebraic = [self.board.san(list_item) for list_item in list_items_start]
-            title_window = "Get move"
-            selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
-            if selected_item:
-                # move is selected by user
-                # now get Move itself
-                index = list_items_algebraic.index(selected_item)
-                chosen_move = list_items_start[index]
+            chosen_move = self.choose_one_move(list_items_start)
+        elif not chosen_move and len(list_items_end) > 0:
+            # otherwise a selection of destinations is shown, one of which the user can choose
+            chosen_move = self.choose_one_move(list_items_end)
+
         if chosen_move:
             if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
                 sg.popup("Move {} is already part of variations of node {}!\nMove not inserted.."
@@ -494,6 +493,19 @@ class PGNViewer:
                 return
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
             self.redraw_all()
+
+    def choose_one_move(self, items):
+        chosen_move = None
+        # otherwise a selection of destinations is shown, one of which the user can choose
+        list_items_algebraic = [self.board.san(list_item) for list_item in items]
+        title_window = "Get move"
+        selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
+        if selected_item:
+            # move is selected by user
+            # now get Move itself
+            index = list_items_algebraic.index(selected_item)
+            chosen_move = items[index]
+        return chosen_move
 
     def find_in_db(self):
         """

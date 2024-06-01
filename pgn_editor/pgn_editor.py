@@ -386,11 +386,12 @@ class PgnEditor:
                         self.set_position_move(new_pos)
 
             if type(button) is tuple and self.mode == "annotate":
-                move_from = self.gui.board.get_field_id(button)
-                fr_row, fr_col = move_from
-                if not self.gui.is_user_white:
-                    fr_row = 7 - fr_row
-                    fr_col = 7 - fr_col
+                coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
+                #move_from = self.gui.board.get_field_id(button)
+                #fr_row, fr_col = move_from
+                # if not self.gui.is_user_white:
+                #     fr_row = 7 - fr_row
+                #     fr_col = 7 - fr_col
 
                 if fr_row == 0:
                     new_number = min(int(fr_col * (len(self.all_moves) - 1) / 7), len(self.all_moves))
@@ -404,16 +405,18 @@ class PgnEditor:
             if type(button) is tuple and self.mode in ["editor-entry", "manual move", "manual variation"]:
                 if move_state == 0:
                     # If fr_sq button is pressed
-                    move_from = self.gui.board.get_field_id(button)
-                    fr_row, fr_col = move_from
+                    #move_from = self.gui.board.get_field_id(button)
+                    #fr_row, fr_col = move_from
+                    coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
 
                     # Change the color of the "from" board square
                     self.gui.board.change_square_color(self.window, fr_row, fr_col)
 
                     move_state = 1
                 elif move_state == 1:
-                    move_from = self.gui.board.get_field_id(button)
-                    to_row, to_col = move_from
+                    #move_from = self.gui.board.get_field_id(button)
+                    #to_row, to_col = move_from
+                    coord, to_col, to_row = self.gui.board.get_chess_coordinates(button)
                     # remove all colors from squares
                     self.gui.default_board_borders(self.window)
                     if self.mode == "manual move":
