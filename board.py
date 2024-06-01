@@ -93,9 +93,10 @@ def convert_to_bytes(file_or_bytes, resize=None):
         del img
         return bio.getvalue()
 
-class LeftBoard:
+class ChessBoard:
     """
-    help-functions for the board to distinguish between black- and white (board is flipped if user == black)
+    class for the chaess-board to manage the display and editing of the chess-board
+
     """
     def __init__(self, gui):
         self.button_square_ids_white = []
@@ -108,6 +109,12 @@ class LeftBoard:
         self.psg_board1 = None
 
     def get_field_id(self, field_tuple):
+        """
+
+        :param field_tuple: (x,y)-tuple that holds the x-y-coordinates of the square involved
+        :return: an (x,y)-tuple that is the same as the input if white is playing from bottom to top
+        if white is playing from top to bottom (not is_user_white) the reverse-tuple is returned
+        """
         if self.gui.is_user_white:
             return field_tuple
         row = field_tuple[0]
@@ -123,9 +130,8 @@ class LeftBoard:
     def create_board(self):
         """
         Returns board layout based on color of user. If user is white,
-        the white pieces will be at the bottom, otherwise at the top.
-
-        :param is_user_white: user has handling the white pieces
+        the white pieces will be at the bottom.
+        The case that white-pieces are at the top is handled by the get_field_id-method.
         :return: board layout
         """
         file_char_name = 'abcdefgh'
@@ -164,7 +170,7 @@ class LeftBoard:
 
     def change_square_color_border(self, window, row, col, color):
         """
-        Change the color of a square based on square row and col.
+        Change the color of a square-background based on square row and col.
         """
         btn_sq = window.find_element(key=self.get_field_id((row, col + 64)))
         # btn_sq.Update(border_width=4)
@@ -188,7 +194,7 @@ class LeftBoard:
 
     def redraw_board(self, window):
         """
-        Redraw board at start and afte a move.
+        Redraw board at start and after a move.
 
         :param window:
         :return:
@@ -204,7 +210,13 @@ class LeftBoard:
                             image_data=imgbytes, image_size=(self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
 
     def render_square(self, image, key, location):
-        """ Returns an RButton (Read Button) with image image """
+        """
+        Returns an RButton (Read Button) with image image
+        :param image: image of the piece at the square
+        :param key: the key= (x,y)-tuple of the square
+        :param location:
+        :return:
+        """
         if (location[0] + location[1]) % 2:
             color = self.gui.sq_dark_color  # Dark square
         else:
@@ -219,7 +231,9 @@ class LeftBoard:
                         , relief=sg.RELIEF_FLAT)
 
     def fen_to_psg_board(self, window):
-        """ Update psg_board based on FEN """
+        """ Update psg_board based on FEN
+        :param window: the window the board is part of
+        """
         psgboard = []
 
         # Get piece locations only to build psg board
@@ -370,14 +384,30 @@ class LeftBoard:
         return piece
 
     def create_initial_board(self):
-        #call: self.board.create_initial_board()
+        """
+        create the initial board
+        :return:
+        """
         self.psg_board1 = copy.deepcopy(initial_board)
 
-    def psg_board_get_piece(self, fr_row, fr_col):
-        return self.psg_board1[fr_row][fr_col]
+    def psg_board_get_piece(self, row, col):
+        """
+        get the id of the chess-piece that is located on the square identified with row and col
+        :param row: the row of the square
+        :param col: the col of the square
+        :return:
+        """
+        return self.psg_board1[row][col]
 
-    def psg_board_set_piece(self, fr_row, fr_col, piece):
-        self.psg_board1[fr_row][fr_col] = piece
+    def psg_board_set_piece(self, row, col, piece):
+        """
+        set the piece on the square identified with row and col
+        :param row: the row of the square
+        :param col: the col of the square
+        :param piece:  the piece to be set
+        :return:
+        """
+        self.psg_board1[row][col] = piece
 
     def update_rook(self, window, move):
         """
@@ -409,14 +439,24 @@ class LeftBoard:
         self.redraw_board(window)
 
     def get_chess_coordinates(self, button_square):
+        """
+        get the coordinates of the chess square
+        :param button_square: the id of the chess square that is selected
+        :return: the chess-coordnate (like b6 etc) and the col and row of the square
+        """
         square_selected = self.get_field_id(button_square)
-        fr_row, fr_col = square_selected
-        col = chr(fr_col + ord('a'))
-        row = str(7 - fr_row + 1)
+        row_nr, col_nr = square_selected
+        col = chr(col_nr + ord('a'))
+        row = str(7 - row_nr + 1)
         coord = col + row
-        return coord, fr_col, fr_row
+        return coord, col_nr, row_nr
 
-    def get_chess_row_col(self, button):
-        move_from = self.get_field_id(button)
-        row, col = move_from
-        return move_from, row, col
+    def get_chess_row_col(self, physical_square_id):
+        """
+        get the logical id of the chess square, and returns it
+        :param physical_square_id:
+        :return:
+        """
+        locical_square_id = self.get_field_id(physical_square_id)
+        row, col = locical_square_id
+        return locical_square_id, row, col

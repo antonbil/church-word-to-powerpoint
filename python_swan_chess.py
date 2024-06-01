@@ -58,7 +58,7 @@ import chess.polyglot
 import logging
 import platform as sys_plat
 from annotator import annotator
-from board import (LeftBoard, convert_to_bytes)
+from board import (ChessBoard, convert_to_bytes)
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
@@ -710,7 +710,7 @@ class EasyChessGui:
                  engine='',
                  max_depth=MAX_DEPTH, start_mode="neutral", num_threads=128):
         # self.engine_id_name used inside "Engine/manage/install etc, and in "Engine/Set engine oponent"
-        self.board = LeftBoard(self)
+        self.board = ChessBoard(self)
         self.engine_id_name = None
         self.move_string = ""
         self.window = None
