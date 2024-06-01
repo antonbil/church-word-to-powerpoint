@@ -67,3 +67,30 @@ class LeftBoard:
         self.button_square_ids_black.reverse()
         self.frame_square_ids_black.reverse()
         return board_layout
+
+    def change_square_color_border(self, window, row, col, color):
+        """
+        Change the color of a square based on square row and col.
+        """
+        btn_sq = window.find_element(key=self.get_field_id((row, col + 64)))
+        # btn_sq.Update(border_width=4)
+        btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
+
+    def change_square_color(self, window, row, col):
+        """
+        Change the color of a square based on square row and col.
+        """
+        btn_sq = window.find_element(key=self.get_field_id((row, col)))
+        is_dark_square = True if (row + col) % 2 else False
+        bd_sq_color = self.gui.move_sq_dark_color if is_dark_square else self.gui.move_sq_light_color
+        btn_sq.Update(button_color=('white', bd_sq_color))
+
+    def get_square_color_pos(self, window, row, col):
+        """
+        Change the color of a square based on square row and col.
+        """
+        btn_sq = window.find_element(key=self.get_field_id((row, col)))
+        return btn_sq.widget.winfo_x(), btn_sq.widget.winfo_y()
+
+
+

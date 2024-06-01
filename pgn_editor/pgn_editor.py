@@ -408,7 +408,7 @@ class PgnEditor:
                     fr_row, fr_col = move_from
 
                     # Change the color of the "from" board square
-                    self.gui.change_square_color(self.window, fr_row, fr_col)
+                    self.gui.board.change_square_color(self.window, fr_row, fr_col)
 
                     move_state = 1
                 elif move_state == 1:
@@ -727,7 +727,7 @@ class PgnEditor:
         to_sq = chess.square(to_col, 7 - to_row)
         moved_piece = self.board.piece_type_at(chess.square(fr_col, 7 - fr_row))  # Pawn=1
         # Change the color of the "fr" board square
-        self.gui.change_square_color(self.window, to_row, to_col)
+        self.gui.board.change_square_color(self.window, to_row, to_col)
         # If user move is a promote
         user_move = None
         if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
@@ -803,8 +803,8 @@ class PgnEditor:
         self.gui.default_board_borders(self.window)
         self.board = board
         if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:
-            self.gui.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
-            self.gui.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
+            self.gui.board.change_square_color_border(self.window, self.move_squares[1], self.move_squares[0], '#ff0000')
+            self.gui.board.change_square_color_border(self.window, self.move_squares[3], self.move_squares[2], '#ff0000')
 
     def update_move_display_element(self):
         if len(self.moves) > 0:

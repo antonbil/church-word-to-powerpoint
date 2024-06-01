@@ -1740,30 +1740,6 @@ class EasyChessGui:
         alternatives[msg_line] = [search.score, search.pv_original]
         return msg_line, search.score, search.pv, search.pv_original, alternatives
 
-    def get_square_color_pos(self, window, row, col):
-        """
-        Change the color of a square based on square row and col.
-        """
-        btn_sq = window.find_element(key=self.board.get_field_id((row, col)))
-        return btn_sq.widget.winfo_x(), btn_sq.widget.winfo_y()
-
-    def change_square_color_border(self, window, row, col, color):
-        """
-        Change the color of a square based on square row and col.
-        """
-        btn_sq = window.find_element(key=self.board.get_field_id((row, col + 64)))
-        # btn_sq.Update(border_width=4)
-        btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
-
-    def change_square_color(self, window, row, col):
-        """
-        Change the color of a square based on square row and col.
-        """
-        btn_sq = window.find_element(key=self.board.get_field_id((row, col)))
-        is_dark_square = True if (row + col) % 2 else False
-        bd_sq_color = self.move_sq_dark_color if is_dark_square else self.move_sq_light_color
-        btn_sq.Update(button_color=('white', bd_sq_color))
-
     def relative_row(self, s, stm):
         """
         The board can be viewed, as white at the bottom and black at the
@@ -2506,7 +2482,7 @@ class EasyChessGui:
                     self.piece = self.psg_board[self.fr_row][self.fr_col]  # get the move-from piece
 
                     # Change the color of the "from" board square
-                    self.change_square_color(window, self.fr_row, self.fr_col)
+                    self.board.change_square_color(window, self.fr_row, self.fr_col)
 
                     self.move_state = 1
                     moved_piece = board.piece_type_at(chess.square(self.fr_col, 7 - self.fr_row))  # Pawn=1
@@ -2742,8 +2718,8 @@ class EasyChessGui:
         window.find_element('_movelist_').Update(
             self.game.variations[0], append=True, disabled=True)
         # Change the color of the "from" and "to" board squares
-        self.change_square_color(window, self.fr_row, self.fr_col)
-        self.change_square_color(window, self.to_row, self.to_col)
+        self.board.change_square_color(window, self.fr_row, self.fr_col)
+        self.board.change_square_color(window, self.to_row, self.to_col)
         self.is_human_stm = not self.is_human_stm
         # Engine has done its move
         k1 = 'b_elapse_k'
@@ -2884,8 +2860,8 @@ class EasyChessGui:
             window.Element('search_info_all_k').Update('')
 
             # Change the color of the "from" and "to" board squares
-            self.change_square_color(window, self.fr_row, self.fr_col)
-            self.change_square_color(window, self.to_row, self.to_col)
+            self.board.change_square_color(window, self.fr_row, self.fr_col)
+            self.board.change_square_color(window, self.to_row, self.to_col)
 
             self.is_human_stm = not self.is_human_stm
             # Human has done its move
@@ -3043,7 +3019,7 @@ class EasyChessGui:
                     color = self.sq_dark_color  # Dark square
                 else:
                     color = self.sq_light_color
-                self.change_square_color_border(window, i, j, color)
+                self.board.change_square_color_border(window, i, j, color)
 
     def build_main_layout(self, is_user_white=True):
         """
