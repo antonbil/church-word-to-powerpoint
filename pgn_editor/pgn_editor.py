@@ -389,9 +389,9 @@ class PgnEditor:
                 coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
                 #move_from = self.gui.board.get_field_id(button)
                 #fr_row, fr_col = move_from
-                # if not self.gui.is_user_white:
-                #     fr_row = 7 - fr_row
-                #     fr_col = 7 - fr_col
+                if not self.gui.is_user_white:
+                    fr_row = 7 - fr_row
+                    fr_col = 7 - fr_col
 
                 if fr_row == 0:
                     new_number = min(int(fr_col * (len(self.all_moves) - 1) / 7), len(self.all_moves))

@@ -379,7 +379,6 @@ class PGNViewer:
             if type(button) is tuple:
                 # If fr_sq button is pressed
                 coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
-                print("coord", coord)
                 if self.mode == "entry":
                     self.mode = "viewer"
                     self.set_mode_display()
