@@ -6,7 +6,7 @@ import os
 import chess
 import copy
 import sys
-from common import ico_path
+from common import ico_path, APP_NAME, APP_VERSION
 
 IMAGE_PATH = 'Images/60'  # path to the chess pieces
 
@@ -351,7 +351,7 @@ class LeftBoard:
             board_layout.append(row)
 
         platform = sys.platform
-        promo_window = sg.Window('{} {}'.format("", ""),
+        promo_window = sg.Window('{} {}'.format(APP_NAME, APP_VERSION),
                                  board_layout,
                                  default_button_element_size=(12, 1),
                                  auto_size_buttons=False,
