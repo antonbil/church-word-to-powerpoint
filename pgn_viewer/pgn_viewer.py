@@ -495,7 +495,7 @@ class PGNViewer:
 
     def choose_one_move(self, items):
         chosen_move = None
-        # otherwise a selection of destinations is shown, one of which the user can choose
+        # otherwise a selection of origins (or destinations, based on items) is shown, one of which the user can choose
         list_items_algebraic = [self.board.san(list_item) for list_item in items]
         title_window = "Get move"
         selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
