@@ -408,9 +408,9 @@ class LeftBoard:
         self.psg_board1[self.get_row(to)][self.get_col(to)] = pc
         self.redraw_board(window)
 
-    def get_chess_coordinates(self, button):
-        move_from = self.get_field_id(button)
-        fr_row, fr_col = move_from
+    def get_chess_coordinates(self, button_square):
+        square_selected = self.get_field_id(button_square)
+        fr_row, fr_col = square_selected
         col = chr(fr_col + ord('a'))
         row = str(7 - fr_row + 1)
         coord = col + row
