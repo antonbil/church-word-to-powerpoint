@@ -103,6 +103,8 @@ class LeftBoard:
         self.button_square_ids_black = []
         self.frame_square_ids_black = []
         self.gui = gui
+        # psg_board1 is an 8 x 8 matrix representing a chessboard.
+        # each element represents a square with a piece, or BLANK (empty)
         self.psg_board1 = None
 
     def get_field_id(self, field_tuple):
