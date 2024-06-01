@@ -415,3 +415,8 @@ class LeftBoard:
         row = str(7 - fr_row + 1)
         coord = col + row
         return coord, fr_col, fr_row
+
+    def get_chess_row_col(self, button):
+        move_from = self.get_field_id(button)
+        row, col = move_from
+        return move_from, row, col

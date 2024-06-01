@@ -2170,8 +2170,7 @@ class EasyChessGui:
             if type(button) is tuple:
                 # If fr_sq button is pressed
                 if self.move_state == 0:
-                    move_from = self.board.get_field_id(button)
-                    self.fr_row, self.fr_col = move_from
+                    move_from, self.fr_row, self.fr_col = self.board.get_chess_row_col(button)
                     self.piece = self.board.psg_board_get_piece(self.fr_row, self.fr_col)  # get the move-from piece
 
                     # Change the color of the "from" board square
@@ -2182,8 +2181,7 @@ class EasyChessGui:
 
                 # Else if to_sq button is pressed
                 elif self.move_state == 1:
-                    move_to = self.board.get_field_id(button)
-                    self.to_row, self.to_col = move_to
+                    move_to, self.to_row, self.to_col = self.board.get_chess_row_col(button)
                     button_square = window.find_element(key=self.board.get_field_id((self.fr_row, self.fr_col)))
 
                     # If move is cancelled, pressing same button twice
