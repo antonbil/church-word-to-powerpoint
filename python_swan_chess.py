@@ -1622,7 +1622,7 @@ class EasyChessGui:
         else:
             capture_sq = to + 8
 
-        self.board.psg_board()[self.get_row(capture_sq)][self.get_col(capture_sq)] = BLANK
+        self.board.psg_board_set_piece(self.get_row(capture_sq), self.get_col(capture_sq), BLANK)
         self.board.redraw_board(window)
 
     def set_depth_limit(self):
@@ -2172,7 +2172,7 @@ class EasyChessGui:
                 if self.move_state == 0:
                     move_from = self.board.get_field_id(button)
                     self.fr_row, self.fr_col = move_from
-                    self.piece = self.board.psg_board()[self.fr_row][self.fr_col]  # get the move-from piece
+                    self.piece = self.board.psg_board_get_piece(self.fr_row, self.fr_col)  # get the move-from piece
 
                     # Change the color of the "from" board square
                     self.board.change_square_color(window, self.fr_row, self.fr_col)
@@ -2373,8 +2373,8 @@ class EasyChessGui:
         self.fr_row = 8 - int(move_str[1])
         self.to_col = ord(move_str[2]) - ord('a')
         self.to_row = 8 - int(move_str[3])
-        self.piece = self.board.psg_board()[self.fr_row][self.fr_col]
-        self.board.psg_board()[self.fr_row][self.fr_col] = BLANK
+        self.piece = self.board.psg_board_get_piece(self.fr_row, self.fr_col)
+        self.board.psg_board_set_piece(self.fr_row, self.fr_col, BLANK)
         # Update rook location if this is a castle move
         if board.is_castling(best_move):
             self.board.update_rook(window, move_str)
@@ -2389,11 +2389,11 @@ class EasyChessGui:
             _, self.psg_promo = self.board.get_promo_piece(best_move, board.turn, False)
         # Update board to_square if move is a promotion
         if is_promote:
-            self.board.psg_board()[self.to_row][self.to_col] = self.psg_promo
+            self.board.psg_board_set_piece(self.to_row, self.to_col, self.psg_promo)
         # Update the to_square if not a promote move
         else:
             # Place piece in the move to_square
-            self.board.psg_board()[self.to_row][self.to_col] = self.piece
+            self.board.psg_board_set_piece(self.to_row, self.to_col, self.piece)
         self.board.redraw_board(window)
         board.push(best_move)
         self.move_cnt += 1
@@ -2520,15 +2520,15 @@ class EasyChessGui:
                 self.update_ep(window, user_move, board.turn)
 
             # Empty the board from_square, applied to any types of move
-            self.board.psg_board()[move_from[0]][move_from[1]] = BLANK
+            self.board.psg_board_set_piece(move_from[0], move_from[1], BLANK)
 
             # Update board to_square if move is a promotion
             if is_promote:
-                sself.board.psg_board()[self.to_row][self.to_col] = self.psg_promo
+                self.board.psg_board_set_piece(self.to_row, self.to_col, self.psg_promo)
             # Update the to_square if not a promote move
             else:
                 # Place piece in the move to_square
-                self.board.psg_board()[self.to_row][self.to_col] = self.piece
+                self.board.psg_board_set_piece(self.to_row, self.to_col, self.piece)
 
             self.board.redraw_board(window)
 

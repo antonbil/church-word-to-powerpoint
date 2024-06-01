@@ -371,8 +371,11 @@ class LeftBoard:
         #call: self.board.create_initial_board()
         self.psg_board1 = copy.deepcopy(initial_board)
 
-    def psg_board(self):
-        return self.psg_board1
+    def psg_board_get_piece(self, fr_row, fr_col):
+        return self.psg_board1[fr_row][fr_col]
+
+    def psg_board_set_piece(self, fr_row, fr_col, piece):
+        self.psg_board1[fr_row][fr_col] = piece
 
     def update_rook(self, window, move):
         """
@@ -399,6 +402,6 @@ class LeftBoard:
             to = chess.D8
             pc = ROOKB
 
-        self.psg_board()[self.get_row(fr)][self.get_col(fr)] = BLANK
-        self.psg_board()[self.get_row(to)][self.get_col(to)] = pc
+        self.psg_board1[self.get_row(fr)][self.get_col(fr)] = BLANK
+        self.psg_board1[self.get_row(to)][self.get_col(to)] = pc
         self.redraw_board(window)
