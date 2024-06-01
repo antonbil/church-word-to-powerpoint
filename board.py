@@ -442,7 +442,7 @@ class ChessBoard:
         """
         get the coordinates of the chess square
         :param button_square: the id of the chess square that is selected
-        :return: the chess-coordnate (like b6 etc) and the col and row of the square
+        :return: the chess-coordinate (like b6 etc.) and the col and row of the square
         """
         square_selected = self.get_field_id(button_square)
         row_nr, col_nr = square_selected
