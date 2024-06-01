@@ -73,19 +73,15 @@ def convert_to_bytes(file_or_bytes, resize=None):
     :type file_or_bytes:  (Union[str, bytes])
     :param resize:  optional new size
     :type resize: (Tuple[int, int] or None)
-    :param fill: If True then the image is filled/padded so that the image is not distorted
-    :type fill: (bool)
-    :return: (bytes) a byte-string object
-    :rtype: (bytes)
     """
     if isinstance(file_or_bytes, str):
         img = PIL.Image.open(file_or_bytes)
     else:
         try:
             img = PIL.Image.open(io.BytesIO(base64.b64decode(file_or_bytes)))
-        except Exception as e:
-            dataBytesIO = io.BytesIO(file_or_bytes)
-            img = PIL.Image.open(dataBytesIO)
+        except Exception as _:
+            data_bytes_io = io.BytesIO(file_or_bytes)
+            img = PIL.Image.open(data_bytes_io)
 
     cur_width, cur_height = img.size
     if resize:
@@ -122,7 +118,7 @@ class LeftBoard:
     def get_field_id_from_row_col(self, row, col):
         return self.get_field_id((row, col))
 
-    def create_board(self, is_user_white=True):
+    def create_board(self):
         """
         Returns board layout based on color of user. If user is white,
         the white pieces will be at the bottom, otherwise at the top.
@@ -406,11 +402,3 @@ class LeftBoard:
         self.psg_board()[self.get_row(fr)][self.get_col(fr)] = BLANK
         self.psg_board()[self.get_row(to)][self.get_col(to)] = pc
         self.redraw_board(window)
-
-
-
-
-
-
-
-

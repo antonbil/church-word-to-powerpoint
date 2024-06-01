@@ -2687,7 +2687,7 @@ class EasyChessGui:
         """
         file_char_name = 'abcdefgh'
         self.board.create_initial_board()
-        return self.board.create_board(is_user_white)
+        return self.board.create_board()
 
     def default_board_borders(self, window):
         """
