@@ -58,7 +58,7 @@ import chess.polyglot
 import logging
 import platform as sys_plat
 from annotator import annotator
-from board import LeftBoard
+from board import LeftBoard, convert_to_bytes
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
@@ -229,40 +229,6 @@ INIT_PGN_TAG = {
     'White': 'Human',
     'Black': 'Computer'
 }
-
-
-def convert_to_bytes(file_or_bytes, resize=None):
-    """
-    Will convert into bytes and optionally resize an image that is a file or a base64 bytes object.
-    Turns into  PNG format in the process so that can be displayed by tkinter
-    :param file_or_bytes: either a string filename or a bytes base64 image object
-    :type file_or_bytes:  (Union[str, bytes])
-    :param resize:  optional new size
-    :type resize: (Tuple[int, int] or None)
-    :param fill: If True then the image is filled/padded so that the image is not distorted
-    :type fill: (bool)
-    :return: (bytes) a byte-string object
-    :rtype: (bytes)
-    """
-    if isinstance(file_or_bytes, str):
-        img = PIL.Image.open(file_or_bytes)
-    else:
-        try:
-            img = PIL.Image.open(io.BytesIO(base64.b64decode(file_or_bytes)))
-        except Exception as e:
-            dataBytesIO = io.BytesIO(file_or_bytes)
-            img = PIL.Image.open(dataBytesIO)
-
-    cur_width, cur_height = img.size
-    if resize:
-        new_width, new_height = resize
-        scale = min(new_height / cur_height, new_width / cur_width)
-        img = img.resize((int(cur_width * scale), int(cur_height * scale)), PIL.Image.LANCZOS)
-    with io.BytesIO() as bio:
-        img.save(bio, format="PNG")
-        del img
-        return bio.getvalue()
-
 
 #
 
@@ -1034,7 +1000,7 @@ class EasyChessGui:
 
     def flip_board(self, window):
         self.is_user_white = not self.is_user_white
-        self.redraw_board(window)
+        self.board.redraw_board(window)
 
     def delete_player(self, name, pgn, que):
         """
@@ -1690,7 +1656,7 @@ class EasyChessGui:
             old_r = r
 
         self.psg_board = psgboard
-        self.redraw_board(window)
+        self.board.redraw_board(window)
 
     def get_advice(self, board, callback):
         self.adviser_threads = self.get_engine_threads(
@@ -1768,38 +1734,6 @@ class EasyChessGui:
         """ Returns col given square s """
         return chess.square_file(s)
 
-    def redraw_board(self, window):
-        """
-        Redraw board at start and afte a move.
-
-        :param window:
-        :return:
-        """
-        for i in range(8):
-            for j in range(8):
-                color = self.sq_dark_color if (i + j) % 2 else \
-                    self.sq_light_color
-                piece_image = images[self.psg_board[i][j]]
-                elem = window.find_element(key=self.board.get_field_id((i, j)))
-                imgbytes = convert_to_bytes(piece_image, (self.FIELD_SIZE, self.FIELD_SIZE))
-                elem.Update(button_color=('white', color),
-                            image_data=imgbytes, image_size=(self.FIELD_SIZE, self.FIELD_SIZE))
-
-    def render_square(self, image, key, location):
-        """ Returns an RButton (Read Button) with image image """
-        if (location[0] + location[1]) % 2:
-            color = self.sq_dark_color  # Dark square
-        else:
-            color = self.sq_light_color
-        imgbytes = convert_to_bytes(image, (self.FIELD_SIZE, self.FIELD_SIZE))
-        return sg.Frame('', [
-            [sg.RButton('', image_data=imgbytes, size=(1, 1), image_size=(self.FIELD_SIZE, self.FIELD_SIZE),
-                        border_width=0, button_color=('white', color),
-                        pad=(0, 0), key=key)]],
-                        background_color=color, pad=(0, 0),
-                        border_width=4, key=(key[0], key[1] + 64)
-                        , relief=sg.RELIEF_FLAT)
-
     def select_promotion_piece(self, stm):
         """
         Allow user to select a piece type to promote to.
@@ -1816,7 +1750,7 @@ class EasyChessGui:
         for i in range(1):
             for j in range(4):
                 piece_image = images[psg_promote_board[i][j]]
-                row.append(self.render_square(piece_image, key=(i, j),
+                row.append(self.board.render_square(piece_image, key=(i, j),
                                               location=(i, j)))
 
             board_layout.append(row)
@@ -1869,7 +1803,7 @@ class EasyChessGui:
 
         self.psg_board[self.get_row(fr)][self.get_col(fr)] = BLANK
         self.psg_board[self.get_row(to)][self.get_col(to)] = pc
-        self.redraw_board(window)
+        self.board.redraw_board(window)
 
     def update_ep(self, window, move, stm):
         """
@@ -1887,7 +1821,7 @@ class EasyChessGui:
             capture_sq = to + 8
 
         self.psg_board[self.get_row(capture_sq)][self.get_col(capture_sq)] = BLANK
-        self.redraw_board(window)
+        self.board.redraw_board(window)
 
     def get_promo_piece(self, move, stm, human):
         """
@@ -2701,7 +2635,7 @@ class EasyChessGui:
         else:
             # Place piece in the move to_square
             self.psg_board[self.to_row][self.to_col] = self.piece
-        self.redraw_board(window)
+        self.board.redraw_board(window)
         board.push(best_move)
         self.move_cnt += 1
         # Update timer
@@ -2837,7 +2771,7 @@ class EasyChessGui:
                 # Place piece in the move to_square
                 self.psg_board[self.to_row][self.to_col] = self.piece
 
-            self.redraw_board(window)
+            self.board.redraw_board(window)
 
             board.push(user_move)
             self.move_cnt += 1
@@ -3742,7 +3676,7 @@ class EasyChessGui:
             window.find_element('_gamestatus_').Update('Mode     Neutral')
 
             self.psg_board = copy.deepcopy(initial_board)
-            self.redraw_board(window)
+            self.board.redraw_board(window)
             board = chess.Board()
             self.set_new_game()
 
@@ -4378,7 +4312,7 @@ class EasyChessGui:
         for color in ['Brown', "Gray", "Green", "Blue"]:
             if button == color + '::board_color_k':
                 self.set_color_board(button, True)
-                self.redraw_board(window)
+                self.board.redraw_board(window)
                 return True
         return False
 
