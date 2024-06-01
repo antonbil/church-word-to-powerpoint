@@ -101,13 +101,13 @@ class LeftBoard:
     """
     help-functions for the board to distinguish between black- and white (board is flipped if user == black)
     """
-    def __init__(self, gui, images):
+    def __init__(self, gui):
         self.button_square_ids_white = []
         self.frame_square_ids_white = []
         self.button_square_ids_black = []
         self.frame_square_ids_black = []
         self.gui = gui
-        self.images = images
+        self.psg_board1 = None
 
     def get_field_id(self, field_tuple):
         if self.gui.is_user_white:
@@ -147,7 +147,7 @@ class LeftBoard:
             # Row numbers at left of board is blank
             row = []
             for j in range(start, end, step):
-                piece_image = images[self.gui.psg_board[i][j]]
+                piece_image = images[self.psg_board1[i][j]]
                 button_square_id = (i, j)
                 square = self.render_square(piece_image, key=button_square_id, location=(i, j))
                 row.append(square)
@@ -199,7 +199,7 @@ class LeftBoard:
             for j in range(8):
                 color = self.gui.sq_dark_color if (i + j) % 2 else \
                     self.gui.sq_light_color
-                piece_image = images[self.gui.psg_board[i][j]]
+                piece_image = images[self.psg_board1[i][j]]
                 elem = window.find_element(key=self.get_field_id((i, j)))
                 imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
@@ -283,7 +283,7 @@ class LeftBoard:
 
             old_r = r
 
-        self.gui.psg_board = psgboard
+        self.psg_board1 = psgboard
         self.redraw_board(window)
 
     def get_promo_piece(self, move, stm, human):
@@ -370,6 +370,43 @@ class LeftBoard:
         promo_window.Close()
 
         return piece
+
+    def create_initial_board(self):
+        #call: self.board.create_initial_board()
+        self.psg_board1 = copy.deepcopy(initial_board)
+
+    def psg_board(self):
+        return self.psg_board1
+
+    def update_rook(self, window, move):
+        """
+        Update rook location for castle move.
+
+        :param window:
+        :param move: uci move format
+        :return:
+        """
+        if move == 'e1g1':
+            fr = chess.H1
+            to = chess.F1
+            pc = ROOKW
+        elif move == 'e1c1':
+            fr = chess.A1
+            to = chess.D1
+            pc = ROOKW
+        elif move == 'e8g8':
+            fr = chess.H8
+            to = chess.F8
+            pc = ROOKB
+        elif move == 'e8c8':
+            fr = chess.A8
+            to = chess.D8
+            pc = ROOKB
+
+        self.psg_board()[self.get_row(fr)][self.get_col(fr)] = BLANK
+        self.psg_board()[self.get_row(to)][self.get_col(to)] = pc
+        self.redraw_board(window)
+
 
 
 

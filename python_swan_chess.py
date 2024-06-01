@@ -58,8 +58,7 @@ import chess.polyglot
 import logging
 import platform as sys_plat
 from annotator import annotator
-from board import (LeftBoard, convert_to_bytes, images, initial_board, white_init_promote_board,
-                   black_init_promote_board, promote_psg_to_pyc, ROOKW, ROOKB)
+from board import (LeftBoard, convert_to_bytes)
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
@@ -99,19 +98,6 @@ RANK_4 = 3
 RANK_3 = 2
 RANK_2 = 1
 RANK_1 = 0
-
-# initial_board = [[ROOKB, KNIGHTB, BISHOPB, QUEENB, KINGB, BISHOPB, KNIGHTB, ROOKB],
-#                  [PAWNB, ] * 8,
-#                  [BLANK, ] * 8,
-#                  [BLANK, ] * 8,
-#                  [BLANK, ] * 8,
-#                  [BLANK, ] * 8,
-#                  [PAWNW, ] * 8,
-#                  [ROOKW, KNIGHTW, BISHOPW, QUEENW, KINGW, BISHOPW, KNIGHTW, ROOKW]]
-#
-# white_init_promote_board = [[QUEENW, ROOKW, BISHOPW, KNIGHTW]]
-#
-# black_init_promote_board = [[QUEENB, ROOKB, BISHOPB, KNIGHTB]]
 
 HELP_MSG = """The GUI has 4 modes, Play and Neutral, Pgn-viewer and Pgn-editor. 
 By default you are in Neutral mode, but you can select another startup-mode 
@@ -724,7 +710,7 @@ class EasyChessGui:
                  engine='',
                  max_depth=MAX_DEPTH, start_mode="neutral", num_threads=128):
         # self.engine_id_name used inside "Engine/manage/install etc, and in "Engine/Set engine oponent"
-        self.board = LeftBoard(self,images)
+        self.board = LeftBoard(self)
         self.engine_id_name = None
         self.move_string = ""
         self.window = None
@@ -790,7 +776,6 @@ class EasyChessGui:
         }
         self.init_game()
         self.fen = None
-        self.psg_board = None
         self.menu_elem = None
         self.engine_id_name_list = []
         self.engine_file_list = []
@@ -1622,35 +1607,6 @@ class EasyChessGui:
         """ Returns col given square s """
         return chess.square_file(s)
 
-    def update_rook(self, window, move):
-        """
-        Update rook location for castle move.
-
-        :param window:
-        :param move: uci move format
-        :return:
-        """
-        if move == 'e1g1':
-            fr = chess.H1
-            to = chess.F1
-            pc = ROOKW
-        elif move == 'e1c1':
-            fr = chess.A1
-            to = chess.D1
-            pc = ROOKW
-        elif move == 'e8g8':
-            fr = chess.H8
-            to = chess.F8
-            pc = ROOKB
-        elif move == 'e8c8':
-            fr = chess.A8
-            to = chess.D8
-            pc = ROOKB
-
-        self.psg_board[self.get_row(fr)][self.get_col(fr)] = BLANK
-        self.psg_board[self.get_row(to)][self.get_col(to)] = pc
-        self.board.redraw_board(window)
-
     def update_ep(self, window, move, stm):
         """
         Update board for e.p move.
@@ -1666,7 +1622,7 @@ class EasyChessGui:
         else:
             capture_sq = to + 8
 
-        self.psg_board[self.get_row(capture_sq)][self.get_col(capture_sq)] = BLANK
+        self.board.psg_board()[self.get_row(capture_sq)][self.get_col(capture_sq)] = BLANK
         self.board.redraw_board(window)
 
     def set_depth_limit(self):
@@ -2216,7 +2172,7 @@ class EasyChessGui:
                 if self.move_state == 0:
                     move_from = self.board.get_field_id(button)
                     self.fr_row, self.fr_col = move_from
-                    self.piece = self.psg_board[self.fr_row][self.fr_col]  # get the move-from piece
+                    self.piece = self.board.psg_board()[self.fr_row][self.fr_col]  # get the move-from piece
 
                     # Change the color of the "from" board square
                     self.board.change_square_color(window, self.fr_row, self.fr_col)
@@ -2417,11 +2373,11 @@ class EasyChessGui:
         self.fr_row = 8 - int(move_str[1])
         self.to_col = ord(move_str[2]) - ord('a')
         self.to_row = 8 - int(move_str[3])
-        self.piece = self.psg_board[self.fr_row][self.fr_col]
-        self.psg_board[self.fr_row][self.fr_col] = BLANK
+        self.piece = self.board.psg_board()[self.fr_row][self.fr_col]
+        self.board.psg_board()[self.fr_row][self.fr_col] = BLANK
         # Update rook location if this is a castle move
         if board.is_castling(best_move):
-            self.update_rook(window, move_str)
+            self.board.update_rook(window, move_str)
 
         # Update board if e.p capture
         elif board.is_en_passant(best_move):
@@ -2433,11 +2389,11 @@ class EasyChessGui:
             _, self.psg_promo = self.board.get_promo_piece(best_move, board.turn, False)
         # Update board to_square if move is a promotion
         if is_promote:
-            self.psg_board[self.to_row][self.to_col] = self.psg_promo
+            self.board.psg_board()[self.to_row][self.to_col] = self.psg_promo
         # Update the to_square if not a promote move
         else:
             # Place piece in the move to_square
-            self.psg_board[self.to_row][self.to_col] = self.piece
+            self.board.psg_board()[self.to_row][self.to_col] = self.piece
         self.board.redraw_board(window)
         board.push(best_move)
         self.move_cnt += 1
@@ -2557,22 +2513,22 @@ class EasyChessGui:
             self.move_state = 0
             # Update rook location if this is a castle move
             if board.is_castling(user_move):
-                self.update_rook(window, str(user_move))
+                self.board.update_rook(window, str(user_move))
 
             # Update board if e.p capture
             elif board.is_en_passant(user_move):
                 self.update_ep(window, user_move, board.turn)
 
             # Empty the board from_square, applied to any types of move
-            self.psg_board[move_from[0]][move_from[1]] = BLANK
+            self.board.psg_board()[move_from[0]][move_from[1]] = BLANK
 
             # Update board to_square if move is a promotion
             if is_promote:
-                self.psg_board[self.to_row][self.to_col] = self.psg_promo
+                sself.board.psg_board()[self.to_row][self.to_col] = self.psg_promo
             # Update the to_square if not a promote move
             else:
                 # Place piece in the move to_square
-                self.psg_board[self.to_row][self.to_col] = self.piece
+                self.board.psg_board()[self.to_row][self.to_col] = self.piece
 
             self.board.redraw_board(window)
 
@@ -2730,7 +2686,7 @@ class EasyChessGui:
         :return: board layout
         """
         file_char_name = 'abcdefgh'
-        self.psg_board = copy.deepcopy(initial_board)
+        self.board.create_initial_board()
         return self.board.create_board(is_user_white)
 
     def default_board_borders(self, window):
@@ -3071,7 +3027,7 @@ class EasyChessGui:
 
                 # Restore Neutral menu
                 self.menu_elem.Update(menu_def_neutral)
-                self.psg_board = copy.deepcopy(initial_board)
+                self.board.create_initial_board()
                 self.window.find_element('_gamestatus_').Update('Play Settings')
                 board = chess.Board()
                 self.set_new_game()
@@ -3463,7 +3419,7 @@ class EasyChessGui:
         # Change menu from Neutral to Play
         self.menu_elem.Update(menu_def_play)
         self.start_mode_used = self.start_mode_used.replace("play", "")
-        self.psg_board = copy.deepcopy(initial_board)
+        self.board.create_initial_board()
         board = chess.Board()
         self.display_button_bar()
         window.find_element("play_top_frame").Update(visible=True)
@@ -3478,7 +3434,7 @@ class EasyChessGui:
             start_new_game = self.play_game(window, board)
             window.find_element('_gamestatus_').Update('Mode     Neutral')
 
-            self.psg_board = copy.deepcopy(initial_board)
+            self.board.create_initial_board()
             self.board.redraw_board(window)
             board = chess.Board()
             self.set_new_game()
