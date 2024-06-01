@@ -799,7 +799,7 @@ class PgnEditor:
 
         fen = board.fen()
         self.gui.fen = fen
-        self.gui.fen_to_psg_board(self.window)
+        self.gui.board.fen_to_psg_board(self.window)
         self.gui.default_board_borders(self.window)
         self.board = board
         if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:

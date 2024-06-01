@@ -2,7 +2,68 @@ import PySimpleGUI as sg
 import PIL
 from PIL import Image
 import io
+import os
+import chess
+import copy
+import sys
+from common import ico_path
 
+IMAGE_PATH = 'Images/60'  # path to the chess pieces
+
+BLANK = 0  # piece names
+PAWNB = 1
+KNIGHTB = 2
+BISHOPB = 3
+ROOKB = 4
+KINGB = 5
+QUEENB = 6
+PAWNW = 7
+KNIGHTW = 8
+BISHOPW = 9
+ROOKW = 10
+KINGW = 11
+QUEENW = 12
+
+# Images/60
+blank = os.path.join(IMAGE_PATH, 'blank.png')
+bishopB = os.path.join(IMAGE_PATH, 'bB.png')
+bishopW = os.path.join(IMAGE_PATH, 'wB.png')
+pawnB = os.path.join(IMAGE_PATH, 'bP.png')
+pawnW = os.path.join(IMAGE_PATH, 'wP.png')
+knightB = os.path.join(IMAGE_PATH, 'bN.png')
+knightW = os.path.join(IMAGE_PATH, 'wN.png')
+rookB = os.path.join(IMAGE_PATH, 'bR.png')
+rookW = os.path.join(IMAGE_PATH, 'wR.png')
+queenB = os.path.join(IMAGE_PATH, 'bQ.png')
+queenW = os.path.join(IMAGE_PATH, 'wQ.png')
+kingB = os.path.join(IMAGE_PATH, 'bK.png')
+kingW = os.path.join(IMAGE_PATH, 'wK.png')
+
+images = {
+    BISHOPB: bishopB, BISHOPW: bishopW, PAWNB: pawnB, PAWNW: pawnW,
+    KNIGHTB: knightB, KNIGHTW: knightW, ROOKB: rookB, ROOKW: rookW,
+    KINGB: kingB, KINGW: kingW, QUEENB: queenB, QUEENW: queenW, BLANK: blank
+}
+
+initial_board = [[ROOKB, KNIGHTB, BISHOPB, QUEENB, KINGB, BISHOPB, KNIGHTB, ROOKB],
+                 [PAWNB, ] * 8,
+                 [BLANK, ] * 8,
+                 [BLANK, ] * 8,
+                 [BLANK, ] * 8,
+                 [BLANK, ] * 8,
+                 [PAWNW, ] * 8,
+                 [ROOKW, KNIGHTW, BISHOPW, QUEENW, KINGW, BISHOPW, KNIGHTW, ROOKW]]
+
+white_init_promote_board = [[QUEENW, ROOKW, BISHOPW, KNIGHTW]]
+
+black_init_promote_board = [[QUEENB, ROOKB, BISHOPB, KNIGHTB]]
+# Promote piece from psg (pysimplegui) to pyc (python-chess)
+promote_psg_to_pyc = {
+    KNIGHTB: chess.KNIGHT, BISHOPB: chess.BISHOP,
+    ROOKB: chess.ROOK, QUEENB: chess.QUEEN,
+    KNIGHTW: chess.KNIGHT, BISHOPW: chess.BISHOP,
+    ROOKW: chess.ROOK, QUEENW: chess.QUEEN
+}
 
 def convert_to_bytes(file_or_bytes, resize=None):
     """
@@ -86,7 +147,7 @@ class LeftBoard:
             # Row numbers at left of board is blank
             row = []
             for j in range(start, end, step):
-                piece_image = self.images[self.gui.psg_board[i][j]]
+                piece_image = images[self.gui.psg_board[i][j]]
                 button_square_id = (i, j)
                 square = self.render_square(piece_image, key=button_square_id, location=(i, j))
                 row.append(square)
@@ -138,7 +199,7 @@ class LeftBoard:
             for j in range(8):
                 color = self.gui.sq_dark_color if (i + j) % 2 else \
                     self.gui.sq_light_color
-                piece_image = self.images[self.gui.psg_board[i][j]]
+                piece_image = images[self.gui.psg_board[i][j]]
                 elem = window.find_element(key=self.get_field_id((i, j)))
                 imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
@@ -158,6 +219,160 @@ class LeftBoard:
                         background_color=color, pad=(0, 0),
                         border_width=4, key=(key[0], key[1] + 64)
                         , relief=sg.RELIEF_FLAT)
+
+    def fen_to_psg_board(self, window):
+        """ Update psg_board based on FEN """
+        psgboard = []
+
+        # Get piece locations only to build psg board
+        pc_locations = self.gui.fen.split()[0]
+
+        board = chess.BaseBoard(pc_locations)
+        old_r = None
+
+        for s in chess.SQUARES:
+            r = chess.square_rank(s)
+
+            if old_r is None:
+                piece_r = []
+            elif old_r != r:
+                psgboard.append(piece_r)
+                piece_r = []
+            elif s == 63:
+                psgboard.append(piece_r)
+
+            try:
+                pc = board.piece_at(s ^ 56)
+            except Exception:
+                pc = None
+                logging.exception('Failed to get piece.')
+
+            if pc is not None:
+                pt = pc.piece_type
+                c = pc.color
+                if c:
+                    if pt == chess.PAWN:
+                        piece_r.append(PAWNW)
+                    elif pt == chess.KNIGHT:
+                        piece_r.append(KNIGHTW)
+                    elif pt == chess.BISHOP:
+                        piece_r.append(BISHOPW)
+                    elif pt == chess.ROOK:
+                        piece_r.append(ROOKW)
+                    elif pt == chess.QUEEN:
+                        piece_r.append(QUEENW)
+                    elif pt == chess.KING:
+                        piece_r.append(KINGW)
+                else:
+                    if pt == chess.PAWN:
+                        piece_r.append(PAWNB)
+                    elif pt == chess.KNIGHT:
+                        piece_r.append(KNIGHTB)
+                    elif pt == chess.BISHOP:
+                        piece_r.append(BISHOPB)
+                    elif pt == chess.ROOK:
+                        piece_r.append(ROOKB)
+                    elif pt == chess.QUEEN:
+                        piece_r.append(QUEENB)
+                    elif pt == chess.KING:
+                        piece_r.append(KINGB)
+
+            # Else if pc is None or square is empty
+            else:
+                piece_r.append(BLANK)
+
+            old_r = r
+
+        self.gui.psg_board = psgboard
+        self.redraw_board(window)
+
+    def get_promo_piece(self, move, stm, human):
+        """
+        Returns promotion piece.
+
+        :param move: python-chess format
+        :param stm: side to move
+        :param human: if side to move is human this is True
+        :return: promoted piece in python-chess and pythonsimplegui formats
+        """
+        # If this move is from a user, we will show a window with piece images
+        if human:
+            psg_promo = self.select_promotion_piece(stm)
+
+            # If user pressed x we set the promo to queen
+            if psg_promo is None:
+                logging.info('User did not select a promotion piece, set this to queen.')
+                psg_promo = QUEENW if stm else QUEENB
+
+            pyc_promo = promote_psg_to_pyc[psg_promo]
+        # Else if move is from computer
+        else:
+            pyc_promo = move.promotion  # This is from python-chess
+            if stm:
+                if pyc_promo == chess.QUEEN:
+                    psg_promo = QUEENW
+                elif pyc_promo == chess.ROOK:
+                    psg_promo = ROOKW
+                elif pyc_promo == chess.BISHOP:
+                    psg_promo = BISHOPW
+                elif pyc_promo == chess.KNIGHT:
+                    psg_promo = KNIGHTW
+            else:
+                if pyc_promo == chess.QUEEN:
+                    psg_promo = QUEENB
+                elif pyc_promo == chess.ROOK:
+                    psg_promo = ROOKB
+                elif pyc_promo == chess.BISHOP:
+                    psg_promo = BISHOPB
+                elif pyc_promo == chess.KNIGHT:
+                    psg_promo = KNIGHTB
+
+        return pyc_promo, psg_promo
+
+    def select_promotion_piece(self, stm):
+        """
+        Allow user to select a piece type to promote to.
+
+        :param stm: side to move
+        :return: promoted piece, i.e QUEENW, QUEENB ...
+        """
+        piece = None
+        board_layout, row = [], []
+
+        psg_promote_board = copy.deepcopy(white_init_promote_board) if stm else copy.deepcopy(black_init_promote_board)
+
+        # Loop through board and create buttons with images.
+        for i in range(1):
+            for j in range(4):
+                piece_image = images[psg_promote_board[i][j]]
+                row.append(self.render_square(piece_image, key=(i, j),
+                                              location=(i, j)))
+
+            board_layout.append(row)
+
+        platform = sys.platform
+        promo_window = sg.Window('{} {}'.format("", ""),
+                                 board_layout,
+                                 default_button_element_size=(12, 1),
+                                 auto_size_buttons=False,
+                                 icon=ico_path[platform]['pecg'])
+
+        while True:
+            button, value = promo_window.Read(timeout=0)
+            if button is None:
+                break
+            if type(button) is tuple:
+                move_from = button
+                fr_row, fr_col = move_from
+                piece = psg_promote_board[fr_row][fr_col]
+                break
+
+        promo_window.Close()
+
+        return piece
+
+
+
 
 
 
