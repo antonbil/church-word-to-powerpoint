@@ -197,9 +197,9 @@ class PGNViewer:
             if button == 'Add move' or self.gui.toolbar.get_button_id(button) == 'Add':
                 self.mode = "entry"
                 self.set_mode_display()
-                sg.popup("Enter move \nby picking a start/end field on the board",
-                         title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
-                         font=self.gui.text_font)
+                #sg.popup("Enter move \nby picking a start/end field on the board",
+                #         title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
+                #         font=self.gui.text_font)
                 continue
 
             if button == 'Gui':
@@ -380,9 +380,20 @@ class PGNViewer:
                 # If fr_sq button is pressed
                 coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
                 if self.mode == "entry":
+                    #self.mode = "viewer"
+                    #self.set_mode_display()
+                    print("first move", coord)
+                    self.first_move = coord
+                    self.gui.board.change_square_color_border(self.window, fr_row, fr_col, "green")
+                    #self.add_move(coord)
+                    self.mode = "entry2"
+                    continue
+                if self.mode == "entry2":
                     self.mode = "viewer"
+                    print("second move",coord)
+                    self.gui.board.change_square_color_border(self.window, fr_row, fr_col, "green")
                     self.set_mode_display()
-                    self.add_move(coord)
+                    self.add_move(self.first_move + coord)
                     continue
 
                 # first check if a square representing a variation is pressed
@@ -463,8 +474,8 @@ class PGNViewer:
         :return:
         """
         chosen_move = None
-        for list_item in list(self.board.legal_moves):
-            print("l", list_item)
+        """for list_item in list(self.board.legal_moves):
+            # print("l", list_item)
             for list_item in list(self.board.legal_moves):
                 if str(list_item).startswith(coord):
                     print("selected:", list_item)
@@ -484,14 +495,19 @@ class PGNViewer:
         elif not chosen_move and len(list_items_end) > 0:
             # otherwise a selection of destinations is shown, one of which the user can choose
             chosen_move = self.choose_one_move(list_items_end)
-
+        for l in list(self.board.legal_moves):
+            print("l",l)
+        print("check for:", coord)"""
+        if coord in [str(l) for l in list(self.board.legal_moves)]:
+            chosen_move = coord
+        #chosen_move = coord
         if chosen_move:
             if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
                 sg.popup("Move {} is already part of variations of node {}!\nMove not inserted.."
                          .format(chosen_move, str(self.current_move.move)))
                 return
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
-            self.redraw_all()
+        self.redraw_all()
 
     def choose_one_move(self, items):
         chosen_move = None
