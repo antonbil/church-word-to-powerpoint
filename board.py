@@ -176,9 +176,9 @@ class ChessBoard:
         # btn_sq.Update(border_width=4)
         btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
 
-    def change_square_color(self, window, row, col):
+    def change_square_color_move(self, window, row, col):
         """
-        Change the color of a square based on square row and col.
+        Change the color of a square based on square row and col indicating a move from human or computer.
         """
         btn_sq = window.find_element(key=self.get_field_id((row, col)))
         is_dark_square = True if (row + col) % 2 else False

@@ -2174,7 +2174,7 @@ class EasyChessGui:
                     self.piece = self.board.psg_board_get_piece(self.fr_row, self.fr_col)  # get the move-from piece
 
                     # Change the color of the "from" board square
-                    self.board.change_square_color(window, self.fr_row, self.fr_col)
+                    self.board.change_square_color_move(window, self.fr_row, self.fr_col)
 
                     self.move_state = 1
                     moved_piece = board.piece_type_at(chess.square(self.fr_col, 7 - self.fr_row))  # Pawn=1
@@ -2409,8 +2409,8 @@ class EasyChessGui:
         window.find_element('_movelist_').Update(
             self.game.variations[0], append=True, disabled=True)
         # Change the color of the "from" and "to" board squares
-        self.board.change_square_color(window, self.fr_row, self.fr_col)
-        self.board.change_square_color(window, self.to_row, self.to_col)
+        self.board.change_square_color_move(window, self.fr_row, self.fr_col)
+        self.board.change_square_color_move(window, self.to_row, self.to_col)
         self.is_human_stm = not self.is_human_stm
         # Engine has done its move
         k1 = 'b_elapse_k'
@@ -2551,8 +2551,8 @@ class EasyChessGui:
             window.Element('search_info_all_k').Update('')
 
             # Change the color of the "from" and "to" board squares
-            self.board.change_square_color(window, self.fr_row, self.fr_col)
-            self.board.change_square_color(window, self.to_row, self.to_col)
+            self.board.change_square_color_move(window, self.fr_row, self.fr_col)
+            self.board.change_square_color_move(window, self.to_row, self.to_col)
 
             self.is_human_stm = not self.is_human_stm
             # Human has done its move

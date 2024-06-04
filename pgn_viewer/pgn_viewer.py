@@ -22,6 +22,12 @@ class PGNViewer:
     """pgn viewer class"""
 
     def __init__(self, gui, window, play_move_string=""):
+        # first part of move entered by user
+        self.seconds_passed = 0
+        self.auto_play_seconds = 4
+        self.current_time = datetime.datetime.now()
+        self.auto_playing = False
+        self.first_move = None
         play_move_strings = play_move_string.split(GAME_DIVIDER)
         self.current_move_string = ""
         if len(play_move_strings) > 1:
@@ -118,6 +124,54 @@ class PGNViewer:
 
         while True:
             button, value = self.window.Read(timeout=50)
+            current_time = datetime.datetime.now()
+            delta = current_time - self.current_time
+            self.seconds_passed = delta.total_seconds()
+            # these checks do not influence the auto-play-value
+            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == 'Flip':
+                self.gui.flip_board(self.window)
+                continue
+
+            if button == '_movelist_2':
+                selection = value[button]
+                if selection:
+                    item = selection[0]
+                    index = self.pgn_lines.index(item) if item in self.pgn_lines else -1
+                    if index == -1:
+                        self.redraw_all()
+                        continue
+                    self.current_line = index
+                    self.go_up = True
+                    positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
+                    # print("positions:{}".format(len(positions)))
+                    if new_pos >= 1 or len(positions) > 0:
+                        self.set_new_position(new_pos, positions)
+                    continue
+
+            # '|-->'-toolbar-button has special meaning in autoplay: speed up autoplaying
+            if self.gui.toolbar.get_button_id(button) == '|-->' and self.auto_playing:
+                self.auto_play_seconds += -1
+                if self.auto_play_seconds < 1:
+                    self.auto_play_seconds = 1
+                continue
+
+            # '<--|'-toolbar-button has special meaning in autoplay: speed down autoplaying
+            if self.gui.toolbar.get_button_id(button) == '<--|' and self.auto_playing:
+                self.auto_play_seconds += 1
+                continue
+
+            if button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay':
+                self.auto_playing = not self.auto_playing
+
+            if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay'
+                    or button == '__TIMEOUT__') and self.auto_playing:
+                if self.seconds_passed > self.auto_play_seconds:
+                    self.move_number = self.execute_next_move(self.move_number)
+                    self.current_time = datetime.datetime.now()
+            else:
+                self.auto_playing = False
+            # end: these checks do not influence the auto-play-value
+
             if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
                 self.is_win_closed = True
                 break
@@ -186,10 +240,6 @@ class PGNViewer:
             if button == 'Play from here':
                 self.play_from_here()
                 break
-
-            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == 'Flip':
-                self.gui.flip_board(self.window)
-                continue
 
             if button == 'Find in db':
                 self.find_in_db()
@@ -305,21 +355,6 @@ class PGNViewer:
                         self.gui.save_pgn_file_in_preferences(self.pgn)
                 continue
 
-            if button == '_movelist_2':
-                selection = value[button]
-                if selection:
-                    item = selection[0]
-                    index = self.pgn_lines.index(item) if item in self.pgn_lines else -1
-                    if index == -1:
-                        self.redraw_all()
-                        continue
-                    self.current_line = index
-                    self.go_up = True
-                    positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
-                    # print("positions:{}".format(len(positions)))
-                    if new_pos >= 1 or len(positions) > 0:
-                        self.set_new_position(new_pos, positions)
-
             if button == 'Next Game' or self.gui.toolbar.get_button_id(button) == '|-->':
                 if self.check_edit_single_pgn():
                     index = self.game_descriptions.index(self.my_game)
@@ -380,18 +415,13 @@ class PGNViewer:
                 # If fr_sq button is pressed
                 coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
                 if self.mode == "entry":
-                    #self.mode = "viewer"
-                    #self.set_mode_display()
-                    print("first move", coord)
                     self.first_move = coord
-                    self.gui.board.change_square_color_border(self.window, fr_row, fr_col, "green")
-                    #self.add_move(coord)
+                    self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
                     self.mode = "entry2"
                     continue
                 if self.mode == "entry2":
                     self.mode = "viewer"
-                    print("second move",coord)
-                    self.gui.board.change_square_color_border(self.window, fr_row, fr_col, "green")
+                    self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
                     self.set_mode_display()
                     self.add_move(self.first_move + coord)
                     continue
@@ -432,7 +462,8 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def display_button_bar(self):
-        buttons = [self.gui.toolbar.new_button("Flip", auto_size_button=True),
+        buttons = [self.gui.toolbar.new_button("Autoplay", auto_size_button=True),
+                    self.gui.toolbar.new_button("Flip", auto_size_button=True),
                    self.gui.toolbar.new_button("<--|", auto_size_button=True),
                    self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
@@ -474,39 +505,18 @@ class PGNViewer:
         :return:
         """
         chosen_move = None
-        """for list_item in list(self.board.legal_moves):
-            # print("l", list_item)
-            for list_item in list(self.board.legal_moves):
-                if str(list_item).startswith(coord):
-                    print("selected:", list_item)
-        list_items_start = [list_item for list_item in list(self.board.legal_moves) if str(list_item).startswith(coord)]
-        list_items_end = [list_item for list_item in list(self.board.legal_moves) if str(list_item).endswith(coord)]
-        # if destination-chess-field is unique, the destination-piece-move is chosen
-        if len(list_items_end) == 1:
-            chosen_move = list_items_end[0]
-        if not chosen_move:
-            # if origin-chess-field is unique, the origin-piece-move is chosen
-            if len(list_items_start) == 1:
-                chosen_move = list_items_start[0]
 
-        if not chosen_move and len(list_items_start) > 0:
-            # otherwise a selection of destinations is shown, one of which the user can choose
-            chosen_move = self.choose_one_move(list_items_start)
-        elif not chosen_move and len(list_items_end) > 0:
-            # otherwise a selection of destinations is shown, one of which the user can choose
-            chosen_move = self.choose_one_move(list_items_end)
-        for l in list(self.board.legal_moves):
-            print("l",l)
-        print("check for:", coord)"""
         if coord in [str(l) for l in list(self.board.legal_moves)]:
             chosen_move = coord
-        #chosen_move = coord
+
         if chosen_move:
             if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
                 sg.popup("Move {} is already part of variations of node {}!\nMove not inserted.."
                          .format(chosen_move, str(self.current_move.move)))
                 return
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
+        else:
+            sg.popup("Illegal move:{}".format(coord))
         self.redraw_all()
 
     def choose_one_move(self, items):
@@ -1170,7 +1180,7 @@ class PGNViewer:
                 to_row = 8 - int(move_str[3])
                 num_var = num_var + 1
 
-                self.gui.board.change_square_color(self.window, fr_row, fr_col)
+                self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
                 self.gui.board.change_square_color_border(self.window, fr_row, fr_col, color)
                 self.gui.board.change_square_color_border(self.window, to_row, to_col, color)
         if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:
