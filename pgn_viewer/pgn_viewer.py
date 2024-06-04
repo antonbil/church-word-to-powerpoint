@@ -24,6 +24,7 @@ class PGNViewer:
     def __init__(self, gui, window, play_move_string=""):
         # first part of move entered by user
         self.seconds_passed = 0
+        self.auto_play_seconds = 4
         self.current_time = datetime.datetime.now()
         self.auto_playing = False
         self.first_move = None
@@ -131,12 +132,38 @@ class PGNViewer:
                 self.gui.flip_board(self.window)
                 continue
 
+            if button == '_movelist_2':
+                selection = value[button]
+                if selection:
+                    item = selection[0]
+                    index = self.pgn_lines.index(item) if item in self.pgn_lines else -1
+                    if index == -1:
+                        self.redraw_all()
+                        continue
+                    self.current_line = index
+                    self.go_up = True
+                    positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
+                    # print("positions:{}".format(len(positions)))
+                    if new_pos >= 1 or len(positions) > 0:
+                        self.set_new_position(new_pos, positions)
+                    continue
+
+            if self.gui.toolbar.get_button_id(button) == '|-->' and self.auto_playing:
+                self.auto_play_seconds += -1
+                if self.auto_play_seconds < 1:
+                    self.auto_play_seconds = 1
+                continue
+
+            if self.gui.toolbar.get_button_id(button) == '<--|' and self.auto_playing:
+                self.auto_play_seconds += 1
+                continue
+
             if button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay':
                 self.auto_playing = not self.auto_playing
 
             if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay'
                     or button == '__TIMEOUT__') and self.auto_playing:
-                if self.seconds_passed > 4:
+                if self.seconds_passed > self.auto_play_seconds:
                     self.move_number = self.execute_next_move(self.move_number)
                     self.current_time = datetime.datetime.now()
             else:
@@ -325,21 +352,6 @@ class PGNViewer:
                     else:
                         self.gui.save_pgn_file_in_preferences(self.pgn)
                 continue
-
-            if button == '_movelist_2':
-                selection = value[button]
-                if selection:
-                    item = selection[0]
-                    index = self.pgn_lines.index(item) if item in self.pgn_lines else -1
-                    if index == -1:
-                        self.redraw_all()
-                        continue
-                    self.current_line = index
-                    self.go_up = True
-                    positions, new_pos = self.pgn_display.get_position_move_from_pgn_line(self.game, item)
-                    # print("positions:{}".format(len(positions)))
-                    if new_pos >= 1 or len(positions) > 0:
-                        self.set_new_position(new_pos, positions)
 
             if button == 'Next Game' or self.gui.toolbar.get_button_id(button) == '|-->':
                 if self.check_edit_single_pgn():
