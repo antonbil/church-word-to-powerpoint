@@ -148,12 +148,14 @@ class PGNViewer:
                         self.set_new_position(new_pos, positions)
                     continue
 
+            # '|-->'-toolbar-button has special meaning in autoplay: speed up autoplaying
             if self.gui.toolbar.get_button_id(button) == '|-->' and self.auto_playing:
                 self.auto_play_seconds += -1
                 if self.auto_play_seconds < 1:
                     self.auto_play_seconds = 1
                 continue
 
+            # '<--|'-toolbar-button has special meaning in autoplay: speed down autoplaying
             if self.gui.toolbar.get_button_id(button) == '<--|' and self.auto_playing:
                 self.auto_play_seconds += 1
                 continue
