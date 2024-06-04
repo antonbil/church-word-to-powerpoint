@@ -23,6 +23,9 @@ class PGNViewer:
 
     def __init__(self, gui, window, play_move_string=""):
         # first part of move entered by user
+        self.seconds_passed = 0
+        self.current_time = datetime.datetime.now()
+        self.auto_playing = False
         self.first_move = None
         play_move_strings = play_move_string.split(GAME_DIVIDER)
         self.current_move_string = ""
@@ -120,6 +123,26 @@ class PGNViewer:
 
         while True:
             button, value = self.window.Read(timeout=50)
+            current_time = datetime.datetime.now()
+            delta = current_time - self.current_time
+            self.seconds_passed = delta.total_seconds()
+            # these checks do not influence the auto-play-value
+            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == 'Flip':
+                self.gui.flip_board(self.window)
+                continue
+
+            if button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay':
+                self.auto_playing = not self.auto_playing
+
+            if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay'
+                    or button == '__TIMEOUT__') and self.auto_playing:
+                if self.seconds_passed > 4:
+                    self.move_number = self.execute_next_move(self.move_number)
+                    self.current_time = datetime.datetime.now()
+            else:
+                self.auto_playing = False
+            # end: these checks do not influence the auto-play-value
+
             if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
                 self.is_win_closed = True
                 break
@@ -188,10 +211,6 @@ class PGNViewer:
             if button == 'Play from here':
                 self.play_from_here()
                 break
-
-            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == 'Flip':
-                self.gui.flip_board(self.window)
-                continue
 
             if button == 'Find in db':
                 self.find_in_db()
@@ -429,7 +448,8 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def display_button_bar(self):
-        buttons = [self.gui.toolbar.new_button("Flip", auto_size_button=True),
+        buttons = [self.gui.toolbar.new_button("Autoplay", auto_size_button=True),
+                    self.gui.toolbar.new_button("Flip", auto_size_button=True),
                    self.gui.toolbar.new_button("<--|", auto_size_button=True),
                    self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
