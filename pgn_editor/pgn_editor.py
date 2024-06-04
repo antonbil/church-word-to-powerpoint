@@ -20,6 +20,8 @@ class PgnEditor:
     """
 
     def __init__(self, gui, window, file_name = "", from_pgn_viewer=False, pgn_viewer_move=0, play_move_string=""):
+        # first part of move entered by user
+        self.first_coord = None
         play_move_strings = play_move_string.split(GAME_DIVIDER)
         self.current_move_string = ""
         if len(play_move_strings) > 1:
@@ -408,9 +410,10 @@ class PgnEditor:
                     #move_from = self.gui.board.get_field_id(button)
                     #fr_row, fr_col = move_from
                     coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
+                    self.first_coord = coord
 
                     # Change the color of the "from" board square
-                    self.gui.board.change_square_color(self.window, fr_row, fr_col)
+                    self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
 
                     move_state = 1
                 elif move_state == 1:
@@ -426,7 +429,7 @@ class PgnEditor:
                             self.update_pgn_display()
                             self.update_move_display_element()
                         else:
-                            sg.popup_error("No legal move", title="Error enter move",
+                            sg.popup_error("No legal move:{}".formate(self.first_coord+coord), title="Error enter move",
                                            font=self.gui.text_font)
                         self.mode = "annotate"
                         self.set_status()
@@ -730,7 +733,7 @@ class PgnEditor:
         to_sq = chess.square(to_col, 7 - to_row)
         moved_piece = self.board.piece_type_at(chess.square(fr_col, 7 - fr_row))  # Pawn=1
         # Change the color of the "fr" board square
-        self.gui.board.change_square_color(self.window, to_row, to_col)
+        self.gui.board.change_square_color_move(self.window, to_row, to_col)
         # If user move is a promote
         user_move = None
         if self.gui.relative_row(to_sq, self.board.turn) == 7 and \

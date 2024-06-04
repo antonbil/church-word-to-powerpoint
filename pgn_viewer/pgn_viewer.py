@@ -22,6 +22,8 @@ class PGNViewer:
     """pgn viewer class"""
 
     def __init__(self, gui, window, play_move_string=""):
+        # first part of move entered by user
+        self.first_move = None
         play_move_strings = play_move_string.split(GAME_DIVIDER)
         self.current_move_string = ""
         if len(play_move_strings) > 1:
@@ -380,18 +382,13 @@ class PGNViewer:
                 # If fr_sq button is pressed
                 coord, fr_col, fr_row = self.gui.board.get_chess_coordinates(button)
                 if self.mode == "entry":
-                    #self.mode = "viewer"
-                    #self.set_mode_display()
-                    print("first move", coord)
                     self.first_move = coord
-                    self.gui.board.change_square_color_border(self.window, fr_row, fr_col, "green")
-                    #self.add_move(coord)
+                    self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
                     self.mode = "entry2"
                     continue
                 if self.mode == "entry2":
                     self.mode = "viewer"
-                    print("second move",coord)
-                    self.gui.board.change_square_color_border(self.window, fr_row, fr_col, "green")
+                    self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
                     self.set_mode_display()
                     self.add_move(self.first_move + coord)
                     continue
@@ -474,39 +471,18 @@ class PGNViewer:
         :return:
         """
         chosen_move = None
-        """for list_item in list(self.board.legal_moves):
-            # print("l", list_item)
-            for list_item in list(self.board.legal_moves):
-                if str(list_item).startswith(coord):
-                    print("selected:", list_item)
-        list_items_start = [list_item for list_item in list(self.board.legal_moves) if str(list_item).startswith(coord)]
-        list_items_end = [list_item for list_item in list(self.board.legal_moves) if str(list_item).endswith(coord)]
-        # if destination-chess-field is unique, the destination-piece-move is chosen
-        if len(list_items_end) == 1:
-            chosen_move = list_items_end[0]
-        if not chosen_move:
-            # if origin-chess-field is unique, the origin-piece-move is chosen
-            if len(list_items_start) == 1:
-                chosen_move = list_items_start[0]
 
-        if not chosen_move and len(list_items_start) > 0:
-            # otherwise a selection of destinations is shown, one of which the user can choose
-            chosen_move = self.choose_one_move(list_items_start)
-        elif not chosen_move and len(list_items_end) > 0:
-            # otherwise a selection of destinations is shown, one of which the user can choose
-            chosen_move = self.choose_one_move(list_items_end)
-        for l in list(self.board.legal_moves):
-            print("l",l)
-        print("check for:", coord)"""
         if coord in [str(l) for l in list(self.board.legal_moves)]:
             chosen_move = coord
-        #chosen_move = coord
+
         if chosen_move:
             if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
                 sg.popup("Move {} is already part of variations of node {}!\nMove not inserted.."
                          .format(chosen_move, str(self.current_move.move)))
                 return
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
+        else:
+            sg.popup("Illegal move:{}".format(coord))
         self.redraw_all()
 
     def choose_one_move(self, items):
@@ -1170,7 +1146,7 @@ class PGNViewer:
                 to_row = 8 - int(move_str[3])
                 num_var = num_var + 1
 
-                self.gui.board.change_square_color(self.window, fr_row, fr_col)
+                self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
                 self.gui.board.change_square_color_border(self.window, fr_row, fr_col, color)
                 self.gui.board.change_square_color_border(self.window, to_row, to_col, color)
         if self.move_squares[1] + self.move_squares[0] + self.move_squares[2] + self.move_squares[3] > 0:
