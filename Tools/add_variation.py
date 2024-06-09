@@ -99,7 +99,16 @@ def merge_into_current_game(first_game, analysed_game):
     current_move_second = game2.game()
     while len(current_move.variations) > 0:
         if current_move_second.comment:
-            current_move.comment = current_move_second.comment + " " + current_move.comment
+            # current_move.comment = current_move_second.comment + " " + current_move.comment
+            comment_second = current_move_second.comment.replace("\n", " ").strip()
+            comment_first = current_move.comment.replace("\n", " ").strip()
+            if comment_first in comment_second:
+                current_move.comment = comment_second
+            elif comment_second in comment_first:
+                pass
+            else:
+                current_move.comment = current_move_second.comment + " " + current_move.comment
+
         variations_first = [l for l in current_move.variations]
         variations_first.pop(0)
         variations_second = [l for l in current_move_second.variations]
