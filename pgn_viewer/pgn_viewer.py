@@ -853,8 +853,19 @@ class PGNViewer:
             w.Read(timeout=10)
             self.select_game()
             try:
-                self.analyse_game_func_silent(True)
-            except:
+                self.analyse_game_func_silent(False)
+
+            #     analysed_game = self.gui.analyse_game(self.game.headers[
+            # 'White'].replace(" ", "_"), self.game.headers[
+            # 'Black'].replace(" ", "_"), self.game, save_file=False)
+            #     # if sg.popup_yes_no('Merge into current game?', title="Merge into game?") == 'Yes':
+            #     if not analysed_game is None:
+            #         new_game = merge_into_current_game(self.game, analysed_game)
+            #         self.init_game(new_game)
+            #         self.do_action_with_pgn_db("replace")
+
+            except Exception as e:
+                print(e)
                 result_list_element.Update('\nerror in analysing game!!')
             i = i + 1
         w.Close()
@@ -872,7 +883,11 @@ class PGNViewer:
                     + "-" + self.game.headers['Black'].replace(" ", "_") + ".pgn"
         analysed_game = annotator.start_analise(pgn_file,
                                                 self.gui.get_adviser_engine_path(), name_file, store_in_db, self.gui,
-                                                num_threads=gui.num_threads)
+                                                num_threads=self.gui.num_threads, save_file=False)
+        if not analysed_game is None:
+            new_game = merge_into_current_game(self.game, analysed_game)
+            self.init_game(new_game)
+            self.do_action_with_pgn_db("replace")
 
     def analyse_game_func(self):
         value_white = self.game.headers['White']

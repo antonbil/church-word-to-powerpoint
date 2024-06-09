@@ -846,7 +846,7 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui, save_fil
                                     .format(type(e)))
                     raise e
                 else:
-                    print(analyzed_game, '\n')
+                    # print(analyzed_game, '\n')
                     if not save_file:
                         return analyzed_game
                     new_filename = pgnfile[:-4] + "-annotated.pgn"
