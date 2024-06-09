@@ -835,7 +835,6 @@ def start_analise(pgnfile, engine, fine_name_file, add_to_library, gui, save_fil
     with open(pgnfile) as pgn:
             for game in iter(lambda: chess.pgn.read_game(pgn), None):
                 try:
-                    # hier
                     analyzed_game = change_nags(analyze_game(game, 1,
                                                  engine, num_threads))
                 except KeyboardInterrupt:
