@@ -246,7 +246,8 @@ class PGNViewer:
 
             if button == 'Headers':
                 header_dialog, name_file = self.gui.get_game_data(self.game.headers['White'],
-                                                                  self.game.headers['Black'], self.game)
+                                                                  self.game.headers['Black'], self.game
+                                                                  , display_library=False)
                 if header_dialog.ok:
                     info = self.gui.input_dialog.get_game_info(self.game)
                     self.window.find_element('overall_game_info').Update(info)
