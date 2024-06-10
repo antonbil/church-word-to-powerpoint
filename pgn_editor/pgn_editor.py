@@ -9,7 +9,7 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER, get_button_id
+from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER, get_button_id, get_translation
 from beautify_pgn_lines import PgnDisplay
 from Tools.add_variation import (get_and_add_variation, check_for_variation_replace, remove_variation,
                                  uci_string2_moves, merge_into_current_game)
@@ -50,7 +50,7 @@ class PgnEditor:
         self.move_number = 0
 
         self.mode = "editor-entry"
-        window.find_element('_gamestatus_2').Update('Mode     PGN-Editor Entry')
+        window.find_element('_gamestatus_2').Update('{}     {}'.format(get_translation('Mode'), get_translation('PGN-Editor Entry')))
         self.window = window
         self.start_empty_game()
         self.pgn_display = PgnDisplay(69)
@@ -291,7 +291,7 @@ class PgnEditor:
                 self.update_pgn_display()
                 self.display_move_and_line_number()
 
-            if self.gui.toolbar.get_button_id(button) == "Back" and self.mode == "editor-entry":
+            if self.gui.toolbar.get_button_id(button) == get_translation("Back") and self.mode == "editor-entry":
                 self.remove_last_move()
                 self.display_new_situation()
 
@@ -560,7 +560,7 @@ class PgnEditor:
 
     def set_entry_mode(self):
         self.mode = "editor-entry"
-        buttons = [self.gui.toolbar.new_button("Back")]
+        buttons = [self.gui.toolbar.new_button(get_translation("Back"))]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def promote_variation_to_mainline(self, current_move, index):

@@ -64,7 +64,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, ico_path)
+                    BOX_TITLE, GUI_THEME, ico_path, get_translation)
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -1883,7 +1883,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: computer (first move)
-            if button == 'New::new_game_k':
+            if 'new_game_k' in button:
                 self.is_new_game = True
                 break
 
@@ -2009,22 +2009,22 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: user
-            if button == 'Show::right_book1_k':
+            if 'right_book1_k' in button:
                 self.is_hide_book1 = False
                 break
 
             # Mode: Play, Stm: user
-            if button == 'Hide::right_book1_k':
+            if 'right_book1_k' in button:
                 self.is_hide_book1 = True
                 break
 
             # Mode: Play, Stm: user
-            if button == 'Show::right_book2_k':
+            if 'right_book2_k' in button:
                 self.is_hide_book2 = False
                 break
 
             # Mode: Play, Stm: user
-            if button == 'Hide::right_book2_k':
+            if 'right_book2_k' in button:
                 self.is_hide_book2 = True
                 break
 
@@ -2823,11 +2823,11 @@ class EasyChessGui:
             variation_buttons.append(button)
         board_controls = [
             [sg.Text('Mode     PGN-Viewer', size=(70, 1), font=self.text_font, key='_gamestatus_2')],
-            [sg.Text('White', size=(7, 1), font=self.text_font),
+            [sg.Text(get_translation('White'), size=(7, 1), font=self.text_font),
              sg.InputText('Human', font=self.text_font, key='_White_2',
                           size=(24, 1)),
              ],
-            [sg.Text('Black', size=(7, 1), font=self.text_font),
+            [sg.Text(get_translation('Black'), size=(7, 1), font=self.text_font),
              sg.InputText('Computer', font=self.text_font, key='_Black_2',
                           size=(24, 1))
              ],
@@ -2836,12 +2836,12 @@ class EasyChessGui:
             [sg.Listbox('', size=(70, 18), expand_y=True, enable_events=True,
                         font=self.text_font, key='_movelist_2', sbar_width=self.scrollbar_width,
                         sbar_arrow_width=self.scrollbar_width)],
-            [sg.Text('Move:', size=(7, 1), font=self.text_font),
+            [sg.Text('{}:'.format(get_translation("Move")), size=(7, 1), font=self.text_font),
              sg.Text('', font=self.text_font, key='_currentmove_',
                      size=(13, 1), relief='sunken'),
              sg.Frame('', [variation_buttons], key="variation_frame", visible=False)],
             [sg.Push(background_color=None), sg.Frame('', [[]], key="button_frame")],
-            [sg.Frame('', [[sg.Text('Info', size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
+            [sg.Frame('', [[sg.Text(get_translation("Info"), size=(7, 1), font=self.text_font), sg.Text('', size=(60, 1),
                                                                                        font=self.text_font,
                                                                                        key='comment_k_2')]],
                       key="info_frame", visible=False)],

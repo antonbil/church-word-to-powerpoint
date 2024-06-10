@@ -9,7 +9,7 @@ from io import StringIO
 import datetime
 from time import perf_counter as pc
 from annotator import annotator
-from common import temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER, get_button_id
+from common import temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER, get_button_id, get_translation
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
@@ -77,7 +77,7 @@ class PGNViewer:
     def set_mode_display(self):
         mode = "PGN-Viewer" if self.mode == "viewer" else "PGN-Move-entry"
         file_name = self.pgn.split("/")[-1].replace(".pgn", "")
-        self.window.find_element('_gamestatus_2').Update('Mode     {} ({})'.format(mode, file_name))
+        self.window.find_element('_gamestatus_2').Update('{}     {} ({})'.format(get_translation("Mode"), mode, file_name))
 
     def load_start_pgn(self):
         if len(self.play_move_string) > 0:

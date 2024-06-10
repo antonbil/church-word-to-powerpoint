@@ -9,12 +9,13 @@ GUI_THEME = [
     'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
 ]
 
-settings_menu = ['Color', ['Brown::board_color_k',
-                               'Blue::board_color_k',
-                               'Green::board_color_k',
-                               'Gray::board_color_k'],
+colors = ['Brown::board_color_k',
+      'Blue::board_color_k',
+      'Green::board_color_k',
+      'Gray::board_color_k']
+settings_menu = ['Color', colors,
                      'Theme', GUI_THEME,
-                 'Engine',['Adviser engine','Manage', ['Install', 'Edit', 'Delete']],
+                 'Engine', ['Adviser engine','Manage', ['Install', 'Edit', 'Delete']],
                  "Other Settings"]
 
 menu_def_entry1 = [
@@ -54,7 +55,13 @@ menu_def_pgnviewer1 = [
          ['Help', ["Gui::Gui"]]
 ]
 
-translations = {"en":{},
+translations = {"en":{
+                    'White': "White",
+                    'Black': "Black",
+          "PGN-Editor Entry":"PGN-Editor Entry",
+"Move":"Move",
+"Info":"Info",
+"Back":"Back",},
     "nl":{'Headers': 'Headers',
                    'Select': 'Selecteer',
                    'Game':'Partij',
@@ -89,7 +96,12 @@ translations = {"en":{},
                     "Settings":"Instellingen",
                     "Mode":"Modus",
                     "Tools":"Tooling",
-                    "Database":"Database"
+                    "Database":"Database",
+                    'White': "Wit",
+                    'Black': "Zwart",
+          "PGN-Editor Entry":"PGN-Editor Invoer",
+"Info":"Informatie",
+"Back":"Terug",
                    }
                 }
 language = "nl"
@@ -216,9 +228,17 @@ def display_help(sg):
         sg.PopupScrolled(HELP_MSG_PGN_VIEW, title=BOX_TITLE)
 
 def get_button_id(button):
-        if type(button) is str:
-            parts = button.split('::')
-            if len(parts) > 1:
-                return parts[1]
-            return button
+    if button in colors:
         return button
+    if type(button) is str:
+        parts = button.split('::')
+        if len(parts) > 1:
+            return parts[1]
+        return button
+    return button
+
+def get_translation(key):
+    if key in translations[language]:
+        return translations[language][key]
+    return key
+
