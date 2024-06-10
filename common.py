@@ -35,8 +35,8 @@ menu_def_annotate = [
 ]
 
 menu_def_pgnviewer = [
-        ['&Game', ['Read', "Select", 'From clipboard', 'Save', '---', "Replace in db", "Remove from db", "Add to db"
-                , "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
+        ['&Game', ['Read', "Select", 'From clipboard', 'Headers', 'Save', '---', "Replace in db", "Remove from db",
+                   "Add to db", "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
         ['Move', ['Comment', 'Alternative', '---', "Add move"]],
         ['Database', ['Find in db', 'Classify db', 'Clipboard to current db', '---'
                 , "Next Game",

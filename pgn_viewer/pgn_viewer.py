@@ -117,6 +117,21 @@ class PGNViewer:
         except:
             return ""
 
+    def get_short_description_pgn(self, game):
+        try:
+            date = game.headers['Date'].replace("?", "").replace("..", "") if 'Date' in game.headers else ""
+            #opening = game.headers['Opening'] if 'Opening' in game.headers else ""
+            #result_ = game.headers['Result'] if 'Result' in game.headers else ""
+            white_ = game.headers['White'] if 'White' in game.headers else ""
+            black_ = game.headers['Black'] if 'Black' in game.headers else ""
+            max_title = 50
+            filler_width = 0
+            if len(white_) + len(black_) + 1 <= max_title:
+                filler_width = max_title - (len(white_) + len(black_) + 1)
+            filler = " " * filler_width
+            return "{}-{}{} {}".format(white_, black_, filler, date)
+        except:
+            return ""
     def execute_pgn(self):
 
         self.display_move()
@@ -228,6 +243,14 @@ class PGNViewer:
             if button == 'Classify Opening':
                 self.classify_opening()
                 self.redraw_all()
+
+            if button == 'Headers':
+                header_dialog, name_file = self.gui.get_game_data(self.game.headers['White'],
+                                                                  self.game.headers['Black'], self.game)
+                if header_dialog.ok:
+                    info = self.gui.input_dialog.get_game_info(self.game)
+                    self.window.find_element('overall_game_info').Update(info)
+                    self.redraw_all()
 
             for i in range(1, MAX_ALTERNATIVES):
                 possible_button = "variation" + str(i)
@@ -633,14 +656,14 @@ class PGNViewer:
 
     def do_action_with_pgn_db(self, action):
         # get index of current game inside current db
-        current_description = self.get_description_pgn(self.game)
+        current_description = self.get_short_description_pgn(self.game)
         pgn = open(self.pgn)
         # Reading the games from the db
         game1 = chess.pgn.read_game(pgn)
         index = -1
         i = 0
         while game1:
-            description = self.get_description_pgn(game1)
+            description = self.get_short_description_pgn(game1)
             if description == current_description:
                 index = i
             game1 = chess.pgn.read_game(pgn)
