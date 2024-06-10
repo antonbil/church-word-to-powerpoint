@@ -263,10 +263,10 @@ class PgnEditor:
                     self.display_move_and_line_number()
                 else:
                     self.display_move()
-            if self.gui.toolbar.get_button_id(button) == 'Next' and self.mode == "annotate":
+            if self.gui.toolbar.get_button_id(button) == get_translation('_next_') and self.mode == "annotate":
                 self.execute_next_move(self.move_number)
 
-            if self.gui.toolbar.get_button_id(button) == 'Previous' and self.mode == "annotate":
+            if self.gui.toolbar.get_button_id(button) == get_translation('_previous_') and self.mode == "annotate":
                 self.execute_previous_move(self.move_number)
 
             if button == 'overall_game_info':
@@ -281,11 +281,11 @@ class PgnEditor:
                 if ok:
                     self.update_pgn_display()
 
-            if (button == 'Alternative manual' or self.gui.toolbar.get_button_id(button) == 'Add Move') \
+            if (button == 'Alternative manual' or self.gui.toolbar.get_button_id(button) == get_translation('_add_move_')) \
                     and self.mode == "annotate":
                 move_state = self.move_add_manual("manual move")
 
-            if (button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Best?') \
+            if (button == 'Alternative' or self.gui.toolbar.get_button_id(button) == get_translation('_best_')) \
                     and self.mode == "annotate":
                 self.analyse_move()
                 self.update_pgn_display()
@@ -430,7 +430,7 @@ class PgnEditor:
                             self.update_pgn_display()
                             self.update_move_display_element()
                         else:
-                            sg.popup_error("No legal move:{}".formate(self.first_coord+coord), title="Error enter move",
+                            sg.popup_error("No legal move:{}".format(self.first_coord+coord), title="Error enter move",
                                            font=self.gui.text_font)
                         self.mode = "annotate"
                         self.set_status()
@@ -509,8 +509,8 @@ class PgnEditor:
         self.gui.input_dialog.overall_game_info(self.game)
 
     def display_button_bar(self):
-        buttons = [self.gui.toolbar.new_button("Previous"), self.gui.toolbar.new_button("Next")
-            , self.gui.toolbar.new_button("Add Move"), self.gui.toolbar.new_button("Best?")]
+        buttons = [self.gui.toolbar.new_button(get_translation('_previous_')), self.gui.toolbar.new_button(get_translation('_next_'))
+            , self.gui.toolbar.new_button(get_translation('_add_move_')), self.gui.toolbar.new_button(get_translation('_best_'))]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def display_new_situation(self):
@@ -541,13 +541,13 @@ class PgnEditor:
     def set_status(self):
         window_element = self.window.find_element('_gamestatus_2')
         if self.mode == "annotate":
-            window_element.Update('Mode     PGN-Variations Edit')
+            window_element.Update("{}     {}".format(get_translation("Mode"),get_translation('PGN-Variations Edit')))
         elif self.mode == "editor-entry":
-            window_element.Update('Mode     PGN-Editor Entry')
+            window_element.Update("{}     {}".format(get_translation("Mode"),get_translation('PGN-Editor Entry')))
         elif self.mode == "manual move":
-            window_element.Update('Mode     Manual Move Entry')
+            window_element.Update("{}     {}".format(get_translation("Mode"),get_translation('Manual Move Entry')))
         elif self.mode == "manual variation":
-            window_element.Update('Mode     Manual Variation Entry')
+            window_element.Update("{}     {}".format(get_translation("Mode"),get_translation('Manual Variation Entry')))
 
     def set_position_move(self, new_number):
         self.moves = self.all_moves[0:new_number]

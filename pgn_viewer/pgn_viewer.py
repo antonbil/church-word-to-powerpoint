@@ -144,7 +144,7 @@ class PGNViewer:
             delta = current_time - self.current_time
             self.seconds_passed = delta.total_seconds()
             # these checks do not influence the auto-play-value
-            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == 'Flip':
+            if button == 'Switch Sides' or self.gui.toolbar.get_button_id(button) == get_translation("_flip_"):
                 self.gui.flip_board(self.window)
                 continue
 
@@ -176,7 +176,7 @@ class PGNViewer:
                 self.auto_play_seconds += 1
                 continue
 
-            if button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay':
+            if button == "Autoplay" or self.gui.toolbar.get_button_id(button) == get_translation("_autoplay_"):
                 self.auto_playing = not self.auto_playing
 
             if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay'
@@ -269,7 +269,7 @@ class PGNViewer:
             if button == 'Find in db':
                 self.find_in_db()
 
-            if button == 'Add move' or self.gui.toolbar.get_button_id(button) == 'Add':
+            if button == 'Add move' or self.gui.toolbar.get_button_id(button) == get_translation("_add_"):
                 self.mode = "entry"
                 self.set_mode_display()
                 #sg.popup("Enter move \nby picking a start/end field on the board",
@@ -351,7 +351,7 @@ class PGNViewer:
                     self.my_game = self.game_descriptions[index - 1]
                     self.select_game()
 
-            if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == 'Line':
+            if button == 'Alternative' or self.gui.toolbar.get_button_id(button) == get_translation("_line_"):
                 self.window.find_element('info_frame').Update(visible=True)
                 get_and_add_variation(self.current_move, self.move_number, self.board, self.callback,
                                       self.window.find_element('comment_k_2'), self.gui)
@@ -488,13 +488,13 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def display_button_bar(self):
-        buttons = [self.gui.toolbar.new_button("Autoplay", auto_size_button=True),
-                    self.gui.toolbar.new_button("Flip", auto_size_button=True),
+        buttons = [self.gui.toolbar.new_button(get_translation("_autoplay_"), auto_size_button=True),
+                    self.gui.toolbar.new_button(get_translation("_flip_"), auto_size_button=True),
                    self.gui.toolbar.new_button("<--|", auto_size_button=True),
                    self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
-                   self.gui.toolbar.new_button("Add", auto_size_button=True),
-                   self.gui.toolbar.new_button("Line", auto_size_button=True),
+                   self.gui.toolbar.new_button(get_translation("_add_"), auto_size_button=True),
+                   self.gui.toolbar.new_button(get_translation("_line_"), auto_size_button=True),
                    sg.VerticalSeparator(),
 
                    self.gui.toolbar.new_button("<--", auto_size_button=True),
