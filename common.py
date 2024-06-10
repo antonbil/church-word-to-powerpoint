@@ -36,20 +36,23 @@ menu_def_annotate = [
 
 menu_def_pgnviewer1 = [
         ['&Game', ['Read::Read', "Select::Select", 'From clipboard::From clipboard', 'Headers::Headers', 'Save::Save', '---',
-                   "Replace in db::Replace in db", "Remove from db",
-                   "Add to db", "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
-        ['Move', ['Comment::Comment', 'Alternative', '---', "Add move::Add move"]],
-        ['Database', ['Find in db', 'Classify db', 'Clipboard to current db', '---'
-                , "Next Game",
-                   "Previous Game", '---', 'New db', 'Remove db']],
-        ['Tools', ['Analyse move', 'Analyse game', 'Analyse db', '---', 'Play from here', '---', 'Select games', '---'
+                   "Replace in db::Replace in db", "Remove from db::Remove from db",
+                   "Add to db::Add to db", "Add to current db::Add to current db", '---',
+                   "Switch Sides::Switch Sides", '---', "Classify Opening::Classify Opening"]],
+        ['Move', ['Comment::Comment', 'Alternative::Alternative', '---', "Add move::Add move"]],
+        ['Database', ['Find in db::Find in db', 'Classify db::Classify db', 'Clipboard to current db::Clipboard to current db', '---'
+                , "Next Game::Next Game",
+                   "Previous Game::Previous Game", '---', 'New db::New db', 'Remove db::Remove db']],
+        ['Tools', ['Analyse move::Analyse move', 'Analyse game::Analyse game', 'Analyse db::Analyse db', '---',
+                   'Play from here::Play from here', '---', 'Select games::Select games', '---'
                 ,]],
-        ['&Mode', ["Play", 'PGN-Editor']],
+        ['&Mode', ["Play::Play", 'PGN-Editor::PGN-Editor']],
         ['Settings', settings_menu],
-         ['Help', ["Gui"]]
+         ['Help', ["Gui::Gui"]]
 ]
 
-translations_nl = {'Headers': 'Headers',
+translations = {"en":{},
+    "nl":{'Headers': 'Headers',
                    'Select': 'Selecteer',
                    'Game':'Partij',
                    'Read':'Open',
@@ -58,24 +61,49 @@ translations_nl = {'Headers': 'Headers',
                    'Move':'Zet',
                    'Add move':'Toevoegen',
                    'Comment':'Commentaar',
-                   'Save':'Bewaar',
-                   'Replace in db':'Vervang in db'
+                   'Replace in db':'Vervang in db',
+                    "Remove from db":"Verwijder uit db",
+                    "Add to db":"Toevoegen aan db",
+                    "Add to current db":"Toevoegen aan huidige db",
+                    "Switch Sides":"Verander van kleur",
+                    "Classify Opening":"Classificeer Opening",
+                    "Alternative":"Alternatief",
+                    "Find in db":"Zoek in db",
+                    "Classify db":"Classificeer db",
+                    "Clipboard to current db":"Klembord naar huidige db",
+                    "Next Game":"Volgende partij",
+                    "Previous Game":"Vorige partij",
+                    "New db":"Nieuwe db",
+                    "Remove db":"Verwijder db",
+                    "Analyse move":"Analyseer zet",
+                    "Analyse game":"Analyseer game",
+                    "Analyse db":"Analyseer db",
+                    "Play from here":"Speel vanaf hier",
+                    "Select games":"Selecteer partij",
+                    "Play":"Speel",
+                    "PGN-Editor":"PGN-Aanpassen",
+                    "Help":"Hulp",
+                    "Settings":"Instellingen",
+                    "Mode":"Modus",
+                    "Tools":"Tooling",
+                    "Database":"Database"
                    }
+                }
+language = "nl"
 
 def replace(data):
     if isinstance(data, list):
         for k, v in enumerate(data):
             if type(v) is str and '::' in v:
                 key = v.split('::')[1]
-                if key in translations_nl:
-                    data[k] = "{}::{}".format(translations_nl[key], key)
+                if key in translations[language]:
+                    data[k] = "{}::{}".format(translations[language][key], key)
             else:
                 id = v[0]
                 if type(id) is str and not '::' in id:
-                  for t in translations_nl:
+                  for t in translations[language]:
                     if t in id:
-                        print('found', t, id, data[k])
-                        data[k] = [id.replace(t,translations_nl[t]), v[1]]
+                        data[k] = [id.replace(t,translations[language][t]), v[1]]
             replace(v)
 
 def menu_def_pgnviewer():
@@ -86,8 +114,8 @@ def menu_def_pgnviewer():
 temp_file_name = 'tempsave.pgn'
 MAX_ALTERNATIVES = 7
 
-HELP_MSG_PGN_VIEW = """The GUI has 4 modes, Play and Neutral, Pgn-viewer and Pgn-editor. 
-By default you are in Neutral mode, but you can select another startup-mode 
+HELP_MSG_PGN_VIEW = """The GUI has 3 modes, Play, Pgn-viewer and Pgn-editor. 
+By default you are in Play mode, but you can select another startup-mode 
 using the startmode in the command-line-options.
 
 This part of the help-menu describes the Pgn-viewer and Pgn-editor mode.
