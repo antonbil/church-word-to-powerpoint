@@ -9,7 +9,7 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER
+from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER, get_button_id
 from beautify_pgn_lines import PgnDisplay
 from Tools.add_variation import (get_and_add_variation, check_for_variation_replace, remove_variation,
                                  uci_string2_moves, merge_into_current_game)
@@ -168,6 +168,7 @@ class PgnEditor:
 
         while True:
             button, value = self.window.Read(timeout=50)
+            button = get_button_id(button)
             if button in (sg.WIN_CLOSED, '_EXIT_', 'Close'):
                 self.is_win_closed = True
                 break
@@ -207,7 +208,7 @@ class PgnEditor:
             theme_changed, self.window = self.gui.change_theme(button, self.window)
             if theme_changed:
                 self.gui.set_window_column_and_menu('PGN-Editor', self.window, "pgneditor", 'PGN-Editor',
-                                            menu_def_entry if not self.mode == "annotate " else menu_def_annotate)
+                                            menu_def_entry() if not self.mode == "annotate " else menu_def_annotate())
                 self.update_pgn_display()
                 self.display_move_and_line_number()
                 self.display_button_bar()
@@ -251,7 +252,7 @@ class PgnEditor:
                     self.set_mode_to_annotate()
                 if button == 'PGN Move entry':
                     self.set_entry_mode()
-                    self.gui.menu_elem.Update(menu_def_entry)
+                    self.gui.menu_elem.Update(menu_def_entry())
                     self.set_status()
                 self.moves = [m for m in self.all_moves]
                 if self.pgn_viewer_move>0:
@@ -440,7 +441,7 @@ class PgnEditor:
                         if legal_move:
                             self.analise_new_move(user_move)
                             self.set_entry_mode()
-                            self.gui.menu_elem.Update(menu_def_entry)
+                            self.gui.menu_elem.Update(menu_def_entry())
                             self.set_status()
                             self.moves = [m for m in self.all_moves]
                             self.move_squares = []
@@ -467,7 +468,7 @@ class PgnEditor:
     def set_mode_to_annotate(self):
         self.mode = "annotate"
         self.display_button_bar()
-        self.gui.menu_elem.Update(menu_def_annotate)
+        self.gui.menu_elem.Update(menu_def_annotate())
         self.move_number = len(self.all_moves) - 1
         self.set_status()
 

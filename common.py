@@ -17,21 +17,24 @@ settings_menu = ['Color', ['Brown::board_color_k',
                  'Engine',['Adviser engine','Manage', ['Install', 'Edit', 'Delete']],
                  "Other Settings"]
 
-menu_def_entry = [
-        ['&Game', ['Save', 'New', '---', 'Set Headers', 'Strip', 'Analyse game', '---', "Switch Sides"]],
-        ['&Move', ["Back", '---', "Restore alternative"]],
-        ['&Mode', ["Play", "PGN-Viewer", 'Variations Edit']],
+menu_def_entry1 = [
+        ['&Game', ['Save::Save', 'New::New', '---', 'Set Headers::Set Headers', 'Strip::Strip',
+                   'Analyse game::Analyse game', '---', "Switch Sides::Switch Sides"]],
+        ['&Move', ["Back::Back", '---', "Restore alternative::Restore alternative"]],
+        ['&Mode', ["Play::Play", "PGN-Viewer::PGN-Viewer", 'Variations Edit::Variations Edit']],
         ['Settings', settings_menu],
-         ['Help', ["Gui"]],
+         ['Help', ["Gui::Gui"]],
 ]
-menu_def_annotate = [
-        ['&Game', ['Save', 'New', '---', 'Analyse game', '---', "Switch Sides"]],
-        ['&Move', ['Previous', "Next", '---', "Promote alternative", "Restore alternative", "Remove alternative"
-                   , '---', 'Remove from this move onward']],
-        ['&Annotate', ['Comment', '---', 'Alternative', "Alternative manual", '---', 'Manual variation']],
-        ['&Mode', ["Play", "PGN-Viewer", 'PGN Move entry']],
+menu_def_annotate1 = [
+        ['&Game', ['Save::Save', 'New::New', '---', 'Analyse game::Analyse game', '---', "Switch Sides::Switch Sides"]],
+        ['&Move', ['Previous::Previous', "Next::Next", '---', "Promote alternative::Promote alternative",
+                   "Restore alternative::Restore alternative", "Remove alternative::Remove alternative"
+                   , '---', 'Remove from this move onward::Remove from this move onward']],
+        ['&Annotate', ['Comment::Comment', '---', 'Alternative::Alternative',
+                       "Alternative manual::Alternative manual", '---', 'Manual variation::Manual variation']],
+        ['&Mode', ["Play::Play", "PGN-Viewer::PGN-Viewer", 'PGN Move entry::PGN Move entry']],
        ['Settings', settings_menu],
-         ['Help', ["Gui"]],
+         ['Help', ["Gui::Gui"]],
 ]
 
 menu_def_pgnviewer1 = [
@@ -105,6 +108,16 @@ def replace(data):
                     if t in id:
                         data[k] = [id.replace(t,translations[language][t]), v[1]]
             replace(v)
+
+def menu_def_entry():
+    menu_res = menu_def_entry1.copy()
+    replace(menu_res)
+    return menu_res
+
+def menu_def_annotate():
+    menu_res = menu_def_annotate1.copy()
+    replace(menu_res)
+    return menu_res
 
 def menu_def_pgnviewer():
     menu_res = menu_def_pgnviewer1.copy()
@@ -201,3 +214,11 @@ GAME_DIVIDER = "--++xxx--"
 
 def display_help(sg):
         sg.PopupScrolled(HELP_MSG_PGN_VIEW, title=BOX_TITLE)
+
+def get_button_id(button):
+        if type(button) is str:
+            parts = button.split('::')
+            if len(parts) > 1:
+                return parts[1]
+            return button
+        return button

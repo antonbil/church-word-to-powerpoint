@@ -898,7 +898,7 @@ class EasyChessGui:
             menu_def = menu_def_pgnviewer()
             pgn = True
         if self.start_mode_used == "pgneditor":
-            menu_def = menu_def_entry
+            menu_def = menu_def_entry()
             pgn = True
 
         self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''))#"_pgn_tab_", visible=pgn
@@ -2735,7 +2735,7 @@ class EasyChessGui:
             menu_def = menu_def_pgnviewer()
             pgn = True
         if self.start_mode_used == "pgneditor":
-            menu_def = menu_def_entry
+            menu_def = menu_def_entry()
             pgn = True
 
         self.menu_elem = sg.Menu(menu_def, tearoff=False, font=("Default", str(self.menu_font_size), ''), key="_main_menu_")
@@ -2997,7 +2997,8 @@ class EasyChessGui:
             if (button == 'PGN-Editor' or self.start_mode_used == "pgneditor"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Editor'):
                 # set window-layout and menu-def
-                self.window = self.set_window_column_and_menu(button, self.window, "pgneditor", 'PGN-Editor', menu_def_entry)
+                self.window = self.set_window_column_and_menu(button, self.window, "pgneditor",
+                                                              'PGN-Editor', menu_def_entry())
                 # execute pgn-editor
 
                 data_entry = PgnEditor(self, self.window, play_move_string=self.get_movestring_clear())

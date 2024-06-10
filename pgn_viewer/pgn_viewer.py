@@ -9,7 +9,7 @@ from io import StringIO
 import datetime
 from time import perf_counter as pc
 from annotator import annotator
-from common import menu_def_entry, temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER
+from common import temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER, get_button_id
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn
@@ -139,7 +139,7 @@ class PGNViewer:
 
         while True:
             button, value = self.window.Read(timeout=50)
-            button = self.get_button_id(button)
+            button = get_button_id(button)
             current_time = datetime.datetime.now()
             delta = current_time - self.current_time
             self.seconds_passed = delta.total_seconds()
@@ -486,14 +486,6 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
-
-    def get_button_id(self, button):
-        if type(button) is str:
-            parts = button.split('::')
-            if len(parts) > 1:
-                return parts[1]
-            return button
-        return button
 
     def display_button_bar(self):
         buttons = [self.gui.toolbar.new_button("Autoplay", auto_size_button=True),
