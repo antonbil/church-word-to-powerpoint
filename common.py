@@ -34,10 +34,11 @@ menu_def_annotate = [
          ['Help', ["Gui"]],
 ]
 
-menu_def_pgnviewer = [
-        ['&Game', ['Read', "Select", 'From clipboard', 'Headers', 'Save', '---', "Replace in db", "Remove from db",
+menu_def_pgnviewer1 = [
+        ['&Game', ['Read::Read', "Select::Select", 'From clipboard::From clipboard', 'Headers::Headers', 'Save::Save', '---',
+                   "Replace in db::Replace in db", "Remove from db",
                    "Add to db", "Add to current db", '---', "Switch Sides", '---', "Classify Opening"]],
-        ['Move', ['Comment', 'Alternative', '---', "Add move"]],
+        ['Move', ['Comment::Comment', 'Alternative', '---', "Add move::Add move"]],
         ['Database', ['Find in db', 'Classify db', 'Clipboard to current db', '---'
                 , "Next Game",
                    "Previous Game", '---', 'New db', 'Remove db']],
@@ -47,6 +48,40 @@ menu_def_pgnviewer = [
         ['Settings', settings_menu],
          ['Help', ["Gui"]]
 ]
+
+translations_nl = {'Headers': 'Headers',
+                   'Select': 'Selecteer',
+                   'Game':'Partij',
+                   'Read':'Open',
+                   'From clipboard': 'Uit klembord',
+                   'Save': 'Bewaar',
+                   'Move':'Zet',
+                   'Add move':'Toevoegen',
+                   'Comment':'Commentaar',
+                   'Save':'Bewaar',
+                   'Replace in db':'Vervang in db'
+                   }
+
+def replace(data):
+    if isinstance(data, list):
+        for k, v in enumerate(data):
+            if type(v) is str and '::' in v:
+                key = v.split('::')[1]
+                if key in translations_nl:
+                    data[k] = "{}::{}".format(translations_nl[key], key)
+            else:
+                id = v[0]
+                if type(id) is str and not '::' in id:
+                  for t in translations_nl:
+                    if t in id:
+                        print('found', t, id, data[k])
+                        data[k] = [id.replace(t,translations_nl[t]), v[1]]
+            replace(v)
+
+def menu_def_pgnviewer():
+    menu_res = menu_def_pgnviewer1.copy()
+    replace(menu_res)
+    return menu_res
 
 temp_file_name = 'tempsave.pgn'
 MAX_ALTERNATIVES = 7

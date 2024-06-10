@@ -895,7 +895,7 @@ class EasyChessGui:
         menu_def = menu_def_neutral
         pgn = False
         if self.start_mode_used == "pgnviewer":
-            menu_def = menu_def_pgnviewer
+            menu_def = menu_def_pgnviewer()
             pgn = True
         if self.start_mode_used == "pgneditor":
             menu_def = menu_def_entry
@@ -2732,7 +2732,7 @@ class EasyChessGui:
         menu_def = menu_def_neutral
         pgn = False
         if self.start_mode_used == "pgnviewer":
-            menu_def = menu_def_pgnviewer
+            menu_def = menu_def_pgnviewer()
             pgn = True
         if self.start_mode_used == "pgneditor":
             menu_def = menu_def_entry
@@ -2984,7 +2984,7 @@ class EasyChessGui:
             if (button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer"
                     or self.play_toolbar.get_button_id(button) == 'PGN-Viewer'):
                 # set window-layout and menu-def
-                self.window = self.set_window_column_and_menu(button, self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
+                self.window = self.set_window_column_and_menu(button, self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer())
                 # execute pgn-viewer
                 pgn_viewer = PGNViewer(self, self.window, play_move_string=self.get_movestring_clear())
 

@@ -139,6 +139,7 @@ class PGNViewer:
 
         while True:
             button, value = self.window.Read(timeout=50)
+            button = self.get_button_id(button)
             current_time = datetime.datetime.now()
             delta = current_time - self.current_time
             self.seconds_passed = delta.total_seconds()
@@ -212,7 +213,7 @@ class PGNViewer:
 
             theme_changed, self.window = self.gui.change_theme(button, self.window)
             if theme_changed:
-                self.gui.set_window_column_and_menu('PGN-Viewer', self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer)
+                self.gui.set_window_column_and_menu('PGN-Viewer', self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer())
                 self.redraw_all()
                 self.display_button_bar()
                 continue
@@ -360,6 +361,7 @@ class PGNViewer:
             if button == 'Comment':
                 # <Cmd+Return> = return in comment
                 current_move = self.current_move
+                print(current_move)
                 ok = self.gui.input_dialog.get_comment(current_move, self.gui)
                 if ok:
                     self.redraw_all()
@@ -484,6 +486,14 @@ class PGNViewer:
                             self.move_number = self.execute_previous_move(self.move_number)
                         else:
                             self.move_number = self.execute_next_move(self.move_number)
+
+    def get_button_id(self, button):
+        if type(button) is str:
+            parts = button.split('::')
+            if len(parts) > 1:
+                return parts[1]
+            return button
+        return button
 
     def display_button_bar(self):
         buttons = [self.gui.toolbar.new_button("Autoplay", auto_size_button=True),
