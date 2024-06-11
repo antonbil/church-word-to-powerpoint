@@ -233,6 +233,25 @@ translations = {"en": {
            }
 }
 
+keys_in_play_mode = {"&Game":"&Game",
+"new_game_k":"new_game_k",
+"save_game_k":"save_game_k",
+"Save to White Repertoire":"Save to White Repertoire",
+"Save to Black Repertoire":"Save to Black Repertoire",
+"resign_game_k":"resign_game_k",
+"user_wins_k":"user_wins_k",
+"user_draws_k":"user_draws_k",
+"FEN":"FEN",
+"Paste":"Paste",
+"&Engine":"&Engine",
+"Go":"Go",
+"Move Now":"Move Now",
+"Set Depth":"Set Depth",
+"&Mode":"&Mode",
+"&Help":"&Help",
+"GUI":"GUI",
+}
+
 def replace(data):
     if isinstance(data, list):
         for k, v in enumerate(data):
@@ -240,7 +259,12 @@ def replace(data):
                 key = v.split('::')[1]
                 if key in translations[language]:
                     data[k] = "{}::{}".format(translations[language][key], key)
+                else:
+                    print('"{}":"{}",'.format(key, key))
             else:
+                if type(v) is str:
+                    if v not in translations[language]:
+                        print('"{}":"{}",'.format(v, v))
                 id = v[0]
                 if type(id) is str and '::' not in id:
                     for t in translations[language]:

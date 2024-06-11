@@ -64,7 +64,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, ico_path)
+                    BOX_TITLE, GUI_THEME, ico_path, menu_def_play)
 from Tools.translations import  get_translation, set_language
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
@@ -193,21 +193,6 @@ menu_def_neutral = [
 ]
 
 # (2) Mode: Play, info: hide
-menu_def_play = [
-    ['&Game', ['&New::new_game_k',
-               'Save to My Games::save_game_k',
-               'Save to White Repertoire',
-               'Save to Black Repertoire',
-               'Resign::resign_game_k',
-               'User Wins::user_wins_k',
-               'User Draws::user_draws_k',
-               'Analyse game']],
-    ['FEN', ['Paste']],
-    ['&Engine', ['Go', 'Move Now', 'Set Depth']],
-    ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
-    ['Settings', 'Play Settings'],
-    ['&Help', ['GUI']],
-]
 
 
 class Timer:
@@ -3420,7 +3405,7 @@ class EasyChessGui:
 
     def play_human_computer(self, window):
         # Change menu from Neutral to Play
-        self.menu_elem.Update(menu_def_play)
+        self.menu_elem.Update(menu_def_play())
         self.start_mode_used = self.start_mode_used.replace("play", "")
         self.board.create_initial_board()
         board = chess.Board()

@@ -27,6 +27,22 @@ menu_def_entry1 = [
     ['Settings', settings_menu],
     ['Help', ["Gui::Gui"]],
 ]
+
+menu_def_play1 = [
+    ['&Game', ['&New::new_game_k',
+               'Save to My Games::save_game_k',
+               'Save to White Repertoire',
+               'Save to Black Repertoire',
+               'Resign::resign_game_k',
+               'User Wins::user_wins_k',
+               'User Draws::user_draws_k',
+               'Analyse game']],
+    ['FEN', ['Paste']],
+    ['&Engine', ['Go', 'Move Now', 'Set Depth']],
+    ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
+    ['Settings', 'Play Settings'],
+    ['&Help', ['GUI']],
+]
 menu_def_annotate1 = [
     ['&Game', ['Save::Save', 'New::New', '---', 'Analyse game::Analyse game', '---', "Switch Sides::Switch Sides"]],
     ['&Move', ['Previous::Previous', "Next::Next", '---', "Promote alternative::Promote alternative",
@@ -76,6 +92,11 @@ def menu_def_annotate():
 
 def menu_def_pgnviewer():
     menu_res = menu_def_pgnviewer1.copy()
+    replace(menu_res)
+    return menu_res
+
+def menu_def_play():
+    menu_res = menu_def_play1.copy()
     replace(menu_res)
     return menu_res
 
