@@ -64,7 +64,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, ico_path, get_translation)
+                    BOX_TITLE, GUI_THEME, ico_path, get_translation, set_language)
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -834,6 +834,8 @@ class EasyChessGui:
         keyboard_visible_at_start = my_preferences[
             "keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
         self.input_dialog = InputDialog(self, self.default_png_dir, keyboard_visible_at_start)
+        self.language = my_preferences["language"] if "language" in my_preferences else "en"
+        set_language(self.language)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):
         """Saves moves in the game.
@@ -3444,6 +3446,7 @@ class EasyChessGui:
     def get_settings_pgn(self, window):
         font_sizes = ['10', '12', '20', '32']
         skill_levels = ['1','2','3','4','5','6']
+        languages = ['en', 'nl']
         font_ui_sizes = ['10', '12', '20', '32']
         field_sizes = ['60', '70', '80', '90', '100', '105']
         win_title = 'Settings/Game'
@@ -3484,6 +3487,9 @@ class EasyChessGui:
                      key='use_skill',
                      default=self.use_skill,
                      tooltip='Use the skill level while playing against the compute')],
+            [[sg.Text("Language:", size=(16, 1), font=self.text_font),
+              sg.Combo(languages, font=self.text_font, expand_x=True, enable_events=True,
+                       readonly=False, default_value=self.language, key='language')]],
             [[sg.Text("Skill opponent:", size=(16, 1), font=self.text_font),
               sg.Combo(skill_levels, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=skill_levels[self.skill_level - 1], key='skill_level')]],
@@ -3505,6 +3511,8 @@ class EasyChessGui:
                 self.start_mode = v['start_mode']
                 self.skill_level = int(v['skill_level'])
                 self.use_skill = v['use_skill']
+                self.language = v['language']
+                set_language( v['language'])
                 self.sites_list = [s.strip() for s in v['sites_list_k'].split(",")]
                 self.events_list = [s.strip() for s in v['events_list_k'].split(",")]
                 self.players = [s.strip() for s in v['players_k'].split(",")]
@@ -3516,6 +3524,7 @@ class EasyChessGui:
                 self.preferences.preferences["is_save_time_left"] = self.is_save_time_left
                 self.preferences.preferences["skill_level"] = self.skill_level
                 self.preferences.preferences["use_skill"] = self.use_skill
+                self.preferences.preferences["language"] = self.language
                 self.preferences.preferences["start_mode"] = self.start_mode
                 self.preferences.preferences["field_size"] = self.FIELD_SIZE
                 self.preferences.save_preferences()

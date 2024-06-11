@@ -37,7 +37,8 @@ class Preferences:
     "adviser_engine": "",
     "opponent_engine": "",
     "skill_level": 6,
-    "use_skill": True
+    "use_skill": True,
+                    "language":"en"
 }
             return preferences
 

@@ -15,8 +15,8 @@ colors = ['Brown::board_color_k',
       'Gray::board_color_k']
 settings_menu = ['Color', colors,
                      'Theme', GUI_THEME,
-                 'Engine', ['Adviser engine','Manage', ['Install', 'Edit', 'Delete']],
-                 "Other Settings"]
+                 'Engine', ['Adviser engine','Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
+                 "Other Settings::Other Settings"]
 
 menu_def_entry1 = [
         ['&Game', ['Save::Save', 'New::New', '---', 'Set Headers::Set Headers', 'Strip::Strip',
@@ -82,6 +82,16 @@ translations = {"en":{
                    'From clipboard': 'Uit klembord',
                    'Save': 'Bewaar',
                    'Move':'Zet',
+                   'Color':'Kleur',
+                   'Theme':'Thema',
+                   'Engine':'schaak-AI ',
+                   'Other Settings':'Andere Instellingen',
+                   'Adviser engine':'AI Adviseur',
+                   'Manage':'Beheer',
+                   'Install':'Installeren',
+                   'Edit':'Aanpassen',
+                   'Delete':'Verwijder',
+
                    'Add move':'Toevoegen',
                    'Comment':'Commentaar',
                    'Replace in db':'Vervang in db',
@@ -130,6 +140,10 @@ translations = {"en":{
                 }
 language = "nl"
 
+def set_language(new_language):
+    global language
+    language = new_language
+
 def replace(data):
     if isinstance(data, list):
         for k, v in enumerate(data):
@@ -139,10 +153,15 @@ def replace(data):
                     data[k] = "{}::{}".format(translations[language][key], key)
             else:
                 id = v[0]
-                if type(id) is str and not '::' in id:
-                  for t in translations[language]:
-                    if t in id:
-                        data[k] = [id.replace(t,translations[language][t]), v[1]]
+                if type(id) is str and '::' not in id:
+                    for t in translations[language]:
+                        if t in id:
+                            data[k] = [id.replace(t, translations[language][t])]
+                            for v1 in v[1:]:
+                                if type(v1) is str and '::' not in v1:
+                                    if v1 in translations[language]:
+                                        v1 = translations[language][v1]
+                                data[k].append(v1)
             replace(v)
 
 def menu_def_entry():
