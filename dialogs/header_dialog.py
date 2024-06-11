@@ -8,6 +8,7 @@ It also contains two utility functions to load and save the preferences to a jso
 import PySimpleGUI as sg
 import json
 from datetime import date
+from common import get_translation
 
 PREF = {}
 """
@@ -43,48 +44,48 @@ class HeaderDialog:
         rounds = [str(l) for l in range(1,50)]
         #sg.theme('default')
         self.layout = [
-            [[sg.Text("Event:", font=self.gui.text_font),
+            [[sg.Text(get_translation("Event")+":", font=self.gui.text_font),
               sg.Combo(events_list, expand_x=True, enable_events=True,
                        readonly=False, font=self.gui.text_font, key='event', default_value=self.default_value("Event"))]],
-            [[sg.Text("Site:", font=self.gui.text_font),
+            [[sg.Text(get_translation("Site")+":", font=self.gui.text_font),
               sg.Combo(sites_list, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='site', default_value=self.default_value("Site"))]],
-            [[sg.Text("Date:", font=self.gui.text_font),
+            [[sg.Text(get_translation("Date")+":", font=self.gui.text_font),
               sg.Input(key='date',
-                       size=(20, 1), font=self.gui.text_font), sg.CalendarButton('Calendar', target='date',
+                       size=(20, 1), font=self.gui.text_font), sg.CalendarButton(get_translation('Calendar'), target='date',
                                                                     format='%Y/%m/%d', font=self.gui.text_font,
                                                                     locale='nl_NL',
                                                                     begin_at_sunday_plus=1)]],
-            [[sg.Text("Round:", font=self.gui.text_font),
+            [[sg.Text(get_translation("Round")+":", font=self.gui.text_font),
               sg.Combo(rounds, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='round', default_value=self.default_value("Round"))]],
-            [[sg.Text("White:", font=self.gui.text_font),
+            [[sg.Text(get_translation("White")+":", font=self.gui.text_font),
                     sg.Combo(players, font=self.gui.text_font, expand_x=True, enable_events=True,
                                 readonly=False, key='white', default_value=self.default_value("White"))]],
-            [[sg.Text("Black:", font=self.gui.text_font),
+            [[sg.Text(get_translation("Black")+":", font=self.gui.text_font),
              sg.Combo(players, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='black', default_value=self.default_value("Black"))]],
-            [[sg.Text("Result:", font=self.gui.text_font),
+            [[sg.Text(get_translation("Result")+":", font=self.gui.text_font),
               sg.Combo(results, font=self.gui.text_font, expand_x=True, enable_events=True,
                        readonly=False, key='result', default_value=self.default_value("Result"))]],
             [
-              sg.CBox('Add to library', key='add_to_library',
+              sg.CBox(get_translation('Add to library'), key='add_to_library',
                       default=False, font=self.gui.text_font)] if display_library else [],
-                    [sg.Button("Save", font=self.gui.text_font),
-                     sg.Button("Close", font=self.gui.text_font),sg.Push(),
+                    [sg.Button(get_translation("Save"), key='save', font=self.gui.text_font),
+                     sg.Button(get_translation("Close"), key='close', font=self.gui.text_font),sg.Push(),
                      self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
                         self.gui.input_dialog.get_keyboard_keys(sg, self.gui)
                     ]
 
-        window = sg.Window("Game data", self.layout, font=self.gui.text_font,  # size=(600, 450),
+        window = sg.Window(get_translation("Game data"), self.layout, font=self.gui.text_font,  # size=(600, 450),
                         finalize=True, modal=True, keep_on_top=True)
 
         sg.fill_form_with_values(window=window, values_dict=PREF)
         while True:
             event, values = window.read()
-            if event in ("Close", sg.WIN_CLOSED):
+            if event in ("close", sg.WIN_CLOSED):
                 break
-            elif event == "Save":
+            elif event == "save":
                 # load the PREF dictionary with the fields values.
                 self.white = values['white']
                 self.black = values['black']

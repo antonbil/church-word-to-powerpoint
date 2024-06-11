@@ -108,7 +108,11 @@ translations = {"en":{
 "_get-move_":"Get move",
 "_variation-exists_":"Variation exists",
 "_replace-variation_":"Replace this variation?",
-"_variation-exists-message_":"A variation starting with {} already exists"
+"_variation-exists-message_":"A variation starting with {} already exists",
+"_wait-moment_":'Wait a minute...',
+"_pgn-annotated_":"PGN is annotated",
+"_and-saved_":"and saved",
+"_analyse-pgn_":"Analyse PGN"
 },
     "nl":{'Headers': 'Headers',
                    'Select': 'Selecteer',
@@ -253,7 +257,18 @@ translations = {"en":{
 "_get-move_":"In te voeren zet",
 "_variation-exists_":"Variant bestaat al",
 "_replace-variation_":"Vervang deze variant?",
-"_variation-exists-message_":"Een variant die begint met {} bestaat al"
+"_variation-exists-message_":"Een variant die begint met {} bestaat al",
+"Close":"Sluit",
+'Add to library':'Toevoegen aan bibliotheek',
+"Result":"Resultaat",
+"Round":"Ronde",
+'Calendar':'Kalender',
+"Site":"Site",
+"Game data":"Partij-gegevens",
+"_wait-moment_":'Wacht een minuutje...',
+"_pgn-annotated_":"PGN is geannoteerd",
+"_and-saved_":"en bewaard",
+"_analyse-pgn_":"Analyseer PGN"
                    }
                 }
 language = "nl"

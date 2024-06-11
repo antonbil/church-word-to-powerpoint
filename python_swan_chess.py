@@ -2599,11 +2599,11 @@ class EasyChessGui:
         header_dialog, name_file = self.get_game_data(value_white, value_black, pgn_game)
         if header_dialog.ok:
             layout = [
-                [sg.Text(text="Analyse game", size=(20, 1),
+                [sg.Text(text=get_translation("Analyse game"), size=(20, 1),
                          justification='center', font=self.text_font, key='INDICATOR')],
             ]
 
-            window = sg.Window('Wait a minute...', layout, finalize=True)
+            window = sg.Window(get_translation("_wait-moment_"), layout, finalize=True)
             window.Read(timeout=50)
             pgn_file = temp_file_name
             with open(pgn_file, mode='w') as f:
@@ -2615,10 +2615,10 @@ class EasyChessGui:
                                                     save_file=save_file,
                                                     num_threads=self.num_threads)
             window.close()
-            message = "PGN is annotated"
+            message = get_translation("_pgn-annotated_")
             if save_file:
-                message = message + " and saved"
-            sg.popup_ok(message, title="Analyse PGN")
+                message = message + " "+get_translation("_and-saved_")
+            sg.popup_ok(message, title=get_translation("_analyse-pgn_"))
             return analysed_game
         return None
 
