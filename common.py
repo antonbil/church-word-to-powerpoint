@@ -10,10 +10,10 @@ GUI_THEME = [
     'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
 ]
 
-colors = ['Brown::board_color_k',
-          'Blue::board_color_k',
-          'Green::board_color_k',
-          'Gray::board_color_k']
+colors = ['Brown::board_color_k_brown',
+          'Blue::board_color_k_blue',
+          'Green::board_color_k_green',
+          'Gray::board_color_k_gray']
 settings_menu = ['Color', colors,
                  'Theme', GUI_THEME,
                  'Engine', ['Adviser engine', 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
@@ -40,7 +40,9 @@ menu_def_play1 = [
     ['FEN', ['Paste::_paste-fen_']],
     ['&Engine', ['Go::Go', 'Move Now::Move Now', 'Set Depth::Set Depth']],
     ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
-    ['Settings', 'Play Settings'],
+    ['Settings', ['Play Settings',
+                  #'Color', colors
+                  ]],
     ['&Help', ['GUI']],
 ]
 menu_def_annotate1 = [
@@ -195,7 +197,7 @@ def display_help(sg):
 
 
 def get_button_id(button):
-    if button in colors:
+    if type(button) is str and button.endswith("board_color_k"):
         return button
     if type(button) is str:
         parts = button.split('::')

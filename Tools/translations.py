@@ -243,6 +243,10 @@ translations = {"en": {
 "Set Depth":"Zet diepte",
 "GUI":"GUI",
 "FEN":"FEN",
+           "board_color_k_brown": "Bruin",
+"board_color_k_blue": "Blauw",
+"board_color_k_green": "Groen",
+"board_color_k_gray": "Grijs"
 
 
            }

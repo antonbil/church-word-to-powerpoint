@@ -2067,6 +2067,10 @@ class EasyChessGui:
             if self.check_button_bar_press(button, window):
                 break
 
+            # experimental code; only works if color-option in menu_def_play1-menu is switched on
+            if self.check_color_button(button, self.window):
+                continue
+
             # Mode: Play, stm: User
             if 'resign_game_k' in button or self.is_search_stop_for_resign:
                 logging.info('User resigns')
@@ -4070,6 +4074,14 @@ class EasyChessGui:
         return False, window
 
     def check_color_button(self, button, window):
+        if button == "board_color_k_brown":
+            button = 'Brown::board_color_k'
+        elif button == "board_color_k_blue":
+            button = 'Blue::board_color_k'
+        elif button == "board_color_k_green":
+            button = 'Green::board_color_k'
+        elif button == "board_color_k_gray":
+            button = 'Gray::board_color_k'
         for color in ['Brown', "Gray", "Green", "Blue"]:
             if button == color + '::board_color_k':
                 self.set_color_board(button, True)
