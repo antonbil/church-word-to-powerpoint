@@ -105,7 +105,10 @@ translations = {"en":{
 "_no-analysis-last-move_":"No analysis for last move",
 "_error-analysis_":"Error analysis",
 "_select-new-mainline_":"select new main line",
-"_get-move_":"Get move"
+"_get-move_":"Get move",
+"_variation-exists_":"Variation exists",
+"_replace-variation_":"Replace this variation?",
+"_variation-exists-message_":"A variation starting with {} already exists"
 },
     "nl":{'Headers': 'Headers',
                    'Select': 'Selecteer',
@@ -247,7 +250,10 @@ translations = {"en":{
 "_no-analysis-last-move_":"Geen analyse voor laatste zet",
 "_error-analysis_":"Fout bij analyse",
 "_select-new-mainline_":"Selecteer nieuwe hoofd-variant",
-"_get-move_":"In te voeren zet"
+"_get-move_":"In te voeren zet",
+"_variation-exists_":"Variant bestaat al",
+"_replace-variation_":"Vervang deze variant?",
+"_variation-exists-message_":"Een variant die begint met {} bestaat al"
                    }
                 }
 language = "nl"
