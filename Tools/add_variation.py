@@ -1,6 +1,7 @@
 import chess
 import PySimpleGUI as sg
 from io import StringIO
+from common import get_translation
 
 
 # tool-library for pgn_editor and pgn_viewer
@@ -80,8 +81,8 @@ def check_for_variation_replace(current_move, first_move):
         variation_nr = variation_nr + 1
     if move_present:
         if sg.popup_yes_no(
-                "Variation exists", "A variation starting with {} already exists\n".format(first_move) +
-                                    "Replace this variation?") == "Yes":
+                get_translation("_variation-exists_"), get_translation("_variation-exists-message_").format(first_move)+"\n" +
+                                    get_translation("_replace-variation_")) == "Yes":
             remove_variation(current_move, variation_nr)
 
 
