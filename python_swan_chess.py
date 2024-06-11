@@ -870,10 +870,10 @@ class EasyChessGui:
                 self.node.comment = '[%clk {}]'.format(rem_time)
 
     def display_button_bar(self):
-        buttons = [self.play_toolbar.new_button("Engine", auto_size_button=True),
-                   self.play_toolbar.new_button("Skill", auto_size_button=True),
+        buttons = [self.play_toolbar.new_button(get_translation("Engine"), auto_size_button=True),
+                   self.play_toolbar.new_button(get_translation("Skill"), auto_size_button=True),
                    sg.VerticalSeparator(),
-                   self.play_toolbar.new_button("New", auto_size_button=True),
+                   self.play_toolbar.new_button(get_translation("New"), auto_size_button=True),
                    ]
         self.play_toolbar.buttonbar_add_buttons(self.window, buttons)
 
@@ -2194,13 +2194,13 @@ class EasyChessGui:
 
     def check_button_bar_press(self, button, window):
         is_break = False
-        if self.play_toolbar.get_button_id(button) == 'Engine':
+        if self.play_toolbar.get_button_id(button) == get_translation('Engine'):
             self.opponent_engine, is_engine_set = self.define_engine(self.opponent_engine, window)
             if is_engine_set:
                 pass
-        if self.play_toolbar.get_button_id(button) == 'Skill':
+        if self.play_toolbar.get_button_id(button) == get_translation('Skill'):
             self.get_settings_pgn(window)
-        if self.play_toolbar.get_button_id(button) == 'New':
+        if self.play_toolbar.get_button_id(button) == get_translation('New'):
             self.is_new_game = True
             is_break = True
         return is_break
@@ -2758,7 +2758,7 @@ class EasyChessGui:
              sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.Button(get_translation('Adviser'), size=(7, 1),
+            [sg.Button(get_translation('Adviser'), size=(9, 1),
                        font=self.text_font, key='adviser_k', ),
              sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
@@ -2777,7 +2777,7 @@ class EasyChessGui:
                           font=self.text_font, key='_movelist_', disabled=True, sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
 
-            [sg.Text(get_translation('Comment'), size=(7, 1), font=self.text_font)],
+            [sg.Text(get_translation('Comment'), size=(12, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
                           font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
@@ -2796,7 +2796,7 @@ class EasyChessGui:
                           sbar_arrow_width=self.scrollbar_width)],
 
             [sg.Button(get_translation('Opponent Search Info'),
-                       size=(21, 1),
+                       size=(25, 1),
                        font=self.text_font, key='search_info_k', )],
 
             [sg.Text('', key='search_info_all_k', size=(55, 1),

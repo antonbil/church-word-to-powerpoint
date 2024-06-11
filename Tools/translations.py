@@ -229,7 +229,8 @@ translations = {"en": {
 "Use skill-level for opponent":"Gebruik speel-level voor tegenstander",
 "Language":"Taal",
 "Skill opponent":"Niveau tegenstander",
-           "OK":"OK"
+           "OK":"OK",
+           "Skill":"Niveau",
            }
 }
 
