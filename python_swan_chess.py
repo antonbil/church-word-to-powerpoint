@@ -64,7 +64,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, ico_path, menu_def_play)
+                    BOX_TITLE, GUI_THEME, ico_path, menu_def_play, get_button_id)
 from Tools.translations import  get_translation, set_language
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
@@ -1865,6 +1865,8 @@ class EasyChessGui:
             'Mode     Play, press Engine->Go')
         while True:
             button, value = window.Read(timeout=100)
+            #hier
+            button = get_button_id(button)
 
             if self.start_mode_used in ["pgneditor", "pgnviewer"]:
                 print("start-mode set to data-entry..")
@@ -1894,9 +1896,9 @@ class EasyChessGui:
                 sg.PopupScrolled(HELP_MSG, title=BOX_TITLE)
                 continue
 
-            if button == 'Paste' or self.fen_from_here:
+            if button == '_paste-fen_' or self.fen_from_here:
                 try:
-                    if button == 'Paste':
+                    if button == '_paste-fen_':
                         self.get_fen()
                     else:
                         self.fen = self.fen_from_here
@@ -1958,6 +1960,8 @@ class EasyChessGui:
         self.move_state = 0
         while True:
             button, value = window.Read(timeout=100)
+            #hier
+            button = get_button_id(button)
             if button == sg.WIN_CLOSED:
                 logging.warning('User closes the window while the engine is thinking.')
                 try:
@@ -2027,7 +2031,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: User
-            if button == 'New::new_game_k' or self.is_search_stop_for_new_game:
+            if 'new_game_k' in button or self.is_search_stop_for_new_game:
                 self.is_new_game = True
                 self.clear_elements(window)
                 break
@@ -2039,7 +2043,7 @@ class EasyChessGui:
                 self.analyse_game(value_white, value_black, self.game)
                 break
 
-            if button == 'Save to My Games::save_game_k':
+            if 'save_game_k' in button:
                 logging.info('Saving game manually')
                 with open(self.my_games, mode='a+') as f:
                     self.game.headers['Event'] = 'My Games'
@@ -2064,7 +2068,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, stm: User
-            if button == 'Resign::resign_game_k' or self.is_search_stop_for_resign:
+            if 'resign_game_k' in button or self.is_search_stop_for_resign:
                 logging.info('User resigns')
 
                 # Verify resign
@@ -2082,14 +2086,14 @@ class EasyChessGui:
                     continue
 
             # Mode: Play, stm: User
-            if button == 'User Wins::user_wins_k' or self.is_search_stop_for_user_wins:
+            if 'user_wins_k' in button or self.is_search_stop_for_user_wins:
                 logging.info('User wins by adjudication')
                 self.is_user_wins = True
                 self.is_new_game = True
                 break
 
             # Mode: Play, stm: User
-            if button == 'User Draws::user_draws_k' or self.is_search_stop_for_user_draws:
+            if 'user_draws_k' in button or self.is_search_stop_for_user_draws:
                 logging.info('User draws by adjudication')
                 self.is_user_draws = True
                 self.is_new_game = True
@@ -2120,14 +2124,14 @@ class EasyChessGui:
                 break
 
             # Mode: Play, stm: User
-            if button == 'Paste' or self.fen_from_here:
+            if button == '_paste-fen_' or self.fen_from_here:
                 # Pasting fen is only allowed before the game starts.
                 if len(self.game.variations):
                     sg.Popup('Press Game->New then paste your fen.',
                              title='Mode Play')
                     continue
                 try:
-                    if button == 'Paste':
+                    if button == '_paste-fen_':
                         self.get_fen()
                     else:
                         # here it is read
@@ -2238,6 +2242,8 @@ class EasyChessGui:
 
             while True:
                 button, value = window.Read(timeout=100)
+                #hier
+                button = get_button_id(button)
 
                 if button == sg.WIN_CLOSED:
                     logging.warning('User closes the window while the engine is thinking.')
@@ -2296,7 +2302,7 @@ class EasyChessGui:
                     self.is_search_stop_for_exit = True
 
                 # Forced engine to move now and create a new game
-                if button == 'New::new_game_k':
+                if 'new_game_k' in button:
                     search.stop()
                     self.is_search_stop_for_new_game = True
 
@@ -2318,15 +2324,15 @@ class EasyChessGui:
                     search.stop()
                     break
 
-                if button == 'Resign::resign_game_k':
+                if 'resign_game_k' in button:
                     search.stop()
                     self.is_search_stop_for_resign = True
 
-                if button == 'User Wins::user_wins_k':
+                if 'user_wins_k' in button:
                     search.stop()
                     self.is_search_stop_for_user_wins = True
 
-                if button == 'User Draws::user_draws_k':
+                if 'user_draws_k' in button:
                     search.stop()
                     self.is_search_stop_for_user_draws = True
 

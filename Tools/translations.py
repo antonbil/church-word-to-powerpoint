@@ -231,6 +231,20 @@ translations = {"en": {
 "Skill opponent":"Niveau tegenstander",
            "OK":"OK",
            "Skill":"Niveau",
+"new_game_k":"Nieuw",
+"save_game_k":"Bewaar",
+"resign_game_k":"Geef op",
+"user_wins_k":"Gebruiker wint",
+"user_draws_k":"Gebruiker remise",
+                     "Analyse game":"Analyseer partij",
+'_paste-fen_':'Klembord',
+"Go":"Start",
+"Move Now":"Zet nu",
+"Set Depth":"Zet diepte",
+"GUI":"GUI",
+"FEN":"FEN",
+
+
            }
 }
 
@@ -251,6 +265,7 @@ keys_in_play_mode = {"&Game":"&Game",
 "&Mode":"&Mode",
 "&Help":"&Help",
 "GUI":"GUI",
+
 }
 
 def replace(data):
@@ -263,19 +278,23 @@ def replace(data):
                 else:
                     print('"{}":"{}",'.format(key, key))
             else:
-                if type(v) is str:
-                    if v not in translations[language]:
-                        print('"{}":"{}",'.format(v, v))
                 id = v[0]
                 if type(id) is str and '::' not in id:
+                    chosen = False
                     for t in translations[language]:
                         if t in id:
+                            chosen = True
                             data[k] = [id.replace(t, translations[language][t])]
                             for v1 in v[1:]:
                                 if type(v1) is str and '::' not in v1:
                                     if v1 in translations[language]:
                                         v1 = translations[language][v1]
+                                    else:
+                                        print('"{}":"{}",'.format(v1, v1))
                                 data[k].append(v1)
+                    if not chosen and len(id) > 1:
+                        print('"{}":"{}",'.format(id, id))
+
             replace(v)
 
 language = "nl"
