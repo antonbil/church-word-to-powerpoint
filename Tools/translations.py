@@ -213,7 +213,23 @@ translations = {"en": {
            "_wait-moment_": 'Wacht een minuutje...',
            "_pgn-annotated_": "PGN is geannoteerd",
            "_and-saved_": "en bewaard",
-           "_analyse-pgn_": "Analyseer PGN"
+           "_analyse-pgn_": "Analyseer PGN",
+"Play Settings":"Speel instellingen",
+"Adviser":"Adviseur",
+"Move list":"Zetten-lijst",
+"Opponent Search Info":"Tegenstander Zoek Info",
+"Save time left in game notation":"Bewaar resterende tijd in pgn-notatie",
+"Start mode":"Start modus",
+"Menu-font-size":"Menu-font-grootte",
+"Font-size UI":"Font-grootte UI",
+"Chess-field-size":"Schaak-veld-grootte",
+"Sites":"Plaatsen",
+"Events":"Wedstrijden",
+"Players":"Spelers",
+"Use skill-level for opponent":"Gebruik speel-level voor tegenstander",
+"Language":"Taal",
+"Skill opponent":"Niveau tegenstander",
+           "OK":"OK"
            }
 }
 
@@ -246,4 +262,5 @@ def set_language(new_language):
 def get_translation(key):
     if key in translations[language]:
         return translations[language][key]
+    print('"{}":"{}",'.format(key,key))
     return key

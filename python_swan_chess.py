@@ -2755,8 +2755,9 @@ class EasyChessGui:
 
     def get_neutral_layout(self):
         board_controls = [
-            [sg.Text('Mode     Play Settings', size=(36, 1), font=self.text_font, key='_gamestatus_')],
-            [sg.Frame('', [[sg.Text('White', size=(7, 1), font=self.text_font),
+            [sg.Text('{}     {}'.format(get_translation("Mode"), get_translation("Play Settings")),
+                     size=(36, 1), font=self.text_font, key='_gamestatus_')],
+            [sg.Frame('', [[sg.Text(get_translation('White'), size=(7, 1), font=self.text_font),
              sg.InputText('Human', font=self.text_font, key='_White_',
                           size=(24, 1)),
              sg.Text('', font=self.text_font, key='w_base_time_k',
@@ -2764,7 +2765,7 @@ class EasyChessGui:
              sg.Text('', font=self.text_font, key='w_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.Text('Black', size=(7, 1), font=self.text_font),
+            [sg.Text(get_translation('Black'), size=(7, 1), font=self.text_font),
              sg.InputText('Computer', font=self.text_font, key='_Black_',
                           size=(24, 1)),
              sg.Text('', font=self.text_font, key='b_base_time_k',
@@ -2772,7 +2773,7 @@ class EasyChessGui:
              sg.Text('', font=self.text_font, key='b_elapse_k', size=(7, 1),
                      relief='sunken')
              ],
-            [sg.Button('Adviser', size=(7, 1),
+            [sg.Button(get_translation('Adviser'), size=(7, 1),
                        font=self.text_font, key='adviser_k', ),
              sg.Text('', font=self.text_font, key='advise_info_k', relief='sunken',
                      size=(46, 1))],
@@ -2786,12 +2787,12 @@ class EasyChessGui:
                       ),
 
              sg.Text('Invisible', size=(16, 1), visible=False, font=self.text_font, key='pgn_row')],
-            [sg.Text('Move list', size=(16, 1), font=self.text_font)],
+            [sg.Text(get_translation('Move list'), size=(16, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 8),
                           font=self.text_font, key='_movelist_', disabled=True, sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
 
-            [sg.Text('Comment', size=(7, 1), font=self.text_font)],
+            [sg.Text(get_translation('Comment'), size=(7, 1), font=self.text_font)],
             [sg.Multiline('', do_not_clear=True, autoscroll=True, size=(52, 3),
                           font=self.text_font, key='comment_k', sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
@@ -2809,7 +2810,7 @@ class EasyChessGui:
                           font=self.text_font, key='polyglot_book2_k', disabled=True, sbar_width=self.scrollbar_width,
                           sbar_arrow_width=self.scrollbar_width)],
 
-            [sg.Button('Opponent Search Info',
+            [sg.Button(get_translation('Opponent Search Info'),
                        size=(21, 1),
                        font=self.text_font, key='search_info_k', )],
 
@@ -3427,14 +3428,14 @@ class EasyChessGui:
         window.find_element("play_top_frame").Update(visible=True)
         while True:
             _, value = window.Read(timeout=100)
-            self.mode_indicator = 'Mode     Play'
+            self.mode_indicator = '{}     {}'.format(get_translation("Mode"), get_translation("Play"))
 
             window.find_element('_gamestatus_').Update(self.mode_indicator)
             window.find_element('_movelist_').Update(disabled=False)
             window.find_element('_movelist_').Update('', disabled=True)
 
             start_new_game = self.play_game(window, board)
-            window.find_element('_gamestatus_').Update('Mode     Neutral')
+            window.find_element('_gamestatus_').Update('{}     {}'.format(get_translation("Mode"), get_translation("Play")))
 
             self.board.create_initial_board()
             self.board.redraw_board(window)
@@ -3453,48 +3454,49 @@ class EasyChessGui:
         win_title = 'Settings/Game'
         layout = [
 
-            [sg.CBox('Save time left in game notation', font=self.text_font,
+            [sg.CBox(get_translation('Save time left in game notation'), font=self.text_font,
                      key='save_time_left_k',
                      default=self.is_save_time_left,
                      tooltip='[%clk h:mm:ss] will appear as\n' +
                              'move comment and is shown in move\n' +
                              'list and saved in pgn file.')],
-            [[sg.Text("Start mode:", size=(16, 1), font=self.text_font),
+            [[sg.Text(get_translation("Start mode")+":", size=(16, 1), font=self.text_font),
               sg.Combo(["", "pgnviewer", "pgneditor"], font=self.text_font, expand_x=True,
                        enable_events=True,
                        readonly=False, default_value=str(self.start_mode), key='start_mode')]],
             # [sg.CBox('Start in game-entry-mode', font=self.text_font,
             #          key='start_mode',
             #          default=self.preferences.preferences['start_mode'])],
-            [[sg.Text("Menu-font-size:", size=(16, 1), font=self.text_font),
+            [[sg.Text(get_translation("Menu-font-size")+":", size=(16, 1), font=self.text_font),
               sg.Combo(font_sizes, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=self.menu_font_size, key='menu_font_size')]],
-            [[sg.Text("Font-size UI:", size=(16, 1), font=self.text_font),
+            [[sg.Text(get_translation("Font-size UI")+":", size=(16, 1), font=self.text_font),
               sg.Combo(font_ui_sizes, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=self.font_size_ui, key='font_size_ui')]],
-            [[sg.Text("Chess-field-size:", size=(16, 1), font=self.text_font),
+            [[sg.Text(get_translation("Chess-field-size")+":", size=(16, 1), font=self.text_font),
               sg.Combo(field_sizes, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=str(self.FIELD_SIZE), key='field_size')]],
-            [sg.Text('Sites', size=(7, 1), font=self.text_font),
+            [sg.Text(get_translation('Sites'), size=(7, 1), font=self.text_font),
              sg.InputText(",".join(self.sites_list), font=self.text_font, key='sites_list_k',
                           size=(60, 1))],
-            [sg.Text('Events', size=(7, 1), font=self.text_font),
+            [sg.Text(get_translation('Events'), size=(7, 1), font=self.text_font),
              sg.InputText(",".join(self.events_list), font=self.text_font, key='events_list_k',
                           size=(60, 1))],
-            [sg.Text('Players', size=(7, 1), font=self.text_font),
+            [sg.Text(get_translation('Players'), size=(7, 1), font=self.text_font),
              sg.InputText(",".join(self.players), font=self.text_font, key='players_k',
                           size=(60, 1))],
-            [sg.CBox('Use skill-level for opponent', font=self.text_font,
+            [sg.CBox(get_translation('Use skill-level for opponent'), font=self.text_font,
                      key='use_skill',
                      default=self.use_skill,
                      tooltip='Use the skill level while playing against the compute')],
-            [[sg.Text("Language:", size=(16, 1), font=self.text_font),
+            [[sg.Text(get_translation("Language")+":", size=(16, 1), font=self.text_font),
               sg.Combo(languages, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=self.language, key='language')]],
-            [[sg.Text("Skill opponent:", size=(16, 1), font=self.text_font),
+            [[sg.Text(get_translation("Skill opponent")+":", size=(16, 1), font=self.text_font),
               sg.Combo(skill_levels, font=self.text_font, expand_x=True, enable_events=True,
                        readonly=False, default_value=skill_levels[self.skill_level - 1], key='skill_level')]],
-            [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
+            [sg.Button(get_translation("OK"), font=self.text_font),
+                   sg.Button(get_translation("Cancel"), font=self.text_font)],
 
         ]
         w = sg.Window(win_title, layout,
@@ -3502,9 +3504,9 @@ class EasyChessGui:
         window.Hide()
         while True:
             e, v = w.Read(timeout=10)
-            if e is None or e == 'Cancel':
+            if e is None or e == get_translation('Cancel'):
                 break
-            if e == 'OK':
+            if e == get_translation('OK'):
                 self.menu_font_size = v['menu_font_size']
                 self.font_size_ui = int(v['font_size_ui'])
                 self.FIELD_SIZE = int(v['field_size'])
