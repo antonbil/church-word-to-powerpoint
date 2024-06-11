@@ -324,9 +324,10 @@ class PGNViewer:
             if button == 'Replace in db':
                 index, file_name = self.do_action_with_pgn_db("replace")
                 if index >= 0:
-                    sg.Popup('PGN saved in {}'.format(file_name), title='PGN saved')
+                    sg.Popup((get_translation('PGN saved in')+' {}').format(file_name), title=get_translation('PGN saved'))
                 else:
-                    sg.Popup('PGN not in database in {}\nPGN is not saved'.format(file_name), title='PGN NOT saved')
+                    sg.Popup((get_translation('PGN not in database in')+' {}\n'+
+                              get_translation('PGN is not saved')).format(file_name), title=get_translation('PGN is not saved'))
 
             if button == 'Add to db':
                 self.gui.input_dialog.read_file()
@@ -334,7 +335,8 @@ class PGNViewer:
                     filename = self.gui.input_dialog.filename
                     with open(filename, 'a') as f:
                         f.write('\n\n{}'.format(self.game))
-                    sg.Popup('PGN added to {}'.format(filename.split("/")[-1]), title='PGN added')
+                    sg.Popup((get_translation('PGN added to')+' {}').format(filename.split("/")[-1]),
+                             title=get_translation('PGN added'))
 
             if button == 'Add to current db':
                 self.add_to_current_db()
@@ -342,7 +344,8 @@ class PGNViewer:
             if button == 'Remove from db':
                 index, file_name = self.do_action_with_pgn_db("remove")
 
-                sg.Popup('PGN removed from {}'.format(file_name), title='PGN removed')
+                sg.Popup((get_translation('PGN removed from')+' {}').format(file_name),
+                         title=get_translation('PGN removed'))
                 self.game_descriptions.remove(self.my_game)
                 if index < len(self.game_descriptions) - 1:
                     self.my_game = self.game_descriptions[index + 1]
@@ -374,7 +377,8 @@ class PGNViewer:
                     pgn_file = self.pgn
                     # clear current move
                     if not self.open_pgn_file(pgn_file):
-                        sg.popup_error("Error reading game from {}".format(pgn_file), title="Error reading db",
+                        sg.popup_error((get_translation("Error reading game from")+" {}").format(pgn_file),
+                                       title=get_translation("Error reading db"),
                                        font=self.gui.text_font)
                         self.pgn = temp_pgn
                     else:
@@ -396,7 +400,8 @@ class PGNViewer:
                 continue
 
             if button == 'New db':
-                text = self.gui.input_dialog.popup_get_text(sg, self.gui, 'name for new db:', title="Create db")
+                text = self.gui.input_dialog.popup_get_text(sg, self.gui, get_translation('name for new db')+':',
+                                                            title=get_translation("Create db"))
                 if text:
                     if not text.endswith(".pgn"):
                         text += ".pgn"
@@ -409,7 +414,8 @@ class PGNViewer:
                     read_file = self.gui.input_dialog.filename
                     # ask for confirmation
                     file_name = read_file.split('/')[-1]
-                    if sg.popup_yes_no('Remove db {}?'.format(file_name), title="Remove db") == 'Yes':
+                    if sg.popup_yes_no((get_translation('Remove db')+' {}?').format(file_name),
+                                       title=get_translation("Remove db")) == 'Yes':
                         os.remove(read_file)
 
             if button == "Analyse game":
@@ -509,10 +515,11 @@ class PGNViewer:
         if not self.pgn == temp_file_name:
             with open(self.pgn, 'a') as f:
                 f.write('\n\n{}'.format(self.game))
-            sg.Popup('PGN added to {}'.format(self.pgn.split("/")[-1]), title='PGN added')
+            sg.Popup((get_translation('PGN added to')+' {}').format(self.pgn.split("/")[-1]),
+                     title=get_translation('PGN added'))
         else:
-            sg.Popup('PGN cannot be added to temporary file {}'.format(self.pgn.split("/")[-1]),
-                     title='PGN NOT added')
+            sg.Popup(get_translation('PGN cannot be added to temporary file')+' {}'.format(self.pgn.split("/")[-1]),
+                     title=get_translation('PGN NOT added'))
 
     def redraw_all(self):
         string = str(self.game.game())
