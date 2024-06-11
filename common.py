@@ -179,7 +179,7 @@ translations = {"en": {
            '_best_': 'Beste?',
            'Strip': "Strippen",
            'New': "Nieuw",
-           'Set Headers': "Headers Aanpseen",
+           'Set Headers': "Headers Aanpassen",
            'Restore alternative': "Variant herstellen",
            'PGN-Viewer': "PGN-Viewer",
            'Variations Edit': "Varianten Aanpassen",
@@ -233,7 +233,8 @@ translations = {"en": {
            "Analyse PGN": "Analiseer PGN",
            "_error-analysing-game_": 'fout bij analiseren partij!!',
            "Advice": "Advies",
-           "_not-available-reread_": 'Niet mogelijk omdat er een pgn wordt bewerkt\nHeropenen pgn?\n(veranderingen in de huidige pgn gaan verloren!!)',
+           "_not-available-reread_": 'Niet mogelijk omdat er een pgn wordt bewerkt\nHeropenen pgn?'+
+                                     '\n(veranderingen in de huidige pgn gaan verloren!!)',
            "_clear-current-match_": "Maak huidige partij leeg",
            "_clear-match-sure_": "Dit zal de inhoud van de huidige partij weglaten\nWeet je het zeker?",
            "_ok-remove-alternative_": "OK om variant te verwijderen:'{}'?",
@@ -245,7 +246,8 @@ translations = {"en": {
            "_no-legal-move2_": "Geen geldige zet",
            "_enter-move_": "Voer in zet \ndoor de zet op het bord uit te voeren",
            "_enter-move-for_": "Voer zet int",
-           "_cannot-save-mainline_": "Je kunt de variant niet wijzigen \nals je achter de hoofd-variant zit die nog hersteld moet worden",
+           "_cannot-save-mainline_": "Je kunt de variant niet wijzigen "+
+                                     "\nals je achter de hoofd-variant zit die nog hersteld moet worden",
            "_error-promote-variation_": "Fout om de variant tot de hoofd-variant te maken",
            "_variation-to-be-added_": 'variant om toe te voegen',
            "_add-variation_": "Toevoegen variant",
