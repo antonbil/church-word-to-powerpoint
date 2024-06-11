@@ -9,7 +9,8 @@ from io import StringIO
 import datetime
 from time import perf_counter as pc
 from annotator import annotator
-from common import temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER, get_button_id, get_translation
+from common import temp_file_name, menu_def_pgnviewer, MAX_ALTERNATIVES, display_help, GAME_DIVIDER, get_button_id
+from Tools.translations import get_translation
 from beautify_pgn_lines import PgnDisplay
 from analyse_db.analyse_db import AnalyseDb
 from Tools.clean_pgn import get_cleaned_string_pgn

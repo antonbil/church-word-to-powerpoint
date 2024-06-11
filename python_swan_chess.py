@@ -64,7 +64,8 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, ico_path, get_translation, set_language)
+                    BOX_TITLE, GUI_THEME, ico_path)
+from Tools.translations import  get_translation, set_language
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 

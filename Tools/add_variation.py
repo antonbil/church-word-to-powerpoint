@@ -1,7 +1,7 @@
 import chess
 import PySimpleGUI as sg
 from io import StringIO
-from common import get_translation
+from Tools.translations import get_translation
 
 
 # tool-library for pgn_editor and pgn_viewer

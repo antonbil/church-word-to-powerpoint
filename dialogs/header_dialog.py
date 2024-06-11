@@ -8,7 +8,7 @@ It also contains two utility functions to load and save the preferences to a jso
 import PySimpleGUI as sg
 import json
 from datetime import date
-from common import get_translation
+from Tools.translations import  get_translation
 
 PREF = {}
 """

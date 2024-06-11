@@ -9,10 +9,11 @@ import copy
 import collections
 from pgn_viewer.pgn_viewer import PGNViewer
 from common import menu_def_pgnviewer
-from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER, get_button_id, get_translation
+from common import menu_def_entry, menu_def_annotate, temp_file_name, display_help, GAME_DIVIDER, get_button_id
 from beautify_pgn_lines import PgnDisplay
 from Tools.add_variation import (get_and_add_variation, check_for_variation_replace, remove_variation,
                                  uci_string2_moves, merge_into_current_game)
+from Tools.translations import  get_translation
 
 class PgnEditor:
     """
