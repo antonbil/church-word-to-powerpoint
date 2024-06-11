@@ -544,19 +544,19 @@ class PGNViewer:
 
         if chosen_move:
             if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
-                sg.popup("Move {} is already part of variations of node {}!\nMove not inserted.."
+                sg.popup(get_translation('_move-present-not-inserted_')
                          .format(chosen_move, str(self.current_move.move)))
                 return
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
         else:
-            sg.popup("Illegal move:{}".format(coord))
+            sg.popup(get_translation("Illegal move")+":{}".format(coord))
         self.redraw_all()
 
     def choose_one_move(self, items):
         chosen_move = None
         # otherwise a selection of origins (or destinations, based on items) is shown, one of which the user can choose
         list_items_algebraic = [self.board.san(list_item) for list_item in items]
-        title_window = "Get move"
+        title_window = get_translation("Get move")
         selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
         if selected_item:
             # move is selected by user
@@ -571,33 +571,33 @@ class PGNViewer:
         :return:
         """
 
-        layout = [[sg.Text('Player', size=(7, 1), font=self.gui.text_font),
+        layout = [[sg.Text(get_translation('Player'), size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Player_',
                                 size=(50, 1))],
-                  [sg.Text('Opening', size=(7, 1), font=self.gui.text_font),
+                  [sg.Text(get_translation('Opening'), size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Opening_',
                                 size=(50, 1))],
-                  [sg.Text('Event', size=(7, 1), font=self.gui.text_font),
+                  [sg.Text(get_translation('Event'), size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Event_',
                                 size=(50, 1))],
-                  [sg.Text('Date', size=(7, 1), font=self.gui.text_font),
+                  [sg.Text(get_translation('Date'), size=(7, 1), font=self.gui.text_font),
                    sg.InputText('', font=self.gui.text_font, key='_Date_',
                                 size=(50, 1))],
-                  [sg.Button("Search", font=self.gui.text_font),
-                   sg.Button("Cancel", font=self.gui.text_font), sg.Push(),
+                  [sg.Button(get_translation("Search"), font=self.gui.text_font),
+                   sg.Button(get_translation("Cancel"), font=self.gui.text_font), sg.Push(),
                    self.gui.input_dialog.get_keyboard_button(sg, self.gui)],
                   self.gui.input_dialog.get_keyboard_keys(sg, self.gui)
                   ]
-        window = sg.Window("Search db", layout, font=self.gui.text_font,  # size=(800, 450),
+        window = sg.Window(get_translation("Search db"), layout, font=self.gui.text_font,  # size=(800, 450),
                            finalize=True, modal=True, keep_on_top=True)
         while True:
             event, values = window.read()
-            if event in ("Cancel", sg.WIN_CLOSED):
+            if event in (get_translation("Cancel"), sg.WIN_CLOSED):
                 window.close()
                 break
             self.gui.input_dialog.check_keyboard_input(window, event)
 
-            if event == "Search":
+            if event == get_translation("Search"):
                 # search button invokes action
                 window.close()
                 db_analyse = AnalyseDb(self.gui.default_png_dir)
@@ -617,7 +617,7 @@ class PGNViewer:
                         self.my_game = selected_item
                         self.select_game()
                 else:
-                    sg.popup("No games found")
+                    sg.popup(get_translation("No games found"))
                 break
 
     def classify_opening(self):
@@ -662,7 +662,7 @@ class PGNViewer:
                 # read next game
                 game = chess.pgn.read_game(pgn)
 
-            sg.popup("DB with name {} openings are classified".format(file_name))
+            sg.popup(get_translation("_db-classified_").format(file_name))
 
     def do_action_with_pgn_db(self, action):
         # get index of current game inside current db
@@ -680,7 +680,7 @@ class PGNViewer:
             i += 1
 
         if i == -1:
-            sg.popup("The description: {} is not in current database".format(current_description))
+            sg.popup(get_translation("_description-not-in-db_").format(current_description))
             return
         old_file = self.pgn
         file_name = self.pgn.split('/')[-1]
@@ -716,7 +716,7 @@ class PGNViewer:
         return index, file_name
 
     def from_clipboard(self):
-        if sg.popup_yes_no('Put pgn in clipboard, and press Yes', title="PGN from clipboard") == 'Yes':
+        if sg.popup_yes_no(get_translation('__put-pgn-clipboard'), title=get_translation("PGN from clipboard")) == 'Yes':
             self.always_to_clipboard()
 
     def always_to_clipboard(self):
@@ -744,22 +744,21 @@ class PGNViewer:
         column_players = []
         for index, player in enumerate(players):
             column_players.append([sg.Checkbox(player, key='player' + str(index), enable_events=True)])
-        layout = [[[sg.Column([[sg.Checkbox("Skip draws", default=True, key='skip_draws',
+        layout = [[[sg.Column([[sg.Checkbox(get_translation("Skip draws"), default=True, key='skip_draws',
                                             enable_events=True)]], size=(170, 300)),
                     sg.Column(column_players, size=(300, 400), vertical_scroll_only=True, scrollable=True)]],
                   [sg.Button('OK', font=self.gui.text_font), sg.Cancel(font=self.gui.text_font),
-                   sg.Button('Select all', font=self.gui.text_font),
-                   sg.Button('Select none', font=self.gui.text_font)
+                   sg.Button(get_translation('Select all'), font=self.gui.text_font),
+                   sg.Button(get_translation('Select none'), font=self.gui.text_font)
                    ]
                   ]
 
-        form = sg.Window('Select players', layout)
+        form = sg.Window(get_translation('Select players'), layout)
         selected_players = []
         while True:
             event, values = form.read()
             for index, player in enumerate(players):
                 if 'player' + str(index) == event:
-                    print("player selected:", player)
                     if player in selected_players:
                         selected_players.remove(player)
                     else:
@@ -799,12 +798,12 @@ class PGNViewer:
 
                     game1 = chess.pgn.read_game(pgn)
                 if nr_copied_games > 0:
-                    if sg.popup_yes_no('{} Selected games stored in {}\nOpen this file?'
+                    if sg.popup_yes_no(get_translation("_stored-in-open_")
                                                .format(nr_copied_games, temp_file_name2.split("/")[-1]) +
-                                       '', "Open created file?") == 'Yes':
+                                       '', get_translation("Open created file")+"?") == 'Yes':
                         self.open_pgn_file(temp_file_name2)
                 else:
-                    sg.popup("No games selected")
+                    sg.popup(get_translation("No games selected"))
 
                 break
 
@@ -864,13 +863,13 @@ class PGNViewer:
     def analyse_db(self):
         number_games = len(self.game_descriptions)
         layout = [
-            [sg.Text("Analyse pgn's in file: {}".format(self.pgn.split("/")[-1]), font=self.gui.text_font,
+            [sg.Text(get_translation("_analyse-in-file_")+": {}".format(self.pgn.split("/")[-1]), font=self.gui.text_font,
                      size=(40, 1))],
-            [sg.Multiline("Analyse {} games.".format(number_games), do_not_clear=True, autoscroll=True, size=(70, 8),
+            [sg.Multiline(get_translation("_analyse-nr-games_").format(number_games), do_not_clear=True, autoscroll=True, size=(70, 8),
                           font=self.gui.text_font, key='result_list', disabled=True)]
         ]
 
-        w = sg.Window("Analyse PGN", layout,
+        w = sg.Window(get_translation("Analyse PGN"), layout,
                       icon='Icon/pecg.png')
         start = pc()
         w.Read(timeout=10)
@@ -899,7 +898,7 @@ class PGNViewer:
 
             except Exception as e:
                 print(e)
-                result_list_element.Update('\nerror in analysing game!!')
+                result_list_element.Update('\n'+get_translation("_error-analysing-game_"))
             i = i + 1
         w.Close()
 
@@ -972,7 +971,7 @@ class PGNViewer:
             is_black = not is_black
         if previous:
             res_moves.append(previous)
-        sg.popup("{} ({})".format(" ".join(res_moves), score), title="Advice")
+        sg.popup("{} ({})".format(" ".join(res_moves), score), title=get_translation("Advice"))
         # print("add:", pv_original)
 
         # window = self.window.find_element('comment_k')
@@ -1000,8 +999,7 @@ class PGNViewer:
     def check_edit_single_pgn(self):
         file_name = self.gui.preferences.preferences["pgn_file"]
         if file_name == temp_file_name:
-            if sg.popup_yes_no('Currently not available because you are editing a pgn' +
-                               '\nReread pgn?\n(changes on this pgn will be lost!!)') == 'Yes':
+            if sg.popup_yes_no(get_translation("_not-available-reread_")) == 'Yes':
                 self.gui.preferences.preferences = self.gui.preferences.load_preferences()
                 self.load_start_pgn()
                 return True
