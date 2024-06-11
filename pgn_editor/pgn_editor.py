@@ -233,7 +233,7 @@ class PgnEditor:
                 continue
 
             if button == 'New':
-                if sg.popup_yes_no("Clear current match", "You will clear the moves for the current match\nAre you sure?")=="Yes":
+                if sg.popup_yes_no(get_translation("_clear-current-match_"), get_translation("_clear-match-sure_"))=="Yes":
                     self.board = chess.Board()
                     self.start_empty_game()
                     self.update_pgn_display()
@@ -339,7 +339,7 @@ class PgnEditor:
                 list_items.pop(0)
                 if len(list_items) > 1:
                     index = 1
-                    title_window = "select new main line"
+                    title_window = get_translation("_select-new-mainline_")
                     selected_item = self.gui.get_item_from_list(list_items, title_window)
                     if selected_item:
                         # first item is removed.... so add 1 to the found index
@@ -349,7 +349,8 @@ class PgnEditor:
                         self.display_move_and_line_number()
 
                 else:
-                    if sg.popup_yes_no("Remove alternative", "OK to remove alternative:'{}'?".format(list_items[0]))=="Yes":
+                    if sg.popup_yes_no(get_translation("Remove alternative"),
+                                       get_translation("_ok-remove-alternative_").format(list_items[0]))=="Yes":
                         remove_variation(current_move, 1)
                         self.update_pgn_display()
                         self.display_move_and_line_number()
@@ -365,7 +366,7 @@ class PgnEditor:
                     index = 1
                     list_items.pop(0)
                     if len(list_items) > 1:
-                        title_window = "select new main line"
+                        title_window = get_translation("_select-new-mainline_")
                         selected_item = self.gui.get_item_from_list(list_items, title_window)
                         if selected_item:
                             # first item is removed.... so add 1 to the found index
@@ -430,7 +431,8 @@ class PgnEditor:
                             self.update_pgn_display()
                             self.update_move_display_element()
                         else:
-                            sg.popup_error("No legal move:{}".format(self.first_coord+coord), title="Error enter move",
+                            sg.popup_error(get_translation("_no-legal-move_").format(self.first_coord+coord),
+                                           title=get_translation("_error-enter-move_"),
                                            font=self.gui.text_font)
                         self.mode = "annotate"
                         self.set_status()
@@ -452,13 +454,13 @@ class PgnEditor:
 
                             self.display_move()
                             move_state = 0
-                            sg.popup("You can now enter the remainder of the moves of the variation\n"+
-                                     "Execute \"Restore alternative\" at the end of the variation-line",
-                                     title="Input moves variation",
+                            sg.popup(get_translation("_enter remainder-variation_"),
+                                     title=get_translation("_input-moves-variation_"),
                                      font=self.gui.text_font)
 
                         else:
-                            sg.popup_error("No legal move", title="Error enter move",
+                            sg.popup_error(get_translation("_no-legal-move2_"),
+                                           title=get_translation("_error-enter-move_"),
                                            font=self.gui.text_font)
 
                     else:
@@ -530,8 +532,9 @@ class PgnEditor:
 
 
     def move_add_manual(self, new_mode):
-        sg.popup("Enter move \nby moving pieces on the board",
-                 title="Enter move for " + ("White" if self.moves[-1].turn() else "Black"),
+        sg.popup(get_translation("_enter-move_"),
+                 title=get_translation("_enter-move-for_")+" " + (get_translation("White") if self.moves[-1].turn()
+                                               else get_translation("Black")),
                  font=self.gui.text_font)
         self.mode = new_mode
         move_state = 0
@@ -567,8 +570,8 @@ class PgnEditor:
         previous_mainline = current_move.variations[0]
         moves_index = self.all_moves.index(current_move)
         if len(self.promoted) > 0 and self.promoted[-1][2] > moves_index:
-            sg.popup_error("You cannot save mainline \nif you are behind the previous mainline to be restored",
-                           title="Error promote variation", font=self.gui.text_font)
+            sg.popup_error(get_translation("_cannot-save-mainline_"),
+                           title=get_translation("_error-promote-variation_"), font=self.gui.text_font)
             return
         self.promoted.append([current_move, previous_mainline, moves_index])
         main = current_move.variations[index]
@@ -598,7 +601,7 @@ class PgnEditor:
         # display all current possible moves to user
         list_items = [list_item for list_item in list(self.board.legal_moves)]
         list_items_algebraic = [self.board.san(list_item) for list_item in list_items]
-        title_window = "Get move"
+        title_window = get_translation("_get-move_")
         selected_item = self.gui.get_item_from_list(list_items_algebraic, title_window)
         if selected_item:
             # move is selected by user
@@ -623,8 +626,8 @@ class PgnEditor:
             # add all moves as coordinates in one line with spaces inbetween
             str_line3 = str(move_new) + " " + " ".join([str(m) for m in pv_original])
         # ask user if he/she wants to add this new variation
-        text = self.gui.input_dialog.popup_get_text(sg, self.gui, 'variation to be added:',
-                                                    title="Add variation?", default_text=advice)
+        text = self.gui.input_dialog.popup_get_text(sg, self.gui, get_translation("_variation-to-be-added_")+':',
+                                                    title=get_translation("_add-variation_")+"?", default_text=advice)
         # add new variation if user agrees
         if text:
             current_move = self.moves[-1]
@@ -650,7 +653,8 @@ class PgnEditor:
             self.define_moves_squares()
             self.display_move_and_line_number()
         else:
-            sg.popup_error("Already at the first move", title="Error previous move", font=self.gui.text_font)
+            sg.popup_error(get_translation("_on-first-move_"), title=get_translation("_error-previous-move_"),
+                           font=self.gui.text_font)
 
     def execute_next_move(self, move_number):
         """
@@ -663,7 +667,8 @@ class PgnEditor:
             self.moves.append(self.all_moves[self.move_number])
             self.display_move_and_line_number()
         else:
-            sg.popup_error("Already at the last move", title="Error next move", font=self.gui.text_font)
+            sg.popup_error(get_translation("_on-last-move_"),
+                           title=get_translation("_error-next-move_"), font=self.gui.text_font)
 
     def display_move_and_line_number(self):
         move_list_gui_element = self.window.find_element('_movelist_2')
@@ -690,7 +695,8 @@ class PgnEditor:
 
     def analyse_move(self):
         if len(self.moves) >= len(self.all_moves):
-            sg.popup_error("No analysis for last move", title="Error analysis", font=gui.text_font)
+            sg.popup_error(get_translation("_no-analysis-last-move_"), title=get_translation("_error-analysis_"),
+                           font=gui.text_font)
             return
         current_move = self.moves[-1]
         board = self.board
