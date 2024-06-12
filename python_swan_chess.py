@@ -64,7 +64,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, ico_path, menu_def_play, get_button_id, menu_def_neutral)
+                    BOX_TITLE, ico_path, menu_def_play, get_button_id, menu_def_neutral, board_colors)
 from Tools.translations import  get_translation, set_language, GUI_THEME
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
@@ -2858,6 +2858,15 @@ class EasyChessGui:
 
     def set_color_board(self, button, store):
         self.board_color = button
+        """see: https://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+        Coral
+Dark 112,162,163 #70A2A3 (https://www.rgbtohex.net/)
+Light 177,228,185 #B1E4B9
+Marine
+Dark 111,115,210 #6F76D2
+Light 157,172,255 #9DACFF
+
+        """
         # Mode: Neutral, Change board to gray
         if button == 'Gray::board_color_k':
             self.sq_light_color = '#D8D8D8'
@@ -2865,6 +2874,16 @@ class EasyChessGui:
             self.move_sq_light_color = '#e0e0ad'
             self.move_sq_dark_color = '#999966'
 
+        if button == 'Coral::board_color_k':
+            self.sq_light_color = '#B1E4B9'
+            self.sq_dark_color = '#70A2A3'
+            self.move_sq_light_color = '#e0e0ad'
+            self.move_sq_dark_color = '#999966'
+        if button == 'Marine::board_color_k':
+            self.sq_light_color = '#9DACFF'
+            self.sq_dark_color = '#6F76D2'
+            self.move_sq_light_color = '#e0e0ad'
+            self.move_sq_dark_color = '#999966'
         # Mode: Neutral, Change board to green
         if button == 'Green::board_color_k':
             self.sq_light_color = '#daf1e3'
@@ -4075,15 +4094,12 @@ class EasyChessGui:
         return False, window
 
     def check_color_button(self, button, window):
-        if button == "board_color_k_brown":
-            button = 'Brown::board_color_k'
-        elif button == "board_color_k_blue":
-            button = 'Blue::board_color_k'
-        elif button == "board_color_k_green":
-            button = 'Green::board_color_k'
-        elif button == "board_color_k_gray":
-            button = 'Gray::board_color_k'
-        for color in ['Brown', "Gray", "Green", "Blue"]:
+        for color in board_colors:
+            last = color.split("::")[1]
+            if last == button:
+                button = color.split("::")[0]+"::board_color_k"
+
+        for color in [c.split("::")[0] for c in board_colors]:
             if button == color + '::board_color_k':
                 self.set_color_board(button, True)
                 self.board.redraw_board(window)

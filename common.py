@@ -5,11 +5,13 @@ ico_path = {
     'darwin': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'}
 }
 
-colors = ['Brown::board_color_k_brown',
+board_colors = ['Brown::board_color_k_brown',
           'Blue::board_color_k_blue',
           'Green::board_color_k_green',
+'Coral::board_color_k_coral',
+'Marine::board_color_k_marine',
           'Gray::board_color_k_gray']
-settings_menu = ['Color', colors,
+settings_menu = ['Color', board_colors.copy(),
                  'Theme', GUI_THEME,
                  'Engine', ['Adviser engine::Adviser engine', 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
                  "Other Settings::Other Settings"]
@@ -52,10 +54,7 @@ menu_def_play1 = [
     ['FEN', ['Paste::_paste-fen_']],
     ['&Engine', ['Go::Go', 'Move Now::Move Now']],
     ['&Mode', ['PGN-Viewer::PGN-Viewer', 'PGN-Editor::PGN-Editor']],
-    ['Settings', ['Boar&d', ['Flip::Flip', 'Color', ['Brown::board_color_k_brown',
-                                  'Blue::board_color_k_blue',
-                                  'Green::board_color_k_green',
-                                  'Gray::board_color_k_gray'],
+    ['Settings', ['Boar&d', ['Flip::Flip', 'Color', board_colors.copy(),
                 'Theme', GUI_THEME],
     'Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent',
                'Set Depth::Set Depth',

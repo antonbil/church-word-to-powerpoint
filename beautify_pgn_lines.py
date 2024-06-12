@@ -117,7 +117,7 @@ class PgnDisplay:
             if parent is not None:
                 new_variation = not str(parent.variations[0].move) == str(next_move.move) or len(parent.comment) > 0 \
                                 or str(parent.variations[0].move) == str(next_move.move) and len(parent.variations) > 1
-                if new_variation:
+                if new_variation and len(parts) > 1:
                     # move is start-move of new variation/line
                     start_move = parts[0] + " " + parts[1]
                     if is_black and len(next_move.variations) == 1 and len(next_move.comment) == 0 \
@@ -128,7 +128,7 @@ class PgnDisplay:
 
             black_move_with_white_before = "rubbish"
             # if line is starting with ... (black move), remove this first part
-            if is_black and not new_variation:
+            if is_black and not new_variation and len(parts) > 1:
                 # black_move_with_white_before has the black move preceded by the white move
                 # it is a black move, so there has to be a parent. No checking for parent-existence is needed
                 white_before_move = " ".join(str(parent).split(" ")[:2])
