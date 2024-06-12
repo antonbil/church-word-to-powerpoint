@@ -1,3 +1,7 @@
+GUI_THEME = [
+    'Green', 'GreenTan', 'LightGreen', 'BluePurple', 'Purple', 'BlueMono', 'GreenMono', 'BrownBlue',
+    'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
+]
 translations = {"en": {
     'White': "White",
     'Black': "Black",
@@ -246,33 +250,59 @@ translations = {"en": {
            "board_color_k_brown": "Bruin",
 "board_color_k_blue": "Blauw",
 "board_color_k_green": "Groen",
-"board_color_k_gray": "Grijs"
+"board_color_k_gray": "Grijs",
+"Boar&d":"Bor&d",
+"Flip":"Draai",
+"Green":"Groen",
+"Set Engine Opponent":"Definieer Engine Tegenstander",
+"&Time":"&Tijd",
+"tc_k_user":"Gebruiker",
+"tc_k_engine":"Engine",
+"&Book":"&Boek",
+"book_set_k":"Definieer Boek",
+"&User":"&Gebruiker",
+"user_name_k":"Gebruiker naam",
+"PGN":"PGN",
+"delete_player_k":"Verwijder speler",
+"settings_game_k":"Instellingen",
+"Set Engine Adviser":"Stel Adviseur in",
+
+
 
 
            }
 }
 
-keys_in_play_mode = {"&Game":"&Game",
-"new_game_k":"new_game_k",
-"save_game_k":"save_game_k",
-"Save to White Repertoire":"Save to White Repertoire",
-"Save to Black Repertoire":"Save to Black Repertoire",
-"resign_game_k":"resign_game_k",
-"user_wins_k":"user_wins_k",
-"user_draws_k":"user_draws_k",
-"FEN":"FEN",
-"Paste":"Paste",
-"&Engine":"&Engine",
-"Go":"Go",
-"Move Now":"Move Now",
-"Set Depth":"Set Depth",
-"&Mode":"&Mode",
-"&Help":"&Help",
-"GUI":"GUI",
+keys_in_neutral_mode = {"Boar&d":"Boar&d",
+"Flip":"Flip",
+"board_color_k":"board_color_k",
+"board_color_k":"board_color_k",
+"board_color_k":"board_color_k",
+"board_color_k":"board_color_k",
+"Green":"Green",
+"Set Engine Opponent":"Set Engine Opponent",
+"Set Engine Opponent":"Set Engine Opponent",
+"&Time":"&Time",
+"tc_k":"tc_k",
+"tc_k":"tc_k",
+"&Book":"&Book",
+"book_set_k":"book_set_k",
+"&User":"&User",
+"user_name_k":"user_name_k",
+"PGN":"PGN",
+"delete_player_k":"delete_player_k",
+"settings_game_k":"settings_game_k",
+
 
 }
 
-def replace(data):
+def replace(data, prev=None, index=None):
+    if data in GUI_THEME:
+        return
+    if type(data) is str and not prev is None:
+        if data in translations[language]:
+            prev[index] = translations[language][data]
+            return
     if isinstance(data, list):
         for k, v in enumerate(data):
             if type(v) is str and '::' in v:
@@ -283,6 +313,8 @@ def replace(data):
                     print('"{}":"{}",'.format(key, key))
             else:
                 id = v[0]
+                if id in GUI_THEME:
+                    continue
                 if type(id) is str and '::' not in id:
                     chosen = False
                     for t in translations[language]:
@@ -290,7 +322,7 @@ def replace(data):
                             chosen = True
                             data[k] = [id.replace(t, translations[language][t])]
                             for v1 in v[1:]:
-                                if type(v1) is str and '::' not in v1:
+                                if type(v1) is str and '::' not in v1 and not v1 in GUI_THEME:
                                     if v1 in translations[language]:
                                         v1 = translations[language][v1]
                                     else:
@@ -299,7 +331,7 @@ def replace(data):
                     if not chosen and len(id) > 1:
                         print('"{}":"{}",'.format(id, id))
 
-            replace(v)
+            replace(v, data, k)
 
 language = "nl"
 

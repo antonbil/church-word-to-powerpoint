@@ -64,8 +64,8 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, GUI_THEME, ico_path, menu_def_play, get_button_id)
-from Tools.translations import  get_translation, set_language
+                    BOX_TITLE, ico_path, menu_def_play, get_button_id, menu_def_neutral)
+from Tools.translations import  get_translation, set_language, GUI_THEME
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
 
@@ -175,22 +175,6 @@ INIT_PGN_TAG = {
 
 
 # (1) Mode: Neutral
-menu_def_neutral = [
-    ['Boar&d', ['Flip', 'Color', ['Brown::board_color_k',
-                                  'Blue::board_color_k',
-                                  'Green::board_color_k',
-                                  'Gray::board_color_k'],
-                'Theme', GUI_THEME]],
-    ['&Engine', ['Set Engine Adviser', 'Set Engine Opponent', 'Set Depth',
-                 'Manage', ['Install', 'Edit', 'Delete']]],
-    ['&Time', ['User::tc_k', 'Engine::tc_k']],
-    ['&Book', ['Set Book::book_set_k']],
-    ['&User', ['Set Name::user_name_k']],
-    ['Tools', ['PGN', ['Delete Player::delete_player_k', 'PGN-Viewer']]],
-    ['&Mode', ['Play', 'PGN-Viewer', 'PGN-Editor']],
-    ['&Settings', ['Game::settings_game_k']],
-    ['&Help', ['GUI']],
-]
 
 # (2) Mode: Play, info: hide
 
@@ -880,7 +864,7 @@ class EasyChessGui:
 
     def swap_visible_columns_window(self, window):
         # on startup the menu-options are changed if default-window is not 'neutral'
-        menu_def = menu_def_neutral
+        menu_def = menu_def_neutral()
         pgn = False
         if self.start_mode_used == "pgnviewer":
             menu_def = menu_def_pgnviewer()
@@ -2067,10 +2051,6 @@ class EasyChessGui:
             if self.check_button_bar_press(button, window):
                 break
 
-            # experimental code; only works if color-option in menu_def_play1-menu is switched on
-            if self.check_color_button(button, self.window):
-                continue
-
             # Mode: Play, stm: User
             if 'resign_game_k' in button or self.is_search_stop_for_resign:
                 logging.info('User resigns')
@@ -2727,7 +2707,7 @@ class EasyChessGui:
         board_tab = [[sg.Column(board_layout)]]
 
         # on startup the menu-options are changed if default-window is not 'neutral'
-        menu_def = menu_def_neutral
+        menu_def = menu_def_neutral()
         pgn = False
         if self.start_mode_used == "pgnviewer":
             menu_def = menu_def_pgnviewer()
@@ -2968,6 +2948,7 @@ class EasyChessGui:
         # main loop start
         while True:
             button, value = self.window.Read(timeout=50)
+            button = get_button_id(button)
 
             # Mode: Neutral
             if button is None:
@@ -2977,6 +2958,10 @@ class EasyChessGui:
             # check for play-settings
             if self.check_game_setting_button(button, self.window):
                 window = self.window
+                continue
+
+            # experimental code; only works if color-option in menu_def_play1-menu is switched on
+            if self.check_color_button(button, self.window):
                 continue
 
             # check for pgn-viewer-mode
@@ -3024,7 +3009,7 @@ class EasyChessGui:
                 self.play_human_computer(self.window)
 
                 # Restore Neutral menu
-                self.menu_elem.Update(menu_def_neutral)
+                self.menu_elem.Update(menu_def_neutral())
                 self.board.create_initial_board()
                 self.window.find_element('_gamestatus_').Update('Play Settings')
                 board = chess.Board()
@@ -3049,7 +3034,7 @@ class EasyChessGui:
             if self.is_png_layout() or pgn_object.start_play_mode:
                 pgn_object.start_play_mode = False
                 window = self.swap_visible_columns_window(window)
-            self.menu_elem.Update(menu_def_neutral)
+            self.menu_elem.Update(menu_def_neutral())
         return window
 
     def set_window_column_and_menu(self, button, window, mode_name, viewer_description, menu):
@@ -3068,19 +3053,19 @@ class EasyChessGui:
     def check_game_setting_button(self, button, window):
         button_action = False
         # Mode: Neutral, Delete player
-        if button == 'Delete Player::delete_player_k':
+        if button == 'delete_player_k':
             self.delete_player_in_neutral_mode(window)
             button_action = True
         # Mode: Neutral, Set User time control
-        if button == 'User::tc_k':
+        if button == 'tc_k_user':
             self.set_user_time_control(window)
             button_action = True
         # Mode: Neutral, Set engine time control
-        if button == 'Engine::tc_k':
+        if button == 'tc_k_engine':
             self.set_engine_time_control(window)
             button_action = True
         # Mode: Neutral, set username
-        if button == 'Set Name::user_name_k':
+        if button == 'user_name_k':
             self.set_user_name(window)
             button_action = True
         # Mode: Neutral
@@ -3099,11 +3084,11 @@ class EasyChessGui:
         if self.check_depth_button(button):
             button_action = True
         # Mode: Neutral, Allow user to change book settings
-        if button == 'Set Book::book_set_k':
+        if button == 'book_set_k':
             self.change_book_settings(window)
             button_action = True
         # Mode: Neutral, Settings menu
-        if button == 'Game::settings_game_k':
+        if button == 'settings_game_k':
             self.get_settings_pgn(window)
             button_action = True
         # Mode: Neutral, Change theme

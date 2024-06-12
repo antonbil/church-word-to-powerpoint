@@ -1,14 +1,9 @@
-from Tools.translations import  replace
+from Tools.translations import  replace, GUI_THEME
 ico_path = {
     'win32': {'pecg': 'Icon/pecg.ico', 'enemy': 'Icon/enemy.ico', 'adviser': 'Icon/adviser.ico'},
     'linux': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'},
     'darwin': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'}
 }
-
-GUI_THEME = [
-    'Green', 'GreenTan', 'LightGreen', 'BluePurple', 'Purple', 'BlueMono', 'GreenMono', 'BrownBlue',
-    'BrightColors', 'NeutralBlue', 'Kayak', 'SandyBeach', 'TealMono', 'Topanga', 'Dark', 'Black', 'DarkAmber'
-]
 
 colors = ['Brown::board_color_k_brown',
           'Blue::board_color_k_blue',
@@ -16,7 +11,7 @@ colors = ['Brown::board_color_k_brown',
           'Gray::board_color_k_gray']
 settings_menu = ['Color', colors,
                  'Theme', GUI_THEME,
-                 'Engine', ['Adviser engine', 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
+                 'Engine', ['Adviser engine::Adviser engine', 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
                  "Other Settings::Other Settings"]
 
 menu_def_entry1 = [
@@ -26,6 +21,23 @@ menu_def_entry1 = [
     ['&Mode', ["Play::Play", "PGN-Viewer::PGN-Viewer", 'Variations Edit::Variations Edit']],
     ['Settings', settings_menu],
     ['Help', ["Gui::Gui"]],
+]
+
+menu_def_neutral1 = [
+    ['Boar&d', ['Flip::Flip', 'Color', ['Brown::board_color_k_brown',
+                                  'Blue::board_color_k_blue',
+                                  'Green::board_color_k_green',
+                                  'Gray::board_color_k_gray'],
+                'Theme', GUI_THEME]],
+    ['&Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent', 'Set Depth::Set Depth',
+                 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']]],
+    ['&Time', ['User::tc_k_user', 'Engine::tc_k_engine']],
+    ['&Book', ['Set Book::book_set_k']],
+    ['&User', ['Set Name::user_name_k']],
+    ['Tools', ['PGN', ['Delete Player::delete_player_k']]],
+    ['&Mode', ['Play::Play', 'PGN-Viewer::PGN-Viewer', 'PGN-Editor::PGN-Editor']],
+    ['&Settings', ['Game::settings_game_k']],
+    ['&Help', ['GUI::GUI']],
 ]
 
 menu_def_play1 = [
@@ -39,11 +51,11 @@ menu_def_play1 = [
                'Analyse game::Analyse game']],
     ['FEN', ['Paste::_paste-fen_']],
     ['&Engine', ['Go::Go', 'Move Now::Move Now', 'Set Depth::Set Depth']],
-    ['&Mode', ['PGN-Viewer', 'PGN-Editor']],
-    ['Settings', ['Play Settings',
+    ['&Mode', ['PGN-Viewer::PGN-Viewer', 'PGN-Editor::PGN-Editor']],
+    ['Settings', ['Play Settings::Play Settings',
                   #'Color', colors
                   ]],
-    ['&Help', ['GUI']],
+    ['&Help', ['GUI::GUI']],
 ]
 menu_def_annotate1 = [
     ['&Game', ['Save::Save', 'New::New', '---', 'Analyse game::Analyse game', '---', "Switch Sides::Switch Sides"]],
@@ -102,6 +114,10 @@ def menu_def_play():
     replace(menu_res)
     return menu_res
 
+def menu_def_neutral():
+    menu_res = menu_def_neutral1.copy()
+    replace(menu_res)
+    return menu_res
 
 temp_file_name = 'tempsave.pgn'
 MAX_ALTERNATIVES = 7
@@ -197,8 +213,10 @@ def display_help(sg):
 
 
 def get_button_id(button):
-    if type(button) is str and button.endswith("board_color_k"):
-        return button
+    for color in GUI_THEME:
+        if button == color:
+            return button
+
     if type(button) is str:
         parts = button.split('::')
         if len(parts) > 1:
