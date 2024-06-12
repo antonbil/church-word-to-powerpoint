@@ -2976,6 +2976,7 @@ class EasyChessGui:
 
             # experimental code; only works if color-option in menu_def_play1-menu is switched on
             if self.check_color_button(button, self.window):
+                self.default_board_borders(window)
                 continue
 
             # check for pgn-viewer-mode
@@ -3112,6 +3113,7 @@ class EasyChessGui:
             button_action = True
         # Mode: Neutral, Change board to ['Brown', "Gray", "Green", "Blue"], default
         if self.check_color_button(button, window):
+            self.default_board_borders(window)
             button_action = True
         # Mode: Neutral
         if button == 'Flip':
