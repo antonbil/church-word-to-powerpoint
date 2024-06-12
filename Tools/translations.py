@@ -70,6 +70,7 @@ translations = {"en": {
 },
     "nl": {'Headers': 'Headers',
            'Select': 'Selecteer',
+           "save_game_k": "Bewaar in db",
            'Game': 'Partij',
            'Read': 'Open',
            'From clipboard': 'Uit klembord',
@@ -243,7 +244,6 @@ translations = {"en": {
            "OK": "OK",
            "Skill": "Niveau",
            "new_game_k": "Nieuw",
-           "save_game_k": "Bewaar",
            "resign_game_k": "Geef op",
            "user_wins_k": "Gebruiker wint",
            "user_draws_k": "Gebruiker remise",
@@ -313,7 +313,14 @@ translations = {"en": {
            'Please define the engine or browse to the location of the engine file first.':
                'Defineer svp de engine, of wijs eerst de locatie van het engine-bestand aan.',
            'Please input engine id name, or press {} button.': 'Svp voer in engine id naam, of selecteer:"{}" knop.',
-           'Failed to add {} in config file!': 'Probleem met toevoegen {} in het config bestand!'
+           'Failed to add {} in config file!': 'Probleem met toevoegen {} in het config bestand!',
+           'Read PGN': 'Open PGN',
+           'Append to PGN': 'Toevoegen aan PGN',
+           'Enter comment': 'Commentaar invoeren',
+           "Set Default Dir": "Zet als default dir",
+           'Save PGN': "Bewaar PGN",
+           "Folder": "Folder",
+           "Browse":"Zoek"
            }
 }
 

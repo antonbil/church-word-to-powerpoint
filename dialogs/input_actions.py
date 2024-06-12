@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import os.path
-
+from Tools.translations import get_translation
 
 class InputDialog:
     def __init__(self, gui, default_png_dir, keyboard_visible_at_start):
@@ -12,7 +12,7 @@ class InputDialog:
         self.gui = gui
         self.default_png_dir = default_png_dir
 
-    def read_file(self):
+    def read_file(self, default_title='Read PGN'):
         #  Define Layout 
         fnames = self._file_list(self.default_png_dir)
         left_col = [self.get_folder_elements(),
@@ -25,7 +25,7 @@ class InputDialog:
         folder = self.default_png_dir
 
         # Create Window
-        window = sg.Window('Read PGN', layout)
+        window = sg.Window(get_translation(default_title), layout)
 
         #  Run the Event Loop
         filename = ""
@@ -44,20 +44,20 @@ class InputDialog:
 
                 except:
                     pass  # something weird happened making the full filename
-            elif event == "OK":
+            elif event == get_translation("OK"):
                 self.filename = filename
                 window.close()
                 break
-            elif event == "Set Default Dir":
+            elif event == get_translation("Set Default Dir"):
                 self.save_default_folder(folder)
-            elif event == "Close":
+            elif event == get_translation("Close"):
                 window.close()
                 break
 
     def get_folder_elements(self):
-        return [sg.Text('Folder', font=self.gui.text_font),
+        return [sg.Text(get_translation('Folder'), font=self.gui.text_font),
                 sg.In(self.default_png_dir, font=self.gui.text_font, size=(25, 1), enable_events=True, key='-FOLDER-'),
-                sg.FolderBrowse(initial_folder=self.default_png_dir, font=self.gui.text_font)]
+                sg.FolderBrowse(initial_folder=self.default_png_dir, font=self.gui.text_font, button_text=get_translation("Browse"))]
 
     def save_file(self, file_name):
         #  Define Layout 
@@ -70,7 +70,7 @@ class InputDialog:
 
         folder = self.default_png_dir
         #  Create Window 
-        window = sg.Window('Save PGN', layout)
+        window = sg.Window(get_translation('Save PGN'), layout)
 
         #  Run the Event Loop
         self.filename = ""
@@ -80,19 +80,19 @@ class InputDialog:
                 break
             if event == '-FOLDER-':
                 folder = values['-FOLDER-']
-            elif event == "OK":
+            elif event == get_translation("OK"):
                 self.filename = os.path.join(values['-FOLDER-'], values['-FILE-'])
                 window.close()
                 break
-            elif event == "Set Default Dir":
+            elif event == get_translation("Set Default Dir"):
                 self.save_default_folder(folder)
-            elif event == "Close":
+            elif event == get_translation("Close"):
                 window.close()
                 break
 
     def get_buttons(self):
-        return [sg.Button("OK", font=self.gui.text_font), sg.Button("Close", font=self.gui.text_font),
-            sg.Button("Set Default Dir", font=self.gui.text_font)]
+        return [sg.Button(get_translation("OK"), font=self.gui.text_font), sg.Button(get_translation("Close"), font=self.gui.text_font),
+            sg.Button(get_translation("Set Default Dir"), font=self.gui.text_font)]
 
     def save_default_folder(self, folder):
         self.gui.preferences.preferences["default_png_dir"] = folder
@@ -155,7 +155,6 @@ class InputDialog:
             else:
                 insert = element.widget.index(sg.tk.INSERT)
                 # in multiline widget this can be: 1.49 (line 1, char 49)
-                print("insert", insert)
                 try:
                     if insert > 0:
                         element.widget.delete(insert - 1, insert)
@@ -177,8 +176,8 @@ class InputDialog:
         layout = [[sg.Text(message, size=(len(message), 1), font=gui.text_font),
                sg.InputText(default_text, font=gui.text_font, key=my_key,
                             size=(50, 1))],
-              [sg.Button("OK", font=gui.text_font),
-               sg.Button("Cancel", font=gui.text_font), sg.Push(), self.get_keyboard_button(sg, gui)],
+              [sg.Button(get_translation("OK"), font=gui.text_font),
+               sg.Button(get_translation("Cancel"), font=gui.text_font), sg.Push(), self.get_keyboard_button(sg, gui)],
               self.get_keyboard_keys(sg, gui)
               ]
         window = sg.Window(title, layout, font=gui.text_font,
@@ -190,13 +189,22 @@ class InputDialog:
                 break
             self.check_keyboard_input(window, event)
 
-            if event == "OK":
+            if event == get_translation("OK"):
                 ret_value = values[my_key]
                 break
-            if event == "Cancel":
+            if event == get_translation("Cancel"):
                 break
         window.close()
         return ret_value
+
+    def add_pgn_to_file(self, game):
+        self.read_file(default_title='Append to PGN')
+        if self.filename:
+            filename = self.filename
+            with open(filename, 'a') as f:
+                f.write('\n\n{}'.format(game))
+            sg.Popup((get_translation('PGN added to') + ' {}').format(filename.split("/")[-1]),
+                     title=get_translation('PGN added'))
 
     def get_comment(self, current_move, gui):
         """
@@ -207,17 +215,17 @@ class InputDialog:
         """
         layout = [[sg.Multiline(current_move.comment, key='Comment', font=gui.text_font
                                 , size=(60, 10))],
-                  [sg.Button('OK', font=gui.text_font), sg.Cancel(font=gui.text_font), sg.Push(),
+                  [sg.Button(get_translation('OK'), font=gui.text_font), sg.Cancel(font=gui.text_font), sg.Push(),
                    self.get_keyboard_button(sg, gui)], self.get_keyboard_keys(sg, gui)
                   ]
-        window = sg.Window('Enter comment', layout, finalize=True)
+        window = sg.Window(get_translation('Enter comment'), layout, finalize=True)
         ok = False
         while True:
             event, values = window.read()
             if event == "Cancel" or event == sg.WIN_CLOSED or event == 'Exit':
                 break
             self.check_keyboard_input(window, event)
-            if event == "OK":
+            if event == get_translation("OK"):
                 comment = values['Comment']
                 ok = True
                 current_move.comment = comment.strip()

@@ -331,13 +331,14 @@ class PGNViewer:
                               get_translation('PGN is not saved')).format(file_name), title=get_translation('PGN is not saved'))
 
             if button == 'Add to db':
-                self.gui.input_dialog.read_file()
-                if self.gui.input_dialog.filename:
-                    filename = self.gui.input_dialog.filename
-                    with open(filename, 'a') as f:
-                        f.write('\n\n{}'.format(self.game))
-                    sg.Popup((get_translation('PGN added to')+' {}').format(filename.split("/")[-1]),
-                             title=get_translation('PGN added'))
+                self.gui.input_dialog.add_pgn_to_file(self.game)
+                # self.gui.input_dialog.read_file()
+                # if self.gui.input_dialog.filename:
+                #     filename = self.gui.input_dialog.filename
+                #     with open(filename, 'a') as f:
+                #         f.write('\n\n{}'.format(self.game))
+                #     sg.Popup((get_translation('PGN added to')+' {}').format(filename.split("/")[-1]),
+                #              title=get_translation('PGN added'))
 
             if button == 'Add to current db':
                 self.add_to_current_db()

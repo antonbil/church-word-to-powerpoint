@@ -2039,9 +2039,10 @@ class EasyChessGui:
 
             if 'save_game_k' in button:
                 logging.info('Saving game manually')
-                with open(self.my_games, mode='a+') as f:
-                    self.game.headers['Event'] = 'My Games'
-                    f.write('{}\n\n'.format(self.game))
+                self.input_dialog.add_pgn_to_file(self.game)
+                # with open(self.my_games, mode='a+') as f:
+                #     self.game.headers['Event'] = 'My Games'
+                #     f.write('{}\n\n'.format(self.game))
                 break
 
             # Mode: Play, Stm: user
