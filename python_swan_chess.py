@@ -3334,11 +3334,11 @@ class EasyChessGui:
         window.UnHide()
 
     def set_user_name(self, window):
-        win_title = 'User/username'
+        win_title = '{}/{}'.format(get_translation("User"), get_translation("username"))
         layout = [
-            [sg.Text('Current username: {}'.format(
+            [sg.Text(get_translation('Current username')+': {}'.format(
                 self.username))],
-            [sg.T('Name', size=(4, 1)), sg.Input(
+            [sg.T(get_translation('Name'), size=(4, 1)), sg.Input(
                 self.username, key='username_k', size=(32, 1))],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
         ]
@@ -3369,23 +3369,23 @@ class EasyChessGui:
         current_is_random_book = self.is_random_book
         current_max_book_ply = self.max_book_ply
         layout = [
-            [sg.Text('This is the book used by your engine opponent.', font=self.text_font)],
-            [sg.T('Book File', font=self.text_font, size=(8, 1)),
+            [sg.Text(get_translation('This is the book used by your engine opponent.'), font=self.text_font)],
+            [sg.T(get_translation('Book File'), font=self.text_font, size=(15, 1)),
              sg.T(self.gui_book_file, font=self.text_font, size=(36, 1), relief='sunken')],
-            [sg.T('Max Ply', font=self.text_font, size=(8, 1)),
+            [sg.T(get_translation('Max Ply'), font=self.text_font, size=(15, 1)),
              sg.Spin([t for t in range(1, 33, 1)], font=self.text_font,
                      initial_value=self.max_book_ply,
                      size=(6, 1), key='book_ply_k')],
-            [sg.CBox('Use book', font=self.text_font, key='use_gui_book_k',
+            [sg.CBox(get_translation('Use book'), font=self.text_font, key='use_gui_book_k',
                      default=self.is_use_gui_book)],
-            [sg.Radio('Best move', 'Book Radio', font=self.text_font,
+            [sg.Radio(get_translation('Best move'), 'Book Radio', font=self.text_font,
                       default=False if self.is_random_book else True),
-             sg.Radio('Random move', 'Book Radio', font=self.text_font,
+             sg.Radio(get_translation('Random move'), 'Book Radio', font=self.text_font,
                       key='random_move_k',
                       default=True if self.is_random_book else False)],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)],
         ]
-        w = sg.Window(BOX_TITLE + '/Set Book', layout,
+        w = sg.Window(BOX_TITLE + '/'+get_translation('Set Book'), layout,
                       icon=ico_path[platform]['pecg'])
         window.Hide()
         while True:
