@@ -287,7 +287,7 @@ translations = {"en": {
            "Fischer": "Fischer",
            "Delay": "Wacht-tijd",
            'Time Per Move': 'Tijd per zet',
-           "This is the book used by your engine opponent.": "Dit is het boek dat door de tegenstander wordt gebruikt.",
+           "This is the book used by your engine opponent.": "Dit is het openingsboek dat bij het spelen wordt gebruikt.",
            "Book File": "Boek Bestand",
            "Max Ply": "Max Ply",
            "Use book": "Gebruik book",
