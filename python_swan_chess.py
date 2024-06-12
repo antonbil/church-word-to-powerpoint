@@ -1473,9 +1473,9 @@ class EasyChessGui:
         self.set_neutral_button_bar(window)
 
     def set_neutral_button_bar(self, window):
-        buttons = [self.play_toolbar.new_button("Play", auto_size_button=True),
-                   self.play_toolbar.new_button("PGN-Editor", auto_size_button=True),
-                   self.play_toolbar.new_button("PGN-Viewer", auto_size_button=True)]
+        buttons = [self.play_toolbar.new_button(get_translation("Play"), auto_size_button=True),
+                   self.play_toolbar.new_button(get_translation("PGN-Editor"), auto_size_button=True),
+                   self.play_toolbar.new_button(get_translation("PGN-Viewer"), auto_size_button=True)]
         self.play_toolbar.buttonbar_add_buttons(window, buttons)
 
     def update_labels_and_game_tags(self, window, human='Human'):
@@ -1600,7 +1600,7 @@ class EasyChessGui:
     def set_depth_limit(self):
         """ Returns max depth based from user setting """
         user_depth = sg.PopupGetText(
-            f'Current depth is {self.max_depth}\n\nInput depth [{MIN_DEPTH} to {MAX_DEPTH}]',
+            get_translation("_get_depth_").format(self.max_depth,MIN_DEPTH, MAX_DEPTH),
             title=BOX_TITLE, font=self.text_font,
             icon=ico_path[platform]['pecg']
         )
@@ -1609,7 +1609,7 @@ class EasyChessGui:
             user_depth = int(user_depth)
         except Exception:
             user_depth = self.max_depth
-            logging.exception('Failed to get user depth.')
+            logging.exception(get_translation('Failed to get user depth.'))
 
         self.max_depth = min(MAX_DEPTH, max(MIN_DEPTH, user_depth))
 
@@ -2966,7 +2966,7 @@ class EasyChessGui:
 
             # check for pgn-viewer-mode
             if (button == 'PGN-Viewer' or self.start_mode_used == "pgnviewer"
-                    or self.play_toolbar.get_button_id(button) == 'PGN-Viewer'):
+                    or self.play_toolbar.get_button_id(button) == get_translation('PGN-Viewer')):
                 # set window-layout and menu-def
                 self.window = self.set_window_column_and_menu(button, self.window, "pgnviewer", 'PGN-Viewer', menu_def_pgnviewer())
                 # execute pgn-viewer
@@ -2979,7 +2979,7 @@ class EasyChessGui:
 
             # check for pgn-editor-mode
             if (button == 'PGN-Editor' or self.start_mode_used == "pgneditor"
-                    or self.play_toolbar.get_button_id(button) == 'PGN-Editor'):
+                    or self.play_toolbar.get_button_id(button) == get_translation('PGN-Editor')):
                 # set window-layout and menu-def
                 self.window = self.set_window_column_and_menu(button, self.window, "pgneditor",
                                                               'PGN-Editor', menu_def_entry())
@@ -2994,7 +2994,8 @@ class EasyChessGui:
                 continue
 
             # check for play-mode
-            if button == 'Play' or self.start_mode_used == "play" or self.play_toolbar.get_button_id(button) == 'Play':
+            if (button == 'Play' or self.start_mode_used == "play" or
+                    self.play_toolbar.get_button_id(button) == get_translation('Play')):
 
                 if self.engine_id_name is None:
                     logging.warning('Install engine first!')
@@ -3011,7 +3012,7 @@ class EasyChessGui:
                 # Restore Neutral menu
                 self.menu_elem.Update(menu_def_neutral())
                 self.board.create_initial_board()
-                self.window.find_element('_gamestatus_').Update('Play Settings')
+                self.window.find_element('_gamestatus_').Update(get_translation('Play Settings'))
                 board = chess.Board()
                 self.set_new_game()
                 continue
@@ -3038,7 +3039,7 @@ class EasyChessGui:
         return window
 
     def set_window_column_and_menu(self, button, window, mode_name, viewer_description, menu):
-        if self.play_toolbar.get_button_id(button) == viewer_description or button == viewer_description:
+        if self.play_toolbar.get_button_id(button) == get_translation(viewer_description) or button == viewer_description:
             # in neutral mode; mode pgn-viewer is selected
             self.start_mode_used = mode_name
             self.swap_visible_columns_window(window)
@@ -3100,7 +3101,7 @@ class EasyChessGui:
             button_action = True
         # Mode: Neutral
         if button == 'Flip':
-            window.find_element('_gamestatus_').Update('Play Settings')
+            window.find_element('_gamestatus_').Update(get_translation('Play Settings'))
             self.clear_elements(window)
             self.window = self.create_new_window(window, True)
             button_action = True

@@ -59,7 +59,8 @@ translations = {"en": {
     "_wait-moment_": 'Wait a minute...',
     "_pgn-annotated_": "PGN is annotated",
     "_and-saved_": "and saved",
-    "_analyse-pgn_": "Analyse PGN"
+    "_analyse-pgn_": "Analyse PGN",
+    "_get_depth_":'Current depth is {}\n\nInput depth [{} to {}]'
 },
     "nl": {'Headers': 'Headers',
            'Select': 'Selecteer',
@@ -242,7 +243,7 @@ translations = {"en": {
 "user_draws_k":"Gebruiker remise",
                      "Analyse game":"Analyseer partij",
 '_paste-fen_':'Klembord',
-"Go":"Start",
+"Go":"Zet nu",
 "Move Now":"Zet nu",
 "Set Depth":"Zet diepte",
 "GUI":"GUI",
@@ -266,6 +267,8 @@ translations = {"en": {
 "delete_player_k":"Verwijder speler",
 "settings_game_k":"Instellingen",
 "Set Engine Adviser":"Stel Adviseur in",
+    "_get_depth_":'Huidige diepte is {}\n\nVoer nieuwe diepte in [{} tot {}]',
+'Failed to get user depth.': 'Gebruiker diepte invoer fout.'
 
 
 
