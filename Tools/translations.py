@@ -268,7 +268,28 @@ translations = {"en": {
 "settings_game_k":"Instellingen",
 "Set Engine Adviser":"Stel Adviseur in",
     "_get_depth_":'Huidige diepte is {}\n\nVoer nieuwe diepte in [{} tot {}]',
-'Failed to get user depth.': 'Gebruiker diepte invoer fout.'
+'Failed to get user depth.': 'Gebruiker diepte invoer fout.',
+"Current Adviser":"Current Adviser",
+"Movetime (sec)":"Movetime (sec)",
+"Select Adviser":"Selectee Advisereur",
+"Current Opponent":"Huidige Tegenstander",
+"Select opponent":"Selecteer tegenstander",
+"Current configured engine names":"Huidige namen van engines",
+"Add":"Toevoegen",
+"Get Id Name":"Verkrijg Id Naam",
+"Name":"Naam",
+"Modify":"Aanpassen",
+'Please select an engine to':'Svp selecteer een engine voor het',
+"Time":"Tijd",
+"User":"Gebruiker",
+"Base time (minute)":"Basis tijd (minuten)",
+"Increment (second)":"Optelling (seconden)",
+"Period moves":"Periode zetten",
+"Fischer":"Fischer",
+"Delay":"Wacht-tijd",
+'Time Per Move': 'Tijd per zet'
+
+
 
 
 

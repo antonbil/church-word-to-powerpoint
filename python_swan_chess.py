@@ -3219,20 +3219,20 @@ class EasyChessGui:
         window.UnHide()
 
     def set_user_time_control(self, window):
-        win_title = 'Time/User'
+        win_title = '{}/{}'.format(get_translation("Time"), get_translation("User"))
         layout = [
-            [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
+            [sg.T(get_translation('Base time (minute)'), font=self.text_font, size=(20, 1)),
              sg.Input(self.human_base_time_ms / 60 / 1000, font=self.text_font,
                       key='base_time_k', size=(8, 1))],
-            [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
+            [sg.T(get_translation('Increment (second)'), font=self.text_font, size=(20, 1)),
              sg.Input(self.human_inc_time_ms / 1000, font=self.text_font, key='inc_time_k',
                       size=(8, 1))],
-            [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
+            [sg.T(get_translation('Period moves'), font=self.text_font, size=(16, 1), visible=False),
              sg.Input(self.human_period_moves, font=self.text_font, key='period_moves_k',
                       size=(8, 1), visible=False)],
-            [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
+            [sg.Radio(get_translation('Fischer'), 'tc_radio', font=self.text_font, key='fischer_type_k',
                       default=True if self.human_tc_type == 'fischer' else False),
-             sg.Radio('Delay', 'tc_radio', font=self.text_font, key='delay_type_k',
+             sg.Radio(get_translation('Delay'), 'tc_radio', font=self.text_font, key='delay_type_k',
                       default=True if self.human_tc_type == 'delay' else False)],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
         ]
@@ -3265,23 +3265,23 @@ class EasyChessGui:
         window.UnHide()
 
     def set_engine_time_control(self, window):
-        win_title = 'Time/Engine'
+        win_title = '{}/{}'.format(get_translation("Time"), get_translation("Engine"))
         layout = [
-            [sg.T('Base time (minute)', font=self.text_font, size=(18, 1)),
+            [sg.T(get_translation('Base time (minute)'), font=self.text_font, size=(20, 1)),
              sg.Input(self.engine_base_time_ms / 60 / 1000,
                       key='base_time_k', font=self.text_font, size=(8, 1))],
-            [sg.T('Increment (second)', font=self.text_font, size=(18, 1)),
+            [sg.T(get_translation('Increment (second)'), font=self.text_font, size=(20, 1)),
              sg.Input(self.engine_inc_time_ms / 1000, font=self.text_font,
                       key='inc_time_k',
                       size=(8, 1))],
-            [sg.T('Period moves', font=self.text_font, size=(16, 1), visible=False),
+            [sg.T(get_translation('Period moves'), font=self.text_font, size=(16, 1), visible=False),
              sg.Input(self.engine_period_moves, font=self.text_font,
                       key='period_moves_k', size=(8, 1),
                       visible=False)],
-            [sg.Radio('Fischer', 'tc_radio', font=self.text_font, key='fischer_type_k',
+            [sg.Radio(get_translation('Fischer'), 'tc_radio', font=self.text_font, key='fischer_type_k',
                       default=True if
                       self.engine_tc_type == 'fischer' else False),
-             sg.Radio('Time Per Move', 'tc_radio', font=self.text_font, key='timepermove_k',
+             sg.Radio(get_translation('Time Per Move'), 'tc_radio', font=self.text_font, key='timepermove_k',
                       default=True if
                       self.engine_tc_type == 'timepermove' else
                       False, tooltip='Only base time will be used.')
@@ -3519,14 +3519,14 @@ class EasyChessGui:
     def manage_engine(self, button, window, engine_id_name):
         msg = None
         if button == 'Install':
-            button_title = 'Engine/Manage/' + button
+            button_title = '/{}/{}/'.format(get_translation("Engine"), get_translation("Manage")) + button
             new_engine_path_file, new_engine_id_name = None, None
 
             install_layout = [
-                [sg.Text('Current configured engine names', font=self.text_font)],
+                [sg.Text(get_translation('Current configured engine names'), font=self.text_font)],
                 [sg.Listbox(values=self.engine_id_name_list,
                             size=(48, 10), font=self.text_font, disabled=True)],
-                [sg.Button('Add', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
+                [sg.Button(get_translation('Add'), font=self.text_font), sg.Button(get_translation('Cancel'), font=self.text_font)]
             ]
 
             window.Hide()
@@ -3536,18 +3536,18 @@ class EasyChessGui:
 
             while True:
                 e, v = install_win.Read(timeout=100)
-                if e is None or e == 'Cancel':
+                if e is None or e == get_translation('Cancel'):
                     break
-                if e == 'Add':
+                if e == get_translation('Add'):
                     button_title += '/' + e
 
                     add_layout = [
-                        [sg.Text('Engine', font=self.text_font, size=(6, 1)), sg.Input(key='engine_path_file_k'),
+                        [sg.Text(get_translation('Engine'), font=self.text_font, size=(6, 1)), sg.Input(key='engine_path_file_k'),
                          sg.FileBrowse()],
                         [
-                            sg.Text('Name', font=self.text_font, size=(6, 1)),
+                            sg.Text(get_translation('Name'), font=self.text_font, size=(6, 1)),
                             sg.Input(key='engine_id_name_k', font=self.text_font, tooltip='Input name'),
-                            sg.Button('Get Id Name', font=self.text_font)
+                            sg.Button(get_translation('Get Id Name'), font=self.text_font)
                         ],
                         [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
                     ]
@@ -3563,7 +3563,7 @@ class EasyChessGui:
                         if e1 == 'Cancel':
                             is_cancel_add_win = True
                             break
-                        if e1 == 'Get Id Name':
+                        if e1 == get_translation('Get Id Name'):
                             new_engine_path_file = v1['engine_path_file_k']
 
                             # We can only get the engine id name if the engine is defined.
@@ -3682,13 +3682,13 @@ class EasyChessGui:
             return engine_id_name, True
         # Mode: Neutral
         if button == 'Edit':
-            button_title = 'Engine/Manage/' + button
+            button_title = '/{}/{}/'.format(get_translation("Engine"), get_translation("Manage")) + button
             opt_name = []
             ret_opt_name = []
             engine_path_file, engine_id_name = None, None
 
             edit_layout = [
-                [sg.Text('Current configured engine names', font=self.text_font)],
+                [sg.Text(get_translation('Current configured engine names'), font=self.text_font)],
                 [
                     sg.Listbox(
                         values=self.engine_id_name_list, font=self.text_font,
@@ -3696,7 +3696,7 @@ class EasyChessGui:
                         key='engine_id_name_k'
                     )
                 ],
-                [sg.Button('Modify', font=self.text_font), sg.Button('Cancel', font=self.text_font)]
+                [sg.Button(get_translation('Modify'), font=self.text_font), sg.Button(get_translation('Cancel'), font=self.text_font)]
             ]
 
             window.Hide()
@@ -3708,18 +3708,18 @@ class EasyChessGui:
             is_cancel_edit_win = False
             while True:
                 e, v = edit_win.Read(timeout=100)
-                if e is None or e == 'Cancel':
+                if e is None or e == get_translation('Cancel'):
                     is_cancel_edit_win = True
                     break
-                if e == 'Modify':
+                if e == get_translation('Modify'):
                     option_layout, option_layout2 = [], []
                     button_title += '/' + e
 
                     try:
                         orig_idname = engine_id_name = v['engine_id_name_k'][0]
                     except Exception:
-                        sg.Popup('Please select an engine to modify.',
-                                 title='/Edit/Modify',
+                        sg.Popup('{} {}.'.format(get_translation('Please select an engine to'),get_translation('Modify')),
+                                 title='/{}/{}'.format(get_translation("Manage"), get_translation("Modify")),
                                  icon=ico_path[platform]['pecg'])
                         continue
 
@@ -3886,12 +3886,12 @@ class EasyChessGui:
             return engine_id_name, True
         # Mode: Neutral
         if button == 'Delete':
-            button_title = 'Engine/Manage/' + button
+            button_title = '/{}/{}/'.format(get_translation("Engine"), get_translation("Manage")) + button
             delete_layout = [
-                [sg.Text('Current configured engine names', font=self.text_font)],
+                [sg.Text(get_translation('Current configured engine names'), font=self.text_font)],
                 [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
                             key='engine_id_name_k')],
-                [sg.Button('Delete', font=self.text_font), sg.Cancel(font=self.text_font)]
+                [sg.Button(get_translation('Delete'), font=self.text_font), sg.Cancel(font=self.text_font)]
             ]
             window.Hide()
             delete_win = sg.Window(
@@ -3905,11 +3905,11 @@ class EasyChessGui:
                 if e is None or e == 'Cancel':
                     is_cancel = True
                     break
-                if e == 'Delete':
+                if e == get_translation('Delete'):
                     try:
                         engine_id_name = v['engine_id_name_k'][0]
                     except Exception:
-                        sg.Popup('Please select an engine to delete.',
+                        sg.Popup('{} {}.'.format(get_translation('Please select an engine to'),get_translation('Delete')),
                                  title=button_title,
                                  icon=ico_path[platform]['pecg'])
                         continue
@@ -3948,18 +3948,18 @@ class EasyChessGui:
         current_adviser_engine_file = self.adviser_file
         current_adviser_path_and_file = self.adviser_path_and_file
         layout = [
-            [sg.T('Current Adviser: {}'.format(self.adviser_id_name), font=self.text_font,
+            [sg.T(get_translation('Current Adviser')+': {}'.format(self.adviser_id_name), font=self.text_font,
                   size=(40, 1))],
             [sg.Listbox(values=self.engine_id_name_list, font=self.text_font, size=(48, 10),
                         key='adviser_id_name_k')],
-            [sg.T('Movetime (sec)', font=self.text_font, size=(14, 1)),
+            [sg.T(get_translation('Movetime (sec)'), font=self.text_font, size=(14, 1)),
              sg.Spin([t for t in range(1, 3600, 1)], font=self.text_font,
                      initial_value=self.adviser_movetime_sec,
                      size=(8, 1), key='adviser_movetime_k')],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
         ]
         # Create new window and disable the main window
-        w = sg.Window(BOX_TITLE + '/Select Adviser', layout,
+        w = sg.Window(BOX_TITLE + '/'+get_translation('Select Adviser'), layout,
                       icon=ico_path[platform]['adviser'])
         window.Hide()
         while True:
@@ -3999,12 +3999,12 @@ class EasyChessGui:
         logging.info('Current engine file: {}'.format(
             current_engine_file))
         layout = [
-            [sg.T('Current Opponent: {}'.format(self.opp_id_name), size=(40, 1))],
+            [sg.T(get_translation('Current Opponent')+': {}'.format(self.opp_id_name), size=(40, 1))],
             [sg.Listbox(values=self.engine_id_name_list, size=(48, 10), key='engine_id_k')],
             [sg.OK(font=self.text_font), sg.Cancel(font=self.text_font)]
         ]
         # Create new window and disable the main window
-        w = sg.Window(BOX_TITLE + '/Select opponent', layout,
+        w = sg.Window(BOX_TITLE + '/'+get_translation('Select opponent'), layout,
                       icon=ico_path[platform]['enemy'])
         window.Hide()
         while True:
