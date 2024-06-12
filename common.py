@@ -52,12 +52,19 @@ menu_def_play1 = [
     ['FEN', ['Paste::_paste-fen_']],
     ['&Engine', ['Go::Go', 'Move Now::Move Now', 'Set Depth::Set Depth']],
     ['&Mode', ['PGN-Viewer::PGN-Viewer', 'PGN-Editor::PGN-Editor']],
-    ['Settings', ['Play Settings::Play Settings',
-'&Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent', 'Set Depth::Set Depth',
+    ['Settings', ['Boar&d', ['Flip::Flip', 'Color', ['Brown::board_color_k_brown',
+                                  'Blue::board_color_k_blue',
+                                  'Green::board_color_k_green',
+                                  'Gray::board_color_k_gray'],
+                'Theme', GUI_THEME],
+    '&Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent', 'Set Depth::Set Depth',
                  'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
-                  '&User', ['Set Name::user_name_k']
-                  #'Color', colors
-                  ]],
+    '&Time', ['User::tc_k_user', 'Engine::tc_k_engine'],
+    '&Book', ['Set Book::book_set_k'],
+    '&User', ['Set Name::user_name_k'],
+    #'Tools', ['PGN', ['Delete Player::delete_player_k']],
+    '&Settings', ['Game::settings_game_k'],
+    ]],
     ['&Help', ['GUI::GUI']],
 ]
 menu_def_annotate1 = [

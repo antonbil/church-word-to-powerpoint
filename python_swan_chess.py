@@ -774,8 +774,11 @@ class EasyChessGui:
         my_preferences = self.preferences.preferences
         self.is_save_time_left = my_preferences["is_save_time_left"] if "is_save_time_left" in my_preferences else False
         self.start_mode = my_preferences["start_mode"] if "start_mode" in my_preferences else False
-        if not start_mode == "neutral-default":
+        if start_mode in ["play", "pgnviewer", "pgneditor"]:
             self.start_mode = start_mode
+        else:
+            # default
+            self.start_mode = 'pgnviewer'
         self.start_mode_used = self.start_mode
         self.sites_list = my_preferences["sites_list"] if "sites_list" in my_preferences else []
         self.events_list = my_preferences["events_list"] if "events_list" in my_preferences else []
