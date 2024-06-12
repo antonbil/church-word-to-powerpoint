@@ -1972,6 +1972,11 @@ class EasyChessGui:
             if button == 'PGN-Viewer':
                 self.play_to_pgn_viewer(window)
                 break
+
+            if self.check_game_setting_button(button, self.window):
+                window = self.window
+                continue
+
             # Mode: Play, Stm: User, Run adviser engine
             if button == 'adviser_k':
                 self.give_advice(board, window)
@@ -1990,6 +1995,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: user
+            # todo: check....
             if 'right_book1_k' in button:
                 self.is_hide_book1 = True
                 break
@@ -2000,6 +2006,7 @@ class EasyChessGui:
                 break
 
             # Mode: Play, Stm: user
+            # todo: check..
             if 'right_book2_k' in button:
                 self.is_hide_book2 = True
                 break
@@ -2241,6 +2248,10 @@ class EasyChessGui:
                     k = 'w_elapse_k'
                 window.Element(k).Update(elapse_str)
                 self.engine_timer.elapse += 100
+
+                if self.check_game_setting_button(button, self.window):
+                    window = self.window
+                    continue
 
                 # Hide/Unhide engine searching info while engine is thinking
                 if button == 'search_info_k':

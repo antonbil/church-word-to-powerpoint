@@ -53,6 +53,9 @@ menu_def_play1 = [
     ['&Engine', ['Go::Go', 'Move Now::Move Now', 'Set Depth::Set Depth']],
     ['&Mode', ['PGN-Viewer::PGN-Viewer', 'PGN-Editor::PGN-Editor']],
     ['Settings', ['Play Settings::Play Settings',
+'&Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent', 'Set Depth::Set Depth',
+                 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
+                  '&User', ['Set Name::user_name_k']
                   #'Color', colors
                   ]],
     ['&Help', ['GUI::GUI']],
