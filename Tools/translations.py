@@ -60,7 +60,13 @@ translations = {"en": {
     "_pgn-annotated_": "PGN is annotated",
     "_and-saved_": "and saved",
     "_analyse-pgn_": "Analyse PGN",
-    "_get_depth_": 'Current depth is {}\n\nInput depth [{} to {}]'
+    "_get_depth_": 'Current depth is {}\n\nInput depth [{} to {}]',
+    "_engine_not_installed_": 'This engine cannot be '
+                              'installed. Please select '
+                              'another engine. It should be uci '
+                              'engine.',
+    "_existing-engine_": '{} is existing. Please modify the name! ' +
+                         'You can modify the config later thru {}',
 },
     "nl": {'Headers': 'Headers',
            'Select': 'Selecteer',
@@ -287,7 +293,8 @@ translations = {"en": {
            "Fischer": "Fischer",
            "Delay": "Wacht-tijd",
            'Time Per Move': 'Tijd per zet',
-           "This is the book used by your engine opponent.": "Dit is het openingsboek dat bij het spelen wordt gebruikt.",
+           "This is the book used by your engine opponent.":
+               "Dit is het openingsboek dat bij het spelen wordt gebruikt.",
            "Book File": "Boek Bestand",
            "Max Ply": "Max Ply",
            "Use book": "Gebruik book",
@@ -296,6 +303,17 @@ translations = {"en": {
            "Set Book": "Stel Boek in",
            "username": "gebruikersnaam",
            "Current username": "Huidige gebruikersnaam",
+
+           "_engine_not_installed_": 'Deze engine kan niet '
+                                     'worden geinstalleerd. selecteer svp '
+                                     'een andere engine. Het moet een uci '
+                                     'engine zijn.',
+           "_existing-engine_": '{} bestaat al. Verander svp de naam! ' +
+                                'Je kunt later de config veranderen via {}',
+           'Please define the engine or browse to the location of the engine file first.':
+               'Defineer svp de engine, of wijs eerst de locatie van het engine-bestand aan.',
+           'Please input engine id name, or press {} button.': 'Svp voer in engine id naam, of selecteer:"{}" knop.',
+           'Failed to add {} in config file!': 'Probleem met toevoegen {} in het config bestand!'
            }
 }
 

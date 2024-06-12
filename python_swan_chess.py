@@ -3606,11 +3606,8 @@ class EasyChessGui:
                                 else:
                                     is_cancel_add_win = True
                                     sg.Popup(
-                                        'This engine cannot be '
-                                        'installed. Please select '
-                                        'another engine. It should be uci '
-                                        'engine.',
-                                        title=button_title + '/Get Id name')
+                                        get_translation("_engine_not_installed_"),
+                                        title=button_title + '/'+get_translation("Get Id Name"))
 
                                 if is_update_list:
                                     add_win.Element('engine_id_name_k').Update(
@@ -3623,8 +3620,8 @@ class EasyChessGui:
 
                             else:
                                 sg.Popup(
-                                    'Please define the engine or browse to the location of the engine file first.',
-                                    title=button_title + '/Get Id name'
+                                    get_translation('Please define the engine or browse to the location of the engine file first.'),
+                                    title=button_title + '/'+get_translation("Get Id Name")
                                 )
 
                         if e1 == 'OK':
@@ -3636,8 +3633,8 @@ class EasyChessGui:
                                     # Check if new_engine_id_name is already existing
                                     if self.is_name_exists(new_engine_id_name):
                                         sg.Popup(
-                                            f'{new_engine_id_name} is existing. Please modify the name! \
-                                                You can modify the config later thru Engine->Manage->Edit',
+                                            get_translation("_existing-engine_").format(new_engine_id_name,
+                                                                                        '/{}/{}/'.format(get_translation("Engine"), get_translation("Manage"))),
                                             title=button_title,
                                             icon=ico_path[platform]['pecg']
                                         )
@@ -3645,7 +3642,8 @@ class EasyChessGui:
                                     break
                                 else:
                                     sg.Popup(
-                                        'Please input engine id name, or press Get Id Name button.',
+                                        get_translation('Please input engine id name, or press {} button.'.format(
+                                            get_translation("Get Id Name"))),
                                         title=button_title,
                                         icon=ico_path[platform]['pecg']
                                     )
@@ -3675,7 +3673,7 @@ class EasyChessGui:
 
                         if msg == 'Failure':
                             sg.Popup(
-                                f'Failed to add {new_engine_id_name} in config file!',
+                                'Failed to add {} in config file!'.format(new_engine_id_name),
                                 title=button_title,
                                 icon=ico_path[platform]['pecg']
                             )
