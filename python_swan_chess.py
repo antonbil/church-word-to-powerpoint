@@ -2866,18 +2866,18 @@ class EasyChessGui:
             self.move_sq_dark_color = '#999966'
 
         # Mode: Neutral, Change board to green
-        # if button == 'Green::board_color_k':
-        #     self.sq_light_color = '#daf1e3'
-        #     self.sq_dark_color = '#3a7859'
-        #     self.move_sq_light_color = '#bae58f'
-        #     self.move_sq_dark_color = '#6fbc55'
-        #
-        # # Mode: Neutral, Change board to blue
-        # if button == 'Blue::board_color_k':
-        #     self.sq_light_color = '#b9d6e8'
-        #     self.sq_dark_color = '#4790c0'
-        #     self.move_sq_light_color = '#d2e4ba'
-        #     self.move_sq_dark_color = '#91bc9c'
+        if button == 'Green::board_color_k':
+            self.sq_light_color = '#daf1e3'
+            self.sq_dark_color = '#3a7859'
+            self.move_sq_light_color = '#bae58f'
+            self.move_sq_dark_color = '#6fbc55'
+
+        # Mode: Neutral, Change board to blue
+        if button == 'Blue::board_color_k':
+            self.sq_light_color = '#b9d6e8'
+            self.sq_dark_color = '#4790c0'
+            self.move_sq_light_color = '#d2e4ba'
+            self.move_sq_dark_color = '#91bc9c'
 
         # Mode: Neutral, Change board to brown, default
         if button == 'Brown::board_color_k':

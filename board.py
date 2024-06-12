@@ -199,7 +199,6 @@ class ChessBoard:
         :param window:
         :return:
         """
-        print("dark overall", self.gui.sq_dark_color)
         for i in range(8):
             for j in range(8):
                 color = self.gui.sq_dark_color if (i + j) % 2 else \
@@ -220,7 +219,6 @@ class ChessBoard:
         """
         if (location[0] + location[1]) % 2:
             color = self.gui.sq_dark_color  # Dark square
-            print("dark image", color)
         else:
             color = self.gui.sq_light_color
         imgbytes = convert_to_bytes(image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
