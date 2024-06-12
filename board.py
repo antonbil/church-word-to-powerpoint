@@ -434,8 +434,8 @@ class ChessBoard:
             to = chess.D8
             pc = ROOKB
 
-        self.psg_board1[self.get_row(fr)][self.get_col(fr)] = BLANK
-        self.psg_board1[self.get_row(to)][self.get_col(to)] = pc
+        self.psg_board1[self.gui.get_row(fr)][self.gui.get_col(fr)] = BLANK
+        self.psg_board1[self.gui.get_row(to)][self.gui.get_col(to)] = pc
         self.redraw_board(window)
 
     def get_chess_coordinates(self, button_square):
