@@ -2897,8 +2897,8 @@ on chromebook only works if colors with rgb: r and b are the same!???
             self.move_sq_dark_color = '#999999'
         # Mode: Neutral, Change board to green
         if button == 'Green::board_color_k':
-            self.sq_light_color = '#daf1e3'
-            self.sq_dark_color = '#3a7859'
+            self.sq_light_color = '#b9d6b9'
+            self.sq_dark_color = '#479047'
             self.move_sq_light_color = '#bae58f'
             self.move_sq_dark_color = '#6fbc55'
 
