@@ -2915,6 +2915,13 @@ on chromebook only works if colors with rgb: r and b are the same!???
             self.sq_dark_color = '#B58863'
             self.move_sq_light_color = '#E8E18E'
             self.move_sq_dark_color = '#B8AF4E'
+        # Mode: Neutral, Change board to brown, default
+        if button == 'Rosy::board_color_k':
+            self.sq_light_color = 'sandy brown'
+            self.sq_dark_color = 'rosy brown'
+            self.move_sq_light_color = '#E8E18E'
+            self.move_sq_dark_color = '#B8AF4E'
+
         if store:
             self.preferences.preferences["board_color"] = button
             self.preferences.save_preferences()
