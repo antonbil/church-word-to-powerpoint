@@ -2866,6 +2866,12 @@ Marine
 Dark 111,115,210 #6F76D2
 Light 157,172,255 #9DACFF
 
+Emerald
+Dark 111,143,114
+Light 173,189,143
+
+on chromebook only works if colors with rgb: r and b are the same!???
+
         """
         # Mode: Neutral, Change board to gray
         if button == 'Gray::board_color_k':
@@ -2884,6 +2890,11 @@ Light 157,172,255 #9DACFF
             self.sq_dark_color = '#6F76D2'
             self.move_sq_light_color = '#e0e0ad'
             self.move_sq_dark_color = '#999966'
+        if button == 'Emerald::board_color_k':
+            self.sq_light_color = '##A0BDA0'
+            self.sq_dark_color = '##708F70'
+            self.move_sq_light_color = '#e0e0e0'
+            self.move_sq_dark_color = '#999999'
         # Mode: Neutral, Change board to green
         if button == 'Green::board_color_k':
             self.sq_light_color = '#daf1e3'

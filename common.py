@@ -10,6 +10,7 @@ board_colors = ['Brown::board_color_k_brown',
           'Green::board_color_k_green',
 'Coral::board_color_k_coral',
 'Marine::board_color_k_marine',
+'Emerald::board_color_k_emerald',
           'Gray::board_color_k_gray']
 settings_menu = ['Color', board_colors.copy(),
                  'Theme', GUI_THEME,
