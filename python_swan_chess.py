@@ -2703,7 +2703,7 @@ class EasyChessGui:
                     color = self.sq_dark_color  # Dark square
                 else:
                     color = self.sq_light_color
-                self.board.change_square_color_border(window, i, j, color)
+                self.board.change_square_color(window, i, j, color)
 
     def build_main_layout(self, is_user_white=True):
         """
