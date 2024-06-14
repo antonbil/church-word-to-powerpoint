@@ -808,6 +808,8 @@ class EasyChessGui:
             "keyboard_visible_at_start"] if "keyboard_visible_at_start" in my_preferences else False
         self.input_dialog = InputDialog(self, self.default_png_dir, keyboard_visible_at_start)
         self.language = my_preferences["language"] if "language" in my_preferences else "en"
+        self.reverse_color_background_piece = my_preferences["reverse_color_background_piece"] \
+            if "reverse_color_background_piece" in my_preferences else False
         set_language(self.language)
 
     def update_game(self, mc: int, user_move: str, time_left: int, user_comment: str):

@@ -38,7 +38,8 @@ class Preferences:
     "opponent_engine": "",
     "skill_level": 6,
     "use_skill": True,
-                    "language":"en"
+                    "language":"en",
+                    "reverse_color_background_piece": False
 }
             return preferences
 
