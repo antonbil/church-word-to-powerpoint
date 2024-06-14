@@ -58,7 +58,7 @@ import chess.polyglot
 import logging
 import platform as sys_plat
 from annotator import annotator
-from board import (ChessBoard, convert_to_bytes)
+from board import (ChessBoard, convert_to_bytes, swap_red_blue)
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
@@ -2885,13 +2885,13 @@ on chromebook only works if colors with rgb: r and b are the same!???
         if button == 'Coral::board_color_k':
             self.sq_light_color = '#B1E4B9'
             self.sq_dark_color = '#70A2A3'
-            self.move_sq_light_color = '#e0e0ad'
-            self.move_sq_dark_color = '#999966'
+            self.move_sq_light_color = '#A3A270'
+            self.move_sq_dark_color = swap_red_blue('#70A2A3')
         if button == 'Marine::board_color_k':
             self.sq_light_color = '#9DACFF'
             self.sq_dark_color = '#6F76D2'
-            self.move_sq_light_color = '#e0e0ad'
-            self.move_sq_dark_color = '#999966'
+            self.move_sq_light_color = '#D2766F'
+            self.move_sq_dark_color = swap_red_blue(self.sq_dark_color)
         if button == 'Emerald::board_color_k':
             self.sq_light_color = '#A0BDA0'
             self.sq_dark_color = '#708F70'
@@ -2902,7 +2902,7 @@ on chromebook only works if colors with rgb: r and b are the same!???
             self.sq_light_color = '#b9d6b9'
             self.sq_dark_color = '#479047'
             self.move_sq_light_color = '#bae58f'
-            self.move_sq_dark_color = '#6fbc55'
+            self.move_sq_dark_color = '#bae58f'
 
         # Mode: Neutral, Change board to blue
         if button == 'Blue::board_color_k':
@@ -2921,7 +2921,7 @@ on chromebook only works if colors with rgb: r and b are the same!???
         if button == 'Rosy::board_color_k':
             self.sq_light_color = 'sandy brown'
             self.sq_dark_color = 'rosy brown'
-            self.move_sq_light_color = '#E8E18E'
+            self.move_sq_light_color = '#B8AF4E'
             self.move_sq_dark_color = '#B8AF4E'
 
         if store:

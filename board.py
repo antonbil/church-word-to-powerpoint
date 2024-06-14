@@ -65,6 +65,12 @@ promote_psg_to_pyc = {
     ROOKW: chess.ROOK, QUEENW: chess.QUEEN
 }
 
+
+def swap_red_blue(color):
+    reverse_color = "#{}{}{}".format(color[5:7], color[3:5], color[1:3])
+    color = reverse_color
+    return color
+
 def convert_to_bytes(file_or_bytes, resize=None):
     """
     Will convert into bytes and optionally resize an image that is a file or a base64 bytes object.
@@ -249,8 +255,7 @@ class ChessBoard:
 
     def get_reverse_color(self, color, piece_id):
         if self.gui.reverse_color_background_piece and not piece_id == BLANK:
-            reverse_color = "#{}{}{}".format(color[5:7], color[3:5], color[1:3])
-            color = reverse_color
+            color = swap_red_blue(color)
         return color
 
     def fen_to_psg_board(self, window):
