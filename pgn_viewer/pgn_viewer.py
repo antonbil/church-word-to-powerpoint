@@ -242,6 +242,7 @@ class PGNViewer:
                 self.always_to_clipboard()
                 self.classify_opening()
                 self.add_to_current_db()
+                self.redraw_all()
 
             if button == 'Classify Opening':
                 self.classify_opening()
