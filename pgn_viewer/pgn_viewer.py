@@ -102,7 +102,7 @@ class PGNViewer:
         if game_name:
             self.select_game()
 
-    def get_description_pgn(self, game):
+    def get_description_pgn(self, game, i):
         try:
             date = game.headers['Date'].replace("?", "").replace("..", "") if 'Date' in game.headers else ""
             opening = game.headers['Opening'] if 'Opening' in game.headers else ""
@@ -114,7 +114,7 @@ class PGNViewer:
             if len(white_) + len(black_) + 1 <= max_title:
                 filler_width = max_title - (len(white_) + len(black_) + 1)
             filler = " " * filler_width
-            return "{}-{}{} {} ({}){}".format(white_, black_, filler, date, result_, opening)
+            return "{} {}-{}{} {} ({}){}".format(i, white_, black_, filler, date, result_, opening)
         except:
             return ""
 
@@ -990,10 +990,12 @@ class PGNViewer:
         # Reading the game
         game1 = chess.pgn.read_game(pgn)
         start_game = game1
-        while not (self.get_description_pgn(game1) == self.my_game):
+        i = 1
+        while not (self.get_description_pgn(game1, i) == self.my_game):
             game1 = chess.pgn.read_game(pgn)
             if game1 is None:
                 break  # end of file
+            i = i + 1
         if not game1:
             self.init_game(start_game)
             return
@@ -1028,16 +1030,18 @@ class PGNViewer:
             return False
         self.game = game
         self.game_descriptions = []
-        self.game_descriptions.append(self.get_description_pgn(game))
-        self.my_game = self.get_description_pgn(game)
+        i = 1
+        self.game_descriptions.append(self.get_description_pgn(game, i))
+        self.my_game = self.get_description_pgn(game, i)
         if not (pgn_file == temp_file_name):
             self.gui.save_pgn_game_in_preferences(self.my_game)
             while True:
+                i = i + 1
                 game1 = chess.pgn.read_game(pgn)
                 if game1 is None:
                     break  # end of file
 
-                self.game_descriptions.append(self.get_description_pgn(game1))
+                self.game_descriptions.append(self.get_description_pgn(game1, i))
             # print(self.game_descriptions)
         self.init_game(game)
         self.display_move()
