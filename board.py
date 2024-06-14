@@ -221,6 +221,7 @@ class ChessBoard:
                 elem.Update(button_color=('white', color),
                             image_data=imgbytes, image_size=(self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
                 elem.widget.configure(background=color,activeforeground=color, activebackground=color)
+                window.find_element(key=self.get_field_id((i, j + 64))).widget.configure(highlightbackground=color)
 
     def render_square(self, image, key, location, piece_id=BLANK):
         """
