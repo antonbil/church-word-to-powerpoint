@@ -184,8 +184,7 @@ class ChessBoard:
         btn_sq = window.find_element(key=self.get_field_id((row, col + 64)))
         # btn_sq.Update(border_width=4)
         btn_sq.widget.configure(background=color, borderwidth=4, relief="flat")
-        window.find_element(key=self.get_field_id((row, col))).widget.configure(background=color,
-                                                                                activeforeground=color, activebackground=color)
+        #window.find_element(key=self.get_field_id((row, col))).widget.configure(background=color)
 
     def change_square_color_move(self, window, row, col):
         """
@@ -215,12 +214,13 @@ class ChessBoard:
                 color = self.gui.sq_dark_color if (i + j) % 2 else \
                     self.gui.sq_light_color
                 piece_id = self.psg_board1[i][j]
-                #color = self.get_reverse_color(color, piece_id)
+                color = self.get_reverse_color(color, piece_id)
                 piece_image = images[piece_id]
                 elem = window.find_element(key=self.get_field_id((i, j)))
                 imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
                             image_data=imgbytes, image_size=(self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
+                elem.widget.configure(background=color,activeforeground=color, activebackground=color)
 
     def render_square(self, image, key, location, piece_id=BLANK):
         """
