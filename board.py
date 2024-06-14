@@ -217,7 +217,8 @@ class ChessBoard:
                 color = self.get_reverse_color(color, piece_id)
                 piece_image = images[piece_id]
                 elem = window.find_element(key=self.get_field_id((i, j)))
-                imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
+                # add 2 to FIELD_SIZE to remove border from button-piece
+                imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE+2, self.gui.FIELD_SIZE+2))
                 elem.Update(button_color=('white', color),
                             image_data=imgbytes, image_size=(self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
                 elem.widget.configure(background=color,activeforeground=color, activebackground=color)
