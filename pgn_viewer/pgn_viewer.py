@@ -1125,6 +1125,8 @@ class PGNViewer:
         #     next_move.comment, append=True, disabled=True)
 
         move_string = self.pgn_display.get_move_string(next_move)
+        if move_number < 1:
+            move_string = ""
         alternative_moves = [a for a in next_move.variations][:MAX_ALTERNATIVES]
         # if len(alternative_moves) > 0:
         #     alternative_moves.pop(0)
