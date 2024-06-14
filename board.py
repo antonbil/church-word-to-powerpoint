@@ -215,7 +215,7 @@ class ChessBoard:
                 color = self.gui.sq_dark_color if (i + j) % 2 else \
                     self.gui.sq_light_color
                 piece_id = self.psg_board1[i][j]
-                color = self.get_reverse_color(color, piece_id)
+                #color = self.get_reverse_color(color, piece_id)
                 piece_image = images[piece_id]
                 elem = window.find_element(key=self.get_field_id((i, j)))
                 imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
