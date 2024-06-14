@@ -246,10 +246,9 @@ class ChessBoard:
                         , relief=sg.RELIEF_FLAT)
 
     def get_reverse_color(self, color, piece_id):
-        if True and not piece_id == BLANK:
+        if Fale and not piece_id == BLANK:
             reverse_color = "#{}{}{}".format(color[5:7], color[3:5], color[1:3])
             color = reverse_color
-            pass
         return color
 
     def fen_to_psg_board(self, window):
