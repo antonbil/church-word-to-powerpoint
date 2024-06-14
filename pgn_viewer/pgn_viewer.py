@@ -233,6 +233,7 @@ class PGNViewer:
 
             if button == 'From clipboard':
                 self.from_clipboard()
+                self.redraw_all()
 
             if button == 'overall_game_info':
                 self.overall_game_info()
@@ -720,6 +721,7 @@ class PGNViewer:
     def from_clipboard(self):
         if sg.popup_yes_no(get_translation('__put-pgn-clipboard'), title=get_translation("PGN from clipboard")) == 'Yes':
             self.always_to_clipboard()
+            self.classify_opening()
 
     def always_to_clipboard(self):
         pgn_data = pyperclip.paste()
