@@ -153,7 +153,8 @@ class ChessBoard:
             for j in range(start, end, step):
                 piece_image = images[self.psg_board1[i][j]]
                 button_square_id = (i, j)
-                square = self.render_square(piece_image, key=button_square_id, location=(i, j))
+                square = self.render_square(piece_image, key=button_square_id, location=(i, j),
+                                            piece_id=self.psg_board1[i][j])
                 row.append(square)
                 # save key to white- and black-lists
                 #   frame-square has 64 added to it, to distinguish it from a button-square
@@ -212,24 +213,28 @@ class ChessBoard:
             for j in range(8):
                 color = self.gui.sq_dark_color if (i + j) % 2 else \
                     self.gui.sq_light_color
-                piece_image = images[self.psg_board1[i][j]]
+                piece_id = self.psg_board1[i][j]
+                color = self.get_reverse_color(color, piece_id)
+                piece_image = images[piece_id]
                 elem = window.find_element(key=self.get_field_id((i, j)))
                 imgbytes = convert_to_bytes(piece_image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
                 elem.Update(button_color=('white', color),
                             image_data=imgbytes, image_size=(self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
 
-    def render_square(self, image, key, location):
+    def render_square(self, image, key, location, piece_id=BLANK):
         """
         Returns an RButton (Read Button) with image image
         :param image: image of the piece at the square
         :param key: the key= (x,y)-tuple of the square
         :param location:
+        :param piece_id: id of piece to be rendered
         :return:
         """
         if (location[0] + location[1]) % 2:
             color = self.gui.sq_dark_color  # Dark square
         else:
             color = self.gui.sq_light_color
+        color = self.get_reverse_color(color, piece_id)
         imgbytes = convert_to_bytes(image, (self.gui.FIELD_SIZE, self.gui.FIELD_SIZE))
         return sg.Frame('', [
             [sg.RButton('', image_data=imgbytes, size=(1, 1), image_size=(self.gui.FIELD_SIZE, self.gui.FIELD_SIZE),
@@ -238,6 +243,13 @@ class ChessBoard:
                         background_color=color, pad=(0, 0),
                         border_width=4, key=(key[0], key[1] + 64)
                         , relief=sg.RELIEF_FLAT)
+
+    def get_reverse_color(self, color, piece_id):
+        if True and not piece_id == BLANK:
+            reverse_color = "#{}{}{}".format(color[5:7], color[3:5], color[1:3])
+            color = reverse_color
+            pass
+        return color
 
     def fen_to_psg_board(self, window):
         """ Update psg_board based on FEN
@@ -367,7 +379,7 @@ class ChessBoard:
             for j in range(4):
                 piece_image = images[psg_promote_board[i][j]]
                 row.append(self.render_square(piece_image, key=(i, j),
-                                              location=(i, j)))
+                                              location=(i, j), piece_id=psg_promote_board[i][j]))
 
             board_layout.append(row)
 
