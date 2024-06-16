@@ -24,7 +24,6 @@ on chromebook only works if colors with rgb: r and b are the same!???
         """
 
 board_colors1 = [["Brown", '#F0D9B5', '#B58863', '#E8E18E', '#B8AF4E'],
-                 ["Rosy", 'sandy brown', 'rosy brown', '#B8AF4E', '#B8AF4E'],
                  ["Blue", '#b9d6e8', '#4790c0', '#d2e4ba', '#91bc9c'],
                  ["Green", '#b9d6b9', '#479047', '#bae58f', '#bae58f'],
                  ["Emerald", '#A0BDA0', '#708F70', '#e0e0e0', '#999999'],

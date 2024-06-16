@@ -4059,7 +4059,7 @@ class EasyChessGui:
 
     def check_color_button(self, button, window):
         try:
-            if not type(button) ==  str:
+            if not type(button) is str:
                 return False
             # print("check", button)
             # check board_color_k_Blue
