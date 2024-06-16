@@ -556,8 +556,11 @@ def get_time_per_move(pass_budget, ply_count):
         count_ = 60
     return count_
 
-
+engine = None
+previous_enginepath = ""
+info_handler = None
 def analyze_game(game, arg_gametime, enginepath, threads):
+    global previous_enginepath, engine, info_handler
     """
     Take a PGN game and return a GameNode with engine analysis added
     - Attempt to classify the opening with ECO and identify the root node
@@ -576,62 +579,65 @@ def analyze_game(game, arg_gametime, enginepath, threads):
     ###########################################################################
     # Initialize the engine
     ###########################################################################
-    try:
-        #chess.uci.popen_engine(path) becomes chess.engine.SimpleEngine.popen_uci(path), if you do not intend to use asyncio
-        engine = chess.uci.popen_engine(enginepath)
-    except FileNotFoundError:
-        errormsg = "Engine '{}' was not found. Aborting...".format(enginepath)
-        logger.critical(errormsg)
-        raise
-    except PermissionError:
-        errormsg = "Engine '{}' could not be executed. Aborting...".format(
-            enginepath)
-        logger.critical(errormsg)
-        raise
+    if engine is None or not enginepath == previous_enginepath:
+        # only create new engine if path has changed
+        try:
+            #chess.uci.popen_engine(path) becomes chess.engine.SimpleEngine.popen_uci(path), if you do not intend to use asyncio
+            engine = chess.uci.popen_engine(enginepath)
+            previous_enginepath = enginepath
+        except FileNotFoundError:
+            errormsg = "Engine '{}' was not found. Aborting...".format(enginepath)
+            logger.critical(errormsg)
+            raise
+        except PermissionError:
+            errormsg = "Engine '{}' could not be executed. Aborting...".format(
+                enginepath)
+            logger.critical(errormsg)
+            raise
 
-    engine.uci()
-    #InfoHandler has been removed. No need to register one, anymore.
-    info_handler = chess.uci.InfoHandler()
-    engine.info_handlers.append(info_handler)
-    if game.board().uci_variant != "chess" or game.root().board().chess960:
-        # This is a variant game, so confirm that the engine we're using
-        # supports the variant.
-        if game.root().board().chess960:
-            try:
-                engine.options["UCI_Chess960"]
-            except KeyError:
-                message = "UCI_Chess960 is not supported by the engine " \
-                    "and this is a chess960 game."
-                logger.critical(message)
-                raise RuntimeError(message)
+        engine.uci()
+        #InfoHandler has been removed. No need to register one, anymore.
+        info_handler = chess.uci.InfoHandler()
+        engine.info_handlers.append(info_handler)
+        if game.board().uci_variant != "chess" or game.root().board().chess960:
+            # This is a variant game, so confirm that the engine we're using
+            # supports the variant.
+            if game.root().board().chess960:
+                try:
+                    engine.options["UCI_Chess960"]
+                except KeyError:
+                    message = "UCI_Chess960 is not supported by the engine " \
+                        "and this is a chess960 game."
+                    logger.critical(message)
+                    raise RuntimeError(message)
 
-        if game.board().uci_variant != "chess":
-            try:
-                engine_variants = engine.options["UCI_Variant"].var
-                if not game.board().uci_variant in engine_variants:
-                    raise AssertionError
-            except KeyError:
-                message = "UCI_Variant option is not supported by the " \
-                    "engine and this is a variant game."
-                logger.critical(message)
-                raise RuntimeError(message)
-            except AssertionError:
-                message = "Variant {} is not supported by the engine.".format(
-                    game.board().uci_variant)
-                logger.critical(message)
-                raise RuntimeError(message)
+            if game.board().uci_variant != "chess":
+                try:
+                    engine_variants = engine.options["UCI_Variant"].var
+                    if not game.board().uci_variant in engine_variants:
+                        raise AssertionError
+                except KeyError:
+                    message = "UCI_Variant option is not supported by the " \
+                        "engine and this is a variant game."
+                    logger.critical(message)
+                    raise RuntimeError(message)
+                except AssertionError:
+                    message = "Variant {} is not supported by the engine.".format(
+                        game.board().uci_variant)
+                    logger.critical(message)
+                    raise RuntimeError(message)
 
-        # Now that engine support for the variant is confirmed, set engine UCI
-        # options as appropriate for the variant
-        engine.setoption({
-            "UCI_Variant": game.board().uci_variant,
-            "UCI_Chess960": game.board().chess960,
-            "Threads": threads
-        })
-    else:
-        engine.setoption({
-            "Threads": threads
-        })
+            # Now that engine support for the variant is confirmed, set engine UCI
+            # options as appropriate for the variant
+            engine.setoption({
+                "UCI_Variant": game.board().uci_variant,
+                "UCI_Chess960": game.board().chess960,
+                "Threads": threads
+            })
+        else:
+            engine.setoption({
+                "Threads": threads
+            })
 
     # Start keeping track of the root node
     # This will change if we successfully classify the opening
