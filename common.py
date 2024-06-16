@@ -1,21 +1,51 @@
-from Tools.translations import  replace, GUI_THEME
+from Tools.translations import replace, GUI_THEME
+
 ico_path = {
     'win32': {'pecg': 'Icon/pecg.ico', 'enemy': 'Icon/enemy.ico', 'adviser': 'Icon/adviser.ico'},
     'linux': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'},
     'darwin': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'}
 }
 
-board_colors = ['Brown::board_color_k_brown',
-          'Blue::board_color_k_blue',
-          'Green::board_color_k_green',
-'Coral::board_color_k_coral',
-'Marine::board_color_k_marine',
-'Emerald::board_color_k_emerald',
-'Rosy::board_color_k_rosy',
-          'Gray::board_color_k_gray']
+# colors board
+"""see: https://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+        Coral
+Dark 112,162,163 #70A2A3 (https://www.rgbtohex.net/)
+Light 177,228,185 #B1E4B9
+Marine
+Dark 111,115,210 #6F76D2
+Light 157,172,255 #9DACFF
+
+Emerald
+Dark 111,143,114
+Light 173,189,143
+
+on chromebook only works if colors with rgb: r and b are the same!???
+
+        """
+
+board_colors1 = [["Brown", '#F0D9B5', '#B58863', '#E8E18E', '#B8AF4E'],
+                 ["Rosy", 'sandy brown', 'rosy brown', '#B8AF4E', '#B8AF4E'],
+                 ["Blue", '#b9d6e8', '#4790c0', '#d2e4ba', '#91bc9c'],
+                 ["Green", '#b9d6b9', '#479047', '#bae58f', '#bae58f'],
+                 ["Emerald", '#A0BDA0', '#708F70', '#e0e0e0', '#999999'],
+                 ["Marine", '#9DACFF', '#6F76D2', '#FFAC9D', '#D2766F'],
+                 ["Coral", '#70A2A3', '#B1E4B9', '#A3A270', '#A3A270'],
+                 ["Gray", '#D8D8D8', '#808080', '#e0e0ad', '#999966']
+                 ]
+
+
+def get_board_color(id):
+    # print(id)
+    # for b in board_colors1:
+    #     print(b)
+    return [b for b in board_colors1 if id.startswith(b[0])][0]
+
+
+board_colors = ["{}::board_color_k_{}".format(b[0], b[0]) for b in board_colors1]
 settings_menu = ['Color', board_colors.copy(),
                  'Theme', GUI_THEME,
-                 'Engine', ['Adviser engine::Adviser engine', 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
+                 'Engine',
+                 ['Adviser engine::Adviser engine', 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
                  "Other Settings::Other Settings"]
 
 menu_def_entry1 = [
@@ -29,12 +59,13 @@ menu_def_entry1 = [
 
 menu_def_neutral1 = [
     ['Boar&d', ['Flip::Flip', 'Color', ['Brown::board_color_k_brown',
-                                  'Blue::board_color_k_blue',
-                                  'Green::board_color_k_green',
-                                  'Gray::board_color_k_gray'],
+                                        'Blue::board_color_k_blue',
+                                        'Green::board_color_k_green',
+                                        'Gray::board_color_k_gray'],
                 'Theme', GUI_THEME]],
-    ['&Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent', 'Set Depth::Set Depth',
-                 'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']]],
+    ['&Engine',
+     ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent', 'Set Depth::Set Depth',
+      'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']]],
     ['&Time', ['User::tc_k_user', 'Engine::tc_k_engine']],
     ['&Book', ['Set Book::book_set_k']],
     ['&User', ['Set Name::user_name_k']],
@@ -57,16 +88,16 @@ menu_def_play1 = [
     ['&Engine', ['Go::Go', 'Move Now::Move Now']],
     ['&Mode', ['PGN-Viewer::PGN-Viewer', 'PGN-Editor::PGN-Editor']],
     ['Settings', ['Boar&d', ['Flip::Flip', 'Color', board_colors.copy(),
-                'Theme', GUI_THEME],
-    'Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent',
-               'Set Depth::Set Depth',
-               'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
-    '&Time', ['User::tc_k_user', 'Engine::tc_k_engine'],
-    '&Book', ['Set Book::book_set_k'],
-    '&User', ['Set Name::user_name_k'],
-    #'Tools', ['PGN', ['Delete Player::delete_player_k']],
-    'Settings', ['Game::settings_game_k'],
-    ]],
+                             'Theme', GUI_THEME],
+                  'Engine', ['Set Engine Adviser::Set Engine Adviser', 'Set Engine Opponent::Set Engine Opponent',
+                             'Set Depth::Set Depth',
+                             'Manage', ['Install::Install', 'Edit::Edit', 'Delete::Delete']],
+                  '&Time', ['User::tc_k_user', 'Engine::tc_k_engine'],
+                  '&Book', ['Set Book::book_set_k'],
+                  '&User', ['Set Name::user_name_k'],
+                  # 'Tools', ['PGN', ['Delete Player::delete_player_k']],
+                  'Settings', ['Game::settings_game_k'],
+                  ]],
     ['&Help', ['GUI::GUI']],
 ]
 menu_def_annotate1 = [
@@ -101,9 +132,6 @@ menu_def_pgnviewer1 = [
 ]
 
 
-
-
-
 def menu_def_entry():
     menu_res = menu_def_entry1.copy()
     replace(menu_res)
@@ -121,15 +149,18 @@ def menu_def_pgnviewer():
     replace(menu_res)
     return menu_res
 
+
 def menu_def_play():
     menu_res = menu_def_play1.copy()
     replace(menu_res)
     return menu_res
 
+
 def menu_def_neutral():
     menu_res = menu_def_neutral1.copy()
     replace(menu_res)
     return menu_res
+
 
 temp_file_name = 'tempsave.pgn'
 MAX_ALTERNATIVES = 7

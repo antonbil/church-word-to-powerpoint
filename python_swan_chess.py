@@ -64,7 +64,7 @@ from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
 from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, ico_path, menu_def_play, get_button_id, menu_def_neutral, board_colors)
+                    BOX_TITLE, ico_path, menu_def_play, get_button_id, menu_def_neutral, board_colors, get_board_color)
 from Tools.translations import  get_translation, set_language, GUI_THEME
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
@@ -2860,69 +2860,13 @@ class EasyChessGui:
 
     def set_color_board(self, button, store):
         self.board_color = button
-        """see: https://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
-        Coral
-Dark 112,162,163 #70A2A3 (https://www.rgbtohex.net/)
-Light 177,228,185 #B1E4B9
-Marine
-Dark 111,115,210 #6F76D2
-Light 157,172,255 #9DACFF
-
-Emerald
-Dark 111,143,114
-Light 173,189,143
-
-on chromebook only works if colors with rgb: r and b are the same!???
-
-        """
         # Mode: Neutral, Change board to gray
-        if button == 'Gray::board_color_k':
-            self.sq_light_color = '#D8D8D8'
-            self.sq_dark_color = '#808080'
-            self.move_sq_light_color = '#e0e0ad'
-            self.move_sq_dark_color = '#999966'
+        c = get_board_color(button)
 
-        if button == 'Coral::board_color_k':
-            self.sq_light_color = '#B1E4B9'
-            self.sq_dark_color = '#70A2A3'
-            self.move_sq_light_color = '#A3A270'
-            self.move_sq_dark_color = swap_red_blue('#70A2A3')
-        if button == 'Marine::board_color_k':
-            self.sq_light_color = '#9DACFF'
-            self.sq_dark_color = '#6F76D2'
-            self.move_sq_light_color = '#D2766F'
-            self.move_sq_dark_color = swap_red_blue(self.sq_dark_color)
-        if button == 'Emerald::board_color_k':
-            self.sq_light_color = '#A0BDA0'
-            self.sq_dark_color = '#708F70'
-            self.move_sq_light_color = '#e0e0e0'
-            self.move_sq_dark_color = '#999999'
-        # Mode: Neutral, Change board to green
-        if button == 'Green::board_color_k':
-            self.sq_light_color = '#b9d6b9'
-            self.sq_dark_color = '#479047'
-            self.move_sq_light_color = '#bae58f'
-            self.move_sq_dark_color = '#bae58f'
-
-        # Mode: Neutral, Change board to blue
-        if button == 'Blue::board_color_k':
-            self.sq_light_color = '#b9d6e8'
-            self.sq_dark_color = '#4790c0'
-            self.move_sq_light_color = '#d2e4ba'
-            self.move_sq_dark_color = '#91bc9c'
-
-        # Mode: Neutral, Change board to brown, default
-        if button == 'Brown::board_color_k':
-            self.sq_light_color = '#F0D9B5'
-            self.sq_dark_color = '#B58863'
-            self.move_sq_light_color = '#E8E18E'
-            self.move_sq_dark_color = '#B8AF4E'
-        # Mode: Neutral, Change board to brown, default
-        if button == 'Rosy::board_color_k':
-            self.sq_light_color = 'sandy brown'
-            self.sq_dark_color = 'rosy brown'
-            self.move_sq_light_color = '#B8AF4E'
-            self.move_sq_dark_color = '#B8AF4E'
+        self.sq_light_color = c[1]
+        self.sq_dark_color = c[2]
+        self.move_sq_light_color = c[3]
+        self.move_sq_dark_color = c[4]
 
         if store:
             self.preferences.preferences["board_color"] = button
@@ -4114,13 +4058,14 @@ on chromebook only works if colors with rgb: r and b are the same!???
         return False, window
 
     def check_color_button(self, button, window):
-        for color in board_colors:
-            last = color.split("::")[1]
-            if last == button:
-                button = color.split("::")[0]+"::board_color_k"
+        # print("check", button)
+        # check board_color_k_Blue
+        if "board_color_k_" in button:
+            last = button.split("board_color_k_")[1]
+            button = last+"::board_color_k"
 
         for color in [c.split("::")[0] for c in board_colors]:
-            if button == color + '::board_color_k':
+            if button.endswith('::board_color_k'):
                 self.set_color_board(button, True)
                 self.board.redraw_board(window)
                 return True
