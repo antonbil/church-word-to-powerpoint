@@ -24,6 +24,7 @@ class PGNViewer:
 
     def __init__(self, gui, window, play_move_string=""):
         # first part of move entered by user
+        self.fen_start = ""
         self.seconds_passed = 0
         self.auto_play_seconds = 4
         self.current_time = datetime.datetime.now()
@@ -1063,6 +1064,12 @@ class PGNViewer:
         move_list_gui_element.Update(self.pgn_lines)
         self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
+        print("game.headers",game.headers)
+        if 'FEN' in game.headers and game.headers["FEN"]:
+            self.fen_start = game.headers["FEN"]
+        else:
+            self.fen_start = ""
+
 
     def set_players(self, game):
         self.window.find_element('_Black_2').Update(game.headers['Black'])
@@ -1201,7 +1208,10 @@ class PGNViewer:
         self.previous_move = move_string
 
     def display_move(self):
-        board = chess.Board()
+        if self.fen_start:
+            board = chess.Board(self.fen_start)
+        else:
+            board = chess.Board()
         # Go through each move in the game until
         # we reach the required move number
         last_variation = []
