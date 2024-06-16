@@ -23,6 +23,7 @@ on chromebook only works if colors with rgb: r and b are the same!???
 
         """
 
+# enter colors in '#rrggbb'-format
 board_colors1 = [["Brown", '#F0D9B5', '#B58863', '#E8E18E', '#B8AF4E'],
                  ["Blue", '#b9d6e8', '#4790c0', '#d2e4ba', '#91bc9c'],
                  ["Green", '#b9d6b9', '#479047', '#bae58f', '#bae58f'],
