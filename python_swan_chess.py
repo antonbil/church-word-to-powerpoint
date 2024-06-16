@@ -4058,19 +4058,22 @@ class EasyChessGui:
         return False, window
 
     def check_color_button(self, button, window):
-        if not type(button) ==  str:
-            return False
-        # print("check", button)
-        # check board_color_k_Blue
-        if "board_color_k_" in button:
-            last = button.split("board_color_k_")[1]
-            button = last+"::board_color_k"
+        try:
+            if not type(button) ==  str:
+                return False
+            # print("check", button)
+            # check board_color_k_Blue
+            if "board_color_k_" in button:
+                last = button.split("board_color_k_")[1]
+                button = last+"::board_color_k"
 
-        for color in [c.split("::")[0] for c in board_colors]:
-            if button.endswith('::board_color_k'):
-                self.set_color_board(button, True)
-                self.board.redraw_board(window)
-                return True
+            for color in [c.split("::")[0] for c in board_colors]:
+                if button.endswith('::board_color_k'):
+                    self.set_color_board(button, True)
+                    self.board.redraw_board(window)
+                    return True
+        except:
+            return False
         return False
 
     def is_png_layout(self):
