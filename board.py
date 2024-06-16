@@ -200,7 +200,7 @@ class ChessBoard:
         is_dark_square = True if (row + col) % 2 else False
         bd_sq_color = self.gui.move_sq_dark_color if is_dark_square else self.gui.move_sq_light_color
         # change color if preference
-        if self.gui.reverse_color_background_piece and not piece_id == BLANK:
+        if self.gui.reverse_color_background_piece and not self.psg_board1[row][col] == BLANK:
             bd_sq_color = swap_red_blue(bd_sq_color)
 
         btn_sq.Update(button_color=('white', bd_sq_color))
