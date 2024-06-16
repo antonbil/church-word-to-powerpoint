@@ -4067,11 +4067,10 @@ class EasyChessGui:
                 last = button.split("board_color_k_")[1]
                 button = last+"::board_color_k"
 
-            for color in [c.split("::")[0] for c in board_colors]:
-                if button.endswith('::board_color_k'):
-                    self.set_color_board(button, True)
-                    self.board.redraw_board(window)
-                    return True
+            if button.endswith('::board_color_k'):
+                self.set_color_board(button, True)
+                self.board.redraw_board(window)
+                return True
         except:
             return False
         return False
