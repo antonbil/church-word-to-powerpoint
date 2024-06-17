@@ -1069,8 +1069,20 @@ class PGNViewer:
         self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
         if 'FEN' in game.headers and game.headers["FEN"]:
+            print("read game in", self.pgn)
             self.fen_start = game.headers["FEN"]
-            self.window.find_element('_movelist_2').Update(visible=False)
+            if "Directions" in game.headers and game.headers["Directions"]:
+                directions = game.headers["Directions"].split(" ")
+                if "hide_moves" in directions:
+                    self.window.find_element('_movelist_2').Update(visible=False)
+                if "win_black" in directions:
+                    self.gui.is_user_white = False
+                    self.gui.board.redraw_board(self.window)
+                if "win_white" in directions:
+                    self.gui.is_user_white = True
+                    self.gui.board.redraw_board(self.window)
+                if "move_first" in directions:
+                    self.move_number = self.execute_next_move(self.move_number)
         else:
             self.fen_start = ""
 
