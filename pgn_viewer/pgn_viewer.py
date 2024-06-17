@@ -1074,7 +1074,6 @@ class PGNViewer:
         else:
             self.fen_start = ""
 
-
     def set_players(self, game):
         self.window.find_element('_Black_2').Update(game.headers['Black'])
         self.window.find_element('_White_2').Update(game.headers['White'])
