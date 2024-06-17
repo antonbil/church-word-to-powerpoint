@@ -990,7 +990,6 @@ class PGNViewer:
         #     "{} ({})".format(" ".join(res_moves), score), append=True, disabled=True)
 
     def select_game(self):
-        print("open pgn:", self.pgn)
         pgn = open(self.pgn)
         # Reading the game
         game1 = chess.pgn.read_game(pgn)
@@ -1069,7 +1068,6 @@ class PGNViewer:
         self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
         if 'FEN' in game.headers and game.headers["FEN"]:
-            print("read game in", self.pgn)
             self.fen_start = game.headers["FEN"]
             if "Directions" in game.headers and game.headers["Directions"]:
                 directions = game.headers["Directions"].split(" ")
