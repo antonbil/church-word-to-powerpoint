@@ -198,6 +198,10 @@ class PGNViewer:
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
                 break
+            if button == "Visible movelist":
+                self.window.find_element('_movelist_2').Update(visible=True)
+                continue
+
             if button == 'Play':
                 self.gui.entry_game = False
                 self.gui.start_entry_mode = False
@@ -1067,6 +1071,7 @@ class PGNViewer:
         print("game.headers",game.headers)
         if 'FEN' in game.headers and game.headers["FEN"]:
             self.fen_start = game.headers["FEN"]
+            self.window.find_element('_movelist_2').Update(visible=False)
         else:
             self.fen_start = ""
 

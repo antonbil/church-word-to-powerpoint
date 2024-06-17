@@ -118,7 +118,7 @@ menu_def_pgnviewer1 = [
       "Replace in db::Replace in db", "Remove from db::Remove from db",
       "Add to db::Add to db", "Add to current db::Add to current db", '---',
       "Switch Sides::Switch Sides", '---', "Classify Opening::Classify Opening"]],
-    ['Move', ['Comment::Comment', 'Alternative::Alternative', '---', "Add move::Add move"]],
+    ['Move', ['Comment::Comment', 'Alternative::Alternative', '---', "Add move::Add move", '---', "Visible movelist::Visible movelist"]],
     ['Database',
      ['Find in db::Find in db', 'Classify db::Classify db', 'Clipboard to current db::Clipboard to current db', '---'
          , "Next Game::Next Game",

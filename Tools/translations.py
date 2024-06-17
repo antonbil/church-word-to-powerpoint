@@ -320,7 +320,8 @@ translations = {"en": {
            "Set Default Dir": "Zet als default dir",
            'Save PGN': "Bewaar PGN",
            "Folder": "Folder",
-           "Browse":"Zoek"
+           "Browse":"Zoek",
+"Visible movelist":"Zetten zichtbaar"
            }
 }
 
