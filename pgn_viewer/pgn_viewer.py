@@ -1068,7 +1068,6 @@ class PGNViewer:
         move_list_gui_element.Update(self.pgn_lines)
         self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
-        print("game.headers",game.headers)
         if 'FEN' in game.headers and game.headers["FEN"]:
             self.fen_start = game.headers["FEN"]
             self.window.find_element('_movelist_2').Update(visible=False)

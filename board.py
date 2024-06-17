@@ -6,7 +6,7 @@ import os
 import chess
 import copy
 import sys
-from common import ico_path, APP_NAME, APP_VERSION
+from app_constants import ico_path, APP_NAME, APP_VERSION
 
 IMAGE_PATH = 'Images/60'  # path to the chess pieces
 
@@ -65,6 +65,25 @@ promote_psg_to_pyc = {
     ROOKW: chess.ROOK, QUEENW: chess.QUEEN
 }
 
+# enter colors in '#rrggbb'-format
+board_colors1 = [["Brown", '#F0D9B5', '#B58863', '#E8E18E', '#B8AF4E'],
+                 ["Blue", '#b9d6e8', '#4790c0', '#d2e4ba', '#91bc9c'],
+                 ["Green", '#b9d6b9', '#479047', '#bae58f', '#bae58f'],
+                 ["Emerald", '#A0BDA0', '#708F70', '#e0e0e0', '#999999'],
+                 ["Marine", '#9DACFF', '#6F76D2', '#FFAC9D', '#D2766F'],
+                 ["Coral", '#70A2A3', '#B1E4B9', '#A3A270', '#A3A270'],
+                 ["Gray", '#D8D8D8', '#808080', '#e0e0ad', '#999966']
+                 ]
+
+
+def get_board_color(id):
+    # print(id)
+    # for b in board_colors1:
+    #     print(b)
+    return [b for b in board_colors1 if id.startswith(b[0])][0]
+
+
+board_colors = ["{}::board_color_k_{}".format(b[0], b[0]) for b in board_colors1]
 
 def swap_red_blue(color):
     reverse_color = "#{}{}{}".format(color[5:7], color[3:5], color[1:3])

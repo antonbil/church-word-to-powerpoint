@@ -1,10 +1,6 @@
 from Tools.translations import replace, GUI_THEME
-
-ico_path = {
-    'win32': {'pecg': 'Icon/pecg.ico', 'enemy': 'Icon/enemy.ico', 'adviser': 'Icon/adviser.ico'},
-    'linux': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'},
-    'darwin': {'pecg': 'Icon/pecg.png', 'enemy': 'Icon/enemy.png', 'adviser': 'Icon/adviser.png'}
-}
+from app_constants import ico_path, APP_NAME, APP_VERSION
+from board import (ChessBoard, convert_to_bytes, swap_red_blue, board_colors, get_board_color)
 
 # colors board
 """see: https://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
@@ -23,25 +19,6 @@ on chromebook only works if colors with rgb: r and b are the same!???
 
         """
 
-# enter colors in '#rrggbb'-format
-board_colors1 = [["Brown", '#F0D9B5', '#B58863', '#E8E18E', '#B8AF4E'],
-                 ["Blue", '#b9d6e8', '#4790c0', '#d2e4ba', '#91bc9c'],
-                 ["Green", '#b9d6b9', '#479047', '#bae58f', '#bae58f'],
-                 ["Emerald", '#A0BDA0', '#708F70', '#e0e0e0', '#999999'],
-                 ["Marine", '#9DACFF', '#6F76D2', '#FFAC9D', '#D2766F'],
-                 ["Coral", '#70A2A3', '#B1E4B9', '#A3A270', '#A3A270'],
-                 ["Gray", '#D8D8D8', '#808080', '#e0e0ad', '#999966']
-                 ]
-
-
-def get_board_color(id):
-    # print(id)
-    # for b in board_colors1:
-    #     print(b)
-    return [b for b in board_colors1 if id.startswith(b[0])][0]
-
-
-board_colors = ["{}::board_color_k_{}".format(b[0], b[0]) for b in board_colors1]
 settings_menu = ['Color', board_colors.copy(),
                  'Theme', GUI_THEME,
                  'Engine',
@@ -245,8 +222,6 @@ Clicking on such a yellow square will start the variation
 - alternatives are also display as buttons after the move-description itself
 """
 
-APP_NAME = 'Python Swan Chess'
-APP_VERSION = 'v0.2'
 BOX_TITLE = f'{APP_NAME} {APP_VERSION}'
 GAME_DIVIDER = "--++xxx--"
 

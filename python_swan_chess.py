@@ -57,14 +57,15 @@ import chess.engine
 import chess.polyglot
 import logging
 import platform as sys_plat
+from app_constants import ico_path, APP_NAME, APP_VERSION
 from annotator import annotator
-from board import (ChessBoard, convert_to_bytes, swap_red_blue)
+from board import (ChessBoard, convert_to_bytes, swap_red_blue, board_colors, get_board_color)
 from dialogs.header_dialog import HeaderDialog
 from pgn_viewer.pgn_viewer import PGNViewer
 from pgn_editor.pgn_editor import PgnEditor
 from preferences.preferences import Preferences
-from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES, APP_NAME, APP_VERSION,
-                    BOX_TITLE, ico_path, menu_def_play, get_button_id, menu_def_neutral, board_colors, get_board_color)
+from common import (menu_def_pgnviewer, menu_def_entry, temp_file_name, MAX_ALTERNATIVES,
+                    BOX_TITLE, menu_def_play, get_button_id, menu_def_neutral)
 from Tools.translations import  get_translation, set_language, GUI_THEME
 from toolbar import ToolBar
 from dialogs.input_actions import InputDialog
