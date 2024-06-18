@@ -184,7 +184,7 @@ class PGNViewer:
             if self.gui.toolbar.get_button_id(button) == get_translation("_solution_"):
                 self.window.find_element('_movelist_2').Update(visible=True)
 
-            if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay'
+            if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == get_translation("_autoplay_")
                     or button == '__TIMEOUT__') and self.auto_playing:
                 if self.seconds_passed > self.auto_play_seconds:
                     self.move_number = self.execute_next_move(self.move_number)
@@ -506,8 +506,9 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def display_button_bar(self):
-        buttons = [self.gui.toolbar.new_button(get_translation("_autoplay_"), auto_size_button=True),
+        buttons = [
                     self.gui.toolbar.new_button(get_translation("_flip_"), auto_size_button=True),
+            self.gui.toolbar.new_button(get_translation("_autoplay_"), auto_size_button=True),
                    self.gui.toolbar.new_button("<--|", auto_size_button=True),
                    self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
@@ -524,8 +525,9 @@ class PGNViewer:
 
     def swap_button_bar(self):
         fen_visible = True if self.fen_start else False
-        self.gui.toolbar.show_button(self.window, get_translation("_autoplay_"), not fen_visible)
         self.gui.toolbar.show_button(self.window, get_translation("_add_"), not fen_visible)
+        # todo: "_autoplay_"-button cannot be hidden????
+        # self.gui.toolbar.show_button(self.window, get_translation("_autoplay_"), not fen_visible)
         self.gui.toolbar.show_button(self.window, get_translation("_line_"), not fen_visible)
         self.gui.toolbar.show_button(self.window, get_translation("_solution_"), fen_visible)
 

@@ -33,7 +33,7 @@ class ToolBar:
     def show_button(self, window, button_title, visible):
         for key, value in self.button_ids.items():
             if value == button_title:
-                print("hide element", key)
+                print("hide element", key, value, visible)
                 window.find_element(key).Update(visible=visible)
 
     def new_button(self, title, auto_size_button=False):
