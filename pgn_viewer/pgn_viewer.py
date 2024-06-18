@@ -24,6 +24,7 @@ class PGNViewer:
 
     def __init__(self, gui, window, play_move_string=""):
         # first part of move entered by user
+        self.moves_hidden = False
         self.fen_start = ""
         self.seconds_passed = 0
         self.auto_play_seconds = 4
@@ -506,30 +507,39 @@ class PGNViewer:
                             self.move_number = self.execute_next_move(self.move_number)
 
     def display_button_bar(self):
-        buttons = [
-                    self.gui.toolbar.new_button(get_translation("_flip_"), auto_size_button=True),
-            self.gui.toolbar.new_button(get_translation("_autoplay_"), auto_size_button=True),
-                   self.gui.toolbar.new_button("<--|", auto_size_button=True),
-                   self.gui.toolbar.new_button("|-->", auto_size_button=True),
-                   sg.VerticalSeparator(),
-                   self.gui.toolbar.new_button(get_translation("_add_"), auto_size_button=True),
-                   self.gui.toolbar.new_button(get_translation("_solution_"), auto_size_button=True),
-                   self.gui.toolbar.new_button(get_translation("_line_"), auto_size_button=True),
-                   sg.VerticalSeparator(),
-
-                   self.gui.toolbar.new_button("<--", auto_size_button=True),
-                   self.gui.toolbar.new_button("-->", auto_size_button=True),
-                   ]
-        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
-        self.swap_button_bar()
-
-    def swap_button_bar(self):
         fen_visible = True if self.fen_start else False
-        self.gui.toolbar.show_button(self.window, get_translation("_add_"), not fen_visible)
-        # todo: "_autoplay_"-button cannot be hidden????
-        # self.gui.toolbar.show_button(self.window, get_translation("_autoplay_"), not fen_visible)
-        self.gui.toolbar.show_button(self.window, get_translation("_line_"), not fen_visible)
-        self.gui.toolbar.show_button(self.window, get_translation("_solution_"), fen_visible)
+        flip = self.gui.toolbar.new_button(get_translation("_flip_"), auto_size_button=True)
+        previous_game = self.gui.toolbar.new_button("<--|", auto_size_button=True)
+        next_game = self.gui.toolbar.new_button("|-->", auto_size_button=True)
+        previous_move = self.gui.toolbar.new_button("<--", auto_size_button=True)
+        next_move = self.gui.toolbar.new_button("-->", auto_size_button=True)
+        if fen_visible:
+            buttons = [
+                flip,
+                previous_game,
+                next_game,
+                sg.VerticalSeparator(),
+                self.gui.toolbar.new_button(get_translation("_solution_"), auto_size_button=True),
+                sg.VerticalSeparator(),
+
+                previous_move,
+                next_move,
+                       ]
+        else:
+            buttons = [
+                flip,
+                self.gui.toolbar.new_button(get_translation("_autoplay_"), auto_size_button=True),
+                previous_game,
+                next_game,
+                sg.VerticalSeparator(),
+                self.gui.toolbar.new_button(get_translation("_add_"), auto_size_button=True),
+                self.gui.toolbar.new_button(get_translation("_line_"), auto_size_button=True),
+                sg.VerticalSeparator(),
+
+                previous_move,
+                next_move,
+            ]
+        self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
 
     def overall_game_info(self):
         self.gui.input_dialog.overall_game_info(self.game)
@@ -1041,6 +1051,7 @@ class PGNViewer:
         return self.open_pgn_io(pgn, pgn_file)
 
     def open_pgn_io(self, pgn, pgn_file):
+        self.moves_hidden = False
         self.window.find_element('_currentmove_').Update('')
         self.window.find_element('variation_frame').Update(visible=False)
         game = chess.pgn.read_game(pgn)
@@ -1087,7 +1098,7 @@ class PGNViewer:
             self.init_fen_pgn(headers)
         else:
             self.fen_start = ""
-        self.swap_button_bar()
+        self.display_button_bar()
 
     def init_fen_pgn(self, headers):
         """
@@ -1097,12 +1108,14 @@ class PGNViewer:
         """
         # store the FEN-data for later use. The "FEN"-property seems to be a standard property
         self.fen_start = headers["FEN"]
+        self.moves_hidden = False
         # "Directions" is a self-defined property of the headers that contains commands for problems defined using FEN
         if "Directions" in headers and headers["Directions"]:
             directions = headers["Directions"].split(" ")
             if "hide_moves" in directions:
                 # hide the moves of the solution
                 self.window.find_element('_movelist_2').Update(visible=False)
+                self.moves_hidden = True
             if "win_black" in directions:
                 # black is to start moving and wins
                 self.gui.is_user_white = False
