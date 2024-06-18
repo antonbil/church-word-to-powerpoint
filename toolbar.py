@@ -30,6 +30,12 @@ class ToolBar:
         window.extend_layout(window[self.bar_id], [buttons])
         window.Refresh()
 
+    def show_button(self, window, button_title, visible):
+        for key, value in self.button_ids.items():
+            if value == button_title:
+                print("hide element", key)
+                window.find_element(key).Update(visible=visible)
+
     def new_button(self, title, auto_size_button=False):
         self.button_nr = self.button_nr + 1
         id = "_id{}_".format(self.button_nr)

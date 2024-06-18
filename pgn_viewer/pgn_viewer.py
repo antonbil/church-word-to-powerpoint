@@ -181,6 +181,9 @@ class PGNViewer:
             if button == "Autoplay" or self.gui.toolbar.get_button_id(button) == get_translation("_autoplay_"):
                 self.auto_playing = not self.auto_playing
 
+            if self.gui.toolbar.get_button_id(button) == get_translation("_solution_"):
+                self.window.find_element('_movelist_2').Update(visible=True)
+
             if (button == "Autoplay" or self.gui.toolbar.get_button_id(button) == 'Autoplay'
                     or button == '__TIMEOUT__') and self.auto_playing:
                 if self.seconds_passed > self.auto_play_seconds:
@@ -509,6 +512,7 @@ class PGNViewer:
                    self.gui.toolbar.new_button("|-->", auto_size_button=True),
                    sg.VerticalSeparator(),
                    self.gui.toolbar.new_button(get_translation("_add_"), auto_size_button=True),
+                   self.gui.toolbar.new_button(get_translation("_solution_"), auto_size_button=True),
                    self.gui.toolbar.new_button(get_translation("_line_"), auto_size_button=True),
                    sg.VerticalSeparator(),
 
@@ -516,6 +520,14 @@ class PGNViewer:
                    self.gui.toolbar.new_button("-->", auto_size_button=True),
                    ]
         self.gui.toolbar.buttonbar_add_buttons(self.window, buttons)
+        self.swap_button_bar()
+
+    def swap_button_bar(self):
+        fen_visible = True if self.fen_start else False
+        self.gui.toolbar.show_button(self.window, get_translation("_autoplay_"), not fen_visible)
+        self.gui.toolbar.show_button(self.window, get_translation("_add_"), not fen_visible)
+        self.gui.toolbar.show_button(self.window, get_translation("_line_"), not fen_visible)
+        self.gui.toolbar.show_button(self.window, get_translation("_solution_"), fen_visible)
 
     def overall_game_info(self):
         self.gui.input_dialog.overall_game_info(self.game)
@@ -1073,6 +1085,7 @@ class PGNViewer:
             self.init_fen_pgn(headers)
         else:
             self.fen_start = ""
+        self.swap_button_bar()
 
     def init_fen_pgn(self, headers):
         """
