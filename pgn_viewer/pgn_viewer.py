@@ -1067,22 +1067,38 @@ class PGNViewer:
         move_list_gui_element.Update(self.pgn_lines)
         self.pgn_display.color_lines(self.pgn_lines, move_list_gui_element)
         self.move_number = 0
+        # PGN-specification states: If a SetUp tag appears with a tag value of "1", the FEN tag pair is also required.
         if 'FEN' in game.headers and game.headers["FEN"]:
-            self.fen_start = game.headers["FEN"]
-            if "Directions" in game.headers and game.headers["Directions"]:
-                directions = game.headers["Directions"].split(" ")
-                if "hide_moves" in directions:
-                    self.window.find_element('_movelist_2').Update(visible=False)
-                if "win_black" in directions:
-                    self.gui.is_user_white = False
-                    self.gui.board.redraw_board(self.window)
-                if "win_white" in directions:
-                    self.gui.is_user_white = True
-                    self.gui.board.redraw_board(self.window)
-                if "move_first" in directions:
-                    self.move_number = self.execute_next_move(self.move_number)
+            headers = game.headers
+            self.init_fen_pgn(headers)
         else:
             self.fen_start = ""
+
+    def init_fen_pgn(self, headers):
+        """
+        initialize fen-related setup based on the data stored in the pgn-headers
+        :param headers: headers of the pgn-data
+        :return:
+        """
+        # store the FEN-data for later use. The "FEN"-property seems to be a standard property
+        self.fen_start = headers["FEN"]
+        # "Directions" is a self-defined property of the headers that contains commands for problems defined using FEN
+        if "Directions" in headers and headers["Directions"]:
+            directions = headers["Directions"].split(" ")
+            if "hide_moves" in directions:
+                # hide the moves of the solution
+                self.window.find_element('_movelist_2').Update(visible=False)
+            if "win_black" in directions:
+                # black is to start moving and wins
+                self.gui.is_user_white = False
+                self.gui.board.redraw_board(self.window)
+            if "win_white" in directions:
+                # white is to start moving and wins
+                self.gui.is_user_white = True
+                self.gui.board.redraw_board(self.window)
+            if "move_first" in directions:
+                # the first move is to be displayed; most likely the "losing" move...
+                self.move_number = self.execute_next_move(self.move_number)
 
     def set_players(self, game):
         self.window.find_element('_Black_2').Update(game.headers['Black'])
