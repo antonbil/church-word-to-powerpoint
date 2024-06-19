@@ -23,13 +23,19 @@ class PGNViewer:
     """pgn viewer class"""
 
     def __init__(self, gui, window, play_move_string=""):
-        # first part of move entered by user
+        self.num_tries = None
+        # display moves in move_list yes/no
         self.moves_hidden = False
+        # fen to start game with; if empty start with starting position
         self.fen_start = ""
+        # seconds passed since auto-move when autoplaying
         self.seconds_passed = 0
+        # default number of seconds to wait when autoplaying pgn
         self.auto_play_seconds = 4
         self.current_time = datetime.datetime.now()
+        # autoplay pgn yes/no
         self.auto_playing = False
+        # first part of move entered by user
         self.first_move = None
         play_move_strings = play_move_string.split(GAME_DIVIDER)
         self.current_move_string = ""
@@ -601,13 +607,16 @@ class PGNViewer:
 
         if chosen_move:
             if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
-                sg.popup(get_translation('_solution_correct_')+":{}"
-                         .format(chosen_move, str(self.current_move.move)))
+                message = get_translation('_solution_correct_') + ":{}".format(chosen_move, str(self.current_move.move))
+                if self.num_tries > 1:
+                    message = message + "\n" + get_translation('_took_tries_').format(self.num_tries)
+                sg.popup(message)
                 self.window.find_element('_movelist_2').Update(visible=True)
                 self.moves_hidden = False
                 self.move_number = self.execute_next_move(self.move_number)
             else:
                 sg.popup(get_translation('_solution_not_correct_') )
+                self.num_tries = self.num_tries + 1
                 self.mode = "entry"
         else:
             sg.popup(get_translation("Illegal move")+":{}".format(coord))
@@ -1145,6 +1154,7 @@ class PGNViewer:
                 # hide the moves of the solution
                 self.window.find_element('_movelist_2').Update(visible=False)
                 self.moves_hidden = True
+                self.num_tries = 1
                 self.mode = "entry"
             if "win_black" in directions:
                 # black is to start moving and wins
