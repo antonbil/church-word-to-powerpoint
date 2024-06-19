@@ -467,6 +467,9 @@ class PGNViewer:
                 if self.mode == "entry2":
                     self.mode = "viewer"
                     self.gui.board.change_square_color_move(self.window, fr_row, fr_col)
+                    if self.moves_hidden:
+                        self.check_solution(self.first_move + coord)
+                        continue
                     self.set_mode_display()
                     self.add_move(self.first_move + coord)
                     continue
@@ -583,6 +586,32 @@ class PGNViewer:
             self.current_move.add_line(uci_string2_moves(str(chosen_move)))
         else:
             sg.popup(get_translation("Illegal move")+":{}".format(coord))
+        self.redraw_all()
+
+    def check_solution(self, coord):
+        """
+        check solution based on move
+        :param coord:
+        :return:
+        """
+        chosen_move = None
+
+        if coord in [str(l) for l in list(self.board.legal_moves)]:
+            chosen_move = coord
+
+        if chosen_move:
+            if str(chosen_move) in [str(m.move) for m in self.current_move.variations]:
+                sg.popup(get_translation('_solution_correct_')+":{}"
+                         .format(chosen_move, str(self.current_move.move)))
+                self.window.find_element('_movelist_2').Update(visible=True)
+                self.moves_hidden = False
+                self.move_number = self.execute_next_move(self.move_number)
+            else:
+                sg.popup(get_translation('_solution_not_correct_') )
+                self.mode = "entry"
+        else:
+            sg.popup(get_translation("Illegal move")+":{}".format(coord))
+            self.mode = "entry"
         self.redraw_all()
 
     def choose_one_move(self, items):
@@ -1116,6 +1145,7 @@ class PGNViewer:
                 # hide the moves of the solution
                 self.window.find_element('_movelist_2').Update(visible=False)
                 self.moves_hidden = True
+                self.mode = "entry"
             if "win_black" in directions:
                 # black is to start moving and wins
                 self.gui.is_user_white = False

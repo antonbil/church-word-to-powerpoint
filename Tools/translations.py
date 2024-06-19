@@ -68,6 +68,8 @@ translations = {"en": {
                               'engine.',
     "_existing-engine_": '{} is existing. Please modify the name! ' +
                          'You can modify the config later thru {}',
+'_solution_correct_':"Solution correct",
+'_solution_not_correct_':"Solution not correct\nPlease try again"
 },
     "nl": {'Headers': 'Headers',
            'Select': 'Selecteer',
@@ -323,7 +325,9 @@ translations = {"en": {
            'Save PGN': "Bewaar PGN",
            "Folder": "Folder",
            "Browse":"Zoek",
-"Visible movelist":"Zetten zichtbaar"
+"Visible movelist":"Zetten zichtbaar",
+'_solution_correct_':"Oplossing correct",
+'_solution_not_correct_':"Oplossing niet correct\nProbeer het nog een keer"
            }
 }
 
