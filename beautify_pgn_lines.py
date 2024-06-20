@@ -13,24 +13,9 @@ class PgnDisplay:
         percent_from_top
     )
             """
-        # # print("string", string)
-        # if '"]' in string:
-        #     rubbish_pos = string.index('"]')
-        # else:
-        #     rubbish_pos = -1
-        # # print("rubbish_pos", rubbish_pos)
-        # if rubbish_pos >= 0:
-        #     if '[' in string:
-        #         possible_start = string.index('[')
-        #     else:
-        #         possible_start = 100000000
-        #     if rubbish_pos > possible_start:
-        #         try:
-        #             print("string", string)
-        #             string = string[:rubbish_pos]
-        #             print("string2", string)
-        #         except:
-        #             print("error sub")
+        lines = string.split("\n")
+        lines = [l for l in lines if not (l.startswith("[") and l.endswith('"]'))]
+        string = "\n".join(lines)
         string = list(string)
         indent = 0
         inside_comment = False
