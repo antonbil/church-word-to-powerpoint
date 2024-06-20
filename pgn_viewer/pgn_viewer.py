@@ -1052,6 +1052,11 @@ class PGNViewer:
         #     "{} ({})".format(" ".join(res_moves), score), append=True, disabled=True)
 
     def select_game(self):
+        if not self.pgn:
+            sg.Popup((get_translation("Error reading db") + ' {}').format(self.pgn),
+                     title=get_translation("Error reading db"))
+            return
+
         pgn = open(self.pgn)
         # Reading the game
         game1 = chess.pgn.read_game(pgn)

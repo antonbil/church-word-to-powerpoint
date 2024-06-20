@@ -348,7 +348,8 @@ def replace(data, prev=None, index=None):
                 if key in translations[language]:
                     data[k] = "{}::{}".format(translations[language][key], key)
                 else:
-                    print('"{}":"{}",'.format(key, key))
+                    pass
+                    # print('"{}":"{}",'.format(key, key))
             else:
                 id = v[0]
                 if id in GUI_THEME:
@@ -364,10 +365,12 @@ def replace(data, prev=None, index=None):
                                     if v1 in translations[language]:
                                         v1 = translations[language][v1]
                                     else:
-                                        print('"{}":"{}",'.format(v1, v1))
+                                        pass
+                                        # print('"{}":"{}",'.format(v1, v1))
                                 data[k].append(v1)
                     if not chosen and len(id) > 1:
-                        print('"{}":"{}",'.format(id, id))
+                        pass
+                        # print('"{}":"{}",'.format(id, id))
 
             replace(v, data, k)
 
