@@ -13,34 +13,37 @@ class PgnDisplay:
         percent_from_top
     )
             """
+        # remove headers
         lines = string.split("\n")
         lines = [l for l in lines if not (l.startswith("[") and l.endswith('"]'))]
         string = "\n".join(lines)
-        string = list(string)
+        # end remove headers
+        # iterate over every char in string and add new_lines and indenting if appropriate
+        list_string = list(string)
         indent = 0
         inside_comment = False
-        for index, item in enumerate(string):
+        for index, item in enumerate(list_string):
 
             if item == "\n":
                 if not inside_comment:
-                    string[index] = "\n" + ("_" * indent)
+                    list_string[index] = "\n" + ("_" * indent)
                 else:
-                    string[index] = " "
+                    list_string[index] = " "
             if item == "(" and not inside_comment:
                 indent = indent + 1
-                string[index] = "\n" + ("_" * indent)
+                list_string[index] = "\n" + ("_" * indent)
             if item == "{":
                 indent = indent + 1
-                string[index] = "\n" + ("|" * indent)
+                list_string[index] = "\n" + ("|" * indent)
                 inside_comment = True
             if item == ")" and not inside_comment:
                 indent = indent - 1
-                string[index] = "\n" + ("_" * indent)
+                list_string[index] = "\n" + ("_" * indent)
             if item == "}":
                 indent = indent - 1
-                string[index] = "\n" + ("_" * indent)
+                list_string[index] = "\n" + ("_" * indent)
                 inside_comment = False
-        lines = "".join(string).split("\n")
+        lines = "".join(list_string).split("\n")
         lines = [self.split_line(l).replace("_", " ") for l in lines if
                  len(l.replace("_", "").strip()) > 0 and not l.startswith("[")]
         lines = [self.change_nag(line) for line in lines]

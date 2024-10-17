@@ -747,7 +747,7 @@ class PgnEditor:
         if self.gui.relative_row(to_sq, self.board.turn) == 7 and \
                 moved_piece == chess.PAWN:
             # is_promote = True
-            pyc_promo, psg_promo = self.gui.get_promo_piece(
+            pyc_promo, psg_promo = self.gui.board.get_promo_piece(
                 user_move, self.board.turn, True)
             user_move = chess.Move(fr_sq, to_sq, promotion=pyc_promo)
         else:
