@@ -275,7 +275,7 @@ class Sermon:
             # add content (only image or text)
             if len(hymn["images"]) > 0:
                 # Image formatting
-                image_width = Inches(5)
+                image_width = Inches(4)
                 image_height = Inches(3)
                 image_left = Inches(1)  # Fixed left offset
                 image_top = Inches(1) # Fixed top offset
@@ -296,6 +296,15 @@ class Sermon:
                         # set the text at the top:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                     i = i + 1
+
+    def calculate_text_height(self, text, font_size):
+        """
+        Calculates an approximate height for a given text block and font size.
+        """
+        lines = text.count('\n') + 1  # Count lines based on newline characters
+        line_height = font_size * 1.2  # Approximate line height
+        total_height_inches = (lines * line_height) / 72  # Convert points to inches
+        return Inches(total_height_inches)
 
     def extract_collection_section(self, paragraphs):
         """
