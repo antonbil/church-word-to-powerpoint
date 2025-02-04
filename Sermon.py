@@ -261,8 +261,12 @@ class Sermon:
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]  # Assuming you want to use the first slide layout from the template
         is_first_slide = True
+
+        last_bottom = 0
+        previous_text = None
         for hymn in hymn_data:
-            slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+            if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
+                slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
 
             # Add title (only on the first slide)
             if title and is_first_slide:
@@ -281,20 +285,33 @@ class Sermon:
                 image_top = Inches(1) # Fixed top offset
                 image_bytes = hymn["images"][0]
                 image_stream = io.BytesIO(image_bytes)
-                slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
+                picture = slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
+                last_bottom = picture.top + picture.height
 
             elif hymn["text"]:
                 i = 0
                 for p in slide.placeholders:
                     if i==1:
-                        print(p)
-                        p.text = hymn["text"]
+                        if last_bottom > 0:
+                            left = p.left
+                            p.top = p.top + last_bottom - 200
+                            p.left = left
+                            previous_text = None
+                            p.text = hymn["text"]
+                        else:
+                            if previous_text:
+                                p.text = p.text + "\n\n" + hymn["text"]
+                                previous_text = None
+                            else:
+                                p.text = hymn["text"]
+                                previous_text = p
                         # Set content text color to white
                         for paragraph in p.text_frame.paragraphs:
                             paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
                             paragraph.font.size = Pt(12)
                         # set the text at the top:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+                        last_bottom = 0
                     i = i + 1
 
     def calculate_text_height(self, text, font_size):
