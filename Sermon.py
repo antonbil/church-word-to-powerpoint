@@ -98,8 +98,8 @@ class Sermon:
 
                     # Process the current section
                     if self.current_tag == "hymn":
-                        hymn_data = self.extract_hymn_section(paragraphs[self.current_paragraph_index:])
-                        self.create_hymn_slides(hymn_data)
+                        title, hymn_data = self.extract_hymn_section(paragraphs[self.current_paragraph_index:])
+                        self.create_hymn_slides(title, hymn_data)
                     elif self.current_tag == "collection":
                         collection_data = self.extract_collection_section(paragraphs[self.current_paragraph_index:])
                         # self.create_collection_slides(collection_data)
@@ -127,25 +127,34 @@ class Sermon:
 
     def extract_hymn_section(self, paragraphs):
         """
-        Extracts the hymn sections (text and images) from a list of paragraphs.
+        Extracts the hymn section, including title, and all hymns within the section
+        (text and images) from a list of paragraphs.
 
         Args:
             paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects).
 
         Returns:
-            list: A list of dictionaries, where each dictionary represents a
-                  paragraph and contains its text and image data
+            tuple: (title, hymn_data)
+                   title (str or None): The title of the hymn section (or None if no title).
+                   hymn_data (list): A list of dictionaries, where each dictionary represents a
+                                     hymn and contains its text and image data.
         """
         hymn_data = []
+        current_text = []
+        title = None
         new_index = 0
         in_hymn_section = False
         index = -1
         print("check for hymn sections")
         print(self.current_paragraph_index)
-        while self.current_paragraph_index < self.num_paragraphs:
+
+        # check if the hymn-section has a title:
+        if len(paragraphs) > 0:
+            in_hymn_section, index, title = self.get_hymn_title(index, paragraphs)
+        while self.current_paragraph_index + index < self.num_paragraphs-1:
             index = index + 1
             paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
-            #print(paragraph.text)
+
             if self.tags["hymn"]["begin"] in paragraph.text:
                 # a new hymn is started
                 in_hymn_section = True
@@ -153,31 +162,139 @@ class Sermon:
             if self.tags["hymn"]["end"] in paragraph.text:
                 # no hymn, but a next hymn can be possible
                 in_hymn_section = False
+                if len(current_text) > 0:
+                    paragraph_data = {"text": "\n".join(current_text), "images": []}
+                    hymn_data.append(paragraph_data)
+                current_text = []
                 new_index = index + 1
+                continue
+            if len(paragraph.text.strip()) == 0 and not in_hymn_section:
+                # empty line; skip
+                new_index = index
                 continue
             if len(paragraph.text.strip()) > 0 and not in_hymn_section:
                 # not next hymn, so the hymn-section is finished
                 new_index = index
                 break
             if in_hymn_section:
-                paragraph_data = {"text": paragraph.text, "images": []}
-                for run in paragraph.runs:
-                    for drawing in run._element.xpath('.//w:drawing'):
-                        for inline in drawing.xpath('.//wp:inline'):
-                            for graphic in inline.xpath('.//a:graphic'):
-                                for graphicData in graphic.xpath('.//a:graphicData'):
-                                    for pic in graphicData.xpath('.//pic:pic'):
-                                        for blipfill in pic.xpath('.//pic:blipFill'):
-                                            for blip in blipfill.xpath('.//a:blip'):
-                                                embed = blip.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-                                                if embed:
-                                                    image_part = self.word_document.part.related_parts[embed]
-                                                    image_bytes = image_part.blob
-                                                    paragraph_data["images"].append(image_bytes)
+                self.extract_paragraph_content(paragraph)
                 print(paragraph.text)
-                hymn_data.append(paragraph_data)
+                if len(paragraph.text) > 0:
+                    current_text.append(paragraph.text)
+
+                # check if the hymn-section starts with a picture:
+                if len(hymn_data) == 0:
+                    # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
+                    self.get_hymn_image(hymn_data, paragraph)
         self.current_paragraph_index = self.current_paragraph_index + new_index
-        return hymn_data
+        return title, hymn_data
+
+    def get_hymn_title(self, index, paragraphs):
+        title = None
+        in_hymn_section = False
+        first_paragraph = paragraphs[0]
+        # check if the first paragraph contains a title:
+        if first_paragraph.runs and first_paragraph.runs[0].bold:
+            title = first_paragraph.text
+            if self.tags["hymn"]["begin"] in title:
+                title = title.replace(self.tags["hymn"]["begin"], "")
+                in_hymn_section = True
+            # check if this is a two-line title
+            if len(paragraphs) > 1:
+                second_paragraph = paragraphs[1]
+                # check if the second paragraph is also part of the title.
+                if second_paragraph.runs and second_paragraph.runs[0].bold:
+                    title = title + "\n" + second_paragraph.text
+                    index += 1
+        # return in_hymn_section and index also, because they can have a different start-value
+        # based on whether there is a tile yes or no
+        return in_hymn_section, index, title
+
+    def get_hymn_image(self, hymn_data, paragraph):
+        for run in paragraph.runs:
+            for drawing in run._element.xpath('.//w:drawing'):
+                for inline in drawing.xpath('.//wp:inline'):
+                    for graphic in inline.xpath('.//a:graphic'):
+                        for graphicData in graphic.xpath('.//a:graphicData'):
+                            for pic in graphicData.xpath('.//pic:pic'):
+                                for blipfill in pic.xpath('.//pic:blipFill'):
+                                    for blip in blipfill.xpath('.//a:blip'):
+                                        embed = blip.get(
+                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
+                                        if embed:
+                                            image_part = self.word_document.part.related_parts[embed]
+                                            image_bytes = image_part.blob
+                                            hymn_data.append({"text": None, "images": [image_bytes]})
+
+    def extract_paragraph_content(self, paragraph):
+        paragraph_data = {"text": paragraph.text, "images": []}
+        for run in paragraph.runs:
+            for drawing in run._element.xpath('.//w:drawing'):
+                for inline in drawing.xpath('.//wp:inline'):
+                    for graphic in inline.xpath('.//a:graphic'):
+                        for graphicData in graphic.xpath('.//a:graphicData'):
+                            for pic in graphicData.xpath('.//pic:pic'):
+                                for blipfill in pic.xpath('.//pic:blipFill'):
+                                    for blip in blipfill.xpath('.//a:blip'):
+                                        embed = blip.get(
+                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
+                                        if embed:
+                                            image_part = self.word_document.part.related_parts[embed]
+                                            image_bytes = image_part.blob
+                                            paragraph_data["images"].append(image_bytes)
+        return paragraph_data
+
+    def create_hymn_slides(self, title, hymn_data):
+        """
+        Creates PowerPoint slides for the hymn sections.
+
+        Args:
+            title (str): The title of the hymn section (or None if no title).
+            hymn_data (list): A list of dictionaries containing hymn data (text and images).
+        """
+        print("add hymn-data")
+        if not self.powerpoint_presentation:
+            print("Error: PowerPoint presentation not initialized.")
+            return
+
+        is_first_slide = True #used to check if this is the first slide.
+        for hymn in hymn_data:
+            # add a blank slide
+            blank_slide_layout = self.powerpoint_presentation.slide_layouts[6]
+            slide = self.powerpoint_presentation.slides.add_slide(blank_slide_layout)
+
+            # Add title (only on the first slide)
+            if title and is_first_slide:
+                left = top = width = height = Inches(1)
+                txBox = slide.shapes.add_textbox(left, top, width, height)
+                tf = txBox.text_frame
+                tf.text = title
+                p = tf.paragraphs[0]
+                p.alignment = PP_ALIGN.LEFT
+                p.font.bold = True
+                p.font.size = Pt(36)
+                top = Inches(2) #update the top, because there is a title
+                is_first_slide = False #title has been added, so it is not the first slide anymore
+
+            #add content (only image or text)
+            if len(hymn["images"]) > 0:
+                image_bytes = hymn["images"][0]
+                image_stream = io.BytesIO(image_bytes)
+                slide.shapes.add_picture(image_stream, left=Inches(1), top=Inches(3), width=Inches(6))
+
+            elif hymn["text"]:
+                left = Inches(1)
+                top = Inches(3)
+                width = Inches(8)
+                height = Inches(1)
+                txBox = slide.shapes.add_textbox(left, top, width, height)
+                tf = txBox.text_frame
+                tf.text = hymn["text"]
+
+                p = tf.paragraphs[0]
+                p.alignment = PP_ALIGN.LEFT
+                p.font.bold = False
+                p.font.size = Pt(24)
 
     def extract_collection_section(self, paragraphs):
         """
@@ -248,39 +365,6 @@ class Sermon:
                   paragraph and contains its text and image data.
         """
         return []
-
-    def create_hymn_slides(self, hymn_data):
-        """
-        Creates PowerPoint slides for the hymn sections.
-
-        Args:
-            hymn_data: A list of dictionaries containing hymn data (text and images).
-        """
-        print("add hymn-data")
-        if not self.powerpoint_presentation:
-            print("Error: PowerPoint presentation not initialized.")
-            return
-
-        # add a blank slide
-        blank_slide_layout = self.powerpoint_presentation.slide_layouts[6]
-        slide = self.powerpoint_presentation.slides.add_slide(blank_slide_layout)
-        text = []
-        for paragraph_data in hymn_data:
-            text.append(paragraph_data["text"])
-            if len(paragraph_data["images"]) > 0:
-                image_bytes = paragraph_data["images"][0]
-                image_stream = io.BytesIO(image_bytes)
-                slide.shapes.add_picture(image_stream, left=Inches(1), top=Inches(3), width=Inches(6))
-
-        left = top = width = height = Inches(1)
-        txBox = slide.shapes.add_textbox(left, top, width, height)
-        tf = txBox.text_frame
-        tf.text = "\n".join(text)
-
-        p = tf.paragraphs[0]
-        p.alignment = PP_ALIGN.LEFT
-        p.font.bold = False
-        p.font.size = Pt(24)
 
 # Main execution
 if __name__ == "__main__":
