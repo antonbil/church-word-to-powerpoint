@@ -246,7 +246,7 @@ class Sermon:
 
     def create_hymn_slides(self, title, hymn_data):
         """
-        Creates PowerPoint slides for the hymn sections.
+        Creates PowerPoint slides for the hymn sections with improved layout.
 
         Args:
             title (str): The title of the hymn section (or None if no title).
@@ -257,44 +257,62 @@ class Sermon:
             print("Error: PowerPoint presentation not initialized.")
             return
 
-        is_first_slide = True #used to check if this is the first slide.
+        is_first_slide = True  # Used to check if this is the first slide.
         for hymn in hymn_data:
-            # add a blank slide
+            # Add a blank slide
             blank_slide_layout = self.powerpoint_presentation.slide_layouts[6]
             slide = self.powerpoint_presentation.slides.add_slide(blank_slide_layout)
+            # Get the slide dimensions
+            slide_width = self.powerpoint_presentation.slide_width
+            slide_height = self.powerpoint_presentation.slide_height
 
             # Add title (only on the first slide)
             if title and is_first_slide:
-                left = top = width = height = Inches(1)
-                txBox = slide.shapes.add_textbox(left, top, width, height)
+                # Title formatting
+                title_font_size = Pt(24)
+                # Calculate title width and position to left align
+                title_width = Inches(0)  # Adjust as needed
+                title_left = Inches(3)  # Fixed left offset of 0.56 cm (0.22 inches)
+                title_top = Inches(0.5)
+                title_height = Inches(1)
+                txBox = slide.shapes.add_textbox(title_left, title_top, title_width, title_height)
                 tf = txBox.text_frame
                 tf.text = title
                 p = tf.paragraphs[0]
-                p.alignment = PP_ALIGN.LEFT
+                p.alignment = PP_ALIGN.LEFT  # Left alignment
                 p.font.bold = True
-                p.font.size = Pt(36)
-                top = Inches(2) #update the top, because there is a title
-                is_first_slide = False #title has been added, so it is not the first slide anymore
+                p.font.size = title_font_size
 
-            #add content (only image or text)
+                content_top = Inches(1.0)
+                is_first_slide = False  # Title has been added, so it is not the first slide anymore
+            else:
+                content_top = Inches(0.5)
+            # Add content (only image or text)
             if len(hymn["images"]) > 0:
+                # Image formatting
+                image_width = Inches(5)
+                image_height = Inches(3)
+                image_left = Inches(1)  # Fixed left offset
+                image_top = content_top # Position below title
                 image_bytes = hymn["images"][0]
                 image_stream = io.BytesIO(image_bytes)
-                slide.shapes.add_picture(image_stream, left=Inches(1), top=Inches(3), width=Inches(6))
+                slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
 
             elif hymn["text"]:
-                left = Inches(1)
-                top = Inches(3)
-                width = Inches(8)
-                height = Inches(1)
-                txBox = slide.shapes.add_textbox(left, top, width, height)
+                # Text formatting
+                text_font_size = Pt(16)
+                text_width = Inches(0)  # Adjust as needed
+                text_left = Inches(3) # Fixed left offset of 0.56 cm (0.22 inches)
+                text_top = content_top # Position below title
+                text_height = Inches(1)
+
+                txBox = slide.shapes.add_textbox(text_left, text_top, text_width, text_height)
                 tf = txBox.text_frame
                 tf.text = hymn["text"]
-
                 p = tf.paragraphs[0]
-                p.alignment = PP_ALIGN.LEFT
+                p.alignment = PP_ALIGN.LEFT # Left alignment
                 p.font.bold = False
-                p.font.size = Pt(24)
+                p.font.size = text_font_size
 
     def extract_collection_section(self, paragraphs):
         """
