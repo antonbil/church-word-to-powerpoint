@@ -1,0 +1,46 @@
+Samen met jou (Gemini) heb ik de afgelopen dagen een applicatie in python opgezet.
+Omdat nu een nieuwe sessie is gestart, stuur ik eerst de specificatie, de stand van zaken en de code door. Daarna zal ik de vragen formuleren. Dus je hoeft pas iets te doen als ik dat zeg.
+
+Nu volgt eerst de specificatie:
+
+We hebben een orde van dienst van een kerkdienst.
+Deze orde van dienst bestaat uit informatie over: liederen, collecten, bijbellezing, gebed, orgelspel
+Deze orde van dienst is gemaakt met behulp van Word
+
+Nu moet er een Powerpoint gemaakt worden met daarin de liederen, collecte (altijd een vaste dia, waarin alleen maar doel en rekeningnummer hoeven overgenomen)
+Voor de liederen is het verdelen over de verschillende Powerpoint-dia's een belangrijk issue
+Liederen bestaan minimaal uit tekst, maar in veel gevallen staan tussen de teksregels ook plaatjes met liedbalken, waarin de muziek wordt weergegeven
+Bijvoorbeeld: als er een couplet veel regels heeft, kan er 1 couplet op een dia, als een couplet weinig regels heeft, kunnen er meerdere coupletten op een dia
+
+De bijbellezing is een ander belangrijk onderdeel, daar geldt voor: hoe langer, hoe meer dia's. Een handige manier om te splitsen in verschillende dia's is een alina-einde.
+
+Als tool willen we gebuik maken van python, omdat daar word-bestanden kunnen worden ingelezen, en Powerpoint mee kan worden aangemaakt.
+
+Ik had al eerder de volgende specificatie opgestuurd, die wil ik nu verder gaan uitwerken:
+
+We hebben een orde van dienst van een kerkdienst.
+Deze orde van dienst bestaat uit informatie over: liederen, collecten, bijbellezing, gebed, orgelspel
+Deze orde van dienst is gemaakt met behulp van Word
+
+Nu moet er een Powerpoint gemaakt worden met daarin de liederen, collecte (altijd een vaste dia, waarin alleen maar doel en rekeningnummer hoeven overgenomen)
+Voor de liederen is het verdelen over de verschillende Powerpoint-dia's een belangrijk issue
+Liederen bestaan minimaal uit tekst, maar in veel gevallen staan tussen de teksregels ook plaatjes met liedbalken, waarin de muziek wordt weergegeven
+Bijvoorbeeld: als er een couplet veel regels heeft, kan er 1 couplet op een dia, als een couplet weinig regels heeft, kunnen er meerdere coupletten op een dia
+
+De bijbellezing is een ander belangrijk onderdeel, daar geldt voor: hoe langer, hoe meer dia's. Een handige manier om te splitsen in verschillende dia's is een alina-einde.
+
+Als tool willen we gebuik maken van python, omdat daar word-bestanden kunnen worden ingelezen, en Powerpoint mee kan worden aangemaakt.
+Ook moet de code / oplossing en commentaar in het engels worden opgesteld.
+De python-code moet object-georienteerd worden opgesteld. De hoofd-klasse moet gaan heten: Sermon.
+
+Ik wil stap voor stap de applicatie opzetten; ik wil beginnen met de hoofd-loop: het inlezen van het Word-bestand, en het aanmaken van een (leeg) Powerpoint-bestand met dezelfde naam.
+De naam van het word-bestand (dat naast de code is opgeslagen) is: orde-van-dienst.docx.
+
+Nadere specificatie van een leid en liederen-sectie
+--------------------------------------------------
+Het blijkt dat de liederen een vaste structuur hebben. Een sectie liederen kan 1 of meerdere liederen bevatten.
+Mogelijk heeft een liederen-sectie een titel, en als eerste element een bitmap. Een dergelijke bitmap kan gezien worden als een lied.
+En titel is altijd het eerste deel van een liederen-sectie,
+Een titel bestaat uit 1 of twee regels, en is te herkennen doordat het vet is afgedrukt
+
+Indien een titel niet-leeg is, dient de desbetreffende dia deze sectie-titel te krijgen, anbders is de titel van de dia leeg
