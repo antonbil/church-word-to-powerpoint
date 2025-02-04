@@ -7,6 +7,7 @@ import io
 import re
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
+from pptx.enum.text import MSO_ANCHOR
 
 class Sermon:
     """
@@ -57,7 +58,8 @@ class Sermon:
         Creates an empty PowerPoint presentation with the specified filename.
         """
         try:
-            self.powerpoint_presentation = Presentation()
+            # Load the template
+            self.powerpoint_presentation = Presentation('orde-van-dienst-template.pptx')
             self.powerpoint_presentation.save(self.powerpoint_filename)
         except Exception as e:
             print(f"An unexpected error occurred while creating the PowerPoint presentation: {e}")
@@ -246,7 +248,7 @@ class Sermon:
 
     def create_hymn_slides(self, title, hymn_data):
         """
-        Creates PowerPoint slides for the hymn sections with improved layout.
+        Creates PowerPoint slides for the hymn sections using a template.
 
         Args:
             title (str): The title of the hymn section (or None if no title).
@@ -257,62 +259,43 @@ class Sermon:
             print("Error: PowerPoint presentation not initialized.")
             return
 
-        is_first_slide = True  # Used to check if this is the first slide.
+        slide_layout = self.powerpoint_presentation.slide_layouts[0]  # Assuming you want to use the first slide layout from the template
+        is_first_slide = True
         for hymn in hymn_data:
-            # Add a blank slide
-            blank_slide_layout = self.powerpoint_presentation.slide_layouts[6]
-            slide = self.powerpoint_presentation.slides.add_slide(blank_slide_layout)
-            # Get the slide dimensions
-            slide_width = self.powerpoint_presentation.slide_width
-            slide_height = self.powerpoint_presentation.slide_height
+            slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
 
             # Add title (only on the first slide)
             if title and is_first_slide:
-                # Title formatting
-                title_font_size = Pt(24)
-                # Calculate title width and position to left align
-                title_width = Inches(0)  # Adjust as needed
-                title_left = Inches(3)  # Fixed left offset of 0.56 cm (0.22 inches)
-                title_top = Inches(0.5)
-                title_height = Inches(1)
-                txBox = slide.shapes.add_textbox(title_left, title_top, title_width, title_height)
-                tf = txBox.text_frame
-                tf.text = title
-                p = tf.paragraphs[0]
-                p.alignment = PP_ALIGN.LEFT  # Left alignment
-                p.font.bold = True
-                p.font.size = title_font_size
-
-                content_top = Inches(1.0)
-                is_first_slide = False  # Title has been added, so it is not the first slide anymore
-            else:
-                content_top = Inches(0.5)
-            # Add content (only image or text)
+                title_placeholder = slide.shapes.title
+                title_placeholder.text = title
+                # Set title text color to white
+                title_placeholder.text_frame.paragraphs[0].font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
+                title_placeholder.text_frame.paragraphs[0].font.size = Pt(15)
+                is_first_slide = False
+            # add content (only image or text)
             if len(hymn["images"]) > 0:
                 # Image formatting
                 image_width = Inches(5)
                 image_height = Inches(3)
                 image_left = Inches(1)  # Fixed left offset
-                image_top = content_top # Position below title
+                image_top = Inches(1) # Fixed top offset
                 image_bytes = hymn["images"][0]
                 image_stream = io.BytesIO(image_bytes)
                 slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
 
             elif hymn["text"]:
-                # Text formatting
-                text_font_size = Pt(16)
-                text_width = Inches(0)  # Adjust as needed
-                text_left = Inches(3) # Fixed left offset of 0.56 cm (0.22 inches)
-                text_top = content_top # Position below title
-                text_height = Inches(1)
-
-                txBox = slide.shapes.add_textbox(text_left, text_top, text_width, text_height)
-                tf = txBox.text_frame
-                tf.text = hymn["text"]
-                p = tf.paragraphs[0]
-                p.alignment = PP_ALIGN.LEFT # Left alignment
-                p.font.bold = False
-                p.font.size = text_font_size
+                i = 0
+                for p in slide.placeholders:
+                    if i==1:
+                        print(p)
+                        p.text = hymn["text"]
+                        # Set content text color to white
+                        for paragraph in p.text_frame.paragraphs:
+                            paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
+                            paragraph.font.size = Pt(12)
+                        # set the text at the top:
+                        p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+                    i = i + 1
 
     def extract_collection_section(self, paragraphs):
         """

@@ -44,3 +44,81 @@ En titel is altijd het eerste deel van een liederen-sectie,
 Een titel bestaat uit 1 of twee regels, en is te herkennen doordat het vet is afgedrukt
 
 Indien een titel niet-leeg is, dient de desbetreffende dia deze sectie-titel te krijgen, anbders is de titel van de dia leeg
+
+Nieuwe stand van zaken:
+
+Okay, I understand. You'd like me to summarize the requirements for this project, as we've established them through our conversation, so that you can use this as a reference for our next session. I will present the requirements in English, since we are using English for our communication.
+Here's a breakdown of the requirements we've defined for your PowerPoint presentation generation project:
+Project Title: Church Service PowerPoint Generator
+Goal: To automate the creation of a PowerPoint presentation for a church service (order of service) from a Word document.
+Overall Functionality:
+Input: The system will accept a Microsoft Word document (.docx) as input, containing the order of service for a church service.
+Processing: The system will parse the Word document, identify key sections (hymns, readings, etc.) based on defined tags, extract the relevant content (text, images), and process it for presentation.
+Output: The system will generate a Microsoft PowerPoint presentation (.pptx) containing slides representing the order of service.
+Template: the system uses a powerpoint-template.
+Specific Requirements:
+1. Input (Word Document):
+The Word document will contain structured content, with specific sections marked by tags:
+Hymns: Tagged with [Li] at the beginning and [/Li] at the end.
+Collection: Tagged with begin-collecte-tag and eind-collecte-tag.
+Introduction: Tagged with begin-intro-tag and eind-intro-tag.
+Reading: Tagged with begin-lezing-tag and eind-lezing-tag.
+Organ Music: Tagged with begin-orgelspel-tag and eind-orgelspel-tag.
+Outro: Tagged with begin-outro-tag and eind-outro-tag.
+Hymn sections may contain:
+A title (optionally).
+One or more hymns.
+Hymn text.
+Images associated with hymns (optionally).
+2. Output (PowerPoint Presentation):
+Template: The PowerPoint presentation will be based on a template file: orde-van-dienst-template.pptx.
+Slide Layout: The template will define:
+Slide layout.
+Text box positions (for title and content).
+Font sizes.
+Font colors.
+Title Slide: If a title is defined in the Word document, the title will be set in the first slide of a hymn-section.
+Hymn Slides: Each hymn will have its own slide.
+Title: The title placeholder will be populated with the title.
+Content Text: The content placeholder will be populated with the text.
+Images: If images are present, they will be:
+Manually positioned by the code, using Inches() for positioning.
+Left-aligned.
+Placed below the title and the content text.
+With image_width= Inches(5)
+Other sections: The other sections, like collection, reading, etc will be added later.
+3. Code Structure:
+Sermon Class: The core logic will be encapsulated in a Sermon class.
+__init__(self, word_filename): Constructor, initializes the class with the Word document filename.
+load_word_document(self): Loads the Word document.
+create_powerpoint_presentation(self): Creates a new PowerPoint presentation based on the template.
+process_sermon(self): Main method, controls the entire process, extracts data, and calls the other functions.
+extract_hymn_section(self, paragraphs): Extracts hymn information (title, text, images) from a list of paragraphs.
+get_hymn_title(self, index, paragraphs): Extracts the title of a hymn-section
+get_hymn_image(self, hymn_data, paragraph): gets the hymn-image
+extract_paragraph_content(self, paragraph): extracts the content of a paragraph
+create_hymn_slides(self, title, hymn_data): Creates the hymn slides in the PowerPoint presentation.
+extract_collection_section(self, paragraphs): extracts a collection section
+extract_intro_section(self, paragraphs): extracts a intro section
+extract_reading_section(self, paragraphs): extracts a reading section
+extract_organ_section(self, paragraphs): extracts a organ-section
+extract_outro_section(self, paragraphs): extracts an outro section
+Other: We can add more requirements, based on the progress.
+4. Image positioning:
+The image is positioned, if needed.
+image_left is set to Inches(1).
+image_top is set to Inches(1).
+image_width is set to Inches(5).
+image_height is set to Inches(3).
+5. Template-file:
+Name: the name of the template-file is 'orde-van-dienst-template. pptx'
+Placeholder-names: the placeholder for the content-text must be named 'Content Placeholder 2'. The title-placeholder is default.
+Future Development:
+Implement other sections (collection, intro, reading, organ, outro).
+Refine layout and positioning further as needed.
+Implement error handling.
+Implement configuration, for example a config-file.
+Important Notes:
+We will always provide the complete code if multiple methods/functions are involved in a change.
+The create_hymn_slides-function is completed, and does not need to be changed anymore, unless there is a bug.
+I believe this comprehensive summary covers all the requirements we have discussed. Please review it, and let me know if anything is missing or needs clarification. This will be a great guide for our next steps. I am looking forward to our next session!
