@@ -6,6 +6,7 @@ import os
 from .sermon_extract import SermonExtract
 from .sermon_create import SermonCreate
 from .sermon_utils import SermonUtils
+from .settings import Settings
 
 
 class Sermon(SermonExtract, SermonCreate, SermonUtils):
@@ -22,10 +23,13 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         # Get the name of the current directory
         current_dir_name = os.path.basename(current_dir)
+        # Initialize the settings
+        self.settings = Settings(current_dir)
 
         # Construct the full path to the word document
-        self.word_filename = os.path.join(current_dir_name, "orde-van-dienst.docx")
-        self.max_reading_lines = 20
+        self.word_filename = os.path.join(current_dir_name, self.settings.get_setting("default_word_filename"))
+        self.powerpoint_template_filename = os.path.join(current_dir, self.settings.get_setting("powerpoint_template_filename"))
+        self.max_reading_lines = self.settings.get_setting("max_reading_lines")
         self.powerpoint_filename = os.path.splitext(self.word_filename)[0] + ".pptx"
         self.word_document = None
         self.powerpoint_presentation = None
@@ -65,7 +69,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
             # Load the template
             # Get the directory of the current file (sermon_core.py)
             current_dir = os.path.dirname(os.path.abspath(__file__))
-            template_filename = os.path.join(current_dir, 'orde-van-dienst-template.pptx')
+            template_filename = os.path.join(current_dir, self.powerpoint_template_filename)
             self.powerpoint_presentation = Presentation(template_filename)
             self.powerpoint_presentation.save(self.powerpoint_filename)
         except Exception as e:

@@ -1,0 +1,70 @@
+{
+  "default_word_filename": "orde-van-dienst.docx",
+  "powerpoint_template_filename": "orde-van-dienst-template.pptx",
+  "json_filename": "settings.json",
+  "tags": {
+    "hymn": {
+      "begin": "[Li]",
+      "end": [
+        "[/Li]",
+        "[Li]",
+        "Moment van inkeer:",
+        "Woorden van vertrouwen",
+        "Inleiding"
+      ]
+    },
+    "collection": {
+      "begin": "begin-collecte-tag",
+      "end": [
+        "eind-collecte-tag"
+      ]
+    },
+    "intro": {
+      "begin": "begin-intro-tag",
+      "end": [
+        "eind-intro-tag"
+      ]
+    },
+    "reading": {
+      "begin": "[Le]",
+      "end": [
+        "[/Le]",
+        "Overdenking:",
+        "[Li]"
+      ]
+    },
+    "organ": {
+      "begin": "begin-orgelspel-tag",
+      "end": [
+        "eind-orgelspel-tag"
+      ]
+    },
+    "outro": {
+      "begin": "[Ei]",
+      "end": [
+        "[/Ei]"
+      ]
+    }
+  },
+  "image_width": 4,
+  "image_height": 3,
+  "image_left": 1,
+  "image_top": 1,
+  "title_font_color": {
+    "red": 255,
+    "green": 255,
+    "blue": 255
+  },
+  "title_font_size": 15,
+  "content_font_color": {
+    "red": 255,
+    "green": 255,
+    "blue": 255
+  },
+  "content_font_size": 12,
+  "max_reading_lines": 20,
+  "outro_title": "Koorkerkgemeenschap\nMiddelburg",
+  "outro_next_service_line": "Volgende viering",
+  "outro_parson_line": "Voorganger",
+  "outro_tab": "\t"
+}

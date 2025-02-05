@@ -8,6 +8,7 @@ import re
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_ANCHOR
+from .settings import Settings
 import datetime
 
 class Sermon:
