@@ -8,6 +8,7 @@ import re
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_ANCHOR
+import datetime
 
 class Sermon:
     """
@@ -32,12 +33,12 @@ class Sermon:
         self.num_paragraphs = 0
         # Define the tags
         self.tags = {
-            "hymn": {"begin": "[Li]", "end": ["[/Li]", "[Li]", "Moment van inkeer:", "Woorden van vertrouwen"]},
+            "hymn": {"begin": "[Li]", "end": ["[/Li]", "[Li]", "Moment van inkeer:", "Woorden van vertrouwen", "Inleiding"]},
             "collection": {"begin": "begin-collecte-tag", "end": ["eind-collecte-tag"]},
             "intro": {"begin": "begin-intro-tag", "end": ["eind-intro-tag"]},
-            "reading": {"begin": "[Le]", "end": ["[/Le]", "Overdenking:"]},
+            "reading": {"begin": "[Le]", "end": ["[/Le]", "Overdenking:", "[Li]"]},
             "organ": {"begin": "begin-orgelspel-tag", "end": ["eind-orgelspel-tag"]},
-            "outro": {"begin": "begin-outro-tag", "end": ["eind-outro-tag"]}
+            "outro": {"begin": "[Ei]", "end": ["[/Ei]"]}
         }
         self.current_tag = None
 
@@ -117,8 +118,9 @@ class Sermon:
                         organ_data = self.extract_organ_section(paragraphs[self.current_paragraph_index:])
                         # self.create_organ_slides(organ_data)
                     elif self.current_tag == "outro":
-                        outro_data = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
-                        # self.create_outro_slides(outro_data)
+                        date, parson = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
+                        print(date, parson)
+                        self.create_outro_slides(date, parson)
 
             if not is_start_tag:
                 self.current_paragraph_index += 1
@@ -472,15 +474,110 @@ class Sermon:
 
     def extract_outro_section(self, paragraphs):
         """
-        Extracts the outro section (text and images) from a list of paragraphs.
-        (Currently not implemented, just a placeholder.)
+        Extracts the date and parson from the outro section.
 
-        Args
+        Args:
+            paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects).
+
         Returns:
-            list: A list of dictionaries, where each dictionary represents a
-                  paragraph and contains its text and image data.
+            tuple: (date, parson) or (None, None) if not found.
         """
-        return []
+        print("extract_outro_section")
+        new_index = 0
+        index = -1
+        in_outro_section = False
+        for paragraph in paragraphs:
+            print(paragraph.text)
+            index = index + 1
+            if self.tags["outro"]["begin"] in paragraph.text:
+                # a new outro is started
+                in_outro_section = True
+                continue
+            if self.check_end_tag("outro", paragraph):
+                # no outro, but a next outro can be possible
+                in_outro_section = False
+                new_index = index + 1
+                break
+            if len(paragraph.text.strip()) == 0 and not in_outro_section:
+                # empty line; skip
+                new_index = index
+                continue
+            if len(paragraph.text.strip()) > 0 and not in_outro_section:
+                # not next outro, so the outro-section is finished
+                new_index = index
+                break
+            if "Volgende vieringen/activiteiten:".lower() in paragraph.text.lower():
+                next_paragraph = paragraphs[index + 1]
+
+                parts = next_paragraph.text.split('\t')
+                print("parts")
+                print(parts)
+                if len(parts) >= 2:
+                    date_text = parts[0]
+                    parson = parts[len(parts) - 1]
+                    date_text = self.format_date(date_text)
+                    new_index = index
+                    self.current_paragraph_index = self.current_paragraph_index + new_index
+                    return date_text, parson
+
+        self.current_paragraph_index = self.current_paragraph_index + new_index
+        return None, None
+    def format_date(self, date_text):
+        """
+        Formats the date from "12-jan" to "Zondag 12 januari 2025".
+        """
+        try:
+            date_obj = datetime.datetime.strptime(date_text, "%d-%b")
+            date_obj = date_obj.replace(year=2025)
+            day_of_week = self.get_day_of_week(date_obj.weekday())
+            formatted_date = date_obj.strftime("%d %B %Y")
+            return f"{day_of_week} {formatted_date}"
+        except ValueError:
+            return None
+
+    def get_day_of_week(self, weekday_number):
+        """
+        Returns the Dutch day of the week name for a given weekday number (0-6).
+        """
+        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        return days[weekday_number] if 0 <= weekday_number <= 6 else None
+    def create_outro_slides(self, date, parson):
+        """
+        Creates the outro slide.
+
+        Args:
+            date (str): The date of the next service.
+            parson (str): The name of the parson.
+        """
+        print("create_outro_slides")
+        if not self.powerpoint_presentation:
+            print("Error: PowerPoint presentation not initialized.")
+            return
+
+        slide_layout = self.powerpoint_presentation.slide_layouts[0]
+        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+
+        # Set the title
+        title_placeholder = slide.shapes.title
+        title_placeholder.text = "Koorkerkgemeenschap\nMiddelburg"
+        for paragraph in title_placeholder.text_frame.paragraphs:
+            paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)  # White
+            paragraph.font.size = Pt(15)
+
+        # Set the content
+        content_text = f"Volgende viering:\n\n{date} \n\nVoorganger:\n{parson}"
+
+        i = 0
+        for p in slide.placeholders:
+            if i == 1:
+                p.text = content_text
+                # Set content text color to white
+                for paragraph in p.text_frame.paragraphs:
+                    paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)  # White
+                    paragraph.font.size = Pt(12)
+                # set the text at the top:
+                p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+            i += 1
 
 # Main execution
 if __name__ == "__main__":
