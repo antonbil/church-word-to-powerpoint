@@ -1,4 +1,3 @@
-# sermon_create.py
 from docx.shared import Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_ANCHOR
@@ -38,15 +37,15 @@ class SermonCreate:
                 # Set title text color to white
                 for paragraph in title_placeholder.text_frame.paragraphs:
                     paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
-                    paragraph.font.size = Pt(15)
+                    paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
                 is_first_slide = False
             # add content (only image or text)
             if len(hymn["images"]) > 0:
                 # Image formatting
-                image_width = Inches(4)
-                image_height = Inches(3)
-                image_left = Inches(1)  # Fixed left offset
-                image_top = Inches(1) # Fixed top offset
+                image_width = Inches(self.settings.get_setting("image_width"))
+                image_height = Inches(self.settings.get_setting("image_height"))
+                image_left = Inches(self.settings.get_setting("image_left"))  # Fixed left offset
+                image_top = Inches(self.settings.get_setting("image_top")) # Fixed top offset
                 image_bytes = hymn["images"][0]
                 image_stream = io.BytesIO(image_bytes)
                 picture = slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
@@ -71,8 +70,8 @@ class SermonCreate:
                                 previous_text = p
                         # Set content text color to white
                         for paragraph in p.text_frame.paragraphs:
-                            paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
-                            paragraph.font.size = Pt(12)
+                            paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"], self.settings.get_setting("content_font_color")["green"], self.settings.get_setting("content_font_color")["blue"]) # White
+                            paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
                         # set the text at the top:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                         last_bottom = 0
@@ -95,14 +94,17 @@ class SermonCreate:
         slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
 
         # Set the title
+        title_text = self.settings.get_setting("outro_title") #new
         title_placeholder = slide.shapes.title
-        title_placeholder.text = "Koorkerkgemeenschap\nMiddelburg"
+        title_placeholder.text = title_text #modified
         for paragraph in title_placeholder.text_frame.paragraphs:
-            paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)  # White
-            paragraph.font.size = Pt(15)
+            paragraph.font.color.rgb = RGBColor(self.settings.get_setting("title_font_color")["red"], self.settings.get_setting("title_font_color")["green"], self.settings.get_setting("title_font_color")["blue"])  # White
+            paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
 
         # Set the content
-        content_text = f"Volgende viering:\n\n{date} \n\nVoorganger:\n{parson}"
+        next_service_line = self.settings.get_setting("outro_next_service_line") #new
+        parson_line = self.settings.get_setting("outro_parson_line") #new
+        content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}" #modified
 
         i = 0
         for p in slide.placeholders:
@@ -110,8 +112,8 @@ class SermonCreate:
                 p.text = content_text
                 # Set content text color to white
                 for paragraph in p.text_frame.paragraphs:
-                    paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)  # White
-                    paragraph.font.size = Pt(12)
+                    paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"], self.settings.get_setting("content_font_color")["green"], self.settings.get_setting("content_font_color")["blue"]) # White
+                    paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
                 # set the text at the top:
                 p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
             i += 1
