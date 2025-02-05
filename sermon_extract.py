@@ -142,16 +142,22 @@ class SermonExtract:
         first_part = parts[0]
 
         # Regex to find the bank account number (IBAN) in the first part
-        bank_number_match = re.search(r"([A-Z]{2}\d{2}\s[A-Z]{4}\s\d{4}\s\d{4}\s\d{2})", first_part)
+        bank_account_regex = "([A-Z]{2}\d{2}\s[A-Z]{4}\s\d{4}\s\d{4}\s\d{2})"
+        bank_number_match = re.search(bank_account_regex, first_part)
         if bank_number_match:
             bank_account_number = bank_number_match.group(1).strip()
+
         # Clean the bank account number
         bank_account_number = re.sub(r"[^a-zA-Z0-9]", " ", bank_account_number)  # Replace non-alphanumeric with space
         bank_account_number = re.sub(r"\s{2,}", " ", bank_account_number)  # Replace multiple spaces with one
         bank_account_number = bank_account_number.strip()
 
         # Regex to find offering goal (text after "1ste (rode zak) Diaconie:")
-        goal_match = re.search(r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)", text)
+        red_bag_text = self.settings.get_setting("offering_red_bag_text")
+        diaconie_text = self.settings.get_setting("offering_diaconie_text")
+        # the old regex: r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)"
+        offering_goal_regex = fr"1ste \({red_bag_text}\)\s*{diaconie_text}\s*(.*?)(?=\n|$)"
+        goal_match = re.search(offering_goal_regex, text)
         if goal_match:
             offering_goal = goal_match.group(1).strip()
         return offering_goal, bank_account_number
