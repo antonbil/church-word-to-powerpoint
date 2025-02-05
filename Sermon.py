@@ -32,12 +32,12 @@ class Sermon:
         self.num_paragraphs = 0
         # Define the tags
         self.tags = {
-            "hymn": {"begin": "[Li]", "end": "[/Li]"},
-            "collection": {"begin": "begin-collecte-tag", "end": "eind-collecte-tag"},
-            "intro": {"begin": "begin-intro-tag", "end": "eind-intro-tag"},
-            "reading": {"begin": "[Le]", "end": "[/Le]"},
-            "organ": {"begin": "begin-orgelspel-tag", "end": "eind-orgelspel-tag"},
-            "outro": {"begin": "begin-outro-tag", "end": "eind-outro-tag"}
+            "hymn": {"begin": "[Li]", "end": ["[/Li]", "[Li]", "Moment van inkeer:", "Woorden van vertrouwen"]},
+            "collection": {"begin": "begin-collecte-tag", "end": ["eind-collecte-tag"]},
+            "intro": {"begin": "begin-intro-tag", "end": ["eind-intro-tag"]},
+            "reading": {"begin": "[Le]", "end": ["[/Le]", "Overdenking:"]},
+            "organ": {"begin": "begin-orgelspel-tag", "end": ["eind-orgelspel-tag"]},
+            "outro": {"begin": "begin-outro-tag", "end": ["eind-outro-tag"]}
         }
         self.current_tag = None
 
@@ -163,7 +163,7 @@ class Sermon:
                 # a new hymn is started
                 in_hymn_section = True
                 continue
-            if self.tags["hymn"]["end"] in paragraph.text:
+            if self.check_end_tag("hymn", paragraph):
                 # no hymn, but a next hymn can be possible
                 in_hymn_section = False
                 if len(current_text) > 0:
@@ -192,6 +192,22 @@ class Sermon:
                     self.get_hymn_image(hymn_data, paragraph)
         self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, hymn_data
+
+    def check_end_tag(self, tag, paragraph):
+        """
+        Checks if any of the defined end tags for the given tag are present in the paragraph.
+
+        Args:
+            tag (str): The tag to check (e.g., "hymn", "reading").
+            paragraph (docx.paragraph.Paragraph): The paragraph to check.
+
+        Returns:
+            bool: True if any of the end tags are found, False otherwise.
+        """
+        for end_tag in self.tags[tag]["end"]:
+            if end_tag.lower() in paragraph.text.lower():
+                return True
+        return False
 
     def get_hymn_title(self, index, paragraphs):
         title = None
@@ -386,7 +402,7 @@ class Sermon:
                 # a new reading is started
                 in_reading_section = True
                 continue
-            if self.tags["reading"]["end"] in paragraph.text:
+            if self.check_end_tag("reading", paragraph):
                 # no reading, but a next reading can be possible
                 in_reading_section = False
                 new_index = index + 1
