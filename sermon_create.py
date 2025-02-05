@@ -1,6 +1,6 @@
 from docx.shared import Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import MSO_ANCHOR
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 import io
 
@@ -117,7 +117,61 @@ class SermonCreate:
                 # set the text at the top:
                 p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
             i += 1
+
     def create_offering_slides(self, offering_data):
+        """
+        Creates the offering slide.
+
+        Args:
+            offering_data (list): The data of the offering (list).
+        """
         print("create_offering_slides")
-        # Implement logic to create offering slides
-        return True
+        if not self.powerpoint_presentation:
+            print("Error: PowerPoint presentation not initialized.")
+            return
+
+        slide_layout = self.powerpoint_presentation.slide_layouts[0]
+        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+
+        # Set the content
+        first_goal_label = self.settings.get_setting("offering_first_goal_label")
+        second_goal_label = self.settings.get_setting("offering_second_goal_label")
+        output = [first_goal_label, offering_data['offering_goal' ], offering_data["bank_account_number" ], "\n", second_goal_label]
+        content_text = "\n".join(output)
+        content_text_list = content_text.split("\n")
+        empty_item = self.find_first_empty_string_index(content_text_list) + 2
+
+        #add content to slide
+        i = 0
+        for p in slide.placeholders:
+            if i == 1:
+                p.text = content_text
+                # Set content text color to white
+                i1 = 0
+                for paragraph in p.text_frame.paragraphs:
+                    if i1 == 0 or i1 == empty_item:
+                        # underline the paragraph
+                        paragraph.font.underline = True
+                    i1 += 1
+                    paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"], self.settings.get_setting("content_font_color")["green"], self.settings.get_setting("content_font_color")["blue"]) # White
+                    paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
+                    # align the entire paragraph in the middle
+                    paragraph.alignment = PP_ALIGN.CENTER
+                # set the text at the top:
+                p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+            i += 1
+
+    def find_first_empty_string_index(self, string_list):
+        """
+        Finds the index of the first empty string in a list of strings.
+
+        Args:
+          string_list: A list of strings.
+
+        Returns:
+          The index of the first empty string, or None if no empty string is found.
+        """
+        for index, item in enumerate(string_list):
+            if not item:
+                return index
+        return None  # Return None if no empty string is found

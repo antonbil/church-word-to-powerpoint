@@ -117,9 +117,8 @@ class SermonExtract:
         # Split the text into multiple parts if needed
         full_text = "\n".join(current_text)
         offering_goal, bank_account_number = self.extract_bank_account_number(full_text)
-        offering_data.append({"offering_goal": offering_goal, "bank_account_number": bank_account_number})
+        offering_data = {"offering_goal": offering_goal, "bank_account_number": bank_account_number}
         self.current_paragraph_index = self.current_paragraph_index + new_index
-        print(offering_data)
         return offering_data
 
 
