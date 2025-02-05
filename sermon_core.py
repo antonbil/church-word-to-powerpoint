@@ -37,15 +37,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
         self.current_paragraph_index = 0
         self.num_paragraphs = 0
         # Define the tags
-        self.tags = {
-            "hymn": {"begin": "[Li]",
-                     "end": ["[/Li]", "[Li]", "Moment van inkeer:", "Woorden van vertrouwen", "Inleiding"]},
-            "collection": {"begin": "begin-collecte-tag", "end": ["eind-collecte-tag"]},
-            "intro": {"begin": "begin-intro-tag", "end": ["eind-intro-tag"]},
-            "reading": {"begin": "[Le]", "end": ["[/Le]", "Overdenking:", "[Li]"]},
-            "organ": {"begin": "begin-orgelspel-tag", "end": ["eind-orgelspel-tag"]},
-            "outro": {"begin": "[Ei]", "end": ["[/Ei]"]}
-        }
+        self.tags = self.settings.get_tags()
         self.current_tag = None
 
     def load_word_document(self):
@@ -110,9 +102,9 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                     if self.current_tag == "hymn":
                         title, hymn_data = self.extract_hymn_section(paragraphs[self.current_paragraph_index:])
                         self.create_hymn_slides(title, hymn_data)
-                    elif self.current_tag == "collection":
-                        collection_data = self.extract_collection_section(paragraphs[self.current_paragraph_index:])
-                        # self.create_collection_slides(collection_data)
+                    elif self.current_tag == "offering":
+                        offering_data = self.extract_offering_section(paragraphs[self.current_paragraph_index:])
+                        self.create_offering_slides(offering_data)
                     elif self.current_tag == "intro":
                         intro_data = self.extract_intro_section(paragraphs[self.current_paragraph_index:])
                         # self.create_intro_slides(intro_data)

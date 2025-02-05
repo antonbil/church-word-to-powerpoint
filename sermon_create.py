@@ -117,3 +117,7 @@ class SermonCreate:
                 # set the text at the top:
                 p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
             i += 1
+    def create_offering_slides(self, offering_data):
+        print("create_offering_slides")
+        # Implement logic to create offering slides
+        return True

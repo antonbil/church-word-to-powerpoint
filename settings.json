@@ -13,10 +13,10 @@
         "Inleiding"
       ]
     },
-    "collection": {
-      "begin": "begin-collecte-tag",
+    "offering": {
+      "begin": "[Co]",
       "end": [
-        "eind-collecte-tag"
+        "[/Co]"
       ]
     },
     "intro": {
@@ -66,5 +66,8 @@
   "outro_title": "Koorkerkgemeenschap\nMiddelburg",
   "outro_next_service_line": "Volgende viering",
   "outro_parson_line": "Voorganger",
-  "outro_tab": "\t"
+  "outro_tab": "\t",
+  "offering_blue_bag_text": "blauwe zak",
+  "offering_red_bag_text": "rode zak",
+  "offering_diaconie_text": "Diaconie:"
 }

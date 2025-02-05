@@ -70,20 +70,91 @@ class SermonExtract:
         self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, hymn_data
 
-    def extract_collection_section(self, paragraphs):
+    def extract_offering_section(self, paragraphs):
         """
-        Extracts the collection section (text and images) from a list of paragraphs.
-        (Currently not implemented, just a placeholder.)
+        Extracts the offering section (text) from a list of paragraphs.
 
         Args:
             paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects).
 
         Returns:
-            list: A list of dictionaries, where each dictionary represents a
-                  paragraph and contains its text and image data.
+            tuple: (offering_data)
+                   offering_data (list): A list of dictionaries, where each dictionary
+                                        represents a part of the offering and contains
+                                        its text.
         """
-        # Implementation for collection section to be added later
-        return []
+        print("extract_offering_section")
+        offering_data = []
+        current_text = []
+        new_index = 0
+        in_offering_section = False
+        index = -1
+        while self.current_paragraph_index + index < self.num_paragraphs - 1:
+            index = index + 1
+            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
+
+            if self.tags["offering"]["begin"] in paragraph.text:
+                # a new offering is started
+                in_offering_section = True
+                continue
+            if self.check_end_tag("offering", paragraph):
+                # no offering, but a next offering can be possible
+                in_offering_section = False
+                new_index = index + 1
+                break
+            if len(paragraph.text.strip()) == 0 and not in_offering_section:
+                # empty line; skip
+                new_index = index
+                continue
+            if len(paragraph.text.strip()) > 0 and not in_offering_section:
+                # not next offering, so the offering-section is finished
+                new_index = index
+                break
+            if in_offering_section:
+                if len(paragraph.text) > 0:
+                    cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
+                    current_text.append(cleaned_line)
+        # Split the text into multiple parts if needed
+        full_text = "\n".join(current_text)
+        offering_goal, bank_account_number = self.extract_bank_account_number(full_text)
+        offering_data.append({"offering_goal": offering_goal, "bank_account_number": bank_account_number})
+        self.current_paragraph_index = self.current_paragraph_index + new_index
+        print(offering_data)
+        return offering_data
+
+
+    def extract_bank_account_number(self, text):
+        """
+        Extracts the offering goal and bank account number from the text.
+
+        Args:
+            text (str): The text from the offering section.
+
+        Returns:
+            tuple: (offering_goal, bank_account_number)
+        """
+        print("extract_bank_account_number")
+        bank_account_number = ""
+        offering_goal = ""
+        # Split the text at the "blauwe zak"
+        blue_bag_text = self.settings.get_setting("offering_blue_bag_text")  # New
+        parts = text.split(blue_bag_text)  # Modified
+        first_part = parts[0]
+
+        # Regex to find the bank account number (IBAN) in the first part
+        bank_number_match = re.search(r"([A-Z]{2}\d{2}\s[A-Z]{4}\s\d{4}\s\d{4}\s\d{2})", first_part)
+        if bank_number_match:
+            bank_account_number = bank_number_match.group(1).strip()
+        # Clean the bank account number
+        bank_account_number = re.sub(r"[^a-zA-Z0-9]", " ", bank_account_number)  # Replace non-alphanumeric with space
+        bank_account_number = re.sub(r"\s{2,}", " ", bank_account_number)  # Replace multiple spaces with one
+        bank_account_number = bank_account_number.strip()
+
+        # Regex to find offering goal (text after "1ste (rode zak) Diaconie:")
+        goal_match = re.search(r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)", text)
+        if goal_match:
+            offering_goal = goal_match.group(1).strip()
+        return offering_goal, bank_account_number
 
     def extract_intro_section(self, paragraphs):
         """
@@ -189,7 +260,6 @@ class SermonExtract:
         index = -1
         in_outro_section = False
         for paragraph in paragraphs:
-            print(paragraph.text)
             index = index + 1
             if self.tags["outro"]["begin"] in paragraph.text:
                 # a new outro is started
@@ -212,8 +282,6 @@ class SermonExtract:
                 next_paragraph = paragraphs[index + 1]
 
                 parts = next_paragraph.text.split('\t')
-                print("parts")
-                print(parts)
                 if len(parts) >= 2:
                     date_text = parts[0]
                     parson = parts[len(parts) - 1]
