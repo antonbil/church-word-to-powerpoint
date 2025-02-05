@@ -291,8 +291,9 @@ class Sermon:
                 title_placeholder = slide.shapes.title
                 title_placeholder.text = title
                 # Set title text color to white
-                title_placeholder.text_frame.paragraphs[0].font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
-                title_placeholder.text_frame.paragraphs[0].font.size = Pt(15)
+                for paragraph in title_placeholder.text_frame.paragraphs:
+                    paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
+                    paragraph.font.size = Pt(15)
                 is_first_slide = False
             # add content (only image or text)
             if len(hymn["images"]) > 0:
@@ -442,6 +443,7 @@ class Sermon:
             if self.tags["reading"]["begin"] in title:
                 title = title.replace(self.tags["reading"]["begin"], "")
                 in_reading_section = True
+            title = title.strip()
             # check if this is a two-line title
             if len(paragraphs) > 1:
                 second_paragraph = paragraphs[1]
