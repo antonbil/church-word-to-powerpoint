@@ -106,17 +106,7 @@ class SermonCreate:
         parson_line = self.settings.get_setting("outro_parson_line") #new
         content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}" #modified
 
-        i = 0
-        for p in slide.placeholders:
-            if i == 1:
-                p.text = content_text
-                # Set content text color to white
-                for paragraph in p.text_frame.paragraphs:
-                    paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"], self.settings.get_setting("content_font_color")["green"], self.settings.get_setting("content_font_color")["blue"]) # White
-                    paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
-                # set the text at the top:
-                p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
-            i += 1
+        self.format_placeholder_text(1, content_text, slide)
 
     def create_offering_slides(self, offering_data):
         """
@@ -142,24 +132,10 @@ class SermonCreate:
         empty_item = self.find_first_empty_string_index(content_text_list) + 2
 
         #add content to slide
-        i = 0
-        for p in slide.placeholders:
-            if i == 1:
-                p.text = content_text
-                # Set content text color to white
-                i1 = 0
-                for paragraph in p.text_frame.paragraphs:
-                    if i1 == 0 or i1 == empty_item:
-                        # underline the paragraph
-                        paragraph.font.underline = True
-                    i1 += 1
-                    paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"], self.settings.get_setting("content_font_color")["green"], self.settings.get_setting("content_font_color")["blue"]) # White
-                    paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
-                    # align the entire paragraph in the middle
-                    paragraph.alignment = PP_ALIGN.CENTER
-                # set the text at the top:
-                p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
-            i += 1
+        def f(paragraph,
+              line_number):
+            paragraph.font.underline = (True if line_number == 0 or line_number == empty_item else False)
+        self.format_placeholder_text(1, content_text, slide, f)
 
     def find_first_empty_string_index(self, string_list):
         """
@@ -175,3 +151,31 @@ class SermonCreate:
             if not item:
                 return index
         return None  # Return None if no empty string is found
+
+    def format_placeholder_text(self, placeholder_index, content_text, slide, custom_formatter=None):
+        """
+        Formats the text within a placeholder with the specified settings.
+
+        Args:
+            placeholder_index: the index of the placeholder.
+            content_text: the text to put in the placeholder.
+            slide: the current slide.
+            custom_formatter: An optional callable (e.g., lambda) that takes a paragraph
+                              and the line number as arguments for custom formatting.
+        """
+        for i, p in enumerate(slide.placeholders):
+            if i == placeholder_index:
+                p.text = content_text
+
+                for line_number, paragraph in enumerate(p.text_frame.paragraphs):
+                    paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"],
+                                                        self.settings.get_setting("content_font_color")["green"],
+                                                        self.settings.get_setting("content_font_color")["blue"])
+                    paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
+                    # align the entire paragraph in the middle
+                    paragraph.alignment = PP_ALIGN.CENTER
+                    if custom_formatter:
+                        custom_formatter(paragraph, line_number)
+
+                # set the text at the top:
+                p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
