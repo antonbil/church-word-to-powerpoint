@@ -107,7 +107,8 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                         self.create_offering_slides(offering_data)
                     elif self.current_tag == "intro":
                         intro_data = self.extract_intro_section(paragraphs[self.current_paragraph_index:])
-                        # self.create_intro_slides(intro_data)
+                        self.current_paragraph_index += 1
+                        self.create_intro_slides(intro_data)
                     elif self.current_tag == "reading":
                         title, reading_data = self.extract_reading_section(paragraphs[self.current_paragraph_index:])
                         print(reading_data)
@@ -123,8 +124,27 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
             if not is_start_tag:
                 self.current_paragraph_index += 1
 
+        # self.remove_slide(self.powerpoint_presentation)
         self.powerpoint_presentation.save(self.powerpoint_filename)
         if self.powerpoint_presentation is None:
             return
 
         print(f"PowerPoint presentation '{self.powerpoint_filename}' created successfully.")
+
+    def remove_slide(self, prs):
+        # Check if there is at least one slide
+        if len(prs.slides) > 0:
+            # Get a reference to the first slide
+            first_slide = prs.slides[0]
+
+            # Get the slide id of the first slide
+            slide_id = first_slide.slide_id
+
+            # Get all the slide ids in the presentation.
+            rIds = [s.rId for s in prs.slides]
+
+            # Remove the slide, based on slide id
+            prs.part.drop_rel(rIds[0])
+
+            # Remove the reference to the removed slide.
+            prs.slides._sldIdLst.remove(prs.slides._sldIdLst.get_by_id(slide_id))

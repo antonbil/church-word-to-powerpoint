@@ -1,6 +1,8 @@
 # sermon_extract.py
 from docx import Document
 import re
+from datetime import datetime
+import locale
 class SermonExtract:
     """
     Contains the methods for extracting information from the Word document.
@@ -163,17 +165,112 @@ class SermonExtract:
 
     def extract_intro_section(self, paragraphs):
         """
-        Extracts the intro section (text and images) from a list of paragraphs.
-        (Currently not implemented, just a placeholder.)
+        Extracts the introduction section (date, time, parson, theme, organist) from a list of paragraphs.
 
         Args:
             paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects).
 
         Returns:
-            list: A list of dictionaries, where each dictionary represents a
-                  paragraph and contains its text and image data.
+            dict: A dictionary containing the extracted information:
+                  {
+                      "date": "Zondag 5 januari 2025",
+                      "time": "10.00 uur",
+                      "parson": "ds. Elly van Kuijk-Spaans",
+                      "theme": "“Zaaien: een gids voor beginners”",
+                      "organist": "Martin van der Bent"
+                  }
         """
-        return []
+        print("extract_intro_section")
+        intro_data = {}
+        current_text = []
+        new_index = 0
+        in_intro_section = False
+        index = -1
+        while self.current_paragraph_index + index < self.num_paragraphs - 1:
+            index = index + 1
+            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
+
+            if self.tags["intro"]["begin"] in paragraph.text:
+                # a new intro is started
+                in_intro_section = True
+                continue
+            if self.check_end_tag("intro", paragraph):
+                # no intro, but a next intro can be possible
+                in_intro_section = False
+                new_index = index + 1
+                break
+            if len(paragraph.text.strip()) == 0 and not in_intro_section:
+                # empty line; skip
+                new_index = index
+                continue
+            if len(paragraph.text.strip()) > 0 and not in_intro_section:
+                # not next intro, so the intro-section is finished
+                new_index = index
+                break
+            if in_intro_section:
+                if len(paragraph.text) > 0:
+                    current_text.append(paragraph.text.strip())
+        intro_text = "\n".join(current_text)
+        sermon = self.settings.get_setting('intro_date_label')
+        # Extract date
+        sermon_date_list = [l for l in current_text if sermon in l]
+        date_text = "25 december 2024"
+        if len(sermon_date_list) > 0:
+            l2 = sermon_date_list[0].split(sermon)
+            if len(l2) > 1:
+                date_text = l2[1].strip()
+
+        # Convert month names to numbers
+        month_numbers = {
+            "januari": "1",
+            "februari": "2",
+            "maart": "3",
+            "april": "4",
+            "mei": "5",
+            "juni": "6",
+            "juli": "7",
+            "augustus": "8",
+            "september": "9",
+            "oktober": "10",
+            "november": "11",
+            "december": "12",
+        }
+
+        intro_data["date"] = date_text
+        if date_text:
+            day, month_name, year = date_text.split()
+            month_number = month_numbers.get(month_name.lower())
+            if month_number:
+                numeric_date_str = f"{day} {month_number} {year}"
+                try:
+                    date_object = datetime.strptime(numeric_date_str, "%d %m %Y")
+                    intro_data["date"] = f"{self.get_day_of_week(date_object.weekday())} {date_text}"
+                except ValueError as e:
+                    print(f"Error parsing date: {e}")
+
+        # Extract time
+        time_match = re.search(r"(\d{1,2}\.\d{2}\suur)", intro_text)
+        if time_match:
+            intro_data["time"] = time_match.group(1)
+
+        # Extract parson
+        parson_match = re.search(r"Voorganger:\s*\n\s*(.+)", intro_text)
+        if parson_match:
+            intro_data["parson"] = parson_match.group(1).strip()
+
+        # Extract theme
+        theme_match = re.search(r"Thema:\s*\n\s*(.+)", intro_text)
+        if theme_match:
+            intro_data["theme"] = theme_match.group(1).strip()
+
+        # Extract organist
+        organist_match = re.search(r"Orgelspel.*door\s+(.+):", intro_text)
+        if organist_match:
+            intro_data["organist"] = organist_match.group(1).strip()
+
+        self.current_paragraph_index = self.current_paragraph_index + new_index
+        print(intro_data)
+        return intro_data
 
     def extract_reading_section(self, paragraphs):
         """
