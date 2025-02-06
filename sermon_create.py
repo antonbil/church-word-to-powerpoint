@@ -83,12 +83,17 @@ class SermonCreate:
                                 previous_text = p
                         # Set content text color to white
                         for paragraph in p.text_frame.paragraphs:
-                            paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"], self.settings.get_setting("content_font_color")["green"], self.settings.get_setting("content_font_color")["blue"]) # White
+                            self.set_color_text_line(paragraph)
                             paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
                         # set the text at the top:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                         last_bottom = 0
                     i = i + 1
+
+    def set_color_text_line(self, paragraph):
+        paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"],
+                                            self.settings.get_setting("content_font_color")["green"],
+                                            self.settings.get_setting("content_font_color")["blue"])  # White
 
     def create_outro_slides(self, date, parson):
         """
@@ -164,9 +169,7 @@ class SermonCreate:
                 p.text = content_text
 
                 for line_number, paragraph in enumerate(p.text_frame.paragraphs):
-                    paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"],
-                                                        self.settings.get_setting("content_font_color")["green"],
-                                                        self.settings.get_setting("content_font_color")["blue"])
+                    self.set_color_text_line(paragraph)
                     paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
                     # align the entire paragraph in the middle
                     paragraph.alignment = PP_ALIGN.CENTER
@@ -180,9 +183,7 @@ class SermonCreate:
         title_placeholder = slide.shapes.title
         title_placeholder.text = title_text  # modified
         for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
-            paragraph.font.color.rgb = RGBColor(self.settings.get_setting("title_font_color")["red"],
-                                                self.settings.get_setting("title_font_color")["green"],
-                                                self.settings.get_setting("title_font_color")["blue"])  # White
+            self.set_color_text_line(paragraph)
             paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
             if custom_formatter:
                 custom_formatter(paragraph, line_number)
