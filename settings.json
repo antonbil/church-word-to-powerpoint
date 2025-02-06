@@ -62,7 +62,7 @@
     "blue": 255
   },
   "content_font_size": 12,
-  "max_reading_lines": 20,
+  "max_reading_lines": 10,
   "outro_title": "Koorkerkgemeenschap\nMiddelburg",
   "outro_next_service_line": "Volgende viering",
   "outro_parson_line": "Voorganger",

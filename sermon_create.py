@@ -4,6 +4,23 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 import io
 
+
+def find_first_empty_string_index(string_list):
+    """
+    Finds the index of the first empty string in a list of strings.
+
+    Args:
+      string_list: A list of strings.
+
+    Returns:
+      The index of the first empty string, or None if no empty string is found.
+    """
+    for index, item in enumerate(string_list):
+        if not item:
+            return index
+    return None  # Return None if no empty string is found
+
+
 class SermonCreate:
     """
     Contains the methods for creating PowerPoint slides.
@@ -32,12 +49,8 @@ class SermonCreate:
 
             # Add title (only on the first slide)
             if title and is_first_slide:
-                title_placeholder = slide.shapes.title
-                title_placeholder.text = title
-                # Set title text color to white
-                for paragraph in title_placeholder.text_frame.paragraphs:
-                    paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF) # White
-                    paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
+                self.set_title(slide, title)
+
                 is_first_slide = False
             # add content (only image or text)
             if len(hymn["images"]) > 0:
@@ -94,12 +107,11 @@ class SermonCreate:
         slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
 
         # Set the title
-        title_text = self.settings.get_setting("outro_title") #new
-        title_placeholder = slide.shapes.title
-        title_placeholder.text = title_text #modified
-        for paragraph in title_placeholder.text_frame.paragraphs:
-            paragraph.font.color.rgb = RGBColor(self.settings.get_setting("title_font_color")["red"], self.settings.get_setting("title_font_color")["green"], self.settings.get_setting("title_font_color")["blue"])  # White
-            paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
+        title_text = self.settings.get_setting("outro_title")
+        def extra_layout_func(paragraph, line_number):
+            paragraph.alignment = PP_ALIGN.CENTER
+
+        self.set_title(slide, title_text, extra_layout_func)
 
         # Set the content
         next_service_line = self.settings.get_setting("outro_next_service_line") #new
@@ -129,28 +141,12 @@ class SermonCreate:
         output = [first_goal_label, offering_data['offering_goal' ], offering_data["bank_account_number" ], "\n", second_goal_label]
         content_text = "\n".join(output)
         content_text_list = content_text.split("\n")
-        empty_item = self.find_first_empty_string_index(content_text_list) + 2
+        empty_item = find_first_empty_string_index(content_text_list) + 2
 
-        #add content to slide
-        def f(paragraph,
-              line_number):
+        # add content to slide
+        def extra_layout_func(paragraph, line_number):
             paragraph.font.underline = (True if line_number == 0 or line_number == empty_item else False)
-        self.format_placeholder_text(1, content_text, slide, f)
-
-    def find_first_empty_string_index(self, string_list):
-        """
-        Finds the index of the first empty string in a list of strings.
-
-        Args:
-          string_list: A list of strings.
-
-        Returns:
-          The index of the first empty string, or None if no empty string is found.
-        """
-        for index, item in enumerate(string_list):
-            if not item:
-                return index
-        return None  # Return None if no empty string is found
+        self.format_placeholder_text(1, content_text, slide, extra_layout_func)
 
     def format_placeholder_text(self, placeholder_index, content_text, slide, custom_formatter=None):
         """
@@ -179,3 +175,15 @@ class SermonCreate:
 
                 # set the text at the top:
                 p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+
+    def set_title(self, slide, title_text, custom_formatter=None):
+        title_placeholder = slide.shapes.title
+        title_placeholder.text = title_text  # modified
+        for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
+            paragraph.font.color.rgb = RGBColor(self.settings.get_setting("title_font_color")["red"],
+                                                self.settings.get_setting("title_font_color")["green"],
+                                                self.settings.get_setting("title_font_color")["blue"])  # White
+            paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
+            if custom_formatter:
+                custom_formatter(paragraph, line_number)
+
