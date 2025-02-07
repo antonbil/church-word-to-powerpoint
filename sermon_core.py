@@ -87,7 +87,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
         self.num_paragraphs = len(paragraphs)
         self.current_paragraph_index = 0
 
-        print(self.num_paragraphs)
+        # print(self.num_paragraphs)
 
         while self.current_paragraph_index < self.num_paragraphs:
             paragraph = self.word_document.paragraphs[self.current_paragraph_index]
@@ -111,14 +111,14 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                         self.create_intro_slides(intro_data)
                     elif self.current_tag == "reading":
                         title, reading_data = self.extract_reading_section(paragraphs[self.current_paragraph_index:])
-                        print(reading_data)
+                        # print(reading_data)
                         self.create_hymn_slides(title, reading_data)
                     elif self.current_tag == "organ":
                         organ_data = self.extract_organ_section(paragraphs[self.current_paragraph_index:])
                         # self.create_organ_slides(organ_data)
                     elif self.current_tag == "outro":
                         date, parson = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
-                        print(date, parson)
+                        # print(date, parson)
                         self.create_outro_slides(date, parson)
 
             if not is_start_tag:

@@ -76,5 +76,12 @@
   "intro_date_label": "Viering",
   "intro_parson_label": "Voorganger:",
   "intro_theme_label": "Thema:",
-  "intro_organist_label":"Organist:"
+  "intro_organist_label":"Organist:",
+  "slide-layout-intro-1": 0,
+  "slide-layout-intro-2": 0,
+  "slide-layout-intro-3": 0,
+  "slide-layout-outro-1": 0,
+  "slide-layout-outro-2": 0,
+  "placeholder-content-name": "Subtitle 2",
+  "placeholder-title-name": "Title 1"
 }

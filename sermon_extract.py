@@ -29,7 +29,7 @@ class SermonExtract:
         in_hymn_section = False
         index = -1
         print("check for hymn sections")
-        print(self.current_paragraph_index)
+        # print(self.current_paragraph_index)
 
         # check if the hymn-section has a title:
         if len(paragraphs) > 0:
@@ -61,7 +61,7 @@ class SermonExtract:
                 break
             if in_hymn_section:
                 self.extract_paragraph_content(paragraph)
-                print(paragraph.text)
+                # print(paragraph.text)
                 if len(paragraph.text) > 0:
                     current_text.append(paragraph.text)
 
@@ -269,7 +269,7 @@ class SermonExtract:
             intro_data["organist"] = organist_match.group(1).strip()
 
         self.current_paragraph_index = self.current_paragraph_index + new_index
-        print(intro_data)
+        # print(intro_data)
         return intro_data
 
     def extract_reading_section(self, paragraphs):

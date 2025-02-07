@@ -89,6 +89,7 @@ class SermonCreate:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                         last_bottom = 0
                     i = i + 1
+        self.create_empty_slide()
 
     def add_slide(self, slide_layout):
         slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
@@ -126,8 +127,9 @@ class SermonCreate:
         next_service_line = self.settings.get_setting("outro_next_service_line") #new
         parson_line = self.settings.get_setting("outro_parson_line") #new
         content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}" #modified
-
         self.format_placeholder_text(1, content_text, slide)
+        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-outro-2'), extra_layout_func)
+
 
     def create_offering_slides(self, offering_data):
         """
@@ -156,6 +158,7 @@ class SermonCreate:
         def extra_layout_func(paragraph, line_number):
             paragraph.font.underline = (True if line_number == 0 or line_number == empty_item else False)
         self.format_placeholder_text(1, content_text, slide, extra_layout_func)
+        self.create_empty_slide()
 
     def create_intro_slides(self, intro_data):
         """
@@ -193,6 +196,10 @@ class SermonCreate:
         #add content to slide
         self.format_placeholder_text(1, content_text, slide)
 
+        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
+        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
+        self.create_empty_slide()
+
     def format_placeholder_text(self, placeholder_index, content_text, slide, custom_formatter=None):
         """
         Formats the text within a placeholder with the specified settings.
@@ -220,14 +227,17 @@ class SermonCreate:
                 p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
 
     def set_title(self, slide, title_text, custom_formatter=None):
-        title_placeholder = slide.shapes.title
-        print(title_text)
-        title_placeholder.text = title_text  # modified
-        for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
-            self.set_color_text_line(paragraph)
-            paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
-            if custom_formatter:
-                custom_formatter(paragraph, line_number)
+        try:
+            title_placeholder = slide.shapes.title
+            # print(title_text)
+            title_placeholder.text = title_text  # modified
+            for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
+                self.set_color_text_line(paragraph)
+                paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
+                if custom_formatter:
+                    custom_formatter(paragraph, line_number)
+        except:
+            pass
 
     def find_first_empty_string_index(string_list):
         """
@@ -243,4 +253,110 @@ class SermonCreate:
             if not item:
                 return index
         return None  # Return None if no empty string is found
+
+    def duplicate_slide_with_layout(self, slide, layout_number, extra_layout_func=None):
+        """
+        Duplicates a slide and applies a specific layout to the new slide,
+        copying title and content (text and pictures) to the corresponding placeholders.
+        Uses the provided extra_layout_func to apply formatting.
+
+        Args:
+            slide: The slide to duplicate.
+            layout_number (int): The index of the slide layout to apply (0-based).
+            extra_layout_func: A function to apply extra layout settings to the title.
+
+        Returns:
+            The duplicated slide with the specified layout, or None if an error occurred.
+        """
+        prs = slide.part.package.presentation_part.presentation
+
+        # Check if the layout index is valid
+        if layout_number < 0 or layout_number >= len(prs.slide_layouts):
+            print(f"Error: Invalid layout index {layout_number}. Must be between 0 and {len(prs.slide_layouts) - 1}.")
+            return None
+
+        # Get the desired slide layout
+        desired_layout = prs.slide_layouts[layout_number]
+
+        # Create a new slide with the desired layout
+        new_slide = prs.slides.add_slide(desired_layout)
+        # for shp1 in new_slide.placeholders:
+        #     print("new ph", shp1.name)
+        content_placeholder_id = self.settings.get_setting("placeholder-content-name")
+
+        # Dictionary to map placeholder types
+        placeholder_map = {
+            "title": 0,  # Placeholder id for title in the default layout
+            "body": 1   # Placeholder id for content in the default layout
+        }
+
+        # Copy content from the original slide to the new slide
+        # print("search", content_placeholder_id)
+        for shp in slide.placeholders:
+            if shp.name.startswith("Title"):
+                # Found title placeholder in original slide
+                try:
+                    # Copy title text to the new slide using extra_layout_func
+                    title_text = shp.text
+                    self.set_title(new_slide, title_text, extra_layout_func)
+
+                except Exception as e:
+                    print(f"An error occurred copying the title: {e}")
+                    pass
+
+            if shp.name.startswith(content_placeholder_id):
+                # print(shp.name)
+                # print("tekst:")
+                # print(shp.text)
+                # Found content placeholder in original slide
+
+                try:
+                    # Get the body text frame in the new slide
+                    # print("1")
+                    self.format_placeholder_text(1, shp.text, new_slide)
+
+                    # Copy pictures from original slide to new slide
+                    for inner_shp in shp.shapes:
+                        try:
+                            if inner_shp.has_picture:
+                                picture = inner_shp.picture
+                                left, top, width, height = picture.left, picture.top, picture.width, picture.height
+                                new_slide.shapes.add_picture(picture.image.blob, left, top, width, height)
+                        except Exception as e:
+                            #print(f"An error occurred copying the picture: {e}")
+                            pass
+
+                except Exception as e:
+                    print(f"An error occurred copying the content: {e}")
+                    pass
+            try:
+                if shp.has_table:
+                    tbl = shp.table
+                    print(f"table: {tbl}")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                pass
+            try:
+                if shp.has_chart:
+                    chart = shp.chart
+                    print(f"chart: {chart}")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                pass
+            try:
+                if shp.has_picture:
+                    picture = shp.picture
+                    print(f"picture: {picture}")
+                    # Add picture to new slide
+                    left, top, width, height = picture.left, picture.top, picture.width, picture.height
+                    new_slide.shapes.add_picture(picture.image.blob, left, top, width, height)
+            except Exception as e:
+                # print(f"An error occurred: {e}")
+                pass
+
+        return new_slide
+
+    def create_empty_slide(self):
+        slide_layout = self.powerpoint_presentation.slide_layouts[0]
+        slide = self.add_slide(slide_layout)
 
