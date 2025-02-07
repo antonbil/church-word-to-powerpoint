@@ -1,137 +1,87 @@
-# Python Easy Chess GUI
-A Chess GUI based from Python using PySimpleGUI and Python-Chess modules. Users can also load a chess engine and play with it. This program is based on a [demo chess against ai](https://github.com/PySimpleGUI/PySimpleGUI/tree/master/Chess) from [PySimpleGUI](https://github.com/PySimpleGUI/PySimpleGUI).
+# KeizerChess Sermon Creator
 
-![](https://i.imgur.com/DT0lOO2.png)
+This project automates the process of creating PowerPoint presentations for church services from a Word document. It extracts relevant information from the Word document, such as the date, time, parson, theme, organist, songs, and scripture readings, and then uses that information to create visually appealing slides in a PowerPoint presentation.
 
-Command line to compile the source to exe using pyinstaller.
+## Features
 
-```
-pyinstaller python_easy_chess_gui.py -F -w
-```
+*   **Word Document Parsing:** Extracts information from a specifically formatted Word document.
+*   **PowerPoint Generation:** Automatically generates a PowerPoint presentation with title slides and content slides.
+*   **Customizable:** The style of the generated PowerPoint can be customized via settings.json.
+*   **Data Extraction:** Extracts essential data from the Word document, including:
+    *   Date and time of the service.
+    *   Name of the parson.
+    *   Service theme.
+    *   Name of the organist.
+    *   List of songs.
+    *   List of scripture readings.
+    * Outro text.
+*   **Day of the week**: The day of the week is added to the date.
+*   **Themes**: you can add multiple themes to the generated powerpoint.
 
-Then add the folders for the exe to work.
+## Prerequisites
 
-### A. Requirements
-If you want to run from the python source the following are required or see the installation section below.
-* Python 3.7 and up
-* Python-chess v0.28.0 and up
-* PySimpleGUI 4.4.1 and up
-* Pyperclip
-* Download this repo
+*   Python 3.x
+*   The following Python libraries:
+    *   python-docx
+    *   python-pptx
+    *   python-slugify
 
-Or you can just download the [executable file](https://github.com/fsmosca/Python-Easy-Chess-GUI/releases) along with other files such as book and images.
+## Installation
 
-### B. Features
-#### 1. Save games to repertoire pgn files
-![](https://i.imgur.com/iXO2abq.png)
+1.  Clone this repository:
+    bash git clone [repository-url]
+2.  Install the required Python libraries:
+    bash pip install python-docx python-pptx python-slugify
+## Usage
 
-#### 2. Install uci engine of your choice
-![](https://i.imgur.com/GErKZFy.png)
+1.  Prepare your Word document with the following layout:
+    *   The `intro section` start with: `%intro begin%` and ends with `%intro end%`
+        *   the date is in the following format: `5 januari 2025`.
+        *   the time is in the following format: `10.00 uur`.
+        *   The theme is after the word: `Thema:`.
+        *   The parson is after the word: `Voorganger:`.
+        *   The organist is after the words: `Orgelspel ... door`.
+    *   The `songs` start with: `%songs begin%` and ends with `%songs end%`
+        * The text contains the songs in the following format:
+        * `Song 1: Psalm 123, vers 1 en 2.`
+        * `Song 2: Gezang 456.`
+        * `Song 3: Lied 789.`
+    *   The `readings` start with: `%readings begin%` and ends with `%readings end%`
+        * The text contains the readings in the following format:
+        * `Reading 1: Genesis 1.`
+        * `Reading 2: Romeinen 2, vers 1-5.`
+    *   The `outro` start with: `%outro begin%` and ends with `%outro end%`
+        *   The date is in the format: `2025-01-05`
+    * The file must be a `.docx` file.
+2.  Adjust `settings.json` if needed.
+    *   The font-colors and background color can be changed.
+    *   The titles can be changed.
+    * The output folder can be changed.
+3.  Run `main.py`:
+    bash python3 -m Sermon.main
+*   This will generate the powerpoint `.pptx` file in the `output` folder.
 
-#### 2.1 It is recommended to configure the engine setting after installation
-Configure engine via Engine->Manage->Edit, select engine and press modify.
+## File Structure
+KeizerChess/ 
+├── Sermon/ │ 
+├── init.py │ 
+├── main.py │ 
+├── sermon_create.py │ 
+├── sermon_extract.py │ 
+└── settings.json 
+├── my_presentation.pptx #the test-presentation file 
+├── README.md #this file 
+└── input/ 
+└── input_file.docx #the input file
+## Contributing
 
-![](https://i.imgur.com/PmDzCvz.png)
+Feel free to contribute to this project by opening issues or pull requests.
+## Acknowledgements
+This project was created with the support and guidance of:
+Gemini, an AI assistant, for code generation and problem-solving assistance.
+## Contact
+Author: Anton Bil
+Email: anton.bil.167@gmail.com
+## License
 
-#### 3. Need book assistance? Right-click on BOOK 2 and press show
-![](https://i.imgur.com/SdgNdr6.png)
-
-#### 4. Need what engine adviser will think about the position? Right-click on Adviser and press start
-![](https://i.imgur.com/Jziws5W.png)
-
-### C. Installation
-1. If you want to run from the source code
-* Python Easy Chess GUI<br>
-Download the files including the Images, Engines and Book directories. You can use your favorite uci chess engine like stockfish by copying it into the engines dir.
-* Python 3<br>
-https://www.python.org/downloads/
-* Python-Chess<br>
-https://github.com/niklasf/python-chess<br>
-pip install python-chess
-* PySimpleGUI<br>
-https://github.com/PySimpleGUI/PySimpleGUI<br>
-pip install pysimplegui
-* Pyperclip<br>
-https://github.com/asweigart/pyperclip<br>
-pip install pyperclip
-2. If you want to run from the exe
-* Download the exe file from the release link
-
-#### Note
-
-If you are on linux be sure to give permission to uci engine with:  
-`chmod +x uci_engine_fn`.
-
-### D. How to
-#### To start the gui
-* Execute python_easy_chess_gui.py<br>
-Typical command line:<br>
-`python python_easy_chess_gui.py`
-* Execute the exe when using exe file
-
-#### To play as white
-* Mode->Play
-* Move the piece you want to move
-* Press the square you want the piece to move to
-
-#### To play as black
-* If current mode is Neutral, Board->Flip, flip such that black pieces are at the bottom
-* If current mode is Play, Mode->Neutral, then Board->Flip
-* Mode->Play
-* Engine->Go
-
-#### To paste a FEN
-* You should be in Play mode. If not, then Mode->Play
-* FEN->Paste
-* If you play as white, you can make your move
-* If you play as black, Engine->Go
-
-#### To flip board
-* If current mode is Neutral, Board->Flip
-* If current mode is Play, Mode->Neutral, then Board->Flip
-
-#### To set opponent engine book options
-* Book->Set Book, only available in Neutral mode. This book is used by your opponent engine. This book is named pecg_book.bin and is located in Book folder. You can build a polyglot book name it pecg_book.bin and replace the default.
-
-#### To Hide/Unhide engine search info
-* Right-click on Opponent Search Info label an press Show. This would only work on Play mode.
-
-#### To Hide/Unhide Book info
-* Right-click on BOOK 1 or BOOK 2 labels and press Show. This would only work on Play mode.
-
-#### To request Adviser search info
-* Right-click on Adviser and press start. This would only work on Play mode.
-
-#### To select opponent engine
-* Engine->Set Engine Opponent, available only in Neutral mode.
-
-#### To set time control of engine
-* Time->Engine
-
-#### To set time control of user
-* Time->User
-
-#### To install engine
-* Engine->Manage->Install  
-This is only accessible in Neutral mode. After the uci engine is installed, you have to Edit it to modify its options, etc. Only uci engines are supported so far.
-* Engine->Manage->Edit
-
-#### To Edit engine
-* Engine->Manage->Edit
-
-#### To delete engine from config file
-* Engine->Manage->Delete
-
-### E. Credits
-* PySimpleGUI<br>
-https://github.com/PySimpleGUI/PySimpleGUI
-* Python-Chess<br>
-https://github.com/niklasf/python-chess
-* Pyperclip<br>
-https://github.com/asweigart/pyperclip
-* The Week in Chess<br>
-https://theweekinchess.com/
-* PyInstaller<br>
-https://github.com/pyinstaller/pyinstaller
-* pgn-extract<br>
-https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
+This project is licensed under the MIT License.

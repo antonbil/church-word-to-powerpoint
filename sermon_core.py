@@ -39,6 +39,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
         # Define the tags
         self.tags = self.settings.get_tags()
         self.current_tag = None
+        self.first_slide = True
 
     def load_word_document(self):
         """

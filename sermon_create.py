@@ -45,7 +45,7 @@ class SermonCreate:
         previous_text = None
         for hymn in hymn_data:
             if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
-                slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+                slide = self.add_slide(slide_layout)
 
             # Add title (only on the first slide)
             if title and is_first_slide:
@@ -90,6 +90,16 @@ class SermonCreate:
                         last_bottom = 0
                     i = i + 1
 
+    def add_slide(self, slide_layout):
+        if self.first_slide:
+            pass
+            slide = self.powerpoint_presentation.slides[0]
+        else:
+            slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        self.first_slide = False
+
+        return slide
+
     def set_color_text_line(self, paragraph):
         paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"],
                                             self.settings.get_setting("content_font_color")["green"],
@@ -109,7 +119,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        slide = self.add_slide(slide_layout)
 
         # Set the title
         title_text = self.settings.get_setting("outro_title")
@@ -138,7 +148,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        slide = self.add_slide(slide_layout)
 
         # Set the content
         first_goal_label = self.settings.get_setting("offering_first_goal_label")
@@ -166,7 +176,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        slide = self.add_slide(slide_layout)
 
         # Set the title
         title_text = self.settings.get_setting("intro_title")
