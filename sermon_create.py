@@ -91,11 +91,11 @@ class SermonCreate:
                     i = i + 1
 
     def add_slide(self, slide_layout):
-        if self.first_slide:
-            pass
-            slide = self.powerpoint_presentation.slides[0]
-        else:
-            slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        # if self.first_slide:
+        #     pass
+        #     slide = self.powerpoint_presentation.slides[0]
+        # else:
+        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
         self.first_slide = False
 
         return slide
