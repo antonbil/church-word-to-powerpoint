@@ -33,16 +33,17 @@
         "[Li]"
       ]
     },
-    "organ": {
-      "begin": "begin-orgelspel-tag",
-      "end": [
-        "eind-orgelspel-tag"
-      ]
-    },
     "outro": {
       "begin": "[Ei]",
       "end": [
         "[/Ei]"
+      ]
+    },
+    "illustration": {
+      "begin": "[Il]",
+      "end": [
+        "[/Il]",
+        "Stilte:"
       ]
     }
   },

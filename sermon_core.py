@@ -107,19 +107,20 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                         self.create_offering_slides(offering_data)
                     elif self.current_tag == "intro":
                         intro_data = self.extract_intro_section(paragraphs[self.current_paragraph_index:])
+                        print(intro_data)
                         self.current_paragraph_index += 1
                         self.create_intro_slides(intro_data)
                     elif self.current_tag == "reading":
                         title, reading_data = self.extract_reading_section(paragraphs[self.current_paragraph_index:])
                         # print(reading_data)
                         self.create_hymn_slides(title, reading_data)
-                    elif self.current_tag == "organ":
-                        organ_data = self.extract_organ_section(paragraphs[self.current_paragraph_index:])
-                        # self.create_organ_slides(organ_data)
                     elif self.current_tag == "outro":
                         date, parson = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
                         # print(date, parson)
                         self.create_outro_slides(date, parson)
+                    elif self.current_tag == "illustration":
+                        image = self.extract_illustration(paragraphs[self.current_paragraph_index:])
+                        self.create_illustration_slides(image)
 
             if not is_start_tag:
                 self.current_paragraph_index += 1

@@ -200,6 +200,39 @@ class SermonCreate:
         self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
         self.create_empty_slide()
 
+    def create_illustration_slides(self, image_data):
+        """
+        Creates a slide for the illustration section, displaying the image.
+
+        Args:
+            image (tuple): A tuple containing (image_data, image_content_type) or (None, None) if no illustration is found.
+        """
+        print("create_illustration_slides")
+        if not self.powerpoint_presentation:
+            print("Error: PowerPoint presentation not initialized.")
+            return
+
+        if image_data is not None:
+            slide_layout = self.powerpoint_presentation.slide_layouts[0]
+            slide = self.add_slide(slide_layout)
+            # Remove the title-placeholder
+            for shp in slide.placeholders:
+                if shp.name.startswith(self.settings.get_setting("placeholder-title-name")):
+                    sp = shp.element
+                    sp.getparent().remove(sp)
+            # Add image to the slide
+            image_width = Inches(self.settings.get_setting("image_width"))
+            image_height = Inches(self.settings.get_setting("image_height"))
+            image_left = Inches(self.settings.get_setting("image_left"))  # Fixed left offset
+            image_top = Inches(self.settings.get_setting("image_top"))  # Fixed top offset
+            image_stream = io.BytesIO(image_data)
+            try:
+                slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width, height=image_height)
+            except Exception as e:
+                print("An error occured while adding the picture: ", e)
+
+            self.create_empty_slide()
+
     def format_placeholder_text(self, placeholder_index, content_text, slide, custom_formatter=None):
         """
         Formats the text within a placeholder with the specified settings.

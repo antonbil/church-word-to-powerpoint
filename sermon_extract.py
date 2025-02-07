@@ -263,10 +263,11 @@ class SermonExtract:
         if theme_match:
             intro_data["theme"] = theme_match.group(1).strip()
 
-        # Extract organist
-        organist_match = re.search(r"Orgelspel.*door\s+(.+):", intro_text)
+        # Extract organist and performed piece
+        organist_match = re.search(r"Orgelspel.*door\s+(.+):\s+(.+)", intro_text)
         if organist_match:
             intro_data["organist"] = organist_match.group(1).strip()
+            intro_data["performed_piece"] = organist_match.group(2).strip()
 
         self.current_paragraph_index = self.current_paragraph_index + new_index
         # print(intro_data)
@@ -333,6 +334,93 @@ class SermonExtract:
             reading_data.append({"text": full_text, "images": []})
         self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, reading_data
+
+    def extract_illustration(self, paragraphs):
+        """
+        Extracts the illustration from the given paragraphs.
+
+        Args:
+            paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects).
+
+        Returns:
+            tuple: (image_data, image_content_type) or (None, None) if no illustration is found.
+        """
+        print("extract_illustration")
+
+        in_illustration_section = False
+        image = None
+        index = -1
+        illustration_data = []
+        while self.current_paragraph_index + index < self.num_paragraphs-1:
+            index = index + 1
+            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
+            if self.tags["illustration"]["begin"] in paragraph.text:
+                in_illustration_section = True
+                continue
+            if self.check_end_tag("illustration", paragraph):
+                in_illustration_section = False
+                break
+            if in_illustration_section:
+
+                    self.extract_paragraph_content(paragraph)
+
+                    # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
+                    self.get_hymn_image(illustration_data, paragraph)
+
+        self.current_paragraph_index = self.current_paragraph_index + index
+        if len(illustration_data) > 0:
+            image = illustration_data[0]["images"][0]
+        return image
+
+    def get_image(self, paragraph):
+        image = None
+        for run in paragraph.runs:
+            for drawing in run._element.xpath('.//w:drawing'):
+                for inline in drawing.xpath('.//wp:inline'):
+                    for graphic in inline.xpath('.//a:graphic'):
+                        for graphicData in graphic.xpath('.//a:graphicData'):
+                            for pic in graphicData.xpath('.//pic:pic'):
+                                for blipfill in pic.xpath('.//pic:blipFill'):
+                                    for blip in blipfill.xpath('.//a:blip'):
+                                        embed = blip.get(
+                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
+                                        if embed:
+                                            image_part = self.word_document.part.related_parts[embed]
+                                            image_bytes = image_part.blob
+                                            image = image_bytes
+        return image
+
+
+    # def get_image(self, paragraph):
+    #     """
+    #     Extracts the image data from the given paragraph.
+    #
+    #     Args:
+    #         paragraph (docx.paragraph.Paragraph): The paragraph to extract the image from.
+    #
+    #     Returns:
+    #         tuple: (image_data, image_content_type) or (None, None) if no image is found.
+    #     """
+    #     for inline_shape in paragraph.runs[0]._r.drawing_lst[0].inline_shapes:
+    #         image_part = inline_shape._inline.graphic.graphicData.pic.blipFill.blip.embed
+    #         image_data = self.word_document.part.related_parts[image_part].blob
+    #         image_content_type = self.word_document.part.related_parts[image_part].content_type
+    #         return image_data, image_content_type
+    #     return None, None
+
+    def has_image(self, paragraph):
+        """
+        Checks if the paragraph has an image.
+
+        Args:
+            paragraph (docx.paragraph.Paragraph): The paragraph to check.
+
+        Returns:
+            bool: True if the paragraph has an image, False otherwise.
+        """
+        if paragraph.runs and paragraph.runs[0]._r.drawing_lst is not None:
+            return True
+        return False
 
     def extract_organ_section(self, paragraphs):
         """
