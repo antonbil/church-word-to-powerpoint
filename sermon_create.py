@@ -100,7 +100,7 @@ class SermonCreate:
                                             self.settings.get_setting("content_font_color")["green"],
                                             self.settings.get_setting("content_font_color")["blue"])  # White
 
-    def create_outro_slides(self, date, parson):
+    def create_outro_slides(self, date, parson, performed_piece = None):
         """
         Creates the outro slide.
 
@@ -118,18 +118,18 @@ class SermonCreate:
 
         # Set the title
         title_text = self.settings.get_setting("outro_title")
+        if performed_piece:
+            title_text = performed_piece
         def extra_layout_func(paragraph, line_number):
             paragraph.alignment = PP_ALIGN.CENTER
 
         self.set_title(slide, title_text, extra_layout_func)
 
         # Set the content
-        next_service_line = self.settings.get_setting("outro_next_service_line") #new
+        next_service_line = self.settings.get_setting("outro_next_service_line")
         parson_line = self.settings.get_setting("outro_parson_line") #new
-        content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}" #modified
+        content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}"
         self.format_placeholder_text(1, content_text, slide)
-        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-outro-2'), extra_layout_func)
-
 
     def create_offering_slides(self, offering_data):
         """
@@ -181,6 +181,7 @@ class SermonCreate:
             paragraph.alignment = PP_ALIGN.CENTER
         self.set_title(slide, title_text, extra_layout_func)
 
+        performed_piece = ""
         # Set the content
         intro_lines = []
         if "date" in intro_data:
@@ -191,13 +192,18 @@ class SermonCreate:
             intro_lines.append(f"\n{self.settings.get_setting('intro_theme_label')}\n{intro_data['theme']}\n")
         if "organist" in intro_data:
             intro_lines.append(f"\n{self.settings.get_setting('intro_organist_label')}\n{intro_data['organist']}")
+        if "performed_piece" in intro_data:
+            performed_piece = intro_data['performed_piece']
         content_text = "\n".join(intro_lines)
 
         #add content to slide
         self.format_placeholder_text(1, content_text, slide)
 
         self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
-        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
+        third_slide = self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
+        # set title to performed_piece
+        if performed_piece:
+            self.set_title(third_slide, performed_piece, extra_layout_func)
         self.create_empty_slide()
 
     def create_illustration_slides(self, image_data):

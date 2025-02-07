@@ -115,8 +115,9 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                         # print(reading_data)
                         self.create_hymn_slides(title, reading_data)
                     elif self.current_tag == "outro":
-                        date, parson = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
+                        date, parson, performed_piece = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
                         # print(date, parson)
+                        self.create_outro_slides(date, parson, performed_piece)
                         self.create_outro_slides(date, parson)
                     elif self.current_tag == "illustration":
                         image = self.extract_illustration(paragraphs[self.current_paragraph_index:])

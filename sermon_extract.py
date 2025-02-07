@@ -448,6 +448,7 @@ class SermonExtract:
         print("extract_outro_section")
         new_index = 0
         index = -1
+        performed_piece = ""
         in_outro_section = False
         for paragraph in paragraphs:
             index = index + 1
@@ -468,6 +469,10 @@ class SermonExtract:
                 # not next outro, so the outro-section is finished
                 new_index = index
                 break
+            if "Orgelspel:" in paragraph.text:
+                performed_piece_match = re.search(r"Orgelspel:\s*(.+)", paragraph.text)
+                if performed_piece_match:
+                    performed_piece = performed_piece_match.group(1).strip()
             if "Volgende vieringen/activiteiten:".lower() in paragraph.text.lower():
                 next_paragraph = paragraphs[index + 1]
 
@@ -478,7 +483,7 @@ class SermonExtract:
                     date_text = self.format_date(date_text)
                     new_index = index
                     self.current_paragraph_index = self.current_paragraph_index + new_index
-                    return date_text, parson
+                    return date_text, parson, performed_piece
 
         self.current_paragraph_index = self.current_paragraph_index + new_index
         return None, None
