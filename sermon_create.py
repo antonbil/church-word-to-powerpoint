@@ -278,7 +278,8 @@ class SermonCreate:
         except:
             pass
 
-    def find_first_empty_string_index(string_list):
+
+    def find_first_empty_string_index(self, string_list):
         """
         Finds the index of the first empty string in a list of strings.
 
@@ -292,108 +293,6 @@ class SermonCreate:
             if not item:
                 return index
         return None  # Return None if no empty string is found
-
-    def duplicate_slide_with_layout(self, slide, layout_number, extra_layout_func=None):
-        """
-        Duplicates a slide and applies a specific layout to the new slide,
-        copying title and content (text and pictures) to the corresponding placeholders.
-        Uses the provided extra_layout_func to apply formatting.
-
-        Args:
-            slide: The slide to duplicate.
-            layout_number (int): The index of the slide layout to apply (0-based).
-            extra_layout_func: A function to apply extra layout settings to the title.
-
-        Returns:
-            The duplicated slide with the specified layout, or None if an error occurred.
-        """
-        prs = slide.part.package.presentation_part.presentation
-
-        # Check if the layout index is valid
-        if layout_number < 0 or layout_number >= len(prs.slide_layouts):
-            print(f"Error: Invalid layout index {layout_number}. Must be between 0 and {len(prs.slide_layouts) - 1}.")
-            return None
-
-        # Get the desired slide layout
-        desired_layout = prs.slide_layouts[layout_number]
-
-        # Create a new slide with the desired layout
-        new_slide = prs.slides.add_slide(desired_layout)
-        # for shp1 in new_slide.placeholders:
-        #     print("new ph", shp1.name)
-        content_placeholder_id = self.settings.get_setting("placeholder-content-name")
-
-        # Dictionary to map placeholder types
-        placeholder_map = {
-            "title": 0,  # Placeholder id for title in the default layout
-            "body": 1   # Placeholder id for content in the default layout
-        }
-
-        # Copy content from the original slide to the new slide
-        # print("search", content_placeholder_id)
-        for shp in slide.placeholders:
-            if shp.name.startswith("Title"):
-                # Found title placeholder in original slide
-                try:
-                    # Copy title text to the new slide using extra_layout_func
-                    title_text = shp.text
-                    self.set_title(new_slide, title_text, extra_layout_func)
-
-                except Exception as e:
-                    print(f"An error occurred copying the title: {e}")
-                    pass
-
-            if shp.name.startswith(content_placeholder_id):
-                # print(shp.name)
-                # print("tekst:")
-                # print(shp.text)
-                # Found content placeholder in original slide
-
-                try:
-                    # Get the body text frame in the new slide
-                    # print("1")
-                    self.format_placeholder_text(1, shp.text, new_slide)
-
-                    # Copy pictures from original slide to new slide
-                    for inner_shp in shp.shapes:
-                        try:
-                            if inner_shp.has_picture:
-                                picture = inner_shp.picture
-                                left, top, width, height = picture.left, picture.top, picture.width, picture.height
-                                new_slide.shapes.add_picture(picture.image.blob, left, top, width, height)
-                        except Exception as e:
-                            #print(f"An error occurred copying the picture: {e}")
-                            pass
-
-                except Exception as e:
-                    print(f"An error occurred copying the content: {e}")
-                    pass
-            try:
-                if shp.has_table:
-                    tbl = shp.table
-                    print(f"table: {tbl}")
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                pass
-            try:
-                if shp.has_chart:
-                    chart = shp.chart
-                    print(f"chart: {chart}")
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                pass
-            try:
-                if shp.has_picture:
-                    picture = shp.picture
-                    print(f"picture: {picture}")
-                    # Add picture to new slide
-                    left, top, width, height = picture.left, picture.top, picture.width, picture.height
-                    new_slide.shapes.add_picture(picture.image.blob, left, top, width, height)
-            except Exception as e:
-                # print(f"An error occurred: {e}")
-                pass
-
-        return new_slide
 
     def create_empty_slide(self):
         slide_layout = self.powerpoint_presentation.slide_layouts[0]

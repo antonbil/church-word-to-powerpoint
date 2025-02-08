@@ -124,45 +124,6 @@ class SermonExtract:
         return offering_data
 
 
-    def extract_bank_account_number(self, text):
-        """
-        Extracts the offering goal and bank account number from the text.
-
-        Args:
-            text (str): The text from the offering section.
-
-        Returns:
-            tuple: (offering_goal, bank_account_number)
-        """
-        print("extract_bank_account_number")
-        bank_account_number = ""
-        offering_goal = ""
-        # Split the text at the "blauwe zak"
-        blue_bag_text = self.settings.get_setting("offering_blue_bag_text")
-        parts = text.split(blue_bag_text)
-        first_part_of_offering_text = parts[0]
-
-        # Regex to find the bank account number (IBAN) in the first part
-        bank_account_regex = "([A-Z]{2}\d{2}\s[A-Z]{4}\s\d{4}\s\d{4}\s\d{2})"
-        bank_number_match = re.search(bank_account_regex, first_part_of_offering_text)
-        if bank_number_match:
-            bank_account_number = bank_number_match.group(1).strip()
-
-        # Clean the bank account number
-        bank_account_number = re.sub(r"[^a-zA-Z0-9]", " ", bank_account_number)  # Replace non-alphanumeric with space
-        bank_account_number = re.sub(r"\s{2,}", " ", bank_account_number)  # Replace multiple spaces with one
-        bank_account_number = bank_account_number.strip()
-
-        # Regex to find offering goal (text after "1ste (rode zak) Diaconie:")
-        red_bag_text = self.settings.get_setting("offering_red_bag_text")
-        diaconie_text = self.settings.get_setting("offering_diaconie_text")
-        # the old regex: r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)"
-        offering_goal_regex = fr"1ste \({red_bag_text}\)\s*{diaconie_text}\s*(.*?)(?=\n|$)"
-        goal_match = re.search(offering_goal_regex, text)
-        if goal_match:
-            offering_goal = goal_match.group(1).strip()
-        return offering_goal, bank_account_number
-
     def extract_intro_section(self, paragraphs):
         """
         Extracts the introduction section (date, time, parson, theme, organist) from a list of paragraphs.
@@ -372,69 +333,7 @@ class SermonExtract:
             image = illustration_data[0]["images"][0]
         return image
 
-    def get_image(self, paragraph):
-        image = None
-        for run in paragraph.runs:
-            for drawing in run._element.xpath('.//w:drawing'):
-                for inline in drawing.xpath('.//wp:inline'):
-                    for graphic in inline.xpath('.//a:graphic'):
-                        for graphicData in graphic.xpath('.//a:graphicData'):
-                            for pic in graphicData.xpath('.//pic:pic'):
-                                for blipfill in pic.xpath('.//pic:blipFill'):
-                                    for blip in blipfill.xpath('.//a:blip'):
-                                        embed = blip.get(
-                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-                                        if embed:
-                                            image_part = self.word_document.part.related_parts[embed]
-                                            image_bytes = image_part.blob
-                                            image = image_bytes
-        return image
 
-
-    # def get_image(self, paragraph):
-    #     """
-    #     Extracts the image data from the given paragraph.
-    #
-    #     Args:
-    #         paragraph (docx.paragraph.Paragraph): The paragraph to extract the image from.
-    #
-    #     Returns:
-    #         tuple: (image_data, image_content_type) or (None, None) if no image is found.
-    #     """
-    #     for inline_shape in paragraph.runs[0]._r.drawing_lst[0].inline_shapes:
-    #         image_part = inline_shape._inline.graphic.graphicData.pic.blipFill.blip.embed
-    #         image_data = self.word_document.part.related_parts[image_part].blob
-    #         image_content_type = self.word_document.part.related_parts[image_part].content_type
-    #         return image_data, image_content_type
-    #     return None, None
-
-    def has_image(self, paragraph):
-        """
-        Checks if the paragraph has an image.
-
-        Args:
-            paragraph (docx.paragraph.Paragraph): The paragraph to check.
-
-        Returns:
-            bool: True if the paragraph has an image, False otherwise.
-        """
-        if paragraph.runs and paragraph.runs[0]._r.drawing_lst is not None:
-            return True
-        return False
-
-    def extract_organ_section(self, paragraphs):
-        """
-        Extracts the organ section (text and images) from a list of paragraphs.
-        (Currently not implemented, just a placeholder.)
-
-        Args:
-            paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects).
-
-        Returns:
-            list: A list of dictionaries, where each dictionary represents a
-                  paragraph and contains its text and image data.
-        """
-        return []
     def extract_outro_section(self, paragraphs):
         """
         Extracts the date and parson from the outro section.
@@ -492,3 +391,43 @@ class SermonExtract:
 
         self.current_paragraph_index = self.current_paragraph_index + new_index
         return None, None
+
+    def extract_bank_account_number(self, text):
+        """
+        Extracts the offering goal and bank account number from the text.
+
+        Args:
+            text (str): The text from the offering section.
+
+        Returns:
+            tuple: (offering_goal, bank_account_number)
+        """
+        bank_account_number = ""
+        offering_goal = ""
+        # Split the text at the "blauwe zak"
+        blue_bag_text = self.settings.get_setting("offering_blue_bag_text")
+        parts = text.split(blue_bag_text)
+        first_part_of_offering_text = parts[0]
+
+        # Regex to find the bank account number (IBAN) in the first part
+        bank_account_regex = "([A-Z]{2}\d{2}\s[A-Z]{4}\s\d{4}\s\d{4}\s\d{2})"
+        bank_number_match = re.search(bank_account_regex, first_part_of_offering_text)
+        if bank_number_match:
+            bank_account_number = bank_number_match.group(1).strip()
+
+        # Clean the bank account number
+        bank_account_number = re.sub(r"[^a-zA-Z0-9]", " ", bank_account_number)  # Replace non-alphanumeric with space
+        bank_account_number = re.sub(r"\s{2,}", " ", bank_account_number)  # Replace multiple spaces with one
+        bank_account_number = bank_account_number.strip()
+
+        # Regex to find offering goal (text after "1ste (rode zak) Diaconie:")
+        red_bag_text = self.settings.get_setting("offering_red_bag_text")
+        diaconie_text = self.settings.get_setting("offering_diaconie_text")
+        # the old regex: r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)"
+        offering_goal_regex = fr"1ste \({red_bag_text}\)\s*{diaconie_text}\s*(.*?)(?=\n|$)"
+        goal_match = re.search(offering_goal_regex, text)
+        if goal_match:
+            offering_goal = goal_match.group(1).strip()
+        return offering_goal, bank_account_number
+
+
