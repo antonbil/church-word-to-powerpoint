@@ -228,13 +228,9 @@ class SermonExtract:
             theme = theme_match.group(1).strip()
             intro_data["theme"] = theme
 
-        # theme_match = re.search(r"Thema:\s*((?:.|\n)*?)(?=\n\w|\Z)", intro_text, re.DOTALL)
-        # if theme_match:
-        #     theme = theme_match.group(1).strip()
-        #     intro_data["theme"] = theme
-
-        # Extract organist and performed piece
-        organist_match = re.search(r"Orgelspel.*door\s+(.+):\s+(.+)", intro_text)
+        # Extract organ-player and performed piece
+        organ_text = self.settings.get_setting("word-intro-organplayer_text")
+        organist_match = re.search(rf"{organ_text}\s+(.+):\s+(.+)", intro_text)
         if organist_match:
             intro_data["organist"] = organist_match.group(1).strip()
             intro_data["performed_piece"] = organist_match.group(2).strip()
