@@ -51,11 +51,6 @@
   "image_height": 3,
   "image_left": 1,
   "image_top": 1,
-  "title_font_color": {
-    "red": 255,
-    "green": 255,
-    "blue": 255
-  },
 
   "max_reading_lines": 10,
   "outro_tab": "\t",
