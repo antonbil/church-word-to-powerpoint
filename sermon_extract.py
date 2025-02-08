@@ -452,6 +452,12 @@ class SermonExtract:
         in_outro_section = False
         for paragraph in paragraphs:
             index = index + 1
+            # add check for performed_piece_match first, befoe checking for the self.tags["outro"]["begin"]
+            # otherwise the line is removed, and the correct title not set.
+            if "Orgelspel:" in paragraph.text:
+                performed_piece_match = re.search(r"Orgelspel:\s*(.+)", paragraph.text)
+                if performed_piece_match:
+                    performed_piece = performed_piece_match.group(1).strip()
             if self.tags["outro"]["begin"] in paragraph.text:
                 # a new outro is started
                 in_outro_section = True
@@ -469,10 +475,6 @@ class SermonExtract:
                 # not next outro, so the outro-section is finished
                 new_index = index
                 break
-            if "Orgelspel:" in paragraph.text:
-                performed_piece_match = re.search(r"Orgelspel:\s*(.+)", paragraph.text)
-                if performed_piece_match:
-                    performed_piece = performed_piece_match.group(1).strip()
             if "Volgende vieringen/activiteiten:".lower() in paragraph.text.lower():
                 next_paragraph = paragraphs[index + 1]
 
