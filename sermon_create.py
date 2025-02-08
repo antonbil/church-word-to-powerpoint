@@ -184,8 +184,8 @@ class SermonCreate:
         #add content to slide
         self.format_placeholder_text(1, content_text, slide)
 
-        self.duplicate_slide_with_layout(slide, self.settings.get_setting('powerpoint-slide-layout-intro-2'), extra_layout_func)
-        third_slide = self.duplicate_slide_with_layout(slide, self.settings.get_setting('powerpoint-slide-layout-intro-2'), extra_layout_func)
+        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
+        third_slide = self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
         # set title to performed_piece
         if performed_piece:
             self.set_title(third_slide, performed_piece, extra_layout_func)
@@ -241,7 +241,7 @@ class SermonCreate:
 
                 for line_number, paragraph in enumerate(p.text_frame.paragraphs):
                     self.set_color_text_line(paragraph)
-                    paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
+                    paragraph.font.size = Pt(self.settings.get_setting("powerpoint-content_font_size"))
                     # align the entire paragraph in the middle
                     paragraph.alignment = PP_ALIGN.CENTER
                     if custom_formatter:
