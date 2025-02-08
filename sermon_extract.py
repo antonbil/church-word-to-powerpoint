@@ -216,13 +216,14 @@ class SermonExtract:
             intro_data["time"] = time_match.group(1)
 
         # Extract parson
-        parson_match = re.search(r"Voorganger:\s*\n\s*(.+)", intro_text)
+        parson_text = self.settings.get_setting("word-intro-parson_text")
+        parson_match = re.search(rf"{parson_text}\s*\n\s*(.+)", intro_text)
         if parson_match:
             intro_data["parson"] = parson_match.group(1).strip()
 
         # Regex to find "Thema:" and capture the text on the following line(s)
-
-        theme_match = re.search(r"Thema:\s*“([^“”]+)”", intro_text)
+        theme_text = self.settings.get_setting("word-intro-theme_text")
+        theme_match = re.search(rf"{theme_text}\s*“([^“”]+)”", intro_text)
         if theme_match:
             theme = theme_match.group(1).strip()
             intro_data["theme"] = theme
