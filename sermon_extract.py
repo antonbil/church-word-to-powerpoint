@@ -69,7 +69,7 @@ class SermonExtract:
                 if len(hymn_data) == 0:
                     # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
                     self.get_hymn_image(hymn_data, paragraph)
-        self.current_paragraph_index = self.current_paragraph_index + new_index
+        self.current_paragraph_index = self.current_paragraph_index + new_index + 1
         return title, hymn_data
 
     def extract_offering_section(self, paragraphs):
@@ -86,42 +86,65 @@ class SermonExtract:
                                         its text.
         """
         print("extract_offering_section")
-        offering_data = []
-        current_text = []
-        new_index = 0
-        in_offering_section = False
-        index = -1
-        while self.current_paragraph_index + index < self.num_paragraphs - 1:
-            index = index + 1
-            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
+        def add_line_function(paragraph, current_text):
+            cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
 
-            if self.tags["offering"]["begin"] in paragraph.text:
-                # a new offering is started
-                in_offering_section = True
-                continue
-            if self.check_end_tag("offering", paragraph):
-                # no offering, but a next offering can be possible
-                in_offering_section = False
-                new_index = index + 1
-                break
-            if len(paragraph.text.strip()) == 0 and not in_offering_section:
-                # empty line; skip
-                new_index = index
-                continue
-            if len(paragraph.text.strip()) > 0 and not in_offering_section:
-                # not next offering, so the offering-section is finished
-                new_index = index
-                break
-            if in_offering_section:
-                if len(paragraph.text) > 0:
-                    cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
-                    current_text.append(cleaned_line)
-        # Split the text into multiple parts if needed
-        full_text = "\n".join(current_text)
+            current_text.append(cleaned_line)
+        full_text = self. _extract_section_text("offering", add_line_function)
         offering_goal, bank_account_number = self.extract_bank_account_number(full_text)
         offering_data = {"offering_goal": offering_goal, "bank_account_number": bank_account_number}
-        self.current_paragraph_index = self.current_paragraph_index + new_index
         return offering_data
+
+    def _extract_section_text(self, section_name, add_line_function = None):
+        """
+        Extracts text from a specified section in the Word document.
+
+        Args:
+            section_name (str): The name of the section to extract text from (e.g., "offering").
+
+        Returns:
+            list: A list of strings, where each string is a cleaned line of text from the section.
+            int: the index of the last processed paragraph.
+        """
+        current_text = []
+        in_section = False
+        new_index = 0
+        index = -1
+
+        while self.current_paragraph_index + index < self.num_paragraphs - 1:
+            index += 1
+            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
+
+            if self.tags[section_name]["begin"] in paragraph.text:
+                # A new section has started
+                in_section = True
+                continue
+
+            if self.check_end_tag(section_name, paragraph):
+                # End tag found for the section
+                in_section = False
+                new_index = index
+                break
+
+            if len(paragraph.text.strip()) == 0 and not in_section:
+                # Empty line outside the section, skip it
+                new_index = index
+                continue
+
+            if len(paragraph.text.strip()) > 0 and not in_section:
+                # Text found outside the section, so the section is finished
+                new_index = index
+                break
+
+            if in_section:
+                if len(paragraph.text) > 0 and add_line_function:
+                    add_line_function(paragraph, current_text)
+
+                new_index = index
+        current_text = "\n".join(current_text)
+        self.current_paragraph_index = self.current_paragraph_index + new_index
+
+        return current_text
 
 
     def extract_intro_section(self, paragraphs):
@@ -172,7 +195,6 @@ class SermonExtract:
                 if len(paragraph.text) > 0:
                     current_text.append(paragraph.text.strip())
         intro_text = "\n".join(current_text)
-        print(intro_text)
         sermon = self.settings.get_setting('word-intro-date_label')
         # Extract date
         sermon_date_list = [l for l in current_text if sermon in l]
