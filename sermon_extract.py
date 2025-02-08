@@ -172,7 +172,7 @@ class SermonExtract:
                 if len(paragraph.text) > 0:
                     current_text.append(paragraph.text.strip())
         intro_text = "\n".join(current_text)
-        sermon = self.settings.get_setting('intro_date_label')
+        sermon = self.settings.get_setting('word-intro-date_label')
         # Extract date
         sermon_date_list = [l for l in current_text if sermon in l]
         date_text = "25 december 2024"
@@ -349,8 +349,8 @@ class SermonExtract:
         index = -1
         performed_piece = ""
         in_outro_section = False
-        organ_text = self.settings.get_setting("outro_organ_text") # get the new variables from settings
-        next_sermon_text = self.settings.get_setting("outro_next_sermon_text")
+        organ_text = self.settings.get_setting("word-outro-organ_text") # get the new variables from settings
+        next_sermon_text = self.settings.get_setting("word-outro-next_sermon_text")
 
         for paragraph in paragraphs:
             index = index + 1
@@ -405,7 +405,7 @@ class SermonExtract:
         bank_account_number = ""
         offering_goal = ""
         # Split the text at the "blauwe zak"
-        blue_bag_text = self.settings.get_setting("offering_blue_bag_text")
+        blue_bag_text = self.settings.get_setting("word-offering-blue_bag_text")
         parts = text.split(blue_bag_text)
         first_part_of_offering_text = parts[0]
 
@@ -421,8 +421,8 @@ class SermonExtract:
         bank_account_number = bank_account_number.strip()
 
         # Regex to find offering goal (text after "1ste (rode zak) Diaconie:")
-        red_bag_text = self.settings.get_setting("offering_red_bag_text")
-        diaconie_text = self.settings.get_setting("offering_diaconie_text")
+        red_bag_text = self.settings.get_setting("word-offering-red_bag_text")
+        diaconie_text = self.settings.get_setting("word-offering-diaconie_text")
         # the old regex: r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)"
         offering_goal_regex = fr"1ste \({red_bag_text}\)\s*{diaconie_text}\s*(.*?)(?=\n|$)"
         goal_match = re.search(offering_goal_regex, text)

@@ -66,17 +66,13 @@
   "max_reading_lines": 10,
   "outro_title": "Koorkerkgemeenschap\nMiddelburg",
   "outro_next_service_line": "Volgende viering",
-  "outro_organ_text": "Orgelspel:",
-  "outro_next_sermon_text": "Volgende vieringen/activiteiten:",
   "outro_parson_line": "Voorganger",
   "outro_tab": "\t",
-  "offering_blue_bag_text": "blauwe zak",
-  "offering_red_bag_text": "rode zak",
-  "offering_diaconie_text": "Diaconie:",
+
+
   "offering_first_goal_label": "1e zak:\nDiaconie",
   "offering_second_goal_label": "2e zak:\nVereniging Koorkerk \nNL35 TRIO 0788 9579 29\nt.n.v. ‘Koorkerk’",
   "intro_title": "Koorkerkgemeenschap\nMiddelburg",
-  "intro_date_label": "Viering",
   "intro_parson_label": "Voorganger:",
   "intro_theme_label": "Thema:",
   "intro_organist_label":"Organist:",
@@ -86,5 +82,12 @@
   "slide-layout-outro-1": 0,
   "slide-layout-outro-2": 0,
   "placeholder-content-name": "Subtitle 2",
-  "placeholder-title-name": "Title 1"
+  "placeholder-title-name": "Title 1",
+  "word-offering-blue_bag_text": "blauwe zak",
+  "word-offering-red_bag_text": "rode zak",
+  "word-offering-diaconie_text": "Diaconie:",
+  "word-intro-date_label": "Viering",
+  "word-outro-organ_text": "Orgelspel:",
+  "word-outro-next_sermon_text": "Volgende vieringen/activiteiten:"
+
 }
