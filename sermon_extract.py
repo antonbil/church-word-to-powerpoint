@@ -167,34 +167,11 @@ class SermonExtract:
         print("extract_intro_section")
         intro_data = {}
         current_text = []
-        new_index = 0
-        in_intro_section = False
-        index = -1
-        while self.current_paragraph_index + index < self.num_paragraphs - 1:
-            index = index + 1
-            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
 
-            if self.tags["intro"]["begin"] in paragraph.text:
-                # a new intro is started
-                in_intro_section = True
-                continue
-            if self.check_end_tag("intro", paragraph):
-                # no intro, but a next intro can be possible
-                in_intro_section = False
-                new_index = index + 1
-                break
-            if len(paragraph.text.strip()) == 0 and not in_intro_section:
-                # empty line; skip
-                new_index = index
-                continue
-            if len(paragraph.text.strip()) > 0 and not in_intro_section:
-                # not next intro, so the intro-section is finished
-                new_index = index
-                break
-            if in_intro_section:
-                if len(paragraph.text) > 0:
-                    current_text.append(paragraph.text.strip())
-        intro_text = "\n".join(current_text)
+        def add_line_function(paragraph, current_text):
+            current_text.append(paragraph.text.strip())
+        intro_text = self. _extract_section_text("intro", add_line_function)
+
         sermon = self.settings.get_setting('word-intro-date_label')
         # Extract date
         sermon_date_list = [l for l in current_text if sermon in l]
@@ -257,7 +234,6 @@ class SermonExtract:
             intro_data["organist"] = organist_match.group(1).strip()
             intro_data["performed_piece"] = organist_match.group(2).strip()
 
-        self.current_paragraph_index = self.current_paragraph_index + new_index
         # print(intro_data)
         return intro_data
 
