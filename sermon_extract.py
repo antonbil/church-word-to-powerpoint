@@ -86,7 +86,7 @@ class SermonExtract:
                                         its text.
         """
         print("extract_offering_section")
-        def add_line_function(paragraph, current_text):
+        def add_line_function(paragraph, current_text, _):
             cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
 
             current_text.append(cleaned_line)
@@ -95,7 +95,7 @@ class SermonExtract:
         offering_data = {"offering_goal": offering_goal, "bank_account_number": bank_account_number}
         return offering_data
 
-    def _extract_section_text(self, section_name, add_line_function = None):
+    def _extract_section_text(self, section_name, add_line_function = None, outro_data = None):
         """
         Extracts text from a specified section in the Word document.
 
@@ -118,6 +118,10 @@ class SermonExtract:
             if self.tags[section_name]["begin"] in paragraph.text:
                 # A new section has started
                 in_section = True
+                t = paragraph.text.split(self.tags[section_name]["begin"])[-1]
+                if t and add_line_function:
+                    paragraph.text = t
+                    add_line_function(paragraph, current_text, outro_data)
                 continue
 
             if self.check_end_tag(section_name, paragraph):
@@ -138,7 +142,7 @@ class SermonExtract:
 
             if in_section:
                 if len(paragraph.text) > 0 and add_line_function:
-                    add_line_function(paragraph, current_text)
+                    add_line_function(paragraph, current_text, outro_data)
 
                 new_index = index
         current_text = "\n".join(current_text)
@@ -168,7 +172,7 @@ class SermonExtract:
         intro_data = {}
         current_text = []
 
-        def add_line_function(paragraph, current_text):
+        def add_line_function(paragraph, current_text, _):
             current_text.append(paragraph.text.strip())
         intro_text = self. _extract_section_text("intro", add_line_function)
 
@@ -348,52 +352,43 @@ class SermonExtract:
             tuple: (date, parson) or (None, None) if not found.
         """
         print("extract_outro_section")
-        new_index = 0
-        index = -1
-        performed_piece = ""
-        in_outro_section = False
-        organ_text = self.settings.get_setting("word-outro-organ_text") # get the new variables from settings
-        next_sermon_text = self.settings.get_setting("word-outro-next_sermon_text")
+        current_text = []
 
-        for paragraph in paragraphs:
-            index = index + 1
-            # add check for performed_piece_match first, befoe checking for the self.tags["outro"]["begin"]
-            # otherwise the line is removed, and the correct title not set.
-            if organ_text in paragraph.text:
-                performed_piece_match = re.search(rf"{organ_text}\s*(.+)", paragraph.text) # use f-string
+        # Use a dictionary to store the values, that will be used as the closure for the function add_line_function
+        outro_data = {
+            "date_text": "",
+            "parson": "",
+            "performed_piece": "",
+            "previous_line_is_sermon": False,
+            "organ_text": self.settings.get_setting("word-outro-organ_text"),
+            "next_sermon_text": self.settings.get_setting("word-outro-next_sermon_text")
+        }
+
+        # define the function, that will use the closure that is defined in the lines above
+        def add_line_function(paragraph, _, outro_data):
+            if outro_data["organ_text"] in paragraph.text:
+                organ_text = outro_data["organ_text"]
+                performed_piece_match = re.search(rf"{organ_text}\s*(.+)", paragraph.text.strip()) # use f-string
                 if performed_piece_match:
-                    performed_piece = performed_piece_match.group(1).strip()
-            if self.tags["outro"]["begin"] in paragraph.text:
-                # a new outro is started
-                in_outro_section = True
-                continue
-            if self.check_end_tag("outro", paragraph):
-                # no outro, but a next outro can be possible
-                in_outro_section = False
-                new_index = index + 1
-                break
-            if len(paragraph.text.strip()) == 0 and not in_outro_section:
-                # empty line; skip
-                new_index = index
-                continue
-            if len(paragraph.text.strip()) > 0 and not in_outro_section:
-                # not next outro, so the outro-section is finished
-                new_index = index
-                break
-            if next_sermon_text.lower() in paragraph.text.lower():
-                next_paragraph = paragraphs[index + 1]
+                    outro_data["performed_piece"] = performed_piece_match.group(1).strip()
+            if self.next_sermon_text.lower() in paragraph.text.lower():
+                outro_data["previous_line_is_sermon"] = True
+                return
 
-                parts = next_paragraph.text.split('\t')
+            if outro_data["previous_line_is_sermon"]:
+                parts = paragraph.text.split('\t')
+                outro_data["previous_line_is_sermon"] = False
                 if len(parts) >= 2:
-                    date_text = parts[0]
-                    parson = parts[len(parts) - 1]
-                    date_text = self.format_date(date_text)
-                    new_index = index
-                    self.current_paragraph_index = self.current_paragraph_index + new_index
-                    return date_text, parson, performed_piece
+                    date_text1 = parts[0]
+                    parson1 = parts[len(parts) - 1]
+                    date_text1 = self.format_date(date_text1)
+                    outro_data["date_text"] = date_text1
+                    outro_data["parson"] = parson1
+        self._extract_section_text("outro", add_line_function, outro_data)
+        #make sure the program will end here
+        self.current_paragraph_index = 200000
 
-        self.current_paragraph_index = self.current_paragraph_index + new_index
-        return None, None
+        return outro_data["date_text"], outro_data["parson"], outro_data["performed_piece"]
 
     def extract_bank_account_number(self, text):
         """
