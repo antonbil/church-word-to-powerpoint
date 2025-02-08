@@ -88,6 +88,26 @@
   "word-offering-diaconie_text": "Diaconie:",
   "word-intro-date_label": "Viering",
   "word-outro-organ_text": "Orgelspel:",
-  "word-outro-next_sermon_text": "Volgende vieringen/activiteiten:"
+  "word-outro-next_sermon_text": "Volgende vieringen/activiteiten:",
+
+  "powerpoint-image_width": 4,
+  "powerpoint-image_height": 3,
+  "powerpoint-image_left": 1,
+  "powerpoint-image_top": 1,
+  "powerpoint-content_font_size": 12,
+  "powerpoint-content_font_color": {
+    "red": 255,
+    "green": 255,
+    "blue": 255
+  },
+  "powerpoint-title_font_size": 15,
+  "powerpoint-outro_title": "Koorkerkgemeenschap\nMiddelburg",
+  "powerpoint-outro_next_service_line": "Volgende viering",
+  "powerpoint-outro_parson_line": "Voorganger",
+  "powerpoint-offering_first_goal_label": "1e zak:\nDiaconie",
+  "powerpoint-offering_second_goal_label": "2e zak:\nVereniging Koorkerk \nNL35 TRIO 0788 9579 29\nt.n.v. ‘Koorkerk’",
+  "powerpoint-intro_title": "Koorkerkgemeenschap\nMiddelburg",
+  "powerpoint-slide-layout-intro-2": 0,
+  "powerpoint-placeholder-title-name": "Title 1"
 
 }

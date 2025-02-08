@@ -1,24 +1,9 @@
+# sermon_create.py
 from docx.shared import Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 import io
-
-
-def find_first_empty_string_index(string_list):
-    """
-    Finds the index of the first empty string in a list of strings.
-
-    Args:
-      string_list: A list of strings.
-
-    Returns:
-      The index of the first empty string, or None if no empty string is found.
-    """
-    for index, item in enumerate(string_list):
-        if not item:
-            return index
-    return None  # Return None if no empty string is found
 
 
 class SermonCreate:
@@ -55,10 +40,10 @@ class SermonCreate:
             # add content (only image or text)
             if len(hymn["images"]) > 0:
                 # Image formatting
-                image_width = Inches(self.settings.get_setting("image_width"))
-                image_height = Inches(self.settings.get_setting("image_height"))
-                image_left = Inches(self.settings.get_setting("image_left"))  # Fixed left offset
-                image_top = Inches(self.settings.get_setting("image_top")) # Fixed top offset
+                image_width = Inches(self.settings.get_setting("powerpoint-image_width"))
+                image_height = Inches(self.settings.get_setting("powerpoint-image_height"))
+                image_left = Inches(self.settings.get_setting("powerpoint-image_left"))  # Fixed left offset
+                image_top = Inches(self.settings.get_setting("powerpoint-image_top")) # Fixed top offset
                 image_bytes = hymn["images"][0]
                 image_stream = io.BytesIO(image_bytes)
                 picture = slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
@@ -84,7 +69,7 @@ class SermonCreate:
                         # Set content text color to white
                         for paragraph in p.text_frame.paragraphs:
                             self.set_color_text_line(paragraph)
-                            paragraph.font.size = Pt(self.settings.get_setting("content_font_size"))
+                            paragraph.font.size = Pt(self.settings.get_setting("powerpoint-content_font_size"))
                         # set the text at the top:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                         last_bottom = 0
@@ -96,9 +81,8 @@ class SermonCreate:
         return slide
 
     def set_color_text_line(self, paragraph):
-        paragraph.font.color.rgb = RGBColor(self.settings.get_setting("content_font_color")["red"],
-                                            self.settings.get_setting("content_font_color")["green"],
-                                            self.settings.get_setting("content_font_color")["blue"])  # White
+        color = self.settings.get_setting("powerpoint-content_font_color")
+        paragraph.font.color.rgb = RGBColor(color["red"], color["green"], color["blue"])
 
     def create_outro_slides(self, date, parson, performed_piece = None):
         """
@@ -117,7 +101,7 @@ class SermonCreate:
         slide = self.add_slide(slide_layout)
 
         # Set the title
-        title_text = self.settings.get_setting("outro_title")
+        title_text = self.settings.get_setting("powerpoint-outro_title")
         if performed_piece:
             title_text = performed_piece
         def extra_layout_func(paragraph, line_number):
@@ -126,8 +110,8 @@ class SermonCreate:
         self.set_title(slide, title_text, extra_layout_func)
 
         # Set the content
-        next_service_line = self.settings.get_setting("outro_next_service_line")
-        parson_line = self.settings.get_setting("outro_parson_line") #new
+        next_service_line = self.settings.get_setting("powerpoint-outro_next_service_line")
+        parson_line = self.settings.get_setting("powerpoint-outro_parson_line") #new
         content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}"
         self.format_placeholder_text(1, content_text, slide)
 
@@ -147,18 +131,19 @@ class SermonCreate:
         slide = self.add_slide(slide_layout)
 
         # Set the content
-        first_goal_label = self.settings.get_setting("offering_first_goal_label")
-        second_goal_label = self.settings.get_setting("offering_second_goal_label")
+        first_goal_label = self.settings.get_setting("powerpoint-offering_first_goal_label")
+        second_goal_label = self.settings.get_setting("powerpoint-offering_second_goal_label")
         output = [first_goal_label, offering_data['offering_goal' ], offering_data["bank_account_number" ], "\n", second_goal_label]
         content_text = "\n".join(output)
         content_text_list = content_text.split("\n")
-        empty_item = find_first_empty_string_index(content_text_list) + 2
+        empty_item = self.find_first_empty_string_index(content_text_list) + 2
 
         # add content to slide
         def extra_layout_func(paragraph, line_number):
             paragraph.font.underline = (True if line_number == 0 or line_number == empty_item else False)
         self.format_placeholder_text(1, content_text, slide, extra_layout_func)
         self.create_empty_slide()
+
 
     def create_intro_slides(self, intro_data):
         """
@@ -176,7 +161,7 @@ class SermonCreate:
         slide = self.add_slide(slide_layout)
 
         # Set the title
-        title_text = self.settings.get_setting("intro_title")
+        title_text = self.settings.get_setting("powerpoint-intro_title")
         def extra_layout_func(paragraph, line_number):
             paragraph.alignment = PP_ALIGN.CENTER
         self.set_title(slide, title_text, extra_layout_func)
@@ -187,11 +172,11 @@ class SermonCreate:
         if "date" in intro_data:
             intro_lines.append(f"{intro_data['date']}")
         if "parson" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('intro_parson_label')}\n{intro_data['parson']}\n")
+            intro_lines.append(f"\n{self.settings.get_setting('word-intro-parson_label')}\n{intro_data['parson']}\n")
         if "theme" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('intro_theme_label')}\n{intro_data['theme']}\n")
+            intro_lines.append(f"\n{self.settings.get_setting('word-intro-theme_label')}\n{intro_data['theme']}\n")
         if "organist" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('intro_organist_label')}\n{intro_data['organist']}")
+            intro_lines.append(f"\n{self.settings.get_setting('word-intro-organist_label')}\n{intro_data['organist']}")
         if "performed_piece" in intro_data:
             performed_piece = intro_data['performed_piece']
         content_text = "\n".join(intro_lines)
@@ -199,8 +184,8 @@ class SermonCreate:
         #add content to slide
         self.format_placeholder_text(1, content_text, slide)
 
-        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
-        third_slide = self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
+        self.duplicate_slide_with_layout(slide, self.settings.get_setting('powerpoint-slide-layout-intro-2'), extra_layout_func)
+        third_slide = self.duplicate_slide_with_layout(slide, self.settings.get_setting('powerpoint-slide-layout-intro-2'), extra_layout_func)
         # set title to performed_piece
         if performed_piece:
             self.set_title(third_slide, performed_piece, extra_layout_func)
