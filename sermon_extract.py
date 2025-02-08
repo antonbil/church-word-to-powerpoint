@@ -172,6 +172,7 @@ class SermonExtract:
                 if len(paragraph.text) > 0:
                     current_text.append(paragraph.text.strip())
         intro_text = "\n".join(current_text)
+        print(intro_text)
         sermon = self.settings.get_setting('word-intro-date_label')
         # Extract date
         sermon_date_list = [l for l in current_text if sermon in l]
@@ -219,10 +220,17 @@ class SermonExtract:
         if parson_match:
             intro_data["parson"] = parson_match.group(1).strip()
 
-        # Extract theme
-        theme_match = re.search(r"Thema:\s*\n\s*(.+)", intro_text)
+        # Regex to find "Thema:" and capture the text on the following line(s)
+
+        theme_match = re.search(r"Thema:\s*“([^“”]+)”", intro_text)
         if theme_match:
-            intro_data["theme"] = theme_match.group(1).strip()
+            theme = theme_match.group(1).strip()
+            intro_data["theme"] = theme
+
+        # theme_match = re.search(r"Thema:\s*((?:.|\n)*?)(?=\n\w|\Z)", intro_text, re.DOTALL)
+        # if theme_match:
+        #     theme = theme_match.group(1).strip()
+        #     intro_data["theme"] = theme
 
         # Extract organist and performed piece
         organist_match = re.search(r"Orgelspel.*door\s+(.+):\s+(.+)", intro_text)

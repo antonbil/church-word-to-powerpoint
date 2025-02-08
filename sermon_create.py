@@ -3,7 +3,6 @@ from docx.shared import Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
-import io
 
 
 class SermonCreate:
@@ -40,14 +39,7 @@ class SermonCreate:
             # add content (only image or text)
             if len(hymn["images"]) > 0:
                 # Image formatting
-                image_width = Inches(self.settings.get_setting("powerpoint-image_width"))
-                image_height = Inches(self.settings.get_setting("powerpoint-image_height"))
-                image_left = Inches(self.settings.get_setting("powerpoint-image_left"))  # Fixed left offset
-                image_top = Inches(self.settings.get_setting("powerpoint-image_top")) # Fixed top offset
-                image_bytes = hymn["images"][0]
-                image_stream = io.BytesIO(image_bytes)
-                picture = slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width)
-                last_bottom = picture.top + picture.height
+                self._add_image_to_slide(hymn["images"][0], slide)
 
             elif hymn["text"]:
                 i = 0
@@ -172,11 +164,11 @@ class SermonCreate:
         if "date" in intro_data:
             intro_lines.append(f"{intro_data['date']}")
         if "parson" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('word-intro-parson_label')}\n{intro_data['parson']}\n")
+            intro_lines.append(f"\n{self.settings.get_setting('powerpoint-outro_parson_line')}\n{intro_data['parson']}\n")
         if "theme" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('word-intro-theme_label')}\n{intro_data['theme']}\n")
+            intro_lines.append(f"\n{self.settings.get_setting('powerpoint-intro_theme_line')}\n\"{intro_data['theme']}\"\n")
         if "organist" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('word-intro-organist_label')}\n{intro_data['organist']}")
+            intro_lines.append(f"\n{self.settings.get_setting('powerpoint-intro_organist_line')}\n{intro_data['organist']}")
         if "performed_piece" in intro_data:
             performed_piece = intro_data['performed_piece']
         content_text = "\n".join(intro_lines)
@@ -211,16 +203,7 @@ class SermonCreate:
                 if shp.name.startswith(self.settings.get_setting("placeholder-title-name")):
                     sp = shp.element
                     sp.getparent().remove(sp)
-            # Add image to the slide
-            image_width = Inches(self.settings.get_setting("image_width"))
-            image_height = Inches(self.settings.get_setting("image_height"))
-            image_left = Inches(self.settings.get_setting("image_left"))  # Fixed left offset
-            image_top = Inches(self.settings.get_setting("image_top"))  # Fixed top offset
-            image_stream = io.BytesIO(image_data)
-            try:
-                slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width, height=image_height)
-            except Exception as e:
-                print("An error occured while adding the picture: ", e)
+            self._add_image_to_slide(image_data, slide)
 
             self.create_empty_slide()
 
@@ -249,20 +232,6 @@ class SermonCreate:
 
                 # set the text at the top:
                 p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
-
-    def set_title(self, slide, title_text, custom_formatter=None):
-        try:
-            title_placeholder = slide.shapes.title
-            # print(title_text)
-            title_placeholder.text = title_text  # modified
-            for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
-                self.set_color_text_line(paragraph)
-                paragraph.font.size = Pt(self.settings.get_setting("title_font_size"))
-                if custom_formatter:
-                    custom_formatter(paragraph, line_number)
-        except:
-            pass
-
 
     def find_first_empty_string_index(self, string_list):
         """

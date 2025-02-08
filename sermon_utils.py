@@ -1,6 +1,7 @@
 # sermon_utils.py
 import datetime
-from pptx.util import Inches
+from pptx.util import Inches, Pt
+import io
 
 class SermonUtils:
     """
@@ -248,3 +249,41 @@ class SermonUtils:
                 pass
 
         return new_slide
+
+    def _add_image_to_slide(self, image_data, slide):
+        """Adds an image to a slide.
+
+        This function adds an image to the specified slide using the given image data
+        and the image settings (width, height, left, top) defined in the settings.
+
+        Args:
+            image_data (bytes): The image data in bytes.
+            slide (pptx.slide.Slide): The slide object to which the image will be added.
+        """
+        # Get image dimensions and position from settings
+        image_width = Inches(self.settings.get_setting("powerpoint-image_width"))  # Get the image width in inches
+        image_height = Inches(self.settings.get_setting("powerpoint-image_height"))  # Get the image height in inches
+        image_left = Inches(self.settings.get_setting("powerpoint-image_left"))  # Get the image left position in inches
+        image_top = Inches(self.settings.get_setting("powerpoint-image_top"))  # Get the image top position in inches
+
+        # Convert image data to BytesIO object for PowerPoint
+        image_stream = io.BytesIO(image_data)
+
+        try:
+            # Add the image to the slide using the specified dimensions and position
+            slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width, height=image_height)
+        except Exception as e:
+            # Handle any exceptions that occur during image addition
+            print(f"An error occurred while adding the picture: {e}")
+    def set_title(self, slide, title_text, custom_formatter=None):
+        try:
+            title_placeholder = slide.shapes.title
+            # print(title_text)
+            title_placeholder.text = title_text  # modified
+            for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
+                self.set_color_text_line(paragraph)
+                paragraph.font.size = Pt(self.settings.get_setting("powerpoint-title_font_size"))
+                if custom_formatter:
+                    custom_formatter(paragraph, line_number)
+        except Exception as e:
+            print(e)
