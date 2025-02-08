@@ -292,6 +292,12 @@ class SermonExtract:
                     current_text.append(cleaned_line)
         # Split the text into multiple parts if needed
         full_text = "\n".join(current_text)
+        # def add_line_function(paragraph, current_text, _):
+        #     print(pparagrah.text)
+        #     cleaned_line = re.sub(r' {5,}', '\n', pparagrah.text.strip())
+        #     current_text.append(cleaned_line)
+        # full_text = self. _extract_section_text("reading", add_line_function)
+
         lines = full_text.split('\n')
 
         if len(lines) > self.max_reading_lines:
@@ -371,7 +377,7 @@ class SermonExtract:
                 performed_piece_match = re.search(rf"{organ_text}\s*(.+)", paragraph.text.strip()) # use f-string
                 if performed_piece_match:
                     outro_data["performed_piece"] = performed_piece_match.group(1).strip()
-            if self.next_sermon_text.lower() in paragraph.text.lower():
+            if outro_data["next_sermon_text"].lower() in paragraph.text.lower():
                 outro_data["previous_line_is_sermon"] = True
                 return
 
