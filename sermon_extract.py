@@ -138,13 +138,13 @@ class SermonExtract:
         bank_account_number = ""
         offering_goal = ""
         # Split the text at the "blauwe zak"
-        blue_bag_text = self.settings.get_setting("offering_blue_bag_text")  # New
-        parts = text.split(blue_bag_text)  # Modified
-        first_part = parts[0]
+        blue_bag_text = self.settings.get_setting("offering_blue_bag_text")
+        parts = text.split(blue_bag_text)
+        first_part_of_offering_text = parts[0]
 
         # Regex to find the bank account number (IBAN) in the first part
         bank_account_regex = "([A-Z]{2}\d{2}\s[A-Z]{4}\s\d{4}\s\d{4}\s\d{2})"
-        bank_number_match = re.search(bank_account_regex, first_part)
+        bank_number_match = re.search(bank_account_regex, first_part_of_offering_text)
         if bank_number_match:
             bank_account_number = bank_number_match.group(1).strip()
 
@@ -450,12 +450,15 @@ class SermonExtract:
         index = -1
         performed_piece = ""
         in_outro_section = False
+        organ_text = self.settings.get_setting("outro_organ_text") # get the new variables from settings
+        next_sermon_text = self.settings.get_setting("outro_next_sermon_text")
+
         for paragraph in paragraphs:
             index = index + 1
             # add check for performed_piece_match first, befoe checking for the self.tags["outro"]["begin"]
             # otherwise the line is removed, and the correct title not set.
-            if "Orgelspel:" in paragraph.text:
-                performed_piece_match = re.search(r"Orgelspel:\s*(.+)", paragraph.text)
+            if organ_text in paragraph.text:
+                performed_piece_match = re.search(rf"{organ_text}\s*(.+)", paragraph.text) # use f-string
                 if performed_piece_match:
                     performed_piece = performed_piece_match.group(1).strip()
             if self.tags["outro"]["begin"] in paragraph.text:
@@ -475,7 +478,7 @@ class SermonExtract:
                 # not next outro, so the outro-section is finished
                 new_index = index
                 break
-            if "Volgende vieringen/activiteiten:".lower() in paragraph.text.lower():
+            if next_sermon_text.lower() in paragraph.text.lower():
                 next_paragraph = paragraphs[index + 1]
 
                 parts = next_paragraph.text.split('\t')
