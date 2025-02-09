@@ -50,7 +50,7 @@ class SermonExtract:
                     hymn_data.append(paragraph_data)
                 current_text = []
                 new_index = index + 1
-                continue
+                break
             if len(paragraph.text.strip()) == 0 and not in_hymn_section:
                 # empty line; skip
                 new_index = index
@@ -61,7 +61,6 @@ class SermonExtract:
                 break
             if in_hymn_section:
                 self.extract_paragraph_content(paragraph)
-                # print(paragraph.text)
                 if len(paragraph.text) > 0:
                     current_text.append(paragraph.text)
 
@@ -69,7 +68,7 @@ class SermonExtract:
                 if len(hymn_data) == 0:
                     # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
                     self.get_hymn_image(hymn_data, paragraph)
-        self.current_paragraph_index = self.current_paragraph_index + new_index + 1
+        self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, hymn_data
 
     def extract_offering_section(self, paragraphs):
@@ -292,9 +291,10 @@ class SermonExtract:
                     current_text.append(cleaned_line)
         # Split the text into multiple parts if needed
         full_text = "\n".join(current_text)
+        print(full_text)
         # def add_line_function(paragraph, current_text, _):
-        #     print(pparagrah.text)
-        #     cleaned_line = re.sub(r' {5,}', '\n', pparagrah.text.strip())
+        #     print(paragraph.text)
+        #     cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
         #     current_text.append(cleaned_line)
         # full_text = self. _extract_section_text("reading", add_line_function)
 

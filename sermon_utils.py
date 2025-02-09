@@ -75,6 +75,7 @@ class SermonUtils:
             if self.tags["reading"]["begin"] in title:
                 title = title.replace(self.tags["reading"]["begin"], "")
                 in_reading_section = True
+                index += 1
             title = title.strip()
             # check if this is a two-line title
             if len(paragraphs) > 1:
