@@ -69,6 +69,7 @@ class SermonUtils:
         title = None
         in_reading_section = False
         first_paragraph = paragraphs[0]
+        start_check_empty_paragraphs = 1
         # check if the first paragraph contains a title:
         if first_paragraph.runs and first_paragraph.runs[0].bold:
             title = first_paragraph.text
@@ -84,6 +85,12 @@ class SermonUtils:
                 if second_paragraph.runs and second_paragraph.runs[0].bold:
                     title = title + "\n" + second_paragraph.text.strip()
                     index += 1
+                    start_check_empty_paragraphs = 2
+        # skip empty paragraphs at top
+        while (start_check_empty_paragraphs > len(paragraphs) and paragraphs[start_check_empty_paragraphs].text
+               and not self.paragraph_content_contains_image(paragraphs[start_check_empty_paragraphs])):
+            start_check_empty_paragraphs += 1
+            index += 1
         # return in_reading_section and index also, because they can have a different start-value
         # based on whether there is a tile yes or no
         return in_reading_section, index, title
@@ -121,6 +128,22 @@ class SermonUtils:
                                             image_bytes = image_part.blob
                                             paragraph_data["images"].append(image_bytes)
         return paragraph_data
+
+    def paragraph_content_contains_image(self, paragraph):
+        retValue = False
+        for run in paragraph.runs:
+            for drawing in run._element.xpath('.//w:drawing'):
+                for inline in drawing.xpath('.//wp:inline'):
+                    for graphic in inline.xpath('.//a:graphic'):
+                        for graphicData in graphic.xpath('.//a:graphicData'):
+                            for pic in graphicData.xpath('.//pic:pic'):
+                                for blipfill in pic.xpath('.//pic:blipFill'):
+                                    for blip in blipfill.xpath('.//a:blip'):
+                                        embed = blip.get(
+                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
+                                        if embed:
+                                            retValue = True
+        return retValue
 
     def calculate_text_height(self, text, font_size):
         """

@@ -264,39 +264,15 @@ class SermonExtract:
         # check if the reading-section has a title:
         if len(paragraphs) > 0:
             in_reading_section, index, title = self.get_reading_title(index, paragraphs)
-        while self.current_paragraph_index + index < self.num_paragraphs-1:
-            index = index + 1
-            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
 
-            if self.tags["reading"]["begin"] in paragraph.text:
-                # a new reading is started
-                in_reading_section = True
-                continue
-            if self.check_end_tag("reading", paragraph):
-                # no reading, but a next reading can be possible
-                in_reading_section = False
-                new_index = index + 1
-                break
-            if len(paragraph.text.strip()) == 0 and not in_reading_section:
-                # empty line; skip
-                new_index = index
-                continue
-            if len(paragraph.text.strip()) > 0 and not in_reading_section:
-                # not next reading, so the reading-section is finished
-                new_index = index
-                break
-            if in_reading_section:
-                if len(paragraph.text) > 0:
-                    cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
-                    current_text.append(cleaned_line)
-        # Split the text into multiple parts if needed
-        full_text = "\n".join(current_text)
-        print(full_text)
-        # def add_line_function(paragraph, current_text, _):
-        #     print(paragraph.text)
-        #     cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
-        #     current_text.append(cleaned_line)
-        # full_text = self. _extract_section_text("reading", add_line_function)
+        def add_line_function(paragraph, current_text, _):
+            print(paragraph.text)
+            cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
+            current_text.append(cleaned_line)
+        full_text = self. _extract_section_text("reading", add_line_function)
+        # workaround because the title of the reading sometimes is repeated as the first line of the content
+        if title in full_text and ":" in title:
+            full_text = full_text.replace(title, "")
 
         lines = full_text.split('\n')
 
@@ -306,7 +282,7 @@ class SermonExtract:
                 reading_data.append({"text": "\n".join(part), "images": []})
         else:
             reading_data.append({"text": full_text, "images": []})
-        self.current_paragraph_index = self.current_paragraph_index + new_index
+        #self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, reading_data
 
     def extract_illustration(self, paragraphs):
