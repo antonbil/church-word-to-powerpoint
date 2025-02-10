@@ -64,7 +64,7 @@ class SermonUtils:
                     index += 1
         # return in_hymn_section and index also, because they can have a different start-value
         # based on whether there is a tile yes or no
-        return in_hymn_section, index, title
+        return in_hymn_section, index, title.strip()
 
     def get_reading_title(self, index, paragraphs):
         title = None
@@ -94,7 +94,7 @@ class SermonUtils:
             index += 1
         # return in_reading_section and index also, because they can have a different start-value
         # based on whether there is a tile yes or no
-        return in_reading_section, index, title
+        return in_reading_section, index, title.strip()
 
     def get_hymn_image(self, hymn_data, paragraph):
         for run in paragraph.runs:

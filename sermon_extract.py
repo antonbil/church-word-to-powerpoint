@@ -41,18 +41,11 @@ class SermonExtract:
 
         text = self._extract_section_text("hymn", add_image_function=add_image_function,
                                    add_line_function=add_line_function, outro_data=outro_data)
-        if title in text and ":" in title:
-            text = text.replace(title, "")
-        if text.startswith(title):
-            # Find the first newline character
-            first_newline_index = text.find('\n')
-
-            if first_newline_index != -1:
-                # Remove the first line (including the newline)
-                text = text[first_newline_index + 1:]
         if outro_data["image"]:
             paragraph_data = {"text": "", "images": [outro_data["image"]]}
             hymn_data.append(paragraph_data)
+
+        text = self.remove_title_from_text(text, title)
 
         split_list = self.split_string_list(text.split("\n"))
         for hymn in split_list:
@@ -61,8 +54,30 @@ class SermonExtract:
             paragraph_data = {"text": "\n".join(hymn), "images": []}
             hymn_data.append(paragraph_data)
 
-        # self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, hymn_data
+
+    def remove_title_from_text(self, text, title):
+        """
+            Removes the first line of text if it starts with the title.
+
+            Args:
+                text (str): The text to potentially modify.
+                title (str): The title to check against.
+
+            Returns:
+                str: The modified text, or the original text if it didn't start with the title.
+            """
+        # workaround because the title of the reading sometimes is repeated as the first line of the content
+        if text.startswith(title):
+            # Find the first newline character
+            first_newline_index = text.find('\n')
+
+            if first_newline_index != -1:
+                # Remove the first line (including the newline)
+                text = text[first_newline_index + 1:]
+            else:
+                text = text.replace(title, "")
+        return text
 
     def extract_offering_section(self, paragraphs):
         """
@@ -266,8 +281,7 @@ class SermonExtract:
             current_text.append(cleaned_line)
         full_text = self. _extract_section_text("reading", add_line_function = add_line_function)
         # workaround because the title of the reading sometimes is repeated as the first line of the content
-        if title in full_text and ":" in title:
-            full_text = full_text.replace(title, "")
+        full_text = self.remove_title_from_text(full_text, title)
 
         lines = full_text.split('\n')
 
