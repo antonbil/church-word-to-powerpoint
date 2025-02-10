@@ -263,17 +263,13 @@ class SermonExtract:
         """
         print("extract_reading_section")
         reading_data = []
-        current_text = []
         title = None
-        new_index = 0
-        in_reading_section = False
         index = -1
         # check if the reading-section has a title:
         if len(paragraphs) > 0:
             in_reading_section, index, title = self.get_reading_title(index, paragraphs)
 
         def add_line_function(paragraph, current_text, _):
-            print(paragraph.text)
             cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
             current_text.append(cleaned_line)
         full_text = self. _extract_section_text("reading", add_line_function)
@@ -289,7 +285,6 @@ class SermonExtract:
                 reading_data.append({"text": "\n".join(part), "images": []})
         else:
             reading_data.append({"text": full_text, "images": []})
-        #self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, reading_data
 
     def extract_illustration(self, paragraphs):
