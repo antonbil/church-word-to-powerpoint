@@ -23,59 +23,45 @@ class SermonExtract:
                                      hymn and contains its text and image data.
         """
         hymn_data = []
-        current_text = []
         title = None
-        new_index = 0
-        in_hymn_section = False
         index = -1
         print("check for hymn sections")
-        # print(self.current_paragraph_index)
 
         # check if the hymn-section has a title:
         if len(paragraphs) > 0:
             in_hymn_section, index, title = self.get_hymn_title(index, paragraphs)
-        while self.current_paragraph_index + index < self.num_paragraphs-1:
-            index = index + 1
-            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
+        outro_data = {
+            "image": None
+        }
+        def add_image_function(image, outro_data):
+            outro_data["image"] = image
 
-            if self.tags["hymn"]["begin"] in paragraph.text:
-                # a new hymn is started
-                in_hymn_section = True
-                continue
-            if self.check_end_tag("hymn", paragraph):
-                # no hymn, but a next hymn can be possible
-                in_hymn_section = False
-                # if len(current_text) > 0:
-                #     paragraph_data = {"text": "\n".join(current_text), "images": []}
-                #     hymn_data.append(paragraph_data)
-                # current_text = []
-                new_index = index + 1
-                break
-            if len(paragraph.text.strip()) == 0 and not in_hymn_section:
-                # empty line; skip
-                new_index = index
-                continue
-            if len(paragraph.text.strip()) > 0 and not in_hymn_section:
-                # not next hymn, so the hymn-section is finished
-                new_index = index
-                break
-            if in_hymn_section:
-                self.extract_paragraph_content(paragraph)
-                if len(paragraph.text) > 0:
-                    current_text.append(paragraph.text)
+        def add_line_function(paragraph, current_text, _):
+            current_text.append(paragraph.text)
 
-                # check if the hymn-section starts with a picture:
-                if len(hymn_data) == 0:
-                    # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
-                    self.get_hymn_image(hymn_data, paragraph)
-        split_list = self.split_string_list(current_text)
+        text = self._extract_section_text("hymn", add_image_function=add_image_function,
+                                   add_line_function=add_line_function, outro_data=outro_data)
+        if title in text and ":" in title:
+            text = text.replace(title, "")
+        if text.startswith(title):
+            # Find the first newline character
+            first_newline_index = text.find('\n')
+
+            if first_newline_index != -1:
+                # Remove the first line (including the newline)
+                text = text[first_newline_index + 1:]
+        if outro_data["image"]:
+            paragraph_data = {"text": "", "images": [outro_data["image"]]}
+            hymn_data.append(paragraph_data)
+
+        split_list = self.split_string_list(text.split("\n"))
         for hymn in split_list:
             if len(hymn) == 0:
                 continue
             paragraph_data = {"text": "\n".join(hymn), "images": []}
             hymn_data.append(paragraph_data)
 
-        self.current_paragraph_index = self.current_paragraph_index + new_index
+        # self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, hymn_data
 
     def extract_offering_section(self, paragraphs):
