@@ -133,30 +133,32 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
         print(f"PowerPoint presentation '{self.powerpoint_filename}' created successfully.")
 
     def remove_slide(self, prs):
+        """
+        Removes the first slide from a PowerPoint presentation.
+
+        Args:
+            prs: The Presentation object (pptx.presentation.Presentation) representing the PowerPoint presentation.
+        """
+        # Get a reference to the first slide
         selected_slide = prs.slides[0]
-        # Delete the original slide
+
+        # Get the slide_id of the slide to be removed
         slide_id = selected_slide.slide_id
+
+        # Get the relationship ID (rId) of the first slide in the slide list
+        # rIds is the Id of the xml in the presentation, that contains the info about the first slide
         rIds = prs.slides._sldIdLst[0].rId
+
+        # Drop the relationship (remove the slide from the relationships)
+        # This line removes the slide from the presentation's relationships
         prs.part.drop_rel(rIds)
+
         # Find the index of the slide to remove in the _sldIdLst
+        # _sldIdLst is the internal list of slides in the presentation
         for idx, sld in enumerate(prs.slides._sldIdLst):
             if sld.id == slide_id:
-                remove_idx = idx
-        # Remove the slide from _sldIdLst
+                remove_idx = idx  # get the index of the slide
+
+        # Remove the slide from the _sldIdLst
+        # This line removes the slide from the internal slide list
         prs.slides._sldIdLst.remove(prs.slides._sldIdLst[remove_idx])
-        # Check if there is at least one slide
-        # if len(prs.slides) > 0:
-        #     # Get a reference to the first slide
-        #     first_slide = prs.slides[0]
-        #
-        #     # Get the slide id of the first slide
-        #     slide_id = first_slide.slide_id
-        #
-        #     # Get all the slide ids in the presentation.
-        #     rIds = [s.rId for s in prs.slides]
-        #
-        #     # Remove the slide, based on slide id
-        #     prs.part.drop_rel(rIds[0])
-        #
-        #     # Remove the reference to the removed slide.
-        #     prs.slides._sldIdLst.remove(prs.slides._sldIdLst.get_by_id(slide_id))
