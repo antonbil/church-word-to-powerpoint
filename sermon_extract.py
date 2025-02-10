@@ -1,8 +1,7 @@
 # sermon_extract.py
-from docx import Document
 import re
 from datetime import datetime
-import locale
+
 class SermonExtract:
     """
     Contains the methods for extracting information from the Word document.

@@ -1,7 +1,7 @@
 # sermon_create.py
 from docx.shared import Pt
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-from pptx.util import Inches, Pt
+from pptx.util import Pt
 
 
 class SermonCreate:

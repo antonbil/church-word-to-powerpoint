@@ -1,7 +1,6 @@
 # sermon_core.py
 from docx import Document
 from pptx import Presentation
-from pptx.util import Inches
 import os
 from .sermon_extract import SermonExtract
 from .sermon_create import SermonCreate
