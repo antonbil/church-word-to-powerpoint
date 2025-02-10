@@ -393,6 +393,8 @@ class SermonUtils:
                 self.set_color_text_line(paragraph) #Set the color of the text.
                 # Set the font size of the paragraph
                 paragraph.font.size = Pt(self.settings.get_setting("powerpoint-title_font_size")) # Set the font size based on the settings
+                # set the font type
+                paragraph.font.name = self.settings.get_setting("powerpoint-title_font_type")  # set the font-type
 
                 # Apply custom formatting if a custom formatter function is provided
                 if custom_formatter:
@@ -400,6 +402,22 @@ class SermonUtils:
 
         except Exception as e:
             print(e)  # Print any exceptions that occur during title setting
+
+    def set_text_appearance(self, paragraph):
+        """
+        Sets the text appearance (color, size, and font type) of a paragraph.
+
+        Args:
+            paragraph: The paragraph object (pptx.text.text._Paragraph) to format.
+        """
+        # Set the text color of the paragraph
+        self.set_color_text_line(paragraph)
+
+        # Set the font size of the paragraph
+        paragraph.font.size = Pt(self.settings.get_setting("powerpoint-content_font_size"))
+
+        # Set the font type (font name) of the paragraph
+        paragraph.font.name = self.settings.get_setting("powerpoint-content_font_type")  # set the font-type
 
     def split_string_list(self, string_list):
         """Splits a list of strings into sublists based on empty strings or numbered lines.

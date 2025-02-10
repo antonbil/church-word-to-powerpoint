@@ -59,8 +59,7 @@ class SermonCreate:
                                 previous_text = p
                         # Set content text color to white
                         for paragraph in p.text_frame.paragraphs:
-                            self.set_color_text_line(paragraph)
-                            paragraph.font.size = Pt(self.settings.get_setting("powerpoint-content_font_size"))
+                            self.set_text_appearance(paragraph)
                         # set the text at the top:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                         last_bottom = 0
@@ -214,8 +213,7 @@ class SermonCreate:
                 p.text = content_text
 
                 for line_number, paragraph in enumerate(p.text_frame.paragraphs):
-                    self.set_color_text_line(paragraph)
-                    paragraph.font.size = Pt(self.settings.get_setting("powerpoint-content_font_size"))
+                    self.set_text_appearance(paragraph)
                     # align the entire paragraph in the middle
                     paragraph.alignment = PP_ALIGN.CENTER
                     if custom_formatter:
