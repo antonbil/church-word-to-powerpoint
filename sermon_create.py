@@ -179,7 +179,7 @@ class SermonCreate:
         Creates a slide for the illustration section, displaying the image.
 
         Args:
-            image (tuple): A tuple containing (image_data, image_content_type) or (None, None) if no illustration is found.
+            image_data: the image for the illustration-slide
         """
         print("create_illustration_slides")
         if not self.powerpoint_presentation:
