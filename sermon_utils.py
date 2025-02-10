@@ -2,6 +2,7 @@
 import datetime
 from pptx.util import Inches, Pt
 import io
+import re
 
 class SermonUtils:
     """
@@ -311,3 +312,33 @@ class SermonUtils:
                     custom_formatter(paragraph, line_number)
         except Exception as e:
             print(e)
+
+    def split_string_list(self, string_list):
+        """Splits a list of strings into sublists based on empty strings or numbered lines.
+
+        Args:
+            string_list (list): A list of strings.
+
+        Returns:
+            list: A list of lists of strings.
+        """
+        result = []
+        current_sublist = []
+
+        for item in string_list:
+            # Check if the string is empty or starts with a number followed by a space or period
+            if not item or re.match(r"^\d+[\s.]", item):
+                # If the current sublist is not empty, add it to the result
+                if current_sublist:
+                    result.append(current_sublist)
+                # Start a new sublist
+                current_sublist = []
+            # Add the current item to the current sublist
+            if item:
+                current_sublist.append(item)
+
+        # Add the last sublist if it's not empty
+        if current_sublist:
+            result.append(current_sublist)
+
+        return result

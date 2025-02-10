@@ -45,10 +45,10 @@ class SermonExtract:
             if self.check_end_tag("hymn", paragraph):
                 # no hymn, but a next hymn can be possible
                 in_hymn_section = False
-                if len(current_text) > 0:
-                    paragraph_data = {"text": "\n".join(current_text), "images": []}
-                    hymn_data.append(paragraph_data)
-                current_text = []
+                # if len(current_text) > 0:
+                #     paragraph_data = {"text": "\n".join(current_text), "images": []}
+                #     hymn_data.append(paragraph_data)
+                # current_text = []
                 new_index = index + 1
                 break
             if len(paragraph.text.strip()) == 0 and not in_hymn_section:
@@ -68,6 +68,13 @@ class SermonExtract:
                 if len(hymn_data) == 0:
                     # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
                     self.get_hymn_image(hymn_data, paragraph)
+        split_list = self.split_string_list(current_text)
+        for hymn in split_list:
+            if len(hymn) == 0:
+                continue
+            paragraph_data = {"text": "\n".join(hymn), "images": []}
+            hymn_data.append(paragraph_data)
+
         self.current_paragraph_index = self.current_paragraph_index + new_index
         return title, hymn_data
 
