@@ -67,10 +67,6 @@ class SermonCreate:
                     i = i + 1
         self.create_empty_slide()
 
-    def add_slide(self, slide_layout):
-        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
-        return slide
-
     def create_outro_slides(self, date, parson, performed_piece = None):
         """
         Creates the outro slide.
@@ -243,7 +239,20 @@ class SermonCreate:
                 return index
         return None  # Return None if no empty string is found
 
+    def add_slide(self, slide_layout):
+        """
+        Add slide to the current powerpoint-presentation.
+
+        Args:
+            slide_layout (layout-from-template): The layout that is used.
+        """
+        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        return slide
+
     def create_empty_slide(self):
+        """
+        create empty slide based on default empty template-slide
+        """
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.add_slide(slide_layout)
+        self.add_slide(slide_layout)
 
