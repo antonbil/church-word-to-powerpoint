@@ -107,7 +107,10 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                     elif self.current_tag == "intro":
                         intro_data = self.extract_intro_section(paragraphs[self.current_paragraph_index:])
                         self.current_paragraph_index += 1
-                        self.create_intro_slides(intro_data)
+                        self.create_intro_slides(intro_data, "slide-layout-intro-1")
+                        self.create_intro_slides(intro_data, "slide-layout-intro-2")
+                        self.create_intro_slides(intro_data, "slide-layout-intro-2", True)
+                        self.create_empty_slide()
                     elif self.current_tag == "reading":
                         title, reading_data = self.extract_reading_section(paragraphs[self.current_paragraph_index:])
                         # print(reading_data)

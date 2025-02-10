@@ -20,7 +20,7 @@ class SermonCreate:
         if not self.powerpoint_presentation:
             print("Error: PowerPoint presentation not initialized.")
             return
-
+        template_id_new = template_id
         slide_layout = self.powerpoint_presentation.slide_layouts[0]  # Assuming you want to use the first slide layout from the template
         is_first_slide = True
 
@@ -28,13 +28,15 @@ class SermonCreate:
         previous_text = None
         for hymn in hymn_data:
             if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
-                slide = self.add_slide(template_id)
+                slide = self.add_slide(template_id_new)
 
             # Add title (only on the first slide)
             if title and is_first_slide:
                 self.set_title(slide, title)
 
                 is_first_slide = False
+                template_id_new = template_id + "-no-title"
+
             # add content (only image or text)
             if len(hymn["images"]) > 0:
                 # Image formatting
@@ -127,7 +129,7 @@ class SermonCreate:
         self.create_empty_slide()
 
 
-    def create_intro_slides(self, intro_data):
+    def create_intro_slides(self, intro_data, template_id, performed_piece_in_title = False):
         """
         Creates the intro slide.
 
@@ -140,7 +142,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.add_slide("slide-layout-intro-1")
+        slide = self.add_slide(template_id)
 
         # Set the title
         title_text = self.settings.get_setting("powerpoint-intro_title")
@@ -166,12 +168,10 @@ class SermonCreate:
         #add content to slide
         self.format_placeholder_text(1, content_text, slide)
 
-        self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
-        third_slide = self.duplicate_slide_with_layout(slide, self.settings.get_setting('slide-layout-intro-2'), extra_layout_func)
         # set title to performed_piece
-        if performed_piece:
-            self.set_title(third_slide, performed_piece, extra_layout_func)
-        self.create_empty_slide()
+        if performed_piece and performed_piece_in_title:
+            self.set_title(slide, performed_piece, extra_layout_func)
+
 
     def create_illustration_slides(self, image_data):
         """
