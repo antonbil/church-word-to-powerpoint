@@ -100,7 +100,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                     # Process the current section
                     if self.current_tag == "hymn":
                         title, hymn_data = self.extract_hymn_section(paragraphs[self.current_paragraph_index:])
-                        self.create_hymn_slides(title, hymn_data)
+                        self.create_hymn_slides(title, hymn_data, "slide-layout-lied")
                     elif self.current_tag == "offering":
                         offering_data = self.extract_offering_section(paragraphs[self.current_paragraph_index:])
                         self.create_offering_slides(offering_data)
@@ -111,12 +111,12 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                     elif self.current_tag == "reading":
                         title, reading_data = self.extract_reading_section(paragraphs[self.current_paragraph_index:])
                         # print(reading_data)
-                        self.create_hymn_slides(title, reading_data)
+                        self.create_hymn_slides(title, reading_data, "slide-layout-reading")
                     elif self.current_tag == "outro":
                         date, parson, performed_piece = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
                         # print(date, parson)
-                        self.create_outro_slides(date, parson, performed_piece)
-                        self.create_outro_slides(date, parson)
+                        self.create_outro_slides(date, parson, "slide-layout-outro-1", performed_piece = performed_piece)
+                        self.create_outro_slides(date, parson, "slide-layout-outro-2")
                     elif self.current_tag == "illustration":
                         image = self.extract_illustration(paragraphs[self.current_paragraph_index:])
                         self.create_illustration_slides(image)

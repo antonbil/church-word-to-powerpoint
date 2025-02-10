@@ -8,7 +8,7 @@ class SermonCreate:
     """
     Contains the methods for creating PowerPoint slides.
     """
-    def create_hymn_slides(self, title, hymn_data):
+    def create_hymn_slides(self, title, hymn_data, template_id):
         """
         Creates PowerPoint slides for the hymn sections using a template.
 
@@ -28,7 +28,7 @@ class SermonCreate:
         previous_text = None
         for hymn in hymn_data:
             if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
-                slide = self.add_slide(slide_layout)
+                slide = self.add_slide(template_id)
 
             # Add title (only on the first slide)
             if title and is_first_slide:
@@ -66,7 +66,7 @@ class SermonCreate:
                     i = i + 1
         self.create_empty_slide()
 
-    def create_outro_slides(self, date, parson, performed_piece = None):
+    def create_outro_slides(self, date, parson, template_id, performed_piece = None):
         """
         Creates the outro slide.
 
@@ -80,7 +80,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.add_slide(slide_layout)
+        slide = self.add_slide(template_id)
 
         # Set the title
         title_text = self.settings.get_setting("powerpoint-outro_title")
@@ -110,7 +110,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.add_slide(slide_layout)
+        slide = self.add_slide("slide-layout-offering")
 
         # Set the content
         first_goal_label = self.settings.get_setting("powerpoint-offering_first_goal_label")
@@ -140,7 +140,7 @@ class SermonCreate:
             return
 
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        slide = self.add_slide(slide_layout)
+        slide = self.add_slide("slide-layout-intro-1")
 
         # Set the title
         title_text = self.settings.get_setting("powerpoint-intro_title")
@@ -187,7 +187,7 @@ class SermonCreate:
 
         if image_data is not None:
             slide_layout = self.powerpoint_presentation.slide_layouts[0]
-            slide = self.add_slide(slide_layout)
+            slide = self.add_slide("slide-layout-intro-2")
             # Remove the title-placeholder
             for shp in slide.placeholders:
                 if shp.name.startswith(self.settings.get_setting("placeholder-title-name")):
@@ -237,14 +237,23 @@ class SermonCreate:
                 return index
         return None  # Return None if no empty string is found
 
-    def add_slide(self, slide_layout):
+    def add_slide(self, slide_layout_code):
         """
         Add slide to the current powerpoint-presentation.
 
         Args:
             slide_layout (layout-from-template): The layout that is used.
         """
-        slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
+        print(slide_layout_code)
+        slide_layout = self.settings.get_setting(slide_layout_code)
+        print(slide_layout)
+        # layout = None
+        # for layout_idx, slide_layout1 in enumerate(self.powerpoint_presentation.slide_layouts):
+        #     if layout_idx == slide_layout:
+        #         print(f"\nSlide Layout {layout_idx}: {slide_layout1.name}")
+        #         layout = slide_layout1
+
+        slide = self.powerpoint_presentation.slides.add_slide(self.powerpoint_presentation.slide_layouts[slide_layout])
         return slide
 
     def create_empty_slide(self):
@@ -252,5 +261,5 @@ class SermonCreate:
         create empty slide based on default empty template-slide
         """
         slide_layout = self.powerpoint_presentation.slide_layouts[0]
-        self.add_slide(slide_layout)
+        self.add_slide("slide-layout-empty")
 

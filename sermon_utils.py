@@ -2,6 +2,9 @@
 import datetime
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_THEME_COLOR, MSO_LINE
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.oxml.ns import qn
 import io
 import re
 
@@ -344,10 +347,11 @@ class SermonUtils:
         return new_slide
 
     def _add_image_to_slide(self, image_data, slide):
-        """Adds an image to a slide.
+        """Adds an image to a slide with border and shadow.
 
         This function adds an image to the specified slide using the given image data
         and the image settings (width, height, left, top) defined in the settings.
+        It also adds a border and a shadow to the image.
 
         Args:
             image_data (bytes): The image data in bytes.
@@ -364,10 +368,52 @@ class SermonUtils:
 
         try:
             # Add the image to the slide using the specified dimensions and position
-            slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width, height=image_height)
+            picture = slide.shapes.add_picture(image_stream, left=image_left, top=image_top, width=image_width, height=image_height)
+
+            # Add a rectangle shape behind the picture to create a border and shadow effect
+            self.add_border_and_shadow(slide, picture)
+
         except Exception as e:
             # Handle any exceptions that occur during image addition
             print(f"An error occurred while adding the picture: {e}")
+
+    def add_border_and_shadow(self, slide, picture):
+        """Adds a border and a shadow to the picture.
+
+        This function adds a rectangle shape behind the picture to create a border and shadow effect.
+
+        Args:
+            slide: The slide object to which the border and shadow will be added.
+            picture: The picture object to which the border and shadow will be added.
+        """
+        # Get the position and size of the image
+        left, top, width, height = picture.left, picture.top, picture.width, picture.height
+
+        # Calculate the position and size of the border shape
+        border_width = width + Inches(0.02)  # 0.02 inches = 2 * 0.01, to add 1 pixel to both left and right
+        border_height = height + Inches(0.02)  # 0.02 inches = 2 * 0.01, to add 1 pixel to both top and bottom
+        border_left = left - Inches(0.01)  # 0.01 inches, to shift 1 pixel to the left
+        border_top = top - Inches(0.01)  # 0.01 inches, to shift 1 pixel up
+
+        # Add a rectangle shape behind the picture
+        border_shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, border_left, border_top, border_width, border_height)
+
+        # set the order of the shapes, so that the image is placed on top of the shape
+        # The shape is placed BEFORE the picture in the XML, so the shape is behind the picture
+        picture.element.addprevious(border_shape.element)
+
+        # Set the border (line) properties
+        line = border_shape.line
+        line.color.rgb = RGBColor(50, 200, 50)  # Black color
+        line.width = 12700  # 1 pt (1pt = 12700 emu)
+        # Add a shadow to the shape
+        # Set the shadow
+        shadow = border_shape.shadow
+        #shadow.inherit = True
+        print(shadow)
+        # Create a shadow
+
+        shadow.visible
 
     def set_title(self, slide, title_text, custom_formatter=None):
         """
@@ -395,6 +441,7 @@ class SermonUtils:
                 paragraph.font.size = Pt(self.settings.get_setting("powerpoint-title_font_size")) # Set the font size based on the settings
                 # set the font type
                 paragraph.font.name = self.settings.get_setting("powerpoint-title_font_type")  # set the font-type
+                paragraph.font.italic = True
 
                 # Apply custom formatting if a custom formatter function is provided
                 if custom_formatter:
@@ -418,6 +465,15 @@ class SermonUtils:
 
         # Set the font type (font name) of the paragraph
         paragraph.font.name = self.settings.get_setting("powerpoint-content_font_type")  # set the font-type
+        paragraph.level = 0
+
+        # Access the paragraph formatting properties using _pPr (paragraph properties)
+        pPr = paragraph._pPr
+        # Remove bullet point if it exists
+        if pPr.find(qn('a:buNone')) is None and pPr.find(qn('a:buAutoNum')) is None:
+            # Create the buNone element and add it to the pPr
+            buNone = pPr.makeelement(qn('a:buNone'))
+            pPr.append(buNone)
 
     def split_string_list(self, string_list):
         """Splits a list of strings into sublists based on empty strings or numbered lines.
