@@ -1,6 +1,7 @@
 # sermon_utils.py
 import datetime
 from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
 import io
 import re
 
@@ -11,24 +12,52 @@ class SermonUtils:
 
     def format_date(self, date_text):
         """
-        Formats the date from "12-jan" to "Zondag 12 januari 2025".
+        Formats the date from a string like "12-jan" to a string like "Zondag 12 januari 2025".
+
+        Args:
+            date_text (str): The date string in the format "dd-mmm" (e.g., "12-jan").
+
+        Returns:
+            str or None: The formatted date string (e.g., "Zondag 12 januari 2025") or None if the input date is invalid.
         """
         try:
-            date_obj = datetime.datetime.strptime(date_text, "%d-%b")
+            # Parse the input date string into a datetime object
+            date_obj = datetime.datetime.strptime(date_text, "%d-%b")  # this function can raise a valueError exception
+
+            # Replace the year with 2025 (this is a fixed year)
             date_obj = date_obj.replace(year=2025)
+
+            # Get the Dutch day of the week name (e.g., "Zondag")
             day_of_week = self.get_day_of_week(date_obj.weekday())
+
+            # Format the date into the desired string format
             formatted_date = date_obj.strftime("%d %B %Y")
+
+            # Combine the day of the week and the formatted date
             return f"{day_of_week} {formatted_date}"
+
         except ValueError:
+            # Handle the case where the date string is in an invalid format
             return None
 
     def get_day_of_week(self, weekday_number):
         """
         Returns the Dutch day of the week name for a given weekday number (0-6).
-        """
-        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
-        return days[weekday_number] if 0 <= weekday_number <= 6 else None
 
+        Args:
+            weekday_number (int): The weekday number (0 for Monday, 1 for Tuesday, ..., 6 for Sunday).
+
+        Returns:
+            str or None: The Dutch day of the week name (e.g., "Maandag", "Dinsdag", etc.) or None if the weekday number is invalid.
+        """
+        # List of Dutch day of the week names
+        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+
+        # Check if the weekday number is within the valid range (0-6)
+        if 0 <= weekday_number <= 6:
+            return days[weekday_number]  # Return the day name from the list
+        else:
+            return None  # Return None if the weekday number is invalid
     def check_end_tag(self, tag, paragraph):
         """
         Checks if any of the defined end tags for the given tag are present in the paragraph.
@@ -228,24 +257,6 @@ class SermonUtils:
         total_height_inches = (lines * line_height) / 72  # Convert points to inches
         return Inches(total_height_inches)
 
-    def get_image(self, paragraph):
-        image = None
-        for run in paragraph.runs:
-            for drawing in run._element.xpath('.//w:drawing'):
-                for inline in drawing.xpath('.//wp:inline'):
-                    for graphic in inline.xpath('.//a:graphic'):
-                        for graphicData in graphic.xpath('.//a:graphicData'):
-                            for pic in graphicData.xpath('.//pic:pic'):
-                                for blipfill in pic.xpath('.//pic:blipFill'):
-                                    for blip in blipfill.xpath('.//a:blip'):
-                                        embed = blip.get(
-                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-                                        if embed:
-                                            image_part = self.word_document.part.related_parts[embed]
-                                            image_bytes = image_part.blob
-                                            image = image_bytes
-        return image
-
     def duplicate_slide_with_layout(self, slide, layout_number, extra_layout_func=None):
         """
         Duplicates a slide and applies a specific layout to the new slide,
@@ -373,18 +384,38 @@ class SermonUtils:
         except Exception as e:
             # Handle any exceptions that occur during image addition
             print(f"An error occurred while adding the picture: {e}")
+
     def set_title(self, slide, title_text, custom_formatter=None):
+        """
+        Sets the title text of a slide and applies custom formatting.
+
+        Args:
+            slide: The slide object (pptx.slide.Slide) to set the title on.
+            title_text (str): The text to set as the slide title.
+            custom_formatter (function, optional): An optional function that takes two arguments:
+                - paragraph (pptx.text.text._Paragraph): The paragraph object of the title.
+                - line_number (int): The line number of the paragraph.
+                This function can be used to apply custom formatting to the title paragraph.
+                Defaults to None.
+        """
         try:
-            title_placeholder = slide.shapes.title
-            # print(title_text)
-            title_placeholder.text = title_text  # modified
-            for line_number, paragraph in enumerate( title_placeholder.text_frame.paragraphs):
-                self.set_color_text_line(paragraph)
-                paragraph.font.size = Pt(self.settings.get_setting("powerpoint-title_font_size"))
+            title_placeholder = slide.shapes.title  # Get the title placeholder shape on the slide
+
+            # Set the title text
+            title_placeholder.text = title_text  # Set the text of the title placeholder to the given title_text
+
+            # Loop through each paragraph in the title's text frame
+            for line_number, paragraph in enumerate(title_placeholder.text_frame.paragraphs):
+                self.set_color_text_line(paragraph) #Set the color of the text.
+                # Set the font size of the paragraph
+                paragraph.font.size = Pt(self.settings.get_setting("powerpoint-title_font_size")) # Set the font size based on the settings
+
+                # Apply custom formatting if a custom formatter function is provided
                 if custom_formatter:
-                    custom_formatter(paragraph, line_number)
+                    custom_formatter(paragraph, line_number)  # Call the custom formatter function, passing the paragraph and line number
+
         except Exception as e:
-            print(e)
+            print(e)  # Print any exceptions that occur during title setting
 
     def split_string_list(self, string_list):
         """Splits a list of strings into sublists based on empty strings or numbered lines.
@@ -415,3 +446,17 @@ class SermonUtils:
             result.append(current_sublist)
 
         return result
+
+    def set_color_text_line(self, paragraph):
+        """
+        Sets the color of the text in a paragraph.
+
+        Args:
+            paragraph: The paragraph object (pptx.text.text._Paragraph) whose text color should be changed.
+        """
+        # Get the color settings from the configuration
+        color = self.settings.get_setting("powerpoint-content_font_color")
+
+        # Set the color of the text in the paragraph
+        # RGBColor expects red, green, and blue components as integers between 0 and 255
+        paragraph.font.color.rgb = RGBColor(color["red"], color["green"], color["blue"])

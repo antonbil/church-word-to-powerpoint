@@ -1,6 +1,5 @@
 # sermon_create.py
 from docx.shared import Pt
-from pptx.dml.color import RGBColor
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
@@ -71,10 +70,6 @@ class SermonCreate:
     def add_slide(self, slide_layout):
         slide = self.powerpoint_presentation.slides.add_slide(slide_layout)
         return slide
-
-    def set_color_text_line(self, paragraph):
-        color = self.settings.get_setting("powerpoint-content_font_color")
-        paragraph.font.color.rgb = RGBColor(color["red"], color["green"], color["blue"])
 
     def create_outro_slides(self, date, parson, performed_piece = None):
         """
