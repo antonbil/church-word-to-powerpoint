@@ -96,12 +96,12 @@ class SermonExtract:
             cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
 
             current_text.append(cleaned_line)
-        full_text = self. _extract_section_text("offering", add_line_function)
+        full_text = self. _extract_section_text("offering", add_line_function = add_line_function)
         offering_goal, bank_account_number = self.extract_bank_account_number(full_text)
         offering_data = {"offering_goal": offering_goal, "bank_account_number": bank_account_number}
         return offering_data
 
-    def _extract_section_text(self, section_name, add_line_function = None, outro_data = None):
+    def _extract_section_text(self, section_name, add_line_function = None, outro_data = None, add_image_function = None):
         """
         Extracts text from a specified section in the Word document.
 
@@ -151,6 +151,12 @@ class SermonExtract:
                     add_line_function(paragraph, current_text, outro_data)
 
                 new_index = index
+                if add_image_function and self.paragraph_content_contains_image(paragraph):
+                    hymn_data = []
+                    self.get_hymn_image(hymn_data, paragraph)
+                    if len(hymn_data) > 0:
+                        image_data = hymn_data[0]["images"][0]
+                        add_image_function(image_data, outro_data)
         current_text = "\n".join(current_text)
         self.current_paragraph_index = self.current_paragraph_index + new_index
 
@@ -180,7 +186,7 @@ class SermonExtract:
 
         def add_line_function(paragraph, current_text, _):
             current_text.append(paragraph.text.strip())
-        intro_text = self. _extract_section_text("intro", add_line_function)
+        intro_text = self. _extract_section_text("intro", add_line_function = add_line_function)
 
         sermon = self.settings.get_setting('word-intro-date_label')
         # Extract date
@@ -272,7 +278,7 @@ class SermonExtract:
         def add_line_function(paragraph, current_text, _):
             cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
             current_text.append(cleaned_line)
-        full_text = self. _extract_section_text("reading", add_line_function)
+        full_text = self. _extract_section_text("reading", add_line_function = add_line_function)
         # workaround because the title of the reading sometimes is repeated as the first line of the content
         if title in full_text and ":" in title:
             full_text = full_text.replace(title, "")
@@ -299,30 +305,14 @@ class SermonExtract:
         """
         print("extract_illustration")
 
-        in_illustration_section = False
-        image = None
-        index = -1
-        illustration_data = []
-        while self.current_paragraph_index + index < self.num_paragraphs-1:
-            index = index + 1
-            paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
-            if self.tags["illustration"]["begin"] in paragraph.text:
-                in_illustration_section = True
-                continue
-            if self.check_end_tag("illustration", paragraph):
-                in_illustration_section = False
-                break
-            if in_illustration_section:
+        outro_data = {
+            "image": None
+        }
+        def add_image_function(image, outro_data):
+            outro_data["image"] = image
 
-                    self.extract_paragraph_content(paragraph)
-
-                    # if first paragraph in hymn-section contains an image, this is considered as a 'hymn'
-                    self.get_hymn_image(illustration_data, paragraph)
-
-        self.current_paragraph_index = self.current_paragraph_index + index
-        if len(illustration_data) > 0:
-            image = illustration_data[0]["images"][0]
-        return image
+        self._extract_section_text("illustration", add_image_function=add_image_function, outro_data=outro_data)
+        return outro_data["image"]
 
 
     def extract_outro_section(self, paragraphs):
@@ -368,7 +358,7 @@ class SermonExtract:
                     date_text1 = self.format_date(date_text1)
                     outro_data["date_text"] = date_text1
                     outro_data["parson"] = parson1
-        self._extract_section_text("outro", add_line_function, outro_data)
+        self._extract_section_text("outro", add_line_function = add_line_function, outro_data = outro_data)
         #make sure the program will end here
         self.current_paragraph_index = 200000
 
