@@ -176,22 +176,6 @@ class SermonUtils:
         # title.strip(): the extracted title (with leading/trailing whitespace removed), or None
         return in_reading_section, index, title.strip()
 
-    def get_hymn_image(self, hymn_data, paragraph):
-        for run in paragraph.runs:
-            for drawing in run._element.xpath('.//w:drawing'):
-                for inline in drawing.xpath('.//wp:inline'):
-                    for graphic in inline.xpath('.//a:graphic'):
-                        for graphicData in graphic.xpath('.//a:graphicData'):
-                            for pic in graphicData.xpath('.//pic:pic'):
-                                for blipfill in pic.xpath('.//pic:blipFill'):
-                                    for blip in blipfill.xpath('.//a:blip'):
-                                        embed = blip.get(
-                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-                                        if embed:
-                                            image_part = self.word_document.part.related_parts[embed]
-                                            image_bytes = image_part.blob
-                                            hymn_data.append({"text": None, "images": [image_bytes]})
-
     def _extract_image_embeds(self, paragraph):
         """
         Helper function to extract image embeds from a paragraph.

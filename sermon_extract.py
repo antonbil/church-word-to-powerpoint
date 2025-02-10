@@ -153,11 +153,7 @@ class SermonExtract:
 
                 new_index = index
                 if add_image_function and self.paragraph_content_contains_image(paragraph):
-                    hymn_data = []
-                    self.get_hymn_image(hymn_data, paragraph)
-                    if len(hymn_data) > 0:
-                        image_data = hymn_data[0]["images"][0]
-                        add_image_function(image_data, outro_data)
+                    add_image_function(self.extract_paragraph_content(paragraph)["images"][0], outro_data)
         current_text = "\n".join(current_text)
         self.current_paragraph_index = self.current_paragraph_index + new_index
 
