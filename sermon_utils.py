@@ -442,6 +442,7 @@ class SermonUtils:
                 # set the font type
                 paragraph.font.name = self.settings.get_setting("powerpoint-title_font_type")  # set the font-type
                 paragraph.font.italic = True
+                paragraph.font.bold = True
 
                 # Apply custom formatting if a custom formatter function is provided
                 if custom_formatter:
@@ -465,6 +466,7 @@ class SermonUtils:
 
         # Set the font type (font name) of the paragraph
         paragraph.font.name = self.settings.get_setting("powerpoint-content_font_type")  # set the font-type
+        paragraph.font.bold = True
         paragraph.level = 0
 
         # Access the paragraph formatting properties using _pPr (paragraph properties)

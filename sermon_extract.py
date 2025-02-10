@@ -288,6 +288,55 @@ class SermonExtract:
             reading_data.append({"text": full_text, "images": []})
         return title, reading_data
 
+    def split_text_for_powerpoint(self, text, max_line_length=55, max_lines=15):
+        """Splits a long text string into chunks that fit into PowerPoint text boxes.
+
+        Args:
+            text (str): The long text string to split.
+            max_line_length (int, optional): The maximum number of characters per line. Defaults to 55.
+            max_lines (int, optional): The maximum number of lines per text box. Defaults to 15.
+
+        Returns:
+            list: A list of strings, where each string is a text chunk that fits in a PowerPoint text box.
+        """
+        text_chunks = []
+        lines = text.split('\n')  # Split the entire text into individual lines
+        current_chunk_lines = []  # Lines for the current chunk
+
+        for line in lines:
+            # If adding the current line would exceed the max lines, split the chunk
+            if len(current_chunk_lines) == max_lines:
+                text_chunks.append('\n'.join(current_chunk_lines))
+                current_chunk_lines = []  # Start a new chunk
+
+            # Split the line if it exceeds the max line length
+            while len(line) > max_line_length:
+                split_index = line.rfind(' ', 0, max_line_length + 1)  # Find last space within limit
+                if split_index == -1:
+                    split_index = max_line_length  # Force split at limit if no space found
+                current_chunk_lines.append(line[:split_index])
+                line = line[split_index:].lstrip()  # Remove leading space from remainder
+
+                # If adding the current line would exceed the max lines, split the chunk
+                if len(current_chunk_lines) == max_lines:
+                    text_chunks.append('\n'.join(current_chunk_lines))
+                    current_chunk_lines = []  # Start a new chunk
+
+            current_chunk_lines.append(line)  # Add the remaining part of the line
+
+        # Split at the last newline of the last chunk, if possible
+        if current_chunk_lines:
+            last_chunk = '\n'.join(current_chunk_lines)
+            last_newline_index = last_chunk.rfind('\n')
+
+            if last_newline_index != -1:
+                text_chunks.append(last_chunk[:last_newline_index])
+                text_chunks.append(last_chunk[last_newline_index + 1:])
+            else:
+                text_chunks.append(last_chunk)
+
+        return text_chunks
+
     def extract_illustration(self, paragraphs):
         """
         Extracts the illustration from the given paragraphs.
