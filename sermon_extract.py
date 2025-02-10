@@ -391,7 +391,7 @@ class SermonExtract:
         # Regex to find offering goal (text after "1ste (rode zak) Diaconie:")
         red_bag_text = self.settings.get_setting("word-offering-red_bag_text")
         diaconie_text = self.settings.get_setting("word-offering-diaconie_text")
-        # the old regex: r"1ste \(rode zak\) Diaconie:\s*(.*?)(?=\n|$)"
+
         offering_goal_regex = fr"1ste \({red_bag_text}\)\s*{diaconie_text}\s*(.*?)(?=\n|$)"
         goal_match = re.search(offering_goal_regex, text)
         if goal_match:
