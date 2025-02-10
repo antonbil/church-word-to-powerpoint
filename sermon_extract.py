@@ -40,7 +40,7 @@ class SermonExtract:
             current_text.append(paragraph.text)
 
         text = self._extract_section_text("hymn", add_image_function=add_image_function,
-                                   add_line_function=add_line_function, outro_data=outro_data)
+                                   add_line_function=add_line_function, outro_data=outro_data).strip()
         if outro_data["image"]:
             paragraph_data = {"text": "", "images": [outro_data["image"]]}
             hymn_data.append(paragraph_data)
@@ -76,7 +76,7 @@ class SermonExtract:
                 # Remove the first line (including the newline)
                 text = text[first_newline_index + 1:]
             else:
-                text = text.replace(title, "")
+                text = text[len(title):]
         return text
 
     def extract_offering_section(self, paragraphs):
@@ -281,7 +281,7 @@ class SermonExtract:
             current_text.append(cleaned_line)
         full_text = self. _extract_section_text("reading", add_line_function = add_line_function)
         # workaround because the title of the reading sometimes is repeated as the first line of the content
-        full_text = self.remove_title_from_text(full_text, title)
+        full_text = self.remove_title_from_text(full_text, title).strip()
 
         lines = full_text.split('\n')
 

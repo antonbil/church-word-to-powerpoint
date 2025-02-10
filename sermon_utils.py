@@ -46,54 +46,105 @@ class SermonUtils:
         return False
 
     def get_hymn_title(self, index, paragraphs):
-        title = None
-        in_hymn_section = False
-        first_paragraph = paragraphs[0]
-        # check if the first paragraph contains a title:
+        """
+        Extracts the title of a hymn from a list of paragraphs.
+
+        Args:
+            self: The instance of the class.
+            index (int): The current index in the list of paragraphs.
+                         This may be updated if the title spans multiple paragraphs.
+            paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects)
+                               representing the potential hymn section.
+
+        Returns:
+            tuple: A tuple containing:
+                - in_hymn_section (bool): True if the section is identified as a hymn section, False otherwise.
+                - index (int): The updated index after processing the title paragraphs.
+                - title (str): The extracted title of the hymn (stripped of whitespace), or None if no title is found.
+        """
+        title = None  # Initialize the title to None (no title found yet)
+        in_hymn_section = False  # Initially, we are not in a hymn section
+
+        first_paragraph = paragraphs[0]  # Get the first paragraph of the potential hymn section
+
+        # Check if the first paragraph contains a title (indicated by bold text)
         if first_paragraph.runs and first_paragraph.runs[0].bold:
-            title = first_paragraph.text
+            title = first_paragraph.text  # Extract the text of the first paragraph as the potential title
+
+            # Check if the title contains the hymn section start tag
             if self.tags["hymn"]["begin"] in title:
-                title = title.replace(self.tags["hymn"]["begin"], "")
-                in_hymn_section = True
-            # check if this is a two-line title
+                title = title.replace(self.tags["hymn"]["begin"], "")  # Remove the start tag from the title
+                in_hymn_section = True  # Mark that we are now in the hymn section
+
+            # Check if this is a two-line title (title spans over two paragraphs)
             if len(paragraphs) > 1:
-                second_paragraph = paragraphs[1]
-                # check if the second paragraph is also part of the title.
+                second_paragraph = paragraphs[1]  # Get the second paragraph
+
+                # Check if the second paragraph is also part of the title (indicated by bold text)
                 if second_paragraph.runs and second_paragraph.runs[0].bold:
-                    title = title + "\n" + second_paragraph.text
-                    index += 1
-        # return in_hymn_section and index also, because they can have a different start-value
-        # based on whether there is a tile yes or no
+                    title = title + "\n" + second_paragraph.text  # Append the text of the second paragraph to the title, separated by a newline
+                    index += 1  # Increment the index because we've processed an extra paragraph
+
+        # Return the results
+        # in_hymn_section: indicates if we've identified a hymn section
+        # index: the updated index (increased if a two-line title was found)
+        # title.strip(): the extracted title (with leading/trailing whitespace removed), or None
         return in_hymn_section, index, title.strip()
 
     def get_reading_title(self, index, paragraphs):
-        title = None
-        in_reading_section = False
-        first_paragraph = paragraphs[0]
-        start_check_empty_paragraphs = 1
-        # check if the first paragraph contains a title:
+        """
+        Extracts the title of a reading from a list of paragraphs, and skips leading empty paragraphs.
+
+        Args:
+            self: The instance of the class.
+            index (int): The current index in the list of paragraphs.
+                         This may be updated if the title spans multiple paragraphs or if empty paragraphs are skipped.
+            paragraphs (list): A list of paragraphs (docx.paragraph.Paragraph objects)
+                               representing the potential reading section.
+
+        Returns:
+            tuple: A tuple containing:
+                - in_reading_section (bool): True if the section is identified as a reading section, False otherwise.
+                - index (int): The updated index after processing the title and skipping empty paragraphs.
+                - title (str): The extracted title of the reading (stripped of whitespace), or None if no title is found.
+        """
+        title = None  # Initialize the title to None (no title found yet)
+        in_reading_section = False  # Initially, we are not in a reading section
+        first_paragraph = paragraphs[0]  # Get the first paragraph
+        start_check_empty_paragraphs = 1  # Initialize the variable that indicates which empty paragraph must be checked.
+
+        # Check if the first paragraph contains a title (indicated by bold text)
         if first_paragraph.runs and first_paragraph.runs[0].bold:
-            title = first_paragraph.text
+            title = first_paragraph.text  # Extract the text of the first paragraph as the potential title
+
+            # Check if the title contains the reading section start tag
             if self.tags["reading"]["begin"] in title:
-                title = title.replace(self.tags["reading"]["begin"], "")
-                in_reading_section = True
-                index += 1
-            title = title.strip()
-            # check if this is a two-line title
+                title = title.replace(self.tags["reading"]["begin"], "")  # Remove the start tag from the title
+                in_reading_section = True  # Mark that we are now in the reading section
+                index += 1  # increment the index
+
+            title = title.strip()  # Remove leading/trailing whitespace from the title
+
+            # Check if this is a two-line title (title spans over two paragraphs)
             if len(paragraphs) > 1:
-                second_paragraph = paragraphs[1]
-                # check if the second paragraph is also part of the title.
+                second_paragraph = paragraphs[1]  # Get the second paragraph
+
+                # Check if the second paragraph is also part of the title (indicated by bold text)
                 if second_paragraph.runs and second_paragraph.runs[0].bold:
-                    title = title + "\n" + second_paragraph.text.strip()
-                    index += 1
-                    start_check_empty_paragraphs = 2
-        # skip empty paragraphs at top
-        while (start_check_empty_paragraphs > len(paragraphs) and paragraphs[start_check_empty_paragraphs].text
+                    title = title + "\n" + second_paragraph.text.strip()  # Append the text of the second paragraph to the title, separated by a newline (also strip this paragraph)
+                    index += 1  # Increment the index because we've processed an extra paragraph
+                    start_check_empty_paragraphs = 2  # set the index to the right value
+
+        # Skip empty paragraphs at the top of the reading section (if there is no title or two-line title)
+        while (start_check_empty_paragraphs < len(paragraphs) and paragraphs[start_check_empty_paragraphs].text == ""
                and not self.paragraph_content_contains_image(paragraphs[start_check_empty_paragraphs])):
-            start_check_empty_paragraphs += 1
-            index += 1
-        # return in_reading_section and index also, because they can have a different start-value
-        # based on whether there is a tile yes or no
+            start_check_empty_paragraphs += 1  # Move to the next paragraph
+            index += 1  # Increment the index because we've skipped a paragraph
+
+        # Return the results
+        # in_reading_section: indicates if we've identified a reading section
+        # index: the updated index (increased if a two-line title was found or if empty paragraphs were skipped)
+        # title.strip(): the extracted title (with leading/trailing whitespace removed), or None
         return in_reading_section, index, title.strip()
 
     def get_hymn_image(self, hymn_data, paragraph):
@@ -112,8 +163,17 @@ class SermonUtils:
                                             image_bytes = image_part.blob
                                             hymn_data.append({"text": None, "images": [image_bytes]})
 
-    def extract_paragraph_content(self, paragraph):
-        paragraph_data = {"text": paragraph.text, "images": []}
+    def _extract_image_embeds(self, paragraph):
+        """
+        Helper function to extract image embeds from a paragraph.
+
+        Args:
+            paragraph: The paragraph object (docx.paragraph.Paragraph).
+
+        Returns:
+            list: A list of image embed IDs (strings).
+        """
+        embeds = []
         for run in paragraph.runs:
             for drawing in run._element.xpath('.//w:drawing'):
                 for inline in drawing.xpath('.//wp:inline'):
@@ -125,26 +185,39 @@ class SermonUtils:
                                         embed = blip.get(
                                             '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
                                         if embed:
-                                            image_part = self.word_document.part.related_parts[embed]
-                                            image_bytes = image_part.blob
-                                            paragraph_data["images"].append(image_bytes)
+                                            embeds.append(embed)
+        return embeds
+
+    def extract_paragraph_content(self, paragraph):
+        """
+        Extracts the text content and images (as bytes) from a paragraph.
+
+        Args:
+            paragraph: The paragraph object (docx.paragraph.Paragraph).
+
+        Returns:
+            dict: A dictionary containing the paragraph text and a list of image bytes.
+        """
+        paragraph_data = {"text": paragraph.text, "images": []}
+        embeds = self._extract_image_embeds(paragraph)
+        for embed in embeds:
+            image_part = self.word_document.part.related_parts[embed]
+            image_bytes = image_part.blob
+            paragraph_data["images"].append(image_bytes)
         return paragraph_data
 
     def paragraph_content_contains_image(self, paragraph):
-        retValue = False
-        for run in paragraph.runs:
-            for drawing in run._element.xpath('.//w:drawing'):
-                for inline in drawing.xpath('.//wp:inline'):
-                    for graphic in inline.xpath('.//a:graphic'):
-                        for graphicData in graphic.xpath('.//a:graphicData'):
-                            for pic in graphicData.xpath('.//pic:pic'):
-                                for blipfill in pic.xpath('.//pic:blipFill'):
-                                    for blip in blipfill.xpath('.//a:blip'):
-                                        embed = blip.get(
-                                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-                                        if embed:
-                                            retValue = True
-        return retValue
+        """
+        Checks if a paragraph contains any images.
+
+        Args:
+            paragraph: The paragraph object (docx.paragraph.Paragraph).
+
+        Returns:
+            bool: True if the paragraph contains at least one image, False otherwise.
+        """
+        embeds = self._extract_image_embeds(paragraph)
+        return len(embeds) > 0
 
     def calculate_text_height(self, text, font_size):
         """
