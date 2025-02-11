@@ -118,7 +118,6 @@ class SermonCreate:
             print("Error: PowerPoint presentation not initialized.")
             return
 
-        slide_layout = self.powerpoint_presentation.slide_layouts[0]
         slide = self.add_slide(template_id)
 
         # Set the title
@@ -148,7 +147,6 @@ class SermonCreate:
             print("Error: PowerPoint presentation not initialized.")
             return
 
-        slide_layout = self.powerpoint_presentation.slide_layouts[0]
         slide = self.add_slide("slide-layout-offering")
 
         # Set the content
@@ -178,7 +176,6 @@ class SermonCreate:
             print("Error: PowerPoint presentation not initialized.")
             return
 
-        slide_layout = self.powerpoint_presentation.slide_layouts[0]
         slide = self.add_slide(template_id)
 
         # Set the title
@@ -280,9 +277,9 @@ class SermonCreate:
         Args:
             slide_layout (layout-from-template): The layout that is used.
         """
-        print(slide_layout_code)
+
         slide_layout = self.settings.get_setting(slide_layout_code)
-        print(slide_layout)
+
         # layout = None
         # for layout_idx, slide_layout1 in enumerate(self.powerpoint_presentation.slide_layouts):
         #     if layout_idx == slide_layout:
@@ -296,6 +293,5 @@ class SermonCreate:
         """
         create empty slide based on default empty template-slide
         """
-        slide_layout = self.powerpoint_presentation.slide_layouts[0]
         self.add_slide("slide-layout-empty")
 

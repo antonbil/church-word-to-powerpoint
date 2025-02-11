@@ -410,10 +410,10 @@ class SermonUtils:
         # Set the shadow
         shadow = border_shape.shadow
         #shadow.inherit = True
-        print(shadow)
+        #print(shadow)
         # Create a shadow
 
-        shadow.visible
+        # shadow.visible
 
     def set_title(self, slide, title_text, custom_formatter=None):
         """
