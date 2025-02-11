@@ -117,8 +117,8 @@ class SermonCreate:
                 template_id = template_id + "-no-title"
 
             # find second placeholder
-            i = 0
-            for p in slide.placeholders:
+
+            for i, p in enumerate(slide.placeholders):
                 if i==1:
                     p.text = reading["text"]
                     # Set content text color to white
@@ -126,7 +126,7 @@ class SermonCreate:
                         self.set_text_appearance(paragraph)
                     # set the text at the top:
                     p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
-                i = i + 1
+
         self.create_empty_slide()
 
     def create_outro_slides(self, date, parson, template_id, performed_piece = None):
