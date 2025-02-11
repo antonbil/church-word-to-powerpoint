@@ -17,6 +17,12 @@ class SermonCreate:
             hymn_data (list): A list of dictionaries containing hymn data (text and images).
         """
         print("add hymn-data")
+        #create hymn-data to make code more clear
+        image_list = [h["images"][0]for h in hymn_data if len(h["images"]) > 0]
+        hymn_parts = [hymn["text"] for hymn in hymn_data if hymn["text"]]
+        #local function to get the number of lines in a string
+        def get_number_lines(string):
+            return len(string.split("\n"))
         template_id = "slide-layout-lied"
         original_template_id = template_id
         if not self.powerpoint_presentation:
@@ -24,64 +30,51 @@ class SermonCreate:
             return
         is_first_slide = True
 
-        image_list = [h["images"][0]for h in hymn_data if len(h["images"]) > 0]
+        song_length_first = self.settings.get_setting("powerpoint-hymn-song-length-first")
+        song_length_first_image = self.settings.get_setting("powerpoint-hymn-song-length-first-image")
+        song_length_rest = self.settings.get_setting("powerpoint-hymn-song-length-rest")
+        current_song_length = song_length_first
+        current_length = 0
+
         image = None
         if len(image_list) > 0:
             image = image_list[0]
             template_id = template_id + "-image"
+            current_song_length = song_length_first_image
 
-        last_bottom = 0
-        previous_text = None
-        created_shape = None
-        for hymn in hymn_data:
-            if not hymn["text"]:
-                continue
-            if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
-                print("get hymn-template", template_id)
+        for hymn_part in hymn_parts:
+            if get_number_lines(hymn_part) + current_length > current_song_length or is_first_slide:
                 slide = self.add_slide(template_id)
+                if not is_first_slide:
+                    current_song_length = song_length_rest
 
             # Add title (only on the first slide)
             if title and is_first_slide:
                 self.set_title(slide, title)
 
-                is_first_slide = False
-                template_id = original_template_id + "-no-title"
+            is_first_slide = False
+            template_id = original_template_id + "-no-title"
 
-            # add content (only image or text)
+            # add image to slide if it exists
             if image:
-                # Image formatting
-                created_shape = self._add_image_to_slide(image, slide)
-                last_bottom = created_shape.top + created_shape.height
-                #previous_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                # Image creation and formatting
+                self._add_image_to_slide(image, slide)
                 image = None
-            else:
-                last_bottom = 0
 
-            if hymn["text"]:
-                i = 0
-                for p in slide.placeholders:
-                    if i==1:
-                        if last_bottom > 0 and len(hymn["text"].split("\n")) < 7:
-                            # left = p.left
-                            # p.top = p.top + last_bottom - 400000
-                            # print("top",p.top)
-                            # p.left = left
-                            previous_text = None
-                            p.text = hymn["text"]
-                        else:
-                            if previous_text:
-                                p.text = p.text + "\n\n" + hymn["text"]
-                                previous_text = None
-                            else:
-                                p.text = hymn["text"]
-                                previous_text = p
-                        # Set content text color to white
-                        for paragraph in p.text_frame.paragraphs:
-                            self.set_text_appearance(paragraph)
-                        # set the text at the top:
-                        p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
-                        last_bottom = 0
-                    i = i + 1
+            # add hymn-part to slide
+            for i, p in enumerate(slide.placeholders):
+                if i==1:
+                    if get_number_lines(hymn_part) + current_length > current_song_length:
+                        p.text = hymn_part
+                    else:
+                        p.text = (p.text + "\n\n" + hymn_part).strip()
+                    current_length = get_number_lines(p.text)
+
+                    # Set content text appearance
+                    for paragraph in p.text_frame.paragraphs:
+                        self.set_text_appearance(paragraph)
+                    # set the text at the top:
+                    p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
         self.create_empty_slide()
 
     def create_reading_slides(self, title, reading_data):
