@@ -171,7 +171,7 @@ class SermonCreate:
         Args:
             intro_data (dict): The data of the intro (dict).
         """
-        print("create_intro_slides")
+        print("create_intro_slide")
         if not self.powerpoint_presentation:
             print("Error: PowerPoint presentation not initialized.")
             return
@@ -186,7 +186,7 @@ class SermonCreate:
 
         performed_piece = ""
         intro_template = self.settings.get_setting('powerpoint-intro_template')
-        print(intro_data)
+
         for id in ["date", "parson", "theme", "organist"]:
             try:
                 index = intro_template.index("{" + id + "}")
@@ -202,15 +202,20 @@ class SermonCreate:
                         intro_template.pop(index - 1)
             except ValueError:
                 pass
-        print(intro_template)
+
         # Set the content
         intro_lines = intro_template
         if "performed_piece" in intro_data:
             performed_piece = intro_data['performed_piece']
         content_text = "\n".join(intro_lines)
 
+        def extra_layout_func(paragraph, line_number):
+            font_size = self.settings.get_setting('powerpoint-intro_font_size')
+            paragraph.font.size = Pt(font_size)
+            paragraph.font.italic = True
+            paragraph.font.bold = False
         #add content to slide
-        self.format_placeholder_text(1, content_text, slide)
+        self.format_placeholder_text(1, content_text, slide, extra_layout_func)
 
         # set title to performed_piece
         if performed_piece and performed_piece_in_title:

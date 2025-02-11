@@ -238,6 +238,7 @@ class SermonExtract:
         def add_line_function(paragraph, current_text, _):
             current_text.append(paragraph.text.strip())
         intro_text = self. _extract_section_text("intro", add_line_function = add_line_function)
+        current_text = intro_text.split("\n")
 
         sermon = self.settings.get_setting('word-intro-date_label')
         # Extract date

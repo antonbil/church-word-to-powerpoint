@@ -88,6 +88,7 @@
   "illustration-image_left": 0.1,
   "illustration-image_top": 1,
 
+  "powerpoint-intro_font_size": 15,
   "powerpoint-title_font_type": "Arial",
   "powerpoint-title_font_size": 21,
   "powerpoint-content_font_type": "Arial",
@@ -97,7 +98,7 @@
     "green": 255,
     "blue": 255
   },
-  "powerpoint-intro_template":["{date}","", "","Voorganger:","{parson}", "","","Thema:", "{theme}", "", "","Organist:", "{organist}"],
+  "powerpoint-intro_template":["{date}","", "Voorganger:","{parson}", "", "","","Thema:", "{theme}", "","Organist:", "{organist}"],
   "powerpoint-outro_title": "Koorkerkgemeenschap\nMiddelburg",
   "powerpoint-outro_next_service_line": "Volgende viering",
   "powerpoint-outro_parson_line": "Voorganger",
