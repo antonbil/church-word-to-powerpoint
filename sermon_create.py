@@ -18,6 +18,7 @@ class SermonCreate:
         """
         print("add hymn-data")
         template_id = "slide-layout-lied"
+        original_template_id = template_id
         if not self.powerpoint_presentation:
             print("Error: PowerPoint presentation not initialized.")
             return
@@ -27,6 +28,7 @@ class SermonCreate:
         image = None
         if len(image_list) > 0:
             image = image_list[0]
+            template_id = template_id + "-image"
 
         last_bottom = 0
         previous_text = None
@@ -35,6 +37,7 @@ class SermonCreate:
             if not hymn["text"]:
                 continue
             if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
+                print("get hymn-template", template_id)
                 slide = self.add_slide(template_id)
 
             # Add title (only on the first slide)
@@ -42,7 +45,7 @@ class SermonCreate:
                 self.set_title(slide, title)
 
                 is_first_slide = False
-                template_id = template_id + "-no-title"
+                template_id = original_template_id + "-no-title"
 
             # add content (only image or text)
             if image:
@@ -59,10 +62,10 @@ class SermonCreate:
                 for p in slide.placeholders:
                     if i==1:
                         if last_bottom > 0 and len(hymn["text"].split("\n")) < 7:
-                            left = p.left
-                            p.top = p.top + last_bottom - 400000
-                            print("top",p.top)
-                            p.left = left
+                            # left = p.left
+                            # p.top = p.top + last_bottom - 400000
+                            # print("top",p.top)
+                            # p.left = left
                             previous_text = None
                             p.text = hymn["text"]
                         else:
