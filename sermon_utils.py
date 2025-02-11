@@ -346,7 +346,7 @@ class SermonUtils:
 
         return new_slide
 
-    def _add_image_to_slide(self, image_data, slide):
+    def _add_image_to_slide(self, image_data, slide, setting_id = "hymn"):
         """Adds an image to a slide with border and shadow.
 
         This function adds an image to the specified slide using the given image data
@@ -358,10 +358,10 @@ class SermonUtils:
             slide (pptx.slide.Slide): The slide object to which the image will be added.
         """
         # Get image dimensions and position from settings
-        image_width = Inches(self.settings.get_setting("powerpoint-image_width"))  # Get the image width in inches
-        image_height = Inches(self.settings.get_setting("powerpoint-image_height"))  # Get the image height in inches
-        image_left = Inches(self.settings.get_setting("powerpoint-image_left"))  # Get the image left position in inches
-        image_top = Inches(self.settings.get_setting("powerpoint-image_top"))  # Get the image top position in inches
+        image_width = Inches(self.settings.get_setting(setting_id + "-image_width"))  # Get the image width in inches
+        image_height = Inches(self.settings.get_setting(setting_id + "-image_height"))  # Get the image height in inches
+        image_left = Inches(self.settings.get_setting(setting_id + "-image_left"))  # Get the image left position in inches
+        image_top = Inches(self.settings.get_setting(setting_id + "-image_top"))  # Get the image top position in inches
 
         # Convert image data to BytesIO object for PowerPoint
         image_stream = io.BytesIO(image_data)

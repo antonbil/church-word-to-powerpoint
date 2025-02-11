@@ -223,14 +223,13 @@ class SermonCreate:
             return
 
         if image_data is not None:
-            slide_layout = self.powerpoint_presentation.slide_layouts[0]
             slide = self.add_slide("slide-layout-intro-2")
             # Remove the title-placeholder
             for shp in slide.placeholders:
                 if shp.name.startswith(self.settings.get_setting("placeholder-title-name")):
                     sp = shp.element
                     sp.getparent().remove(sp)
-            self._add_image_to_slide(image_data, slide)
+            self._add_image_to_slide(image_data, slide, setting_id = "illustration")
 
             self.create_empty_slide()
 
