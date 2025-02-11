@@ -21,7 +21,6 @@ class SermonCreate:
             print("Error: PowerPoint presentation not initialized.")
             return
         template_id_new = template_id
-        slide_layout = self.powerpoint_presentation.slide_layouts[0]  # Assuming you want to use the first slide layout from the template
         is_first_slide = True
 
         last_bottom = 0
@@ -66,6 +65,44 @@ class SermonCreate:
                         p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
                         last_bottom = 0
                     i = i + 1
+        self.create_empty_slide()
+
+    def create_reading_slides(self, title, reading_data):
+        """
+        Creates PowerPoint slides for the reading sections using a template.
+
+        Args:
+            title (str): The title of the reading section (or None if no title).
+            reading_data (list): A list of dictionaries containing reading data (text and images).
+        """
+        print("add reading-data")
+        template_id = "slide-layout-reading"
+        if not self.powerpoint_presentation:
+            print("Error: PowerPoint presentation not initialized.")
+            return
+        is_first_slide = True
+
+        for reading in reading_data:
+            slide = self.add_slide(template_id)
+
+            # Add title (only on the first slide)
+            if title and is_first_slide:
+                self.set_title(slide, title)
+
+                is_first_slide = False
+                template_id = template_id + "-no-title"
+
+            # find second placeholder
+            i = 0
+            for p in slide.placeholders:
+                if i==1:
+                    p.text = reading["text"]
+                    # Set content text color to white
+                    for paragraph in p.text_frame.paragraphs:
+                        self.set_text_appearance(paragraph)
+                    # set the text at the top:
+                    p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+                i = i + 1
         self.create_empty_slide()
 
     def create_outro_slides(self, date, parson, template_id, performed_piece = None):

@@ -114,7 +114,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                     elif self.current_tag == "reading":
                         title, reading_data = self.extract_reading_section(paragraphs[self.current_paragraph_index:])
                         # print(reading_data)
-                        self.create_hymn_slides(title, reading_data, "slide-layout-reading")
+                        self.create_reading_slides(title, reading_data)
                     elif self.current_tag == "outro":
                         date, parson, performed_piece = self.extract_outro_section(paragraphs[self.current_paragraph_index:])
                         # print(date, parson)
