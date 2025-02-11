@@ -356,6 +356,8 @@ class SermonUtils:
         Args:
             image_data (bytes): The image data in bytes.
             slide (pptx.slide.Slide): The slide object to which the image will be added.
+        Returns:
+            image: The image created, or None if error.
         """
         # Get image dimensions and position from settings
         image_width = Inches(self.settings.get_setting(setting_id + "-image_width"))  # Get the image width in inches
@@ -372,10 +374,12 @@ class SermonUtils:
 
             # Add a rectangle shape behind the picture to create a border and shadow effect
             self.add_border_and_shadow(slide, picture)
+            return picture
 
         except Exception as e:
             # Handle any exceptions that occur during image addition
             print(f"An error occurred while adding the picture: {e}")
+            return None
 
     def add_border_and_shadow(self, slide, picture):
         """Adds a border and a shadow to the picture.

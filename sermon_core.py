@@ -100,7 +100,7 @@ class Sermon(SermonExtract, SermonCreate, SermonUtils):
                     # Process the current section
                     if self.current_tag == "hymn":
                         title, hymn_data = self.extract_hymn_section(paragraphs[self.current_paragraph_index:])
-                        self.create_hymn_slides(title, hymn_data, "slide-layout-lied")
+                        self.create_hymn_slides(title, hymn_data)
                     elif self.current_tag == "offering":
                         offering_data = self.extract_offering_section(paragraphs[self.current_paragraph_index:])
                         self.create_offering_slides(offering_data)

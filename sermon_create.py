@@ -8,7 +8,7 @@ class SermonCreate:
     """
     Contains the methods for creating PowerPoint slides.
     """
-    def create_hymn_slides(self, title, hymn_data, template_id):
+    def create_hymn_slides(self, title, hymn_data):
         """
         Creates PowerPoint slides for the hymn sections using a template.
 
@@ -17,37 +17,51 @@ class SermonCreate:
             hymn_data (list): A list of dictionaries containing hymn data (text and images).
         """
         print("add hymn-data")
+        template_id = "slide-layout-lied"
         if not self.powerpoint_presentation:
             print("Error: PowerPoint presentation not initialized.")
             return
-        template_id_new = template_id
         is_first_slide = True
+
+        image_list = [h["images"][0]for h in hymn_data if len(h["images"]) > 0]
+        image = None
+        if len(image_list) > 0:
+            image = image_list[0]
 
         last_bottom = 0
         previous_text = None
+        created_shape = None
         for hymn in hymn_data:
+            if not hymn["text"]:
+                continue
             if not (last_bottom > 0 and hymn["text"]) and not (previous_text and hymn["text"]):
-                slide = self.add_slide(template_id_new)
+                slide = self.add_slide(template_id)
 
             # Add title (only on the first slide)
             if title and is_first_slide:
                 self.set_title(slide, title)
 
                 is_first_slide = False
-                template_id_new = template_id + "-no-title"
+                template_id = template_id + "-no-title"
 
             # add content (only image or text)
-            if len(hymn["images"]) > 0:
+            if image:
                 # Image formatting
-                self._add_image_to_slide(hymn["images"][0], slide)
+                created_shape = self._add_image_to_slide(image, slide)
+                last_bottom = created_shape.top + created_shape.height
+                #previous_text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                image = None
+            else:
+                last_bottom = 0
 
-            elif hymn["text"]:
+            if hymn["text"]:
                 i = 0
                 for p in slide.placeholders:
                     if i==1:
-                        if last_bottom > 0:
+                        if last_bottom > 0 and len(hymn["text"].split("\n")) < 7:
                             left = p.left
-                            p.top = p.top + last_bottom - 200
+                            p.top = p.top + last_bottom - 400000
+                            print("top",p.top)
                             p.left = left
                             previous_text = None
                             p.text = hymn["text"]
