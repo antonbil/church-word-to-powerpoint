@@ -67,6 +67,18 @@ class SermonExtract:
                 str: The modified text, or the original text if it didn't start with the title.
             """
         # workaround because the title of the reading sometimes is repeated as the first line of the content
+        title = title.strip()
+        text = text.strip()
+        text_lines = text.split("\n")
+        title_lines = title.split("\n")
+        # check if text_lines start with title_lines
+        # if so: remove title_lines from text_lines
+        if len(title_lines) > 0 and len(text_lines) >= len(title_lines):
+            if text_lines[:len(title_lines)] == title_lines:
+                text_lines = text_lines[len(title_lines):]
+
+        text = "\n".join(text_lines)
+
         if text.startswith(title):
             # Find the first newline character
             first_newline_index = text.find('\n')
@@ -101,63 +113,106 @@ class SermonExtract:
         offering_data = {"offering_goal": offering_goal, "bank_account_number": bank_account_number}
         return offering_data
 
-    def _extract_section_text(self, section_name, add_line_function = None, outro_data = None, add_image_function = None):
+    def _extract_section_text(self, section_name, add_line_function=None, outro_data=None, add_image_function=None):
         """
-        Extracts text from a specified section in the Word document.
+        Extracts text content from a specified section within the Word document.
+
+        This method identifies the start and end of a named section within the
+        Word document based on predefined tags and processes each paragraph
+        within that section. It supports optional functions for processing each line of
+        text and for handling images found within paragraphs.
 
         Args:
             section_name (str): The name of the section to extract text from (e.g., "offering").
+                                 This name should correspond to a key in the `self.tags` dictionary,
+                                 which contains the "begin" and "end" tags for the section.
+            add_line_function (callable, optional): A function that processes each line of text
+                                                     within the section. It takes three arguments:
+                                                     - paragraph (docx.text.paragraph.Paragraph): The current paragraph object.
+                                                     - current_text (list): The accumulating list of text lines.
+                                                     - outro_data: Additional data passed from the caller.
+                                                     Defaults to None. If None, no processing is done on the line.
+            outro_data: Additional data passed to add_line_function.
+            add_image_function (callable, optional): A function that processes an image when found in a
+                                                      paragraph within the section. It takes two arguments:
+                                                      - image_data: The data of the image.
+                                                      - outro_data: Additional data passed from the caller.
+                                                      Defaults to None. If None, no image processing is done.
 
         Returns:
-            list: A list of strings, where each string is a cleaned line of text from the section.
-            int: the index of the last processed paragraph.
-        """
-        current_text = []
-        in_section = False
-        new_index = 0
-        index = -1
+            str: A string containing all the extracted text from the section, with each line separated by a newline character (`\n`).
+                 Returns an empty string if the section is not found or contains no text.
 
+        Raises:
+            ValueError: If the `section_name` is not a valid key in `self.tags`.
+
+        Attributes:
+            self.word_document (docx.document.Document): The Word document object.
+            self.current_paragraph_index (int): The index of the current paragraph being processed in the document.
+            self.num_paragraphs (int): The total number of paragraphs in the document.
+            self.tags (dict): A dictionary containing start and end tags for each section. Each key is a section name,
+                              and each value is another dict containing "begin" and "end" keys with their respective tag strings.
+        """
+        if section_name not in self.tags:
+            raise ValueError(f"The section_name should be one of {self.tags.keys()}, but is {section_name}")
+        current_text = []  # Accumulator for lines of text in the section
+        in_section = False  # Flag to indicate if the current paragraph is inside the section
+        new_index = 0  # Keeps track of how many paragraphs have been read within the section
+        index = -1  # Used to look ahead through paragraphs (starts at -1 because it increments before first use)
+
+        # Iterate through paragraphs until the end of the document is reached
         while self.current_paragraph_index + index < self.num_paragraphs - 1:
             index += 1
+            # Get the current paragraph to process
             paragraph = self.word_document.paragraphs[self.current_paragraph_index + index]
 
+            # Check if the current paragraph is the start of the section
             if self.tags[section_name]["begin"] in paragraph.text:
-                # A new section has started
-                in_section = True
+                in_section = True  # Start of the section found
+                # get the text after the section-tag
                 t = paragraph.text.split(self.tags[section_name]["begin"])[-1]
                 if t and add_line_function:
+                    # remove the tag from the text
                     paragraph.text = t
+                    # Process the part of the text after the tag
                     add_line_function(paragraph, current_text, outro_data)
-                continue
+                continue  # Move to the next paragraph
 
+            # Check if the current paragraph is the end of the section
             if self.check_end_tag(section_name, paragraph):
-                # End tag found for the section
-                in_section = False
+                in_section = False  # Section end tag found
                 new_index = index
-                break
+                break  # Exit loop
 
+            # Check for empty lines outside of section
             if len(paragraph.text.strip()) == 0 and not in_section:
-                # Empty line outside the section, skip it
                 new_index = index
-                continue
+                continue  # Skip empty line
 
+            # Check for text outside the section (means the section ended)
             if len(paragraph.text.strip()) > 0 and not in_section:
-                # Text found outside the section, so the section is finished
                 new_index = index
-                break
+                break  # Section finished
 
+            # Process the text within the section
             if in_section:
                 if len(paragraph.text) > 0 and add_line_function:
+                    # Process the line with the add_line_function
                     add_line_function(paragraph, current_text, outro_data)
 
                 new_index = index
                 if add_image_function and self.paragraph_content_contains_image(paragraph):
+                    # Process images in the paragraph with the add_image_function
+                    # Extract and process the image
                     add_image_function(self.extract_paragraph_content(paragraph)["images"][0], outro_data)
+
+        # Join the lines together into a single text string separated by newlines
         current_text = "\n".join(current_text)
+
+        # Update the current paragraph index to after the end of the section
         self.current_paragraph_index = self.current_paragraph_index + new_index
 
         return current_text
-
 
     def extract_intro_section(self, paragraphs):
         """
@@ -270,25 +325,22 @@ class SermonExtract:
         # check if the reading-section has a title:
         if len(paragraphs) > 0:
             in_reading_section, index, title = self.get_reading_title(index, paragraphs)
+            # self.current_paragraph_index += index - 1
 
         def add_line_function(paragraph, current_text, _):
             cleaned_line = re.sub(r' {5,}', '\n', paragraph.text.strip())
             current_text.append(cleaned_line)
-        full_text = self. _extract_section_text("reading", add_line_function = add_line_function)
+        full_text = self. _extract_section_text("reading", add_line_function = add_line_function).strip()
         # workaround because the title of the reading sometimes is repeated as the first line of the content
         full_text = self.remove_title_from_text(full_text, title).strip()
 
-        lines = full_text.split('\n')
+        parts = self.split_text_for_powerpoint(full_text)
+        for part in parts:
+            reading_data.append({"text": part})
 
-        if len(lines) > self.max_reading_lines:
-            parts = [lines[i:i + self.max_reading_lines] for i in range(0, len(lines), self.max_reading_lines)]
-            for part in parts:
-                reading_data.append({"text": "\n".join(part), "images": []})
-        else:
-            reading_data.append({"text": full_text, "images": []})
         return title, reading_data
 
-    def split_text_for_powerpoint(self, text, max_line_length=55, max_lines=15):
+    def split_text_for_powerpoint(self, text, max_line_length=50, max_lines=14):
         """Splits a long text string into chunks that fit into PowerPoint text boxes.
 
         Args:
@@ -329,7 +381,7 @@ class SermonExtract:
             last_chunk = '\n'.join(current_chunk_lines)
             last_newline_index = last_chunk.rfind('\n')
 
-            if last_newline_index != -1:
+            if last_newline_index != -1 and len(current_chunk_lines)==max_lines:
                 text_chunks.append(last_chunk[:last_newline_index])
                 text_chunks.append(last_chunk[last_newline_index + 1:])
             else:
