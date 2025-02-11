@@ -15,34 +15,48 @@ class SermonCreate:
         Args:
             title (str): The title of the hymn section (or None if no title).
             hymn_data (list): A list of dictionaries containing hymn data (text and images).
+                          Each dictionary should have keys like "text" (str) and "images" (list).
         """
         print("add hymn-data")
         #create hymn-data to make code more clear
+        image = None
         image_list = [h["images"][0]for h in hymn_data if len(h["images"]) > 0]
+        if len(image_list) > 0:
+            image = image_list[0]
         hymn_parts = [hymn["text"] for hymn in hymn_data if hymn["text"]]
-        #local function to get the number of lines in a string
-        def get_number_lines(string):
-            return len(string.split("\n"))
-        template_id = "slide-layout-lied"
-        original_template_id = template_id
-        if not self.powerpoint_presentation:
-            print("Error: PowerPoint presentation not initialized.")
-            return
-        is_first_slide = True
 
+        # Constants and settings
+        template_id = "slide-layout-lied"
         song_length_first = self.settings.get_setting("powerpoint-hymn-song-length-first")
         song_length_first_image = self.settings.get_setting("powerpoint-hymn-song-length-first-image")
         song_length_rest = self.settings.get_setting("powerpoint-hymn-song-length-rest")
+
+        # Early exit if no powerpoint.
+        if not self.powerpoint_presentation:
+            print("Error: PowerPoint presentation not initialized.")
+            return
+        # Early exit if there are no hymn parts.
+        if not image and not hymn_parts:
+            print("Warning: No hymn text and image found in hymn_data.")
+            return
+
+        #local function to get the number of lines in a string
+        def get_number_lines(string):
+            return len(string.split("\n"))
+
+        original_template_id = template_id
+
+        is_first_slide = True
+
         current_song_length = song_length_first
         current_length = 0
 
-        image = None
-        if len(image_list) > 0:
-            image = image_list[0]
+        if image:
             template_id = template_id + "-image"
             current_song_length = song_length_first_image
 
         for hymn_part in hymn_parts:
+            # check if new slide is needed
             if get_number_lines(hymn_part) + current_length > current_song_length or is_first_slide:
                 slide = self.add_slide(template_id)
                 if not is_first_slide:
@@ -62,19 +76,19 @@ class SermonCreate:
                 image = None
 
             # add hymn-part to slide
-            for i, p in enumerate(slide.placeholders):
+            for i, placeholder in enumerate(slide.placeholders):
                 if i==1:
                     if get_number_lines(hymn_part) + current_length > current_song_length:
-                        p.text = hymn_part
+                        placeholder.text = hymn_part
                     else:
-                        p.text = (p.text + "\n\n" + hymn_part).strip()
-                    current_length = get_number_lines(p.text)
+                        placeholder.text = (placeholder.text + "\n\n" + hymn_part).strip()
+                    current_length = get_number_lines(placeholder.text)
 
                     # Set content text appearance
-                    for paragraph in p.text_frame.paragraphs:
+                    for paragraph in placeholder.text_frame.paragraphs:
                         self.set_text_appearance(paragraph)
                     # set the text at the top:
-                    p.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+                    placeholder.text_frame.vertical_anchor = MSO_ANCHOR.TOP
         self.create_empty_slide()
 
     def create_reading_slides(self, title, reading_data):
