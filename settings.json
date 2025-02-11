@@ -89,6 +89,8 @@
   "illustration-image_top": 1,
 
   "powerpoint-intro_font_size": 15,
+  "powerpoint-offering_font_size": 18,
+  "powerpoint-outro_font_size": 18,
   "powerpoint-title_font_type": "Arial",
   "powerpoint-title_font_size": 21,
   "powerpoint-content_font_type": "Arial",

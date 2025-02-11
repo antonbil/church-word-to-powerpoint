@@ -124,16 +124,24 @@ class SermonCreate:
         title_text = self.settings.get_setting("powerpoint-outro_title")
         if performed_piece:
             title_text = performed_piece
+
         def extra_layout_func(paragraph, line_number):
             paragraph.alignment = PP_ALIGN.CENTER
 
         self.set_title(slide, title_text, extra_layout_func)
 
+        def content_layout_func(paragraph, line_number):
+            paragraph.alignment = PP_ALIGN.CENTER
+            font_size = self.settings.get_setting('powerpoint-outro_font_size')
+            paragraph.font.size = Pt(font_size)
+            paragraph.font.italic = True
+            paragraph.font.bold = False
+
         # Set the content
         next_service_line = self.settings.get_setting("powerpoint-outro_next_service_line")
         parson_line = self.settings.get_setting("powerpoint-outro_parson_line") #new
         content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}"
-        self.format_placeholder_text(1, content_text, slide)
+        self.format_placeholder_text(1, content_text, slide, content_layout_func)
 
     def create_offering_slides(self, offering_data):
         """
@@ -152,7 +160,7 @@ class SermonCreate:
         # Set the content
         first_goal_label = self.settings.get_setting("powerpoint-offering_first_goal_label")
         second_goal_label = self.settings.get_setting("powerpoint-offering_second_goal_label")
-        output = [first_goal_label, offering_data['offering_goal' ], offering_data["bank_account_number" ], "\n", second_goal_label]
+        output = [first_goal_label, offering_data['offering_goal' ], offering_data["bank_account_number" ], "", second_goal_label]
         content_text = "\n".join(output)
         content_text_list = content_text.split("\n")
         empty_item = self.find_first_empty_string_index(content_text_list) + 2
@@ -160,6 +168,11 @@ class SermonCreate:
         # add content to slide
         def extra_layout_func(paragraph, line_number):
             paragraph.font.underline = (True if line_number == 0 or line_number == empty_item else False)
+            font_size = self.settings.get_setting('powerpoint-offering_font_size')
+            paragraph.font.size = Pt(font_size)
+            paragraph.font.italic = True
+            paragraph.font.bold = False
+
         self.format_placeholder_text(1, content_text, slide, extra_layout_func)
         self.create_empty_slide()
 
