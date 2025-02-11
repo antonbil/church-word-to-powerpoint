@@ -335,7 +335,9 @@ class SermonExtract:
         # workaround because the title of the reading sometimes is repeated as the first line of the content
         full_text = self.remove_title_from_text(full_text, title).strip()
 
-        parts = self.split_text_for_powerpoint(full_text)
+        max_characters_per_line = self.settings.get_setting("powerpoint-reading-max-characters-per-line")
+        max_lines_per_sheet = self.settings.get_setting("powerpoint-reading-max-lines-per-sheet")
+        parts = self.split_text_for_powerpoint(full_text, max_characters_per_line, max_lines_per_sheet)
         for part in parts:
             reading_data.append({"text": part})
 

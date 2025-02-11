@@ -104,6 +104,8 @@
   "powerpoint-hymn-song-length-first": 14,
   "powerpoint-hymn-song-length-first-image": 6,
   "powerpoint-hymn-song-length-rest": 16,
+  "powerpoint-reading-max-characters-per-line": 50,
+  "powerpoint-reading-max-lines-per-sheet": 14,
 
   "powerpoint-intro_template":["{date}","", "Voorganger:","{parson}", "", "","","Thema:", "{theme}", "","Organist:", "{organist}"],
   "powerpoint-outro_title": "Koorkerkgemeenschap\nMiddelburg",
