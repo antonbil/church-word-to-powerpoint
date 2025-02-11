@@ -97,14 +97,13 @@
     "green": 255,
     "blue": 255
   },
+  "powerpoint-intro_template":["{date}","", "","Voorganger:","{parson}", "","","Thema:", "{theme}", "", "","Organist:", "{organist}"],
   "powerpoint-outro_title": "Koorkerkgemeenschap\nMiddelburg",
   "powerpoint-outro_next_service_line": "Volgende viering",
   "powerpoint-outro_parson_line": "Voorganger",
   "powerpoint-offering_first_goal_label": "1e zak:\nDiaconie",
   "powerpoint-offering_second_goal_label": "2e zak:\nVereniging Koorkerk \nNL35 TRIO 0788 9579 29\nt.n.v. ‘Koorkerk’",
   "powerpoint-intro_title": "Koorkerkgemeenschap\nMiddelburg",
-  "powerpoint-intro_theme_line": "Thema",
-  "powerpoint-intro_organist_line": "Organist",
   "powerpoint-placeholder-title-name": "Title 1"
 
 }

@@ -185,16 +185,26 @@ class SermonCreate:
         self.set_title(slide, title_text, extra_layout_func)
 
         performed_piece = ""
+        intro_template = self.settings.get_setting('powerpoint-intro_template')
+        print(intro_data)
+        for id in ["date", "parson", "theme", "organist"]:
+            try:
+                index = intro_template.index("{" + id + "}")
+                if id in intro_data and index >= 0:
+                    intro_template[index] = intro_template[index].replace("{" + id + "}", intro_data[id])
+                else:
+                    intro_template.pop(index)  # Remove the placeholder
+                    if index > 0 and intro_template[index - 1].strip() != "":
+                        # Remove the heading-line if the previous line is not empty
+                        intro_template.pop(index - 1)
+                    elif index > 0:
+                        # remove the empty heading line
+                        intro_template.pop(index - 1)
+            except ValueError:
+                pass
+        print(intro_template)
         # Set the content
-        intro_lines = []
-        if "date" in intro_data:
-            intro_lines.append(f"{intro_data['date']}")
-        if "parson" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('powerpoint-outro_parson_line')}\n{intro_data['parson']}\n")
-        if "theme" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('powerpoint-intro_theme_line')}\n\"{intro_data['theme']}\"\n")
-        if "organist" in intro_data:
-            intro_lines.append(f"\n{self.settings.get_setting('powerpoint-intro_organist_line')}\n{intro_data['organist']}")
+        intro_lines = intro_template
         if "performed_piece" in intro_data:
             performed_piece = intro_data['performed_piece']
         content_text = "\n".join(intro_lines)
