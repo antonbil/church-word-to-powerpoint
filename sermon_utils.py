@@ -442,10 +442,6 @@ class SermonUtils:
             print("Error: No image placeholder found on the slide.")
             return
 
-        # Remove the existing picture if it exists
-        #if image_placeholder.has_image:
-        #    placeholder.image.delete()
-
         # Convert image data to BytesIO object for PowerPoint
         image_stream = io.BytesIO(image_data)
 
