@@ -101,6 +101,11 @@
     "green": 255,
     "blue": 255
   },
+  "powerpoint-image-border_color": {
+    "red": 50,
+    "green": 200,
+    "blue": 50
+  },
   "powerpoint-hymn-song-length-first": 14,
   "powerpoint-hymn-song-length-first-image": 6,
   "powerpoint-hymn-song-length-rest": 16,

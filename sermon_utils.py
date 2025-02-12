@@ -2,6 +2,7 @@
 import datetime
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.enum.dml import MSO_THEME_COLOR, MSO_LINE
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.oxml.ns import qn
@@ -408,7 +409,11 @@ class SermonUtils:
 
         # Set the border (line) properties
         line = border_shape.line
-        line.color.rgb = RGBColor(50, 200, 50)  # Black color
+        # Set the color of the line in the border
+        # get color "powerpoint-image-border_color" from settings
+        color = self.settings.get_setting("powerpoint-image-border_color")
+        # RGBColor expects red, green, and blue components as integers between 0 and 255
+        line.color.rgb = RGBColor(color["red"], color["green"], color["blue"])
         line.width = 12700  # 1 pt (1pt = 12700 emu)
         # Add a shadow to the shape
         # Set the shadow
@@ -418,6 +423,34 @@ class SermonUtils:
         # Create a shadow
 
         # shadow.visible
+
+    def replace_image_in_placeholder(self, slide, image_data):
+        """Replaces the content of an image placeholder on a slide with a new image.
+
+        Args:
+            slide (pptx.slide.Slide): The slide containing the image placeholder.
+            image_data (bytes): The new image data in bytes.
+        """
+        # find image-placeholder
+        image_placeholder = None
+        for placeholder in slide.placeholders:
+            if placeholder.placeholder_format.type == PP_PLACEHOLDER.PICTURE:
+                image_placeholder = placeholder
+                break
+
+        if not image_placeholder:
+            print("Error: No image placeholder found on the slide.")
+            return
+
+        # Remove the existing picture if it exists
+        #if image_placeholder.has_image:
+        #    placeholder.image.delete()
+
+        # Convert image data to BytesIO object for PowerPoint
+        image_stream = io.BytesIO(image_data)
+
+        # Add image to placeholder.
+        image_placeholder.insert_picture(image_stream)
 
     def set_title(self, slide, title_text, custom_formatter=None):
         """

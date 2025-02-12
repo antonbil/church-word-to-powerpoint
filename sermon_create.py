@@ -1,6 +1,7 @@
 # sermon_create.py
 from docx.shared import Pt
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.util import Pt
 
 
@@ -72,12 +73,13 @@ class SermonCreate:
             # add image to slide if it exists
             if image:
                 # Image creation and formatting
-                self._add_image_to_slide(image, slide)
+                # self._add_image_to_slide(image, slide)
+                self.replace_image_in_placeholder(slide, image)
                 image = None
 
             # add hymn-part to slide
             for i, placeholder in enumerate(slide.placeholders):
-                if i==1:
+                if placeholder.placeholder_format.type == PP_PLACEHOLDER.BODY:
                     if get_number_lines(hymn_part) + current_length > current_song_length:
                         placeholder.text = hymn_part
                     else:
@@ -119,7 +121,7 @@ class SermonCreate:
             # find second placeholder
 
             for i, p in enumerate(slide.placeholders):
-                if i==1:
+                if p.placeholder_format.type == PP_PLACEHOLDER.BODY:
                     p.text = reading["text"]
                     # Set content text color to white
                     for paragraph in p.text_frame.paragraphs:
