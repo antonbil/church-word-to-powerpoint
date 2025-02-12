@@ -109,10 +109,8 @@
 
   "powerpoint-intro_template":["{date}","", "Voorganger:","{parson}", "", "","","Thema:", "{theme}", "","Organist:", "{organist}"],
   "powerpoint-outro_title": "Koorkerkgemeenschap\nMiddelburg",
-  "powerpoint-outro_next_service_line": "Volgende viering",
-  "powerpoint-outro_parson_line": "Voorganger",
-  "powerpoint-offering_first_goal_label": "1e zak:\nDiaconie",
-  "powerpoint-offering_second_goal_label": "2e zak:\nVereniging Koorkerk \nNL35 TRIO 0788 9579 29\nt.n.v. ‘Koorkerk’",
+  "powerpoint-outro_template": ["Volgende viering","","{date}","","Voorganger","{parson}","","","Graag tot dan!"],
+  "powerpoint-offering_template": ["1e zak:","Diaconie","{offering_goal}","{bank_account_number}", "","2e zak:","Vereniging Koorkerk","NL35 TRIO 0788 9579 29","t.n.v. ‘Koorkerk’"],
   "powerpoint-intro_title": "Koorkerkgemeenschap\nMiddelburg",
   "powerpoint-placeholder-title-name": "Title 1"
 

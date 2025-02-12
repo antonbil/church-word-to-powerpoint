@@ -162,9 +162,11 @@ class SermonCreate:
             paragraph.font.bold = False
 
         # Set the content
-        next_service_line = self.settings.get_setting("powerpoint-outro_next_service_line")
-        parson_line = self.settings.get_setting("powerpoint-outro_parson_line") #new
-        content_text = f"{next_service_line}:\n\n{date} \n\n{parson_line}:\n{parson}"
+        outro_data = {"parson":parson, "date":date}
+        outro_template = self.settings.get_setting("powerpoint-outro_template")
+        fields = ["date", "parson"]
+        content_text = "\n".join(self.fill_template_with_data(fields, outro_data, outro_template))
+
         self.format_placeholder_text(1, content_text, slide, content_layout_func)
 
     def create_offering_slides(self, offering_data):
@@ -182,9 +184,10 @@ class SermonCreate:
         slide = self.add_slide("slide-layout-offering")
 
         # Set the content
-        first_goal_label = self.settings.get_setting("powerpoint-offering_first_goal_label")
-        second_goal_label = self.settings.get_setting("powerpoint-offering_second_goal_label")
-        output = [first_goal_label, offering_data['offering_goal' ], offering_data["bank_account_number" ], "", second_goal_label]
+        offering_template = self.settings.get_setting("powerpoint-offering_template")
+        fields = ["offering_goal", "bank_account_number"]
+        output = self.fill_template_with_data(fields, offering_data, offering_template)
+
         content_text = "\n".join(output)
         content_text_list = content_text.split("\n")
         empty_item = self.find_first_empty_string_index(content_text_list) + 2
@@ -224,21 +227,8 @@ class SermonCreate:
         performed_piece = ""
         intro_template = self.settings.get_setting('powerpoint-intro_template')
 
-        for id in ["date", "parson", "theme", "organist"]:
-            try:
-                index = intro_template.index("{" + id + "}")
-                if id in intro_data and index >= 0:
-                    intro_template[index] = intro_template[index].replace("{" + id + "}", intro_data[id])
-                else:
-                    intro_template.pop(index)  # Remove the placeholder
-                    if index > 0 and intro_template[index - 1].strip() != "":
-                        # Remove the heading-line if the previous line is not empty
-                        intro_template.pop(index - 1)
-                    elif index > 0:
-                        # remove the empty heading line
-                        intro_template.pop(index - 1)
-            except ValueError:
-                pass
+        fields = ["date", "parson", "theme", "organist"]
+        intro_template = self.fill_template_with_data(fields, intro_data, intro_template)
 
         # Set the content
         intro_lines = intro_template
@@ -258,6 +248,54 @@ class SermonCreate:
         if performed_piece and performed_piece_in_title:
             self.set_title(slide, performed_piece, extra_layout_func)
 
+    def fill_template_with_data(self, fields, data_dict, template_list):
+        """
+        Fills a template list with data from a dictionary.
+
+        This function iterates through a list of field names and attempts to replace
+        corresponding placeholders within a template list with values from a data
+        dictionary. If a field is not found in the data dictionary, the placeholder
+        and potentially the preceding "heading-line" are removed from the template.
+
+        Args:
+            fields (list): A list of field names (strings) to look for in the template.
+                           Example: ["date", "parson", "theme"]
+            data_dict (dict): A dictionary where keys are field names and values are
+                               the data to insert into the template.
+                               Example: {"date": "2024-01-28", "parson": "John Doe"}
+            template_list (list): A list of strings representing the template.
+                                   Placeholders are denoted by curly braces (e.g., "{date}").
+                                   Example: ["{date}", "", "Voorganger:", "{parson}"]
+
+        Returns:
+            list: The modified template list with placeholders replaced or removed.
+        """
+        for id in fields:
+            try:
+                # Try to find the index of the placeholder in the template
+                index = template_list.index("{" + id + "}")
+
+                # Check if the field is in intro_data and the index is valid
+                if id in data_dict and index >= 0:
+                    # Replace the placeholder with the data from intro_data
+                    template_list[index] = template_list[index].replace("{" + id + "}", data_dict[id])
+                else:
+                    # Field not in intro_data or index invalid, so remove the placeholder
+                    template_list.pop(index)  # Remove the placeholder
+
+                    # Check if there is a previous line and it's not empty
+                    if index > 0 and template_list[index - 1].strip() != "":
+                        # Remove the heading-line if the previous line is not empty
+                        template_list.pop(index - 1)
+                    elif index > 0:
+                        # remove the empty heading line
+                        template_list.pop(index - 1)
+
+            except ValueError:
+                # The placeholder was not found in the template, so skip it
+                pass
+
+        return template_list
 
     def create_illustration_slides(self, image_data):
         """
