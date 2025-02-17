@@ -107,14 +107,23 @@ This project automates the process of creating PowerPoint presentations for chur
 
 KeizerChess/
 ├── Sermon/ │
+
 ├── init.py │
+
 ├── main.py │
+
 ├── sermon_create.py │
+
 ├── sermon_extract.py │
+
 └── settings.json
+
 ├── my_presentation.pptx #the test-presentation file
+
 ├── README.md #this file
+
 └── input/
+
 └── input_file.docx #the input file
 
 ## Contributing
