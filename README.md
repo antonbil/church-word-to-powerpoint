@@ -106,6 +106,7 @@ This project automates the process of creating PowerPoint presentations for chur
 ## File Structure
 
 KeizerChess/
+
 ├── Sermon/ │
 
 ├── init.py │
